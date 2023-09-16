@@ -1,4 +1,4 @@
-package br.com.tt.painelpreco.view.dto;
+package br.com.tt.painelpreco.api.dto;
 
 import java.util.UUID;
 
@@ -7,9 +7,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SituacaoLicitacaoDTO {
+public class ModalidadeCompraDTO {
 	
 	private UUID uuid;
+	private Integer codigo;
 	private String nome;
 
 }

@@ -1,9 +1,11 @@
 package br.com.tt.painelpreco.domain.model;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,22 +24,25 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "orgao", schema = "painel")
 public class Orgao {
-	
-	@EqualsAndHashCode.Include
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_orgao")
 	private Integer id;
 	
-	private String nome;
+	@EqualsAndHashCode.Include
+	@Type(type = "uuid-char")
+	private UUID uuid;
 	
 	private Integer codigo;
 	
-	@ManyToOne
-	@JoinColumn(name = "superior_id")
-	private Orgao superior;
+	private String nome;
 	
-	@OneToMany(mappedBy = "superior")
+	@ManyToOne
+	@JoinColumn(name = "orgao_superior_id")
+	private Orgao orgaoSuperior;
+	
+	@OneToMany(mappedBy = "orgaoSuperior", fetch = FetchType.LAZY)
 	private List<Orgao> subOrgaos;
-
+	
 }

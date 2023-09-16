@@ -1,0 +1,23 @@
+Licitacao:
+	Ano da Compra (dataResultadoCompra)
+	Objeto da Compra (objeto)
+	Órgão Superior (orgaoSuperior)
+	Órgão (orgao)
+	UASG (unidadeGestora)
+	Modalidade da Compra (modalidadeCompra)
+	Período da Compra (periodoCompra -> derivado da dataResultadoCompra: )
+	[DADO INDISPONÍVEL] Forma da Compra (SISPP (preços praticados) ou o SISRP (menor preço))
+	[DADO INDISPONÍVEL] Esfera (esfera: Federal, Estadual e Municipal)
+
+ItemLicitacao;
+	Descrição do Item (descricao)
+	[DADO INDISPONÍVEL] Descrição Complementar
+	[DADO INDISPONÍVEL] Unidade de Fornecimento
+
+Material:
+	[DADO INDISPONÍVEL] Nome do Material (PDM - Padrão Descritivo de Materiais)
+	[DADO INDISPONÍVEL] Código Material
+	
+Fornecedor:
+	CNPJ/CPF/NOME do Fornecedor (documento)
+	[DADO INDISPONÍVEL] Porte da Empresa (Micro Empresa, Pequena Empresa, Não Informado, Não se Aplica, Outros)

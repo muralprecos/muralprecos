@@ -1,0 +1,106 @@
+package br.com.tt.painelpreco.arch.api.controller;
+
+import java.lang.reflect.Field;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.keycloak.representations.AccessToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import br.com.tt.painelpreco.arch.api.dto.DTO;
+import br.com.tt.painelpreco.arch.exception.ArchException;
+import br.com.tt.painelpreco.arch.infra.auth.Usuario;
+import br.com.tt.painelpreco.util.ReflectionUtil;
+
+public abstract class AbstractController {
+	
+	@Autowired
+	private ApplicationContext context;
+	
+	public Map<String, Object> dtoToMap(DTO dto) {
+		Map<String, Object> parameters = new HashMap<>();
+
+		Field[] fields = ReflectionUtil.getFields(dto.getClass());
+		for (Field field : fields) {
+			try {
+				field.setAccessible(true);
+				parameters.put(field.getName(), field.get(dto));
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				throw new ArchException(e);
+			}
+		}
+		
+		return parameters;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getBean(String nome) {
+		return (T) context.getBean(nome);
+	}
+	
+	public HttpSession getSession() {
+		ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+		return attr.getRequest().getSession(true);
+	}
+	
+	public void addAttrSession(String key, Object attr) {
+		getSession().setAttribute(key, attr);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getAttrSession(String key) {
+		return (T) getSession().getAttribute(key);
+	}
+	
+	public Principal getPrincipal() {
+	    KeycloakAuthenticationToken authentication = (KeycloakAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+	    return (Principal) authentication.getPrincipal();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public KeycloakPrincipal<KeycloakSecurityContext> getUserToken() {
+		try {
+			return (KeycloakPrincipal<KeycloakSecurityContext>) getPrincipal();
+		} catch (ClassCastException e) {
+			throw new ArchException("Usuário não foi autenticado no keycloak", e);
+		}
+	
+	}
+	
+	public Map<String, Object> getUserAttributes() {
+		return getUserToken().getKeycloakSecurityContext().getToken().getOtherClaims();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T getUserAtribute(String key) {
+		return (T) getUserAttributes().get(key);
+	}
+	
+	public KeycloakSecurityContext getKeyCloakContext() {
+		return getUserToken().getKeycloakSecurityContext();
+	}
+	
+	public AccessToken getAccessToken() {
+		return getKeyCloakContext().getToken();
+	}
+	
+	public Usuario getUsuario() {
+		try {
+			return new Usuario(getAccessToken().getPreferredUsername(), getAccessToken().getGivenName(), getAccessToken().getEmail());
+		} catch (NullPointerException e) {
+			return new Usuario();
+			// TODO: handle exception
+		}
+	}
+
+}

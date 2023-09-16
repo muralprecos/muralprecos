@@ -1,11 +1,17 @@
 package br.com.tt.painelpreco.domain.model;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,8 +28,17 @@ public class Fornecedor {
 	@Column(name = "id_fornecedor")
 	private Integer id;
 	
+	@Type(type = "uuid-char")
+	private UUID uuid;
+	
+	/** CNPJ/CPF/NOME do Fornecedor **/
 	private String documento;
 	
 	private String nome;
+	
+	/** Porte da Empresa (Micro Empresa, Pequena Empresa, Não Informado, Não se Aplica, Outros) **/
+	@ManyToOne
+	@JoinColumn(name = "porte_fornecedor_id")
+	private PorteFornecedor porte;
 
 }

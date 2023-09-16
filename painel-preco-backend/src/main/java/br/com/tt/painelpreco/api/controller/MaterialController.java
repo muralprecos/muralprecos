@@ -1,0 +1,36 @@
+package br.com.tt.painelpreco.api.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import br.com.tt.painelpreco.api.dto.FornecedorDTO;
+import br.com.tt.painelpreco.domain.model.Fornecedor;
+import br.com.tt.painelpreco.domain.service.FornecedorService;
+import br.com.tt.painelpreco.util.ApiVersion;
+import br.com.tt.painelpreco.util.ModelConverter;
+
+@RestController
+@RequestMapping(ApiVersion.LATEST + "/fornecedores")
+public class MaterialController {
+	
+	@Autowired
+	private FornecedorService fornecedoresService;
+	
+	@Autowired
+	private ModelConverter converter;
+	
+	@GetMapping
+	public Page<FornecedorDTO> listar(Pageable pageable) {
+		Page<Fornecedor> fornecedores = fornecedoresService.listaTodos(pageable);
+		List<FornecedorDTO> fornecedoresDTO = converter.toDTOCollection(fornecedores.getContent(), FornecedorDTO.class);
+		return new PageImpl<>(fornecedoresDTO, pageable, fornecedores.getTotalElements());
+	}
+
+}
