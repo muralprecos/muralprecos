@@ -8,6 +8,10 @@ API do Painel de Preço da [TT Soluções PI](ttsolucoes.com).
 
 ## Como executar (ambiente de desenvolvimento)?
 
+### Pré-requisitos:
+
+Ter o **Docker** e **Docker-compose** instalado na máquina. Segue link de instruções oficiais de instalação: [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/).
+
 ### 1. Clone o projeto:
 
 Clone o projeto e baixe a *branch* **master** por meio dos comandos abaixo:
