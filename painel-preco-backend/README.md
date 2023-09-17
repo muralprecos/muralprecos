@@ -14,11 +14,10 @@ Ter o **Docker** e **Docker-compose** instalado na máquina. Segue link de instr
 
 ### 1. Clone o projeto:
 
-Clone o projeto e baixe a *branch* **master** por meio dos comandos abaixo:
+Clone o projeto por meio do comando abaixo:
 
 ```shell
 git clone git@github.com:TTSolutionsPI/painel-preco-backend.git
-git switch -c master origin/master
 ```
 ### 2. Configfure as variáves de ambiente:
 
