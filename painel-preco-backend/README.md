@@ -1,6 +1,6 @@
 # Painel de Preços API:
 
-API do Painel de Preço da [TT Soluções PI](ttsolucoes.com).
+API do Painel de Preço da [TT Soluções PI](http://ttsolucoes.com).
 
 <p align="center">
 	<img src="http://img.shields.io/static/v1?label=STATUS&message=EM%20DESENVOLVIMENTO&color=GREEN&style=for-the-badge"/>
@@ -25,7 +25,7 @@ Abra o arquivo **.env** localizado na raíz do projeto (observar que esse arquiv
 
 ### 3. Crie um Personal access tokens no Github:
 
-Caso ainda não tenha, crie um **Personal access tokens (classic)** no **Github**, para que seja possível se autenticar, via **docker**, para baixar a imagem *docker* do **Painel de Preço** do *GitHub Container Registry* [(ghcr.io)](ghcr.io). Se for o caso, para isso, acesse as [configurações de desenvolvedor](https://github.com/settings/tokens), clique em **Personal access tokens** > **Tokens (classic)**, gere um *token* e copie seu conteúdo.
+Caso ainda não tenha, crie um **Personal access tokens (classic)** no **Github**, para que seja possível se autenticar, via **docker**, para baixar a imagem *docker* do **Painel de Preço** do *GitHub Container Registry* [(ghcr.io)](http://ghcr.io). Se for o caso, para isso, acesse as [configurações de desenvolvedor](https://github.com/settings/tokens), clique em **Personal access tokens** > **Tokens (classic)**, gere um *token* e copie seu conteúdo.
 
 No terminal, digite:
 
