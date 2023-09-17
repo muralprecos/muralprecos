@@ -61,7 +61,7 @@ docker-compose up
 docker-compose up -d
 ```
 
-### 6. Resture o backup do banco:
+### 6. Restaure o backup do banco:
 
 Após a inicialização do serviço, apenas na primeira execução é necessário restaurar o backup do banco de dados e importar as configurações do **Keycloak** (serviço de autenticação e autorização que implementa [OpenID Connection e OAuth2](https://medium.com/semantixbr/oauth-2-openid-connect-c2429db6e996)). Isso pode ser feito por meio do comando abaixo:
 
@@ -85,9 +85,9 @@ A documentação da API está disponível em: [http://localhost:8080/swagger-ui/
 
 No *zip* **backup.zip** baixado no passo 6, tem o arquivo **Painel de Preços.postman_collection.json** com os *request* do **Postman** para a API.
 
-De forma resumida, todos os *endpoints* estão protegidos, exigindo, pois *token* de autenticação, exceto o endpoint de obtenção do token, qual seja: [http://localhost:8080/api/v1/auth/logon](http://localhost:8080/api/v1/auth/logon).
+De forma resumida, todos os *endpoints* estão protegidos, exigindo, pois, *token* de autenticação, exceto o *endpoint* de obtenção do *token*, qual seja: [http://localhost:8080/api/v1/auth/logon](http://localhost:8080/api/v1/auth/logon).
 
-Por fim, listamos, ainda, abaixo, os *requests* para todos os endpoints em linha de comando:
+Por fim, listamos abaixo, os *requests* para todos os endpoints em linha de comando:
 
 ```shell
 --AUTENTICAÇÃO
