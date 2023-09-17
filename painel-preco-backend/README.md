@@ -8,7 +8,7 @@ API do Painel de Preço da [TT Soluções PI](ttsolucoes.com).
 
 ## Como executar (ambiente de desenvolvimento)?
 
-###1. Clone o projeto:
+### 1. Clone o projeto:
 
 Clone o projeto e baixe a *branch* **master** por meio dos comandos abaixo:
 
@@ -16,11 +16,11 @@ Clone o projeto e baixe a *branch* **master** por meio dos comandos abaixo:
 git clone git@github.com:TTSolutionsPI/painel-preco-backend.git
 git switch -c master origin/master
 ```
-###2. Configfure as variáves de ambiente:
+### 2. Configfure as variáves de ambiente:
 
 Abra o arquivo **.env** localizado na raíz do projeto (observar que esse arquivo é oculto) e substitua o IP da propriedade **SSO_AUTH_SERVER** para o endereço local da sua máquina;
 
-###3. Crie um Personal access tokens no Github:
+### 3. Crie um Personal access tokens no Github:
 
 Caso ainda não tenha, crie um **Personal access tokens (classic)** no **Github**, para que seja possível se autenticar, via **docker**, para baixar a imagem *docker* do **Painel de Preço** do *GitHub Container Registry* [(ghcr.io)](ghcr.io). Se for o caso, para isso, acesse as [configurações de desenvolvedor](https://github.com/settings/tokens), clique em **Personal access tokens** > **Tokens (classic)**, gere um *token* e copie seu conteúdo.
 
@@ -35,7 +35,7 @@ Forneça seu **usuário do Github** e, em **password**, cole o **token** gerado 
 Se receber a mensagem *Login Succeeded* é sinal que deu tudo certo.
 
 
-###4. Crie o volume ("partição virtual") de dados que será utilizado pelo *PostgreSQL*:
+### 4. Crie o volume ("partição virtual") de dados que será utilizado pelo *PostgreSQL*:
 
 Esse passo é necessário para não perdemos os dados sempre que pararmos o *container*. Segue o comando suficiente para isso:
 
@@ -43,7 +43,7 @@ Esse passo é necessário para não perdemos os dados sempre que pararmos o *con
 docker volume create postgres
 ```
 
-###5. Suba o serviço:
+### 5. Suba o serviço:
 
 Na raíz do projeto, executo os comando abaixo:
 
@@ -58,7 +58,7 @@ docker-compose up
 docker-compose up -d
 ```
 
-###6. Resture o backup do banco:
+### 6. Resture o backup do banco:
 
 Após a inicialização do serviço, apenas na primeira execução é necessário restaurar o backup do banco de dados e importar as configurações do **Keycloak** (serviço de autenticação e autorização que implementa [OpenID Connection e OAuth2](https://medium.com/semantixbr/oauth-2-openid-connect-c2429db6e996)). Isso pode ser feito por meio do comando abaixo:
 
@@ -68,13 +68,13 @@ docker exec -i painel-preco-backend_postgres_1 psql -U postgres painel_preco  < 
 
 **OBS:** o arquivo **painel_preco.sql** encontra-se no *zip* **backup.zip**. Clique [aqui](http://euclydesmelo.eti.br/backup.zip) para baixá-lo.
 
-###7. Resture as configurações de segurança:
+### 7. Resture as configurações de segurança:
 
 Por fim, acesse o endereço [http://localhost:8280](http://localhost:8280), clique em *Administration Console* (usuário e senha: **admin**) e siga os passos apresentados em [Importing a Realm](https://howtodoinjava.com/devops/keycloak-export-import-realm/#2-importing-a-realm), para importar as configurações de segurança.
 
 **OBS:** o arquivo backup das configurações (**ttsolutions-realm.json**) encontra-se no *zip* **backup.zip** já baixado no passo 6 (anterior).
 
-###8. Teste os *endpoints*:
+### 8. Teste os *endpoints*:
 
 Se chegou até aqui é para estar tudo certo. Então, vamos confirmar isso.
 
@@ -205,9 +205,9 @@ curl --location 'http://localhost:8080/api/v1/orgaos/5c9fc00a-4c16-11ee-9954-024
 * Unidade Gestora;
 * Órgão (e sub órgão).
 
-### Documentação de Referência:
+## Documentação de Referência:
 
-* [Docler basics commands](https://docs.docker.com/engine/reference/commandline/docker/)
-* [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
-* [GitHub Personal Access Tokens (APT)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
-* [OpenID Connections and Oauth2](https://medium.com/semantixbr/oauth-2-openid-connect-c2429db6e996)
+* [Docler basics commands](https://docs.docker.com/engine/reference/commandline/docker/);
+* [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry);
+* [GitHub Personal Access Tokens (APT)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens);
+* [OpenID Connections and Oauth2](https://medium.com/semantixbr/oauth-2-openid-connect-c2429db6e996).
