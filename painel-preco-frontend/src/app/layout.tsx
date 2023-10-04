@@ -4,7 +4,8 @@ import { Inter } from 'next/font/google'
 
 import Providers from './providers'
 import Link from 'next/link'
-import ThemeSwitcher from '../components/molecules/ThemeSwitcher'
+//import ThemeSwitcher from '../components/molecules/ThemeSwitcher'
+import Header from '@/components/molecules/Header'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,21 +19,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+
+  const linksHeader = [
+    {description: 'Início', link: '/'},
+    {description: 'Cotação', link: '/cotacao'}
+  ]
+
   return (
     <html lang="pt-br">
       <body className={`${inter.className} min-h-screen flex flex-col`}>
         <Providers>
-          <header className='py-6 flex items-center justify-center'>
-            <nav className='container flex flex-row items-center justify-between'>
-              <div className='flex flex-row'>
-                <Link className="px-2" href='/'>Início</Link>
-                <Link className="px-2" href='/cotacao'>Cotação</Link>
-              </div>
-              <div className='flex'>
-                <ThemeSwitcher />
-              </div>
-            </nav>
-          </header>
+          <Header links={linksHeader}/>
           <main>{children}</main>
           <footer></footer>
         </Providers>

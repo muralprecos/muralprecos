@@ -1,5 +1,3 @@
-'use client'
-
 type FormTitleProps = {
   children: React.ReactNode
   gap?: number

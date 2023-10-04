@@ -32,3 +32,41 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+Executar Chrome com CORS:
+open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
+
+Icons:
+https://www.svgrepo.com/collection/solar-linear-icons/
+https://www.svgrepo.com/collection/solar-bold-icons/
+https://www.svgrepo.com/collection/solar-outline-icons/
+
+## TODO:
+NavBar
+https://nextui.org/docs/components/navbar
+
+Forms Tailwind
+https://tailwind-elements.com/docs/standard/forms/form-templates/
+
+Flex Layout Aux:
+https://angrytools.com/css-flex/
+https://flexbox.tech/
+
+Criar Thema NextUI
+https://nextui.org/docs/customization/create-theme
+
+Introdução de manipulação de estados com NextUI:
+- https://blog.logrocket.com/getting-started-nextui-next-js/
+
+Customização de tailwind com react:
+- https://blog.logrocket.com/theming-react-components-tailwind-css/
+
+
+## DOCUMENTAÇÕES IMPORTANTES:
+https://nextui.org/docs/guide/introduction
+
+
+## FERRAMENTAS / TUTORIAIS AUXILIARES:
+https://www.cssportal.com/css-flexbox-generator/
+https://tobiasahlin.com/blog/common-flexbox-patterns/
