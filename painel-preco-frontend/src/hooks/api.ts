@@ -13,7 +13,7 @@ const getGenericList =  async <T extends IObjetoAPI>(
   const headers = { 'Authorization': `Bearer ${token}` };
   const res = await fetch(`${host}${path}?page=${page}&size=${size}`, { 
     cache: 'force-cache',
-    next: { revalidate },
+    next: {  },
     headers
   })
   if (!res.ok) {
@@ -30,7 +30,7 @@ const getGenericListPageable =  async <T extends IObjetoAPI>(
   const headers = { 'Authorization': `Bearer ${token}` };
   const res = await fetch(`${host}${path}?page=${page}&size=${size}`, { 
     cache: 'force-cache',
-    next: { revalidate },
+    next: {  },
     headers
   })
   if (!res.ok) {

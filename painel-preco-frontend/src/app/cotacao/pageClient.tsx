@@ -1,6 +1,6 @@
 'use client'
 
-import {Button, Checkbox, Select, SelectItem} from "@nextui-org/react";
+import {Button, Checkbox, Listbox, ListboxItem, Select, SelectItem} from "@nextui-org/react";
 
 import { Divider, Input } from '@nextui-org/react'
 import FormTitle from '@/components/atoms/FormTitle'
@@ -8,6 +8,7 @@ import FormRow from "@/components/atoms/FormRow";
 import AutocompleteField from "@/components/molecules/AutocompleteField";
 import { IItemAutocomplete } from "@/interfaces/types";
 import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
+import { useState } from "react";
 
 interface IProps {
   empresaPorte: IItemAutocomplete[]
@@ -42,6 +43,30 @@ const PageClient: React.FC<IProps> = ({
   compraPeriodos,
   ...opts
 }) => {
+
+  const animals = [
+    {key: "cat", description: "The second most popular pet in the world"},
+    {key: "dog", description: "The most popular pet in the world"},
+    {key: "elephant", description: "The largest land animal"},
+    {key: "lion", description: "The king of the jungle"},
+    {key: "tiger", description: "The largest cat species"},
+    {key: "giraffe a", description: "The tallest land animal"},
+    {key: "giraffe s", description: "The tallest land animal 2"},
+    {key: "giraffe d", description: "The tallest land animal 3"},
+    {key: "giraffe f", description: "The tallest land animal 4"},
+    {key: "giraffe q", description: "The tallest land animal 5"},
+
+  ];
+
+  const [value, setValue] = useState<IItemAutocomplete | null>(
+    null,
+  );
+
+  const handleChange = (
+    event: React.SyntheticEvent,
+    newValue: IItemAutocomplete | null,
+  ) => setValue(newValue);
+
   return (
     <section className='py-4 flex items-center justify-center flex-col'>
       <div className='container flex flex-col items-start justify-start'>
@@ -52,13 +77,14 @@ const PageClient: React.FC<IProps> = ({
 
         <FormRow>
           <div className="basis-1/4">
-            <Select label="Ano da Compra" className="w-full">
-              {/* {compraAno.map((o) => (
+            <Input type="email" label="Email" />
+            {/* <Select label="Ano da Compra" className="w-full">
+              {compraAno.map((o) => (
                 <SelectItem key={o.key} value={o.key}>
                   {o.description}
                 </SelectItem>
-              ))} */}
-            </Select>
+              ))}
+            </Select> */}
           </div> 
           <div className="basis-1/4">
             <Select label="Porte da Empresa" className="w-full">
@@ -114,18 +140,22 @@ const PageClient: React.FC<IProps> = ({
         <FormRow>
           <div className="basis-1/2">
             <AutocompleteField 
-              type="text" label="Nome do Fornecedor"
-              suggestions={fornecedorNomes}
-              onSuggestionSelected={(e) => { console.log(e) }}
+              id="Teste a b c"
+              options={animals}
+              value={value}
+              onChange={handleChange}
+              getOptionLabel={(el) => el.description}
               />
           </div>
           <div className="basis-1/2">
             <AutocompleteField 
-              type="text" label="CNPJ/CPF do Fornecedor"
-              suggestions={fornecedorDocumentos}
-              onSuggestionSelected={(e) => { console.log(e) }}
+              id="Teste a b c d"
+              options={animals}
+              value={value}
+              onChange={handleChange}
+              getOptionLabel={(el) => el.description}
               />
-          </div> 
+          </div>
         </FormRow>
 
 
