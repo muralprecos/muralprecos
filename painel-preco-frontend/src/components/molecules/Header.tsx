@@ -4,7 +4,7 @@ import React from "react";
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenu, NavbarMenuItem} from "@nextui-org/react";
 import IconHome from "../atoms/icons/IconHome";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-
+import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
 
 export interface ILink {
   description: string
@@ -75,6 +75,7 @@ const Header: React.FC<FormTitleProps> = ({
             </NavbarContent>
 
             <NavbarContent justify="end">
+              <ThemeSwitcher />
               <NavbarItem className="hidden lg:flex">
                 <Link href="#">Login</Link>
               </NavbarItem>

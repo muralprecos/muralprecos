@@ -7,7 +7,6 @@ import FormTitle from '@/components/atoms/FormTitle'
 import FormRow from "@/components/atoms/FormRow";
 import AutocompleteField from "@/components/molecules/AutocompleteField";
 import { IItemAutocomplete } from "@/interfaces/types";
-import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
 import { useState } from "react";
 
 interface IProps {
@@ -140,20 +139,12 @@ const PageClient: React.FC<IProps> = ({
         <FormRow>
           <div className="basis-1/2">
             <AutocompleteField 
-              id="Teste a b c"
+              id="CNPJ/CPF/NOME do Fornecedor"
               options={animals}
               value={value}
               onChange={handleChange}
               getOptionLabel={(el) => el.description}
-              />
-          </div>
-          <div className="basis-1/2">
-            <AutocompleteField 
-              id="Teste a b c d"
-              options={animals}
-              value={value}
-              onChange={handleChange}
-              getOptionLabel={(el) => el.description}
+              isOptionEqualToValue={(option, value) => option.key === value.key}
               />
           </div>
         </FormRow>
@@ -240,7 +231,6 @@ const PageClient: React.FC<IProps> = ({
 
       */}
         <FormRow className="justify-end">
-          <ThemeSwitcher />
           <Button color="default" endContent={'\/'}>
             Limpar
           </Button>

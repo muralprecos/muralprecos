@@ -4,7 +4,6 @@ import { Inter } from 'next/font/google'
 
 import Providers from './providers'
 import Link from 'next/link'
-//import ThemeSwitcher from '../components/molecules/ThemeSwitcher'
 import Header from '@/components/molecules/Header'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -26,7 +25,7 @@ export default function RootLayout({
   ]
 
   return (
-    <html lang="pt-br">
+    <html lang="pt-br" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen flex flex-col`}>
         <Providers>
           <Header links={linksHeader}/>
