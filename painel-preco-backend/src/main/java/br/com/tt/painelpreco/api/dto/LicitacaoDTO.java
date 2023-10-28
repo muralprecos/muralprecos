@@ -1,6 +1,7 @@
 package br.com.tt.painelpreco.api.dto;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import lombok.Getter;
@@ -27,5 +28,6 @@ public class LicitacaoDTO {
 	private Double valor;
 	private Integer anoCompra;	
 	private String periodoCompra;
+	private List<ItemLicitacaoDTO> itens;
 
 }

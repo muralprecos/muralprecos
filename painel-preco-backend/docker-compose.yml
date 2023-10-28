@@ -13,8 +13,9 @@ services:
       
   postgres:
     image: postgres:15.3
+    shm_size: 1g
     volumes:
-      - postgres:/var/lib/postgresql/pgdata
+      - postgres:/var/lib/postgresql/data
       - ./docker-postgres-initdb.sql:/docker-entrypoint-initdb.d/docker-postgres-initdb.sql
     environment:
       POSTGRES_DB: keycloak

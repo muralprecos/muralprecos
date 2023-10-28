@@ -22,7 +22,7 @@ public class LicitacaoSpecs {
 				predicates.add(builder.between(root.get("dataResultadoCompra"), DateUtil.getDateFirtDayYear(filtro.getAno()), DateUtil.getDateLastDayYear(filtro.getAno())));
 			
 			if (!StringUtil.isEmpty(filtro.getObjeto()))
-				predicates.add(builder.like(root.get("objeto"), JPAUtil.likeExpression(filtro.getObjeto())));
+				predicates.add(builder.like(builder.upper(root.get("objeto")), JPAUtil.likeExpression(filtro.getObjeto())));
 			
 			if (filtro.getOrgaoSuperiorId() != null)
 				predicates.add(builder.equal(root.get("orgaoSuperior").get("uuid"), filtro.getOrgaoSuperiorId()));
@@ -51,10 +51,10 @@ public class LicitacaoSpecs {
 				predicates.add(builder.equal(root.get("esfera").get("uuid"), filtro.getEsferaId()));
 			
 			if (!StringUtil.isEmpty(filtro.getDescricao()))
-				predicates.add(builder.like(root.join("itens").get("descricao"), JPAUtil.likeExpression(filtro.getDescricao())));
+				predicates.add(builder.like(builder.upper(root.join("itens").get("descricao")), JPAUtil.likeExpression(filtro.getDescricao())));
 			
 			if (!StringUtil.isEmpty(filtro.getDescricaoComplementar()))
-				predicates.add(builder.like(root.join("itens").get("descricaoComplementar"), JPAUtil.likeExpression(filtro.getDescricaoComplementar())));
+				predicates.add(builder.like(builder.upper(root.join("itens").get("descricaoComplementar")), JPAUtil.likeExpression(filtro.getDescricaoComplementar())));
 			
 			if (filtro.getMaterialId() != null)
 				predicates.add(builder.equal(root.join("itens").get("material").get("uuid"), filtro.getMaterialId()));

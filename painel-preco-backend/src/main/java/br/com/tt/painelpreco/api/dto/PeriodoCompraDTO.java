@@ -13,7 +13,7 @@ public class PeriodoCompraDTO implements Comparable<PeriodoCompraDTO> {
 	
 	@EqualsAndHashCode.Include
 	private Integer uuid;
-	private String descricao;
+	private String nome;
 	
 	@Override
 	public int compareTo(PeriodoCompraDTO o) {

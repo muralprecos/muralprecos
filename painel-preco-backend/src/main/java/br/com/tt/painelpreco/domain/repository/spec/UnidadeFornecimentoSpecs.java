@@ -1,0 +1,30 @@
+package br.com.tt.painelpreco.domain.repository.spec;
+
+import java.util.ArrayList;
+
+import javax.persistence.criteria.Predicate;
+
+import org.springframework.data.jpa.domain.Specification;
+
+import br.com.tt.painelpreco.api.dto.form.filter.UnidadeFornecimentoFilter;
+import br.com.tt.painelpreco.domain.model.UnidadeFornecimento;
+import br.com.tt.painelpreco.util.JPAUtil;
+import br.com.tt.painelpreco.util.StringUtil;
+
+public class UnidadeFornecimentoSpecs {
+	
+	public static Specification<UnidadeFornecimento> filtroGeral(UnidadeFornecimentoFilter filtro) {
+		return (root, query, builder) -> {
+			var predicates = new ArrayList<>();
+			
+			if (filtro.getUuid() != null)
+				predicates.add(builder.equal(root.get("uuid"), filtro.getUuid()));
+			
+			if (!StringUtil.isEmpty(filtro.getNome()))
+				predicates.add(builder.like(builder.upper(root.get("nome")), JPAUtil.likeExpression(filtro.getNome())));
+			
+			return builder.and(predicates.toArray(new Predicate[0]));
+		};
+	}
+
+}

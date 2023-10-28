@@ -1,5 +1,7 @@
 package br.com.tt.painelpreco.domain.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +23,10 @@ public class LicitacaoService {
 
 	public Page<Licitacao> listaByFilter(Specification<Licitacao> filtro, Pageable pageable) {
 		return licitacaoRepository.findAll(filtro, pageable);
+	}
+	
+	public List<Integer> listaAllAnos() {
+		return licitacaoRepository.findAllAnos();
 	}
 
 }
