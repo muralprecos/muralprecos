@@ -20,6 +20,7 @@ interface IAutocompleteField {
 
 export interface AutocompleteFieldHandle extends HTMLDivElement {
   isLoading: () => boolean
+  setValueInput: (v: IItemAutocomplete|null) => void
 };
 
 const AutocompleteField = forwardRef(function Autocomplete(
@@ -87,7 +88,10 @@ const AutocompleteField = forwardRef(function Autocomplete(
   useImperativeHandle(ref, () => ({
     isLoading: () => {
       return loading
-    }
+    },
+    setValueInput(v) {
+      setValue(v)
+    },
   }), [loading])
 
   const fetch = useMemo(

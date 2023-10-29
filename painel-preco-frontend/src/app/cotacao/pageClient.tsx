@@ -62,11 +62,20 @@ const PageClient: React.FC<IProps> = ({
   const [optionsFornecedores, setOptionsFornecedores] = useState<IItemAutocomplete[]>([]);
   const [valueFornecedor, setValueFornecedor] = useState<IItemAutocomplete | null>(null);
 
+  const clearForm = () => {
+    setValueFornecedor(null)
+    setOptionsFornecedores([]);
+    refAutocompFornecedores.current?.setValueInput(null)
+  }
+
+  const fornecedorVal = () => {
+    return valueFornecedor?.description || ''
+  }
+
   const handleChange = (
     event: React.SyntheticEvent,
     newValue: IItemAutocomplete | null,
   ) => {
-    console.log(event, newValue)
     setValueFornecedor(newValue);
   }
 
@@ -155,11 +164,14 @@ const PageClient: React.FC<IProps> = ({
               ref={refAutocompFornecedores}
               autocompleteService={getListFornecedores}
               autocompleteChangeOption={(opts) => {setOptionsFornecedores(opts)}}
-              autocompleteSelectOption={(opt) => {setValueFornecedor(opt) }}
+              autocompleteSelectOption={(opt) => {
+                setValueFornecedor(opt) 
+                refAutocompFornecedores.current?.setValueInput(opt)
+              }}
               />
           </div>
           <div className="basis-1/4">
-            <Input type="email" value={valueFornecedor?.description} label="Teste Valor Fornecedor" />
+            <Input type="email" value={fornecedorVal()} label="Teste Valor Fornecedor" />
           </div>
         </FormRow>
 
@@ -245,7 +257,7 @@ const PageClient: React.FC<IProps> = ({
 
       */}
         <FormRow className="justify-end">
-          <Button color="default" endContent={'\/'}>
+          <Button color="default" endContent={'\/'} onClick={() => clearForm()}>
             Limpar
           </Button>
           <Button color="primary" endContent={'\/'}>
