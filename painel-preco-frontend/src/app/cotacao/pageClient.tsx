@@ -1,13 +1,15 @@
 'use client'
 
-import {Button, Checkbox, Listbox, ListboxItem, Select, SelectItem} from "@nextui-org/react";
+import {Button, Select, SelectItem} from "@nextui-org/react";
 
 import { Divider, Input } from '@nextui-org/react'
 import FormTitle from '@/components/atoms/FormTitle'
 import FormRow from "@/components/atoms/FormRow";
-import AutocompleteField from "@/components/molecules/AutocompleteField";
-import { IItemAutocomplete } from "@/interfaces/types";
-import { useState } from "react";
+import AutocompleteField, { AutocompleteFieldHandle } from "@/components/molecules/AutocompleteField";
+import { IItemAutocomplete, } from "@/interfaces/types";
+import { useEffect, useRef, useState } from "react";
+import { getListFornecedores } from "@/hooks/api";
+
 
 interface IProps {
   empresaPorte: IItemAutocomplete[]
@@ -28,8 +30,6 @@ interface IProps {
   orgaoSuperior?: IItemAutocomplete[]
   orgao?: IItemAutocomplete[]
   uasg?: IItemAutocomplete[]
-  
-  
 }
 
 const PageClient: React.FC<IProps> = ({
@@ -57,6 +57,8 @@ const PageClient: React.FC<IProps> = ({
 
   ];
 
+  const refAutocompFornecedores = useRef<AutocompleteFieldHandle>(null);
+  
   const [value, setValue] = useState<IItemAutocomplete | null>(
     null,
   );
@@ -140,11 +142,14 @@ const PageClient: React.FC<IProps> = ({
           <div className="basis-1/2">
             <AutocompleteField 
               id="CNPJ/CPF/NOME do Fornecedor"
-              options={animals}
+              options={[]}
               value={value}
               onChange={handleChange}
               getOptionLabel={(el) => el.description}
               isOptionEqualToValue={(option, value) => option.key === value.key}
+              emptyMsg='Sem Resultados (digite ao menos 3 caracteres)'
+              ref={refAutocompFornecedores}
+              autocompleteService={getListFornecedores}
               />
           </div>
         </FormRow>

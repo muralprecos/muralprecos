@@ -4,9 +4,19 @@ interface IObjetoAPI {
   nome: string
 }
 
+interface IObjetoAPISearch {
+  uuid?: string
+  nome?: string
+}
+
+
 interface IFornecedor extends IObjetoAPI {
   documento: string
   porte: string
+}
+
+interface IFornecedorSearch extends IObjetoAPISearch {
+  documento?: string
 }
 
 interface IFormaCompra extends IObjetoAPI {
@@ -73,6 +83,15 @@ interface IItemSelect {
   label: string
 }
 
+
+
+
+interface IAPISearchProps<T extends IObjetoAPISearch> {
+  page?: number
+  size?: number
+  params?: T
+}
+
 //type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;
 
-export { NameValue, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor };
+export { NameValue, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch };

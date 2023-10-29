@@ -1,18 +1,27 @@
 "use client"
 
-import { forwardRef, ForwardedRef, Fragment, useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { forwardRef, ForwardedRef, Fragment, useState, useEffect, useLayoutEffect, useRef, useImperativeHandle, useMemo } from 'react';
 
-import { useAutocomplete, UseAutocompleteProps } from '@mui/base/useAutocomplete';
+import { AutocompleteGroupedOption, useAutocomplete, UseAutocompleteProps } from '@mui/base/useAutocomplete';
 import { Popper } from '@mui/base/Popper';
 import useForkRef from '@mui/utils/useForkRef';
 
-import { IItemAutocomplete } from '@/interfaces/types';
+import { IAPISearchProps, IItemAutocomplete, IObjetoAPI, IObjetoAPISearch, IReturnRequestAPI } from '@/interfaces/types';
 import classNames from 'classnames';
+import { debounce } from 'lodash';
 
+interface IAutocompleteField {
+  emptyMsg?: string
+  autocompleteService?: (props: IAPISearchProps<IObjetoAPISearch>) => Promise<IReturnRequestAPI<IObjetoAPI>>
+}
+
+export interface AutocompleteFieldHandle extends HTMLDivElement {
+  isLoading: () => boolean
+};
 
 const AutocompleteField = forwardRef(function Autocomplete(
-  props: UseAutocompleteProps<IItemAutocomplete, false, false, false>,
-  ref: ForwardedRef<HTMLDivElement>,
+  props: UseAutocompleteProps<IItemAutocomplete, false, false, false> & IAutocompleteField,
+  ref: ForwardedRef<Partial<AutocompleteFieldHandle>>,
 ) {
 
   const {
@@ -26,8 +35,13 @@ const AutocompleteField = forwardRef(function Autocomplete(
     anchorEl,
     inputValue,
     setAnchorEl,
-    id
+    id,
   } = useAutocomplete(props);
+
+  const {
+    emptyMsg = 'Sem Resultados',
+    autocompleteService
+  } = props;
 
   const rootRef = useForkRef(ref, setAnchorEl);
   const elementInputRef = useRef(null);
@@ -37,6 +51,9 @@ const AutocompleteField = forwardRef(function Autocomplete(
   const [dataHover, setDataHover] = useState<boolean>(false);
   const [liHover, setLiHover] = useState<string>('');
 
+  const [loading, setLoading] = useState<boolean>(false);
+  const [options, setOptions] = useState<readonly IItemAutocomplete[] | AutocompleteGroupedOption<IItemAutocomplete>[]>(groupedOptions);
+  const [value, setValue] = useState<IItemAutocomplete | null>(null);
 
   const resizeAutocomplete = () => {
     const el = elementInputRef?.current;
@@ -57,10 +74,82 @@ const AutocompleteField = forwardRef(function Autocomplete(
     }
   }, []);
 
-
   useEffect(() => {
     setIsFilled(inputValue != null && inputValue != '');
   }, [inputValue]);
+
+  useImperativeHandle(ref, () => ({
+    isLoading: () => {
+      return loading
+    }
+  }), [loading])
+
+  const fetch = useMemo(
+    () =>
+      debounce(
+        (
+          request : IAPISearchProps<IObjetoAPISearch>,
+          callback: (results?: IReturnRequestAPI<IObjetoAPI>) => void,
+        ) => {
+          if (autocompleteService) {
+            autocompleteService(request).then(callback)
+          }
+        },
+        400
+      ),
+    [autocompleteService],
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    if (!autocompleteService) {
+      return undefined;
+    }
+
+    if (inputValue === '' || inputValue.length < 3) {
+      setOptions(value ? [value] : []);
+      return undefined;
+    }
+
+    if (!loading) {
+      setLoading(true);
+      fetch({
+        params: {
+          nome: inputValue
+        },
+        size: 15
+      }, (result?: IReturnRequestAPI<IObjetoAPI>) => {
+        setLoading(false);
+        if (active) {
+          let newOptions: readonly IItemAutocomplete[] = [];
+
+          if (value) {
+            newOptions = [value];
+          }
+
+          if (result) {
+            const itens:IItemAutocomplete[] = [];
+            result.content.forEach(it => {
+              itens.push({
+                description: it.nome,
+                key: it.uuid
+              })
+            });
+            newOptions = [...newOptions, ...itens];
+          }
+
+          setOptions(newOptions);
+        }
+      });
+    }
+
+    return () => {
+      active = false;
+    };
+  }, [value, inputValue, fetch, autocompleteService]);
+
+
 
   const isFilledWithin = () => {
     return focused || isFilled;
@@ -138,24 +227,33 @@ const AutocompleteField = forwardRef(function Autocomplete(
                 {...getListboxProps()}
                 className='w-full flex flex-col outline-none p-0 gap-0 divide-y divide-default-300/50 dark:divide-default-100/80 bg-content1 overflow-visible rounded-medium shadow-medium'
               >
-          {groupedOptions.length > 0 ? (
-            (groupedOptions as IItemAutocomplete[]).map((option, index) => (
-              <li
-                {...getOptionProps({ option, index })}
-                key={index} 
-                className={LI_CLASSES}
-                onMouseEnter={printInfo}
-                onMouseUp={clearInfo}
-                data-hover={checkLiHover(index)}
-              >
-                <span data-label="true" className="flex-1 text-small font-normal truncate">{option.description}</span>
-              </li>
-            ))
-          ) : (
-            <li className={LI_CLASSES}>
-                <span data-label="true" className="flex-1 text-small font-normal truncate">Sem Resultados</span>
-            </li>
-          )}
+                { !loading ? (
+                  <div>
+                    {options.length > 0 ? (
+                      (options as IItemAutocomplete[]).map((option, index) => (
+                        <li
+                          {...getOptionProps({ option, index })}
+                          key={index} 
+                          className={LI_CLASSES}
+                          onMouseEnter={printInfo}
+                          onMouseUp={clearInfo}
+                          data-hover={checkLiHover(index)}
+                        >
+                          <span data-label="true" className="flex-1 text-small font-normal truncate">{option.description}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className={LI_CLASSES}>
+                          <span data-label="true" className="flex-1 text-small font-normal truncate">{emptyMsg}</span>
+                      </li>
+                    )}
+                  </div>
+                ) : (
+                  <li className={LI_CLASSES}>
+                      <span data-label="true" className="flex-1 text-small font-normal truncate">Carregando...</span>
+                  </li>
+                )}
+          
         </ul>
             
           </Popper>
