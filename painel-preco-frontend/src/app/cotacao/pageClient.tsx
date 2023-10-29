@@ -59,14 +59,16 @@ const PageClient: React.FC<IProps> = ({
 
   const refAutocompFornecedores = useRef<AutocompleteFieldHandle>(null);
   
-  const [value, setValue] = useState<IItemAutocomplete | null>(
-    null,
-  );
+  const [optionsFornecedores, setOptionsFornecedores] = useState<IItemAutocomplete[]>([]);
+  const [valueFornecedor, setValueFornecedor] = useState<IItemAutocomplete | null>(null);
 
   const handleChange = (
     event: React.SyntheticEvent,
     newValue: IItemAutocomplete | null,
-  ) => setValue(newValue);
+  ) => {
+    console.log(event, newValue)
+    setValueFornecedor(newValue);
+  }
 
   return (
     <section className='py-4 flex items-center justify-center flex-col'>
@@ -142,15 +144,22 @@ const PageClient: React.FC<IProps> = ({
           <div className="basis-1/2">
             <AutocompleteField 
               id="CNPJ/CPF/NOME do Fornecedor"
-              options={[]}
-              value={value}
+              options={optionsFornecedores}
+              value={valueFornecedor}
               onChange={handleChange}
               getOptionLabel={(el) => el.description}
-              isOptionEqualToValue={(option, value) => option.key === value.key}
+              isOptionEqualToValue={(option, value) => {
+                return option.key === value?.key
+              }}
               emptyMsg='Sem Resultados (digite ao menos 3 caracteres)'
               ref={refAutocompFornecedores}
               autocompleteService={getListFornecedores}
+              autocompleteChangeOption={(opts) => {setOptionsFornecedores(opts)}}
+              autocompleteSelectOption={(opt) => {setValueFornecedor(opt) }}
               />
+          </div>
+          <div className="basis-1/4">
+            <Input type="email" value={valueFornecedor?.description} label="Teste Valor Fornecedor" />
           </div>
         </FormRow>
 

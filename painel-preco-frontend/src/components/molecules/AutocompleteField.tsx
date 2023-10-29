@@ -12,7 +12,10 @@ import { debounce } from 'lodash';
 
 interface IAutocompleteField {
   emptyMsg?: string
-  autocompleteService?: (props: IAPISearchProps<IObjetoAPISearch>) => Promise<IReturnRequestAPI<IObjetoAPI>>
+  autocompleteService: (props: IAPISearchProps<IObjetoAPISearch>) => Promise<IReturnRequestAPI<IObjetoAPI>>
+  autocompleteChangeOption: (opts: IItemAutocomplete[]) => void
+  autocompleteSelectOption: (opt: IItemAutocomplete) => void
+  autocompleteMinLength?: number
 }
 
 export interface AutocompleteFieldHandle extends HTMLDivElement {
@@ -40,7 +43,10 @@ const AutocompleteField = forwardRef(function Autocomplete(
 
   const {
     emptyMsg = 'Sem Resultados',
-    autocompleteService
+    autocompleteService,
+    autocompleteChangeOption,
+    autocompleteSelectOption,
+    autocompleteMinLength = 3
   } = props;
 
   const rootRef = useForkRef(ref, setAnchorEl);
@@ -52,7 +58,7 @@ const AutocompleteField = forwardRef(function Autocomplete(
   const [liHover, setLiHover] = useState<string>('');
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [options, setOptions] = useState<readonly IItemAutocomplete[] | AutocompleteGroupedOption<IItemAutocomplete>[]>(groupedOptions);
+  const [optionsShowed, setOptionsShowed] = useState<IItemAutocomplete[]>([]);
   const [value, setValue] = useState<IItemAutocomplete | null>(null);
 
   const resizeAutocomplete = () => {
@@ -100,6 +106,12 @@ const AutocompleteField = forwardRef(function Autocomplete(
     [autocompleteService],
   );
 
+  const selectItem = (option: IItemAutocomplete) => {
+    setValue(option)
+    autocompleteSelectOption(option)
+    setOptionsShowed([option])
+  }
+
   useEffect(() => {
     let active = true;
 
@@ -107,8 +119,9 @@ const AutocompleteField = forwardRef(function Autocomplete(
       return undefined;
     }
 
-    if (inputValue === '' || inputValue.length < 3) {
-      setOptions(value ? [value] : []);
+    if (inputValue === '' || inputValue.length < autocompleteMinLength) {
+      autocompleteChangeOption(value ? [value] : []);
+      setOptionsShowed(value ? [value] : []);
       return undefined;
     }
 
@@ -122,11 +135,11 @@ const AutocompleteField = forwardRef(function Autocomplete(
       }, (result?: IReturnRequestAPI<IObjetoAPI>) => {
         setLoading(false);
         if (active) {
-          let newOptions: readonly IItemAutocomplete[] = [];
+          let newOptions: IItemAutocomplete[] = [];
 
-          if (value) {
-            newOptions = [value];
-          }
+          // if (value) {
+          //   newOptions = [value];
+          // }
 
           if (result) {
             const itens:IItemAutocomplete[] = [];
@@ -139,7 +152,8 @@ const AutocompleteField = forwardRef(function Autocomplete(
             newOptions = [...newOptions, ...itens];
           }
 
-          setOptions(newOptions);
+          setOptionsShowed(newOptions)
+          autocompleteChangeOption(newOptions);
         }
       });
     }
@@ -147,7 +161,7 @@ const AutocompleteField = forwardRef(function Autocomplete(
     return () => {
       active = false;
     };
-  }, [value, inputValue, fetch, autocompleteService]);
+  }, [value, inputValue, fetch, setOptionsShowed, autocompleteService]);
 
 
 
@@ -229,14 +243,17 @@ const AutocompleteField = forwardRef(function Autocomplete(
               >
                 { !loading ? (
                   <div>
-                    {options.length > 0 ? (
-                      (options as IItemAutocomplete[]).map((option, index) => (
+                    {optionsShowed.length > 0 ? (
+                      (optionsShowed as IItemAutocomplete[]).map((option, index) => (
                         <li
                           {...getOptionProps({ option, index })}
                           key={index} 
                           className={LI_CLASSES}
                           onMouseEnter={printInfo}
                           onMouseUp={clearInfo}
+                          onMouseDown={(e) => {
+                            selectItem(option)
+                          }}
                           data-hover={checkLiHover(index)}
                         >
                           <span data-label="true" className="flex-1 text-small font-normal truncate">{option.description}</span>
