@@ -7,18 +7,18 @@ import FormTitle from '@/components/atoms/FormTitle'
 import FormRow from "@/components/atoms/FormRow";
 import AutocompleteField, { AutocompleteFieldHandle } from "@/components/molecules/AutocompleteField";
 import { IItemAutocomplete, } from "@/interfaces/types";
-import { useEffect, useRef, useState } from "react";
-import { getListFornecedores } from "@/hooks/api";
+import { Dispatch, RefObject, SetStateAction, useRef, useState } from "react";
+import { getListEstados, getListFornecedores, getListOrgaos, getListUASG } from "@/hooks/api";
+import AutocompleteFieldAsync from "@/components/organisms/AutocompleteFieldAsync";
 
 
 interface IProps {
   empresaPorte: IItemAutocomplete[]
   esferas: IItemAutocomplete[]
   compraFormas: IItemAutocomplete[]
-  fornecedorNomes: IItemAutocomplete[]
-  fornecedorDocumentos: IItemAutocomplete[]
   compraModalidades: IItemAutocomplete[]
   compraPeriodos: IItemAutocomplete[]
+  situacoesLicitacoes: IItemAutocomplete[]
 
   compraAno?: IItemAutocomplete[]
   materialNome?: IItemAutocomplete[]
@@ -36,29 +36,13 @@ const PageClient: React.FC<IProps> = ({
   empresaPorte,
   esferas,
   compraFormas,
-  fornecedorNomes,
-  fornecedorDocumentos,
   compraModalidades,
   compraPeriodos,
+  situacoesLicitacoes,
   ...opts
 }) => {
 
-  const animals = [
-    {key: "cat", description: "The second most popular pet in the world"},
-    {key: "dog", description: "The most popular pet in the world"},
-    {key: "elephant", description: "The largest land animal"},
-    {key: "lion", description: "The king of the jungle"},
-    {key: "tiger", description: "The largest cat species"},
-    {key: "giraffe a", description: "The tallest land animal"},
-    {key: "giraffe s", description: "The tallest land animal 2"},
-    {key: "giraffe d", description: "The tallest land animal 3"},
-    {key: "giraffe f", description: "The tallest land animal 4"},
-    {key: "giraffe q", description: "The tallest land animal 5"},
-
-  ];
-
   const refAutocompFornecedores = useRef<AutocompleteFieldHandle>(null);
-  
   const [optionsFornecedores, setOptionsFornecedores] = useState<IItemAutocomplete[]>([]);
   const [valueFornecedor, setValueFornecedor] = useState<IItemAutocomplete | null>(null);
 
@@ -68,15 +52,8 @@ const PageClient: React.FC<IProps> = ({
     refAutocompFornecedores.current?.setValueInput(null)
   }
 
-  const fornecedorVal = () => {
-    return valueFornecedor?.description || ''
-  }
-
-  const handleChange = (
-    event: React.SyntheticEvent,
-    newValue: IItemAutocomplete | null,
-  ) => {
-    setValueFornecedor(newValue);
+  const getValAutocomplete = (f: IItemAutocomplete | null ) => {
+    return f?.description || ''
   }
 
   return (
@@ -146,34 +123,66 @@ const PageClient: React.FC<IProps> = ({
               ))}
             </Select>
           </div>
-          <div className="basis-1/3"></div>
+          <div className="basis-1/3">
+            <Select label="Situação da Licitação" className="w-full">
+              {situacoesLicitacoes.map((o) => (
+                <SelectItem key={o.key} value={o.key}>
+                  {o.description}
+                </SelectItem>
+              ))}
+            </Select>
+          </div>
         </FormRow>
 
         <FormRow>
           <div className="basis-1/2">
-            <AutocompleteField 
+            <AutocompleteFieldAsync 
               id="CNPJ/CPF/NOME do Fornecedor"
-              options={optionsFornecedores}
-              value={valueFornecedor}
-              onChange={handleChange}
-              getOptionLabel={(el) => el.description}
-              isOptionEqualToValue={(option, value) => {
-                return option.key === value?.key
-              }}
-              emptyMsg='Sem Resultados (digite ao menos 3 caracteres)'
-              ref={refAutocompFornecedores}
               autocompleteService={getListFornecedores}
-              autocompleteChangeOption={(opts) => {setOptionsFornecedores(opts)}}
-              autocompleteSelectOption={(opt) => {
-                setValueFornecedor(opt) 
-                refAutocompFornecedores.current?.setValueInput(opt)
-              }}
+              autocompleteMinLength={5}
               />
           </div>
           <div className="basis-1/4">
-            <Input type="email" value={fornecedorVal()} label="Teste Valor Fornecedor" />
+            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor Fornecedor" />
           </div>
         </FormRow>
+
+        <FormRow>
+          <div className="basis-1/2">
+            <AutocompleteFieldAsync
+              id="Orgão"
+              autocompleteService={getListOrgaos}
+              />
+          </div>
+          <div className="basis-1/4">
+            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor Orgao" />
+          </div>
+        </FormRow>
+
+        <FormRow>
+          <div className="basis-1/2">
+            <AutocompleteFieldAsync 
+              id="UASG"
+              autocompleteService={getListUASG}
+              />
+          </div>
+          <div className="basis-1/4">
+            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor UASG" />
+          </div>
+        </FormRow>
+
+        <FormRow>
+          <div className="basis-1/2">
+            <AutocompleteFieldAsync 
+              id="Unidade Federativa"
+              autocompleteService={getListEstados}
+              />
+          </div>
+          <div className="basis-1/4">
+            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor Unidade Federativa" />
+          </div>
+        </FormRow>
+
 
 
 {/* 

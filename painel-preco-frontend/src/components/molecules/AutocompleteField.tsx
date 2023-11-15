@@ -1,18 +1,18 @@
 "use client"
 
-import { forwardRef, ForwardedRef, Fragment, useState, useEffect, useLayoutEffect, useRef, useImperativeHandle, useMemo } from 'react';
+import { forwardRef, ForwardedRef, Fragment, useState, useEffect, useLayoutEffect, useRef, useImperativeHandle, useMemo, Ref, ReactElement } from 'react';
 
-import { AutocompleteGroupedOption, useAutocomplete, UseAutocompleteProps } from '@mui/base/useAutocomplete';
+import { useAutocomplete, UseAutocompleteProps } from '@mui/base/useAutocomplete';
 import { Popper } from '@mui/base/Popper';
 import useForkRef from '@mui/utils/useForkRef';
 
-import { IAPISearchProps, IItemAutocomplete, IObjetoAPI, IObjetoAPISearch, IReturnRequestAPI } from '@/interfaces/types';
+import { IAPISearchProps, IItemAutocomplete, IObjetoAPI, IReturnRequestAPI } from '@/interfaces/types';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
 
-interface IAutocompleteField {
+interface IAutocompleteField<T extends IObjetoAPI> {
   emptyMsg?: string
-  autocompleteService: (props: IAPISearchProps<IObjetoAPISearch>) => Promise<IReturnRequestAPI<IObjetoAPI>>
+  autocompleteService: (props: IAPISearchProps<T>) => Promise<IReturnRequestAPI<T>>
   autocompleteChangeOption: (opts: IItemAutocomplete[]) => void
   autocompleteSelectOption: (opt: IItemAutocomplete) => void
   autocompleteMinLength?: number
@@ -23,10 +23,33 @@ export interface AutocompleteFieldHandle extends HTMLDivElement {
   setValueInput: (v: IItemAutocomplete|null) => void
 };
 
-const AutocompleteField = forwardRef(function Autocomplete(
-  props: UseAutocompleteProps<IItemAutocomplete, false, false, false> & IAutocompleteField,
-  ref: ForwardedRef<Partial<AutocompleteFieldHandle>>,
-) {
+/*
+// Given render function (input) for React.forwardRef
+const FRefInputComp = <T extends Option>(p: Props<T>, ref: Ref<HTMLDivElement>) =>
+  <div ref={ref}> {p.options.map(o => <p>{o.label}</p>)} </div>
+
+// Cast the output
+const FRefOutputComp1 = React.forwardRef(FRefInputComp) as
+  <T extends Option>(p: Props<T> & { ref?: Ref<HTMLDivElement> }) => ReactElement
+
+const Usage11 = () => <FRefOutputComp1 options={options} ref={myRef} />
+// options has type { value: number; label: string; flag: boolean; }[] 
+// , so we have made FRefOutputComp generic!
+
+
+
+https://stackoverflow.com/questions/58469229/react-with-typescript-generics-while-using-react-forwardref
+
+https://stackoverflow.com/questions/51459971/type-of-generic-stateless-component-react-or-extending-generic-function-interfa
+
+https://blog.logrocket.com/extending-object-like-types-interfaces-typescript/
+
+*/
+
+const FRefInputComp = <T extends IObjetoAPI>(
+  props: UseAutocompleteProps<IItemAutocomplete, false, false, false> & IAutocompleteField<T>, 
+  ref: ForwardedRef<Partial<AutocompleteFieldHandle>>
+) => {
 
   const {
     getRootProps,
@@ -98,8 +121,8 @@ const AutocompleteField = forwardRef(function Autocomplete(
     () =>
       debounce(
         (
-          request : IAPISearchProps<IObjetoAPISearch>,
-          callback: (results?: IReturnRequestAPI<IObjetoAPI>) => void,
+          request : IAPISearchProps<T>,
+          callback: (results?: IReturnRequestAPI<T>) => void,
         ) => {
           if (autocompleteService) {
             autocompleteService(request).then(callback)
@@ -132,11 +155,12 @@ const AutocompleteField = forwardRef(function Autocomplete(
     if (!loading) {
       setLoading(true);
       fetch({
-        params: {
-          nome: inputValue
-        },
+        info: [{
+          val: inputValue,
+          param: 'nome'
+        }],
         size: 15
-      }, (result?: IReturnRequestAPI<IObjetoAPI>) => {
+      }, (result?: IReturnRequestAPI<T>) => {
         setLoading(false);
         if (active) {
           let newOptions: IItemAutocomplete[] = [];
@@ -282,6 +306,11 @@ const AutocompleteField = forwardRef(function Autocomplete(
       </Fragment>
     </div>
 	);
-});
+};
+  
+
+const AutocompleteField = forwardRef(FRefInputComp) as <T extends IObjetoAPI>(
+  p: UseAutocompleteProps<IItemAutocomplete, false, false, false> & IAutocompleteField<T> & { ref?: ForwardedRef<Partial<AutocompleteFieldHandle>> }
+) => ReactElement
 
 export default AutocompleteField;

@@ -27,9 +27,23 @@ interface IModalidadeCompra extends IObjetoAPI {
   codigo: number
 }
 
+interface IUnidadeFederativa extends IObjetoAPI {
+  sigla: string
+}
+
+interface IOrgao extends IObjetoAPI {
+  codigo: number
+  ehsuperior?: booelan
+}
+
 interface IEsfera extends IObjetoAPI {}
 
 interface IPorteFornecedor extends IObjetoAPI {}
+
+interface IUnidadeGestora extends IObjetoAPI {}
+
+interface ISituacaoLicitacao extends IObjetoAPI {}
+
 
 interface IPeriodoCompra extends IObjetoAPI {
   descricao: string
@@ -86,12 +100,15 @@ interface IItemSelect {
 
 
 
-interface IAPISearchProps<T extends IObjetoAPISearch> {
+interface IAPISearchProps<T extends IObjetoAPI> {
   page?: number
   size?: number
-  params?: T
+  info? : [{
+    val: string
+    param: string
+  }]
 }
 
 //type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;
 
-export { NameValue, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch };
+export { NameValue, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao };

@@ -1,27 +1,48 @@
-import { getFormasCompra, getListEsferas, getListFornecedores, getListModalidadesCompra, getListPeriodosCompra, getListPorteFornecedor } from "@/hooks/api";
-import { reqDataListToAutocomplete, reqDataPageableToAutocomplete } from "@/utils/convertData";
+import { getFormasCompra, getListEsferas, getListModalidadesCompra, getListPeriodosCompra, getListPorteFornecedor, getListSituacoesLicitacao } from "@/hooks/api";
+import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
-import { IEsfera, IFormaCompra, IFornecedor, IModalidadeCompra, IPeriodoCompra, IPorteFornecedor } from "@/interfaces/types";
+import { IEsfera, IFormaCompra, IModalidadeCompra, IObjetoAPI, IPeriodoCompra, IPorteFornecedor, ISituacaoLicitacao } from "@/interfaces/types";
 
 export default async function Home() {
+  
+
   const dataPorteFornecedores = getListPorteFornecedor({});
   const dataEsferas = getListEsferas({});
   const dataFormasCompra = getFormasCompra({});
-  const dataFornecedores = getListFornecedores({});
   const dataModalidadesCompra = getListModalidadesCompra({});
   const dataPeriodosCompra = getListPeriodosCompra({});
+  const dataSituacoesLicitacao = getListSituacoesLicitacao({});
   
-  const [porteFornecedores, esferas, formasCompra, fornecedores, modalidadesCompra, periodosCompra] = await Promise.all([dataPorteFornecedores, dataEsferas, dataFormasCompra, dataFornecedores, dataModalidadesCompra, dataPeriodosCompra])
+  const resReq = await Promise.allSettled([dataPorteFornecedores, dataEsferas, dataFormasCompra, dataModalidadesCompra, dataPeriodosCompra, dataSituacoesLicitacao]);
+  const [settledPorteFornecedores, settledEsferas, settledFormasCompra, settledModalidadesCompra, settledPeriodosCompra, settledSituacoesLicitacao] = resReq;
+
+  function instanceOfIFormaCompra(object: any): object is IFormaCompra {
+    return 'member' in object;
+  }
+
+  function getSettledValue<T extends IObjetoAPI>(req: PromiseSettledResult<T[]>) {
+    if (req.status === "rejected") {
+      //TODO: tratamento de erro para enviar ao frontend
+      return [];
+    }
+    return req.status === "fulfilled" ? req.value : []
+  }
+
+  const porteFornecedores : IPorteFornecedor[] = getSettledValue<IPorteFornecedor>(settledPorteFornecedores),
+      esferas : IEsfera[] = getSettledValue<IEsfera>(settledEsferas),
+      formasCompra : IFormaCompra[] = getSettledValue<IFormaCompra>(settledFormasCompra),
+      modalidadesCompra : IModalidadeCompra[] = getSettledValue<IModalidadeCompra>(settledModalidadesCompra),
+      periodosCompra : IPeriodoCompra[] = getSettledValue<IPeriodoCompra>(settledPeriodosCompra),
+      situacoesLicitacao : ISituacaoLicitacao[] = getSettledValue<ISituacaoLicitacao>(settledSituacoesLicitacao);
 
   return (
     <PageClient
-        empresaPorte={reqDataListToAutocomplete<IPorteFornecedor>(porteFornecedores)}
-        esferas={reqDataListToAutocomplete<IEsfera>(esferas)}
-        compraFormas={reqDataListToAutocomplete<IFormaCompra>(formasCompra)}
-        fornecedorNomes={reqDataPageableToAutocomplete<IFornecedor>(fornecedores)}
-        fornecedorDocumentos={reqDataPageableToAutocomplete<IFornecedor>(fornecedores, 'documento')}
-        compraModalidades={reqDataListToAutocomplete<IModalidadeCompra>(modalidadesCompra)}
-        compraPeriodos={reqDataListToAutocomplete<IPeriodoCompra>(periodosCompra, 'descricao')}
+        empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores)}
+        esferas={reqDataListToSelect<IEsfera>(esferas)}
+        compraFormas={reqDataListToSelect<IFormaCompra>(formasCompra)}
+        compraModalidades={reqDataListToSelect<IModalidadeCompra>(modalidadesCompra)}
+        compraPeriodos={reqDataListToSelect<IPeriodoCompra>(periodosCompra, 'nome')}
+        situacoesLicitacoes={reqDataListToSelect<ISituacaoLicitacao>(situacoesLicitacao)}
       />
   )
 }

@@ -8,7 +8,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <NextUIProvider>
       <NextThemesProvider
         attribute='class'
-        defaultTheme='dark'
+        defaultTheme='modern'
         themes={['light', 'dark', 'modern']}
       >
         <main className="text-foreground bg-background min-h-screen">
