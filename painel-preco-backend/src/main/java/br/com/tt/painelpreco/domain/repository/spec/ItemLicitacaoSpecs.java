@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
+import br.com.tt.painelpreco.util.DateUtil;
 import br.com.tt.painelpreco.util.JPAUtil;
 import br.com.tt.painelpreco.util.StringUtil;
 
@@ -25,6 +26,54 @@ public class ItemLicitacaoSpecs {
 			
 			if (!StringUtil.isEmpty(filtro.getDescricaoComplementar()))
 				predicates.add(builder.like(builder.upper(root.get("descricaoComplementar")), JPAUtil.likeExpression(filtro.getDescricaoComplementar())));
+			
+			/** ====================================================== LICITACAO ====================================================== **/
+			if (filtro.getAno() != null)
+				predicates.add(builder.between(root.join("licitacao").get("dataResultadoCompra"), DateUtil.getDateFirtDayYear(filtro.getAno()), DateUtil.getDateLastDayYear(filtro.getAno())));
+			
+			if (!StringUtil.isEmpty(filtro.getObjeto()))
+				predicates.add(builder.like(builder.upper(root.join("licitacao").get("objeto")), JPAUtil.likeExpression(filtro.getObjeto())));
+			
+			if (filtro.getOrgaoSuperiorId() != null)
+				predicates.add(builder.equal(root.join("licitacao").get("orgaoSuperior").get("uuid"), filtro.getOrgaoSuperiorId()));
+			
+			if (filtro.getOrgaoId() != null)
+				predicates.add(builder.equal(root.join("licitacao").get("orgao").get("uuid"), filtro.getOrgaoId()));
+			
+			if (filtro.getUgId() != null)
+				predicates.add(builder.equal(root.join("licitacao").get("unidadeGestora").get("uuid"), filtro.getUgId()));
+			
+			if (filtro.getModalidadeId() != null)
+				predicates.add(builder.equal(root.join("licitacao").get("modalidadeCompra").get("uuid"), filtro.getModalidadeId()));
+			
+			Integer periodoCompraId = filtro.getPeriodoCompraId();
+			if (filtro.getPeriodoCompraId() != null) {
+				if (periodoCompraId < 181)
+					predicates.add(builder.greaterThanOrEqualTo(root.join("licitacao").get("dataResultadoCompra"), filtro.getPeriodoCompra().getDataCompra()));
+				else
+					predicates.add(builder.lessThanOrEqualTo(root.join("licitacao").get("dataResultadoCompra"), filtro.getPeriodoCompra().getDataCompra()));
+			}
+
+			if (filtro.getFormaCompraId() != null)
+				predicates.add(builder.equal(root.join("licitacao").get("formaCompra").get("uuid"), filtro.getFormaCompraId()));
+			
+			if (filtro.getEsferaId() != null)
+				predicates.add(builder.equal(root.join("licitacao").get("esfera").get("uuid"), filtro.getEsferaId()));
+			
+			if (!StringUtil.isEmpty(filtro.getDescricao()))
+				predicates.add(builder.like(builder.upper(root.get("descricao")), JPAUtil.likeExpression(filtro.getDescricao())));
+			
+			if (!StringUtil.isEmpty(filtro.getDescricaoComplementar()))
+				predicates.add(builder.like(builder.upper(root.get("descricaoComplementar")), JPAUtil.likeExpression(filtro.getDescricaoComplementar())));
+			
+			if (filtro.getMaterialId() != null)
+				predicates.add(builder.equal(root.get("material").get("uuid"), filtro.getMaterialId()));
+			
+			if (filtro.getPorteFornecedorId() != null)
+				predicates.add(builder.equal(root.get("fornecedor.porte.id"), filtro.getPorteFornecedorId()));
+			
+			if (filtro.getFornecedorId() != null)
+				predicates.add(builder.equal(root.get("fornecedor").get("uuid"), filtro.getFornecedorId()));
 			
 			return builder.and(predicates.toArray(new Predicate[0]));
 		};

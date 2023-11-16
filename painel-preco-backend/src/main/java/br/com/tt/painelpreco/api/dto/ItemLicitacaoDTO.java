@@ -18,5 +18,6 @@ public class ItemLicitacaoDTO {
 	private Double valor;
 	private MaterialDTO material;
 	private FornecedorDTO fornecedor;
+	private LicitacaoDTO licitacao;
 
 }

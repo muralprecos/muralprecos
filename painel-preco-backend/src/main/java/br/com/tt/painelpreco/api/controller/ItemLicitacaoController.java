@@ -37,9 +37,9 @@ public class ItemLicitacaoController {
 	
 	@GetMapping
 	public Page<ItemLicitacaoDTO> pesquisar(Pageable pageable, ItemLicitacaoFilter filter) {
-		Page<ItemLicitacao> materiais = itemLicitacaoService.listaByFilter(ItemLicitacaoSpecs.filtroGeral(filter), pageable);
-		List<ItemLicitacaoDTO> materiaisDTO = converter.toDTOCollection(materiais.getContent(), ItemLicitacaoDTO.class);
-		return new PageImpl<>(materiaisDTO, pageable, materiais.getTotalElements());
+		Page<ItemLicitacao> itens = itemLicitacaoService.listaByFilter(ItemLicitacaoSpecs.filtroGeral(filter), pageable);
+		List<ItemLicitacaoDTO> itensDTO = converter.toDTOCollection(itens.getContent(), ItemLicitacaoDTO.class);
+		return new PageImpl<>(itensDTO, pageable, itens.getTotalElements());
 	}
 
 }
