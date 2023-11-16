@@ -2,34 +2,35 @@
 
 import {Button, Select, SelectItem} from "@nextui-org/react";
 
-import { Divider, Input } from '@nextui-org/react'
+import { Autocomplete, AutocompleteItem, Divider, Input } from '@nextui-org/react'
 import FormTitle from '@/components/atoms/FormTitle'
 import FormRow from "@/components/atoms/FormRow";
-import AutocompleteField, { AutocompleteFieldHandle } from "@/components/molecules/AutocompleteField";
-import { IItemAutocomplete, } from "@/interfaces/types";
-import { Dispatch, RefObject, SetStateAction, useRef, useState } from "react";
-import { getListEstados, getListFornecedores, getListOrgaos, getListUASG } from "@/hooks/api";
-import AutocompleteFieldAsync from "@/components/organisms/AutocompleteFieldAsync";
-
+import { IItemSelect } from "@/interfaces/types";
+import { useState } from "react";
+import { useAutocompleteList } from "@/hooks/autocomplete/useAutocompleteList";
+import {useInfiniteScroll} from "@nextui-org/use-infinite-scroll";
+import {useFilter} from "@react-aria/i18n";
+import {useAsyncList} from "@react-stately/data";
+import { getListFornecedores } from "@/hooks/api";
 
 interface IProps {
-  empresaPorte: IItemAutocomplete[]
-  esferas: IItemAutocomplete[]
-  compraFormas: IItemAutocomplete[]
-  compraModalidades: IItemAutocomplete[]
-  compraPeriodos: IItemAutocomplete[]
-  situacoesLicitacoes: IItemAutocomplete[]
+  empresaPorte: IItemSelect[]
+  esferas: IItemSelect[]
+  compraFormas: IItemSelect[]
+  compraModalidades: IItemSelect[]
+  compraPeriodos: IItemSelect[]
+  situacoesLicitacoes: IItemSelect[]
 
-  compraAno?: IItemAutocomplete[]
-  materialNome?: IItemAutocomplete[]
-  materialCodigo?: IItemAutocomplete[]
-  itemDescricao?: IItemAutocomplete[]
-  itemDescricaoComplementar?: IItemAutocomplete[]
-  compraObjeto?: IItemAutocomplete[]
-  unidadeFornecimento?: IItemAutocomplete[]
-  orgaoSuperior?: IItemAutocomplete[]
-  orgao?: IItemAutocomplete[]
-  uasg?: IItemAutocomplete[]
+  compraAno?: IItemSelect[]
+  materialNome?: IItemSelect[]
+  materialCodigo?: IItemSelect[]
+  itemDescricao?: IItemSelect[]
+  itemDescricaoComplementar?: IItemSelect[]
+  compraObjeto?: IItemSelect[]
+  unidadeFornecimento?: IItemSelect[]
+  orgaoSuperior?: IItemSelect[]
+  orgao?: IItemSelect[]
+  uasg?: IItemSelect[]
 }
 
 const PageClient: React.FC<IProps> = ({
@@ -42,19 +43,22 @@ const PageClient: React.FC<IProps> = ({
   ...opts
 }) => {
 
-  const refAutocompFornecedores = useRef<AutocompleteFieldHandle>(null);
-  const [optionsFornecedores, setOptionsFornecedores] = useState<IItemAutocomplete[]>([]);
-  const [valueFornecedor, setValueFornecedor] = useState<IItemAutocomplete | null>(null);
-
   const clearForm = () => {
-    setValueFornecedor(null)
-    setOptionsFornecedores([]);
-    refAutocompFornecedores.current?.setValueInput(null)
   }
 
-  const getValAutocomplete = (f: IItemAutocomplete | null ) => {
-    return f?.description || ''
-  }
+  const [isOpen, setIsOpen] = useState(false);
+  const {items, hasMore, isLoading, onLoadMore, setInputTextVal} = useAutocompleteList({
+    fetchDelay: 1500,
+    initWithData: true,
+    minCharactersLoad: 3,
+    getList: getListFornecedores
+  });
+  const [, scrollerRef] = useInfiniteScroll({
+    hasMore,
+    isEnabled: isOpen,
+    shouldUseLoader: false, // We don't want to show the loader at the bottom of the list
+    onLoadMore,
+  });
 
   return (
     <section className='py-4 flex items-center justify-center flex-col'>
@@ -78,8 +82,8 @@ const PageClient: React.FC<IProps> = ({
           <div className="basis-1/4">
             <Select label="Porte da Empresa" className="w-full">
               {empresaPorte.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
                 </SelectItem>
               ))}
             </Select>
@@ -87,8 +91,8 @@ const PageClient: React.FC<IProps> = ({
           <div className="basis-1/4">
             <Select label="Esfera" className="w-full">
               {esferas.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
                 </SelectItem>
               ))}
             </Select>
@@ -96,8 +100,8 @@ const PageClient: React.FC<IProps> = ({
           <div className="basis-1/4">
             <Select label="Forma da Compra" className="w-full">
               {compraFormas.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
                 </SelectItem>
               ))}
             </Select>
@@ -108,8 +112,8 @@ const PageClient: React.FC<IProps> = ({
           <div className="basis-1/3">
             <Select label="Modalidade Compra" className="w-full">
               {compraModalidades.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
                 </SelectItem>
               ))}
             </Select>
@@ -117,23 +121,66 @@ const PageClient: React.FC<IProps> = ({
           <div className="basis-1/3">
             <Select label="Período da Compra" className="w-full">
               {compraPeriodos.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
                 </SelectItem>
               ))}
             </Select>
           </div>
           <div className="basis-1/3">
-            <Select label="Situação da Licitação" className="w-full">
+            <Autocomplete
+              label="Situação da Licitação"
+              className="w-full"
+            >
               {situacoesLicitacoes.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
-                </SelectItem>
+                <AutocompleteItem key={o.value} value={o.value}>
+                  {o.label}
+                </AutocompleteItem>
               ))}
-            </Select>
+            </Autocomplete>
           </div>
         </FormRow>
 
+        <FormRow>
+          <div className="basis-1/2">
+            <Autocomplete
+              className="w-full"
+              variant="flat"
+              isLoading={isLoading}
+              label="Fornecedor"
+              scrollRef={scrollerRef}
+              onOpenChange={setIsOpen}
+
+              defaultItems={items}
+              onInputChange={(val) => {
+                setInputTextVal(val);
+              }}
+            >
+              {(item) => (
+                <AutocompleteItem key={item.uuid} className="capitalize">
+                  {item.nome}
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
+          </div>
+        </FormRow>
+
+        {/* <FormRow>
+          <div className="basis-1/2">
+            <AutocompleteFieldAsync 
+              id="CNPJ/CPF/NOME do Fornecedor"
+              autocompleteService={getListFornecedores}
+              autocompleteMinLength={5}
+              />
+          </div>
+          <div className="basis-1/4">
+            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor Fornecedor" />
+          </div>
+        </FormRow> */}
+
+
+
+{/* 
         <FormRow>
           <div className="basis-1/2">
             <AutocompleteFieldAsync 
@@ -181,7 +228,7 @@ const PageClient: React.FC<IProps> = ({
           <div className="basis-1/4">
             <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor Unidade Federativa" />
           </div>
-        </FormRow>
+        </FormRow> */}
 
 
 

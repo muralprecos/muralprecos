@@ -1,20 +1,20 @@
 
-import { IItemAutocomplete, IObjetoAPI } from "@/interfaces/types";
+import { IItemAutocomplete, IItemSelect, IObjetoAPI } from "@/interfaces/types";
 
-export function listDataToSelectFromProp<T extends IObjetoAPI>(list: T[], prop: keyof T ): IItemAutocomplete[] {
+export function listDataToSelectFromProp<T extends IObjetoAPI>(list: T[], prop: keyof T ): IItemSelect[] {
   return list.map(e => ({
-    description: e[prop]+'',
-    key: e.uuid
+    label: e[prop]+'',
+    value: e.uuid
   }))
 }
 
-export function listDataToSelect<T extends IObjetoAPI>(list: T[] ): IItemAutocomplete[] {
+export function listDataToSelect<T extends IObjetoAPI>(list: T[] ): IItemSelect[] {
   return list.map(e => ({
-    description: e.nome,
-    key: e.uuid
+    label: e.nome,
+    value: e.uuid
   }))
 }
 
-export function reqDataListToSelect<T extends IObjetoAPI>(data: T[], prop?: keyof T): IItemAutocomplete[] {
+export function reqDataListToSelect<T extends IObjetoAPI>(data: T[], prop?: keyof T): IItemSelect[] {
   return !!prop ? listDataToSelectFromProp(data, prop) : listDataToSelect(data);
 }
