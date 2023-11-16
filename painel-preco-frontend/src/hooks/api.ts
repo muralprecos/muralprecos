@@ -33,19 +33,21 @@ const getGenericList =  async <T extends IObjetoAPI>(
 }
 
 const getGenericListPageable =  async <T extends IObjetoAPI>(
-  { path, page = 0, size = 50, info } : 
-  { path: string, page?: number; size?: number, info? : [{
-    val: string
-    param: string
-  }] }) : Promise<IReturnRequestAPI<T>> => 
-{
+    { path, page = 0, size = 50, info } : IAPISearchProps<T>
+  ) : Promise<IReturnRequestAPI<T>> => {
 
-  //https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/URLSearchParams
-
-  console.log(`--pageable = ${host}${path}?page=${page}&size=${size}`);
-
+  let url = `${host}${path}?page=${page}&size=${size}`;
+  if (info != null && info.length > 0) {
+    info.forEach(i => {
+      const vi = encodeURIComponent(i.val);
+      if(vi !== '' && i.param !== '') {
+        url += `&${i.param}=${vi}`
+      }
+    })
+  }
+  
   const headers = { 'Authorization': `Bearer ${token}` };
-  const res = await fetch(`${host}${path}?page=${page}&size=${size}`, { 
+  const res = await fetch(url, { 
     cache: 'force-cache',
     next: {  },
     headers
@@ -85,15 +87,15 @@ const getListSituacoesLicitacao = async (
 
 const getListFornecedores = async (
   { page, size, info } : IAPISearchProps<IFornecedor>) => {
-  return getGenericListPageable<IFornecedor>({ path: '/api/v1/fornecedores' , page, size });
+  return getGenericListPageable<IFornecedor>({ path: '/api/v1/fornecedores' , page, size, info });
 }
 const getListOrgaos = async (
   { page, size, info } : IAPISearchProps<IOrgao>) => {
-  return getGenericListPageable<IOrgao>({ path: '/api/v1/orgaos' , page, size });
+  return getGenericListPageable<IOrgao>({ path: '/api/v1/orgaos' , page, size, info });
 }
 const getListUASG = async (
   { page, size, info } : IAPISearchProps<IUnidadeGestora>) => {
-  return getGenericListPageable<IUnidadeGestora>({ path: '/api/v1/unidades-gestoras' , page, size });
+  return getGenericListPageable<IUnidadeGestora>({ path: '/api/v1/unidades-gestoras' , page, size, info });
 }
 
 const getListEstados = async (

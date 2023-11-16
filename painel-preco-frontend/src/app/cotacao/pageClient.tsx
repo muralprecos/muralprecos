@@ -5,13 +5,9 @@ import {Button, Select, SelectItem} from "@nextui-org/react";
 import { Autocomplete, AutocompleteItem, Divider, Input } from '@nextui-org/react'
 import FormTitle from '@/components/atoms/FormTitle'
 import FormRow from "@/components/atoms/FormRow";
-import { IItemSelect } from "@/interfaces/types";
-import { useState } from "react";
-import { useAutocompleteList } from "@/hooks/autocomplete/useAutocompleteList";
-import {useInfiniteScroll} from "@nextui-org/use-infinite-scroll";
-import {useFilter} from "@react-aria/i18n";
-import {useAsyncList} from "@react-stately/data";
-import { getListFornecedores } from "@/hooks/api";
+import { IFornecedor, IItemSelect, IOrgao, IUnidadeFederativa, IUnidadeGestora } from "@/interfaces/types";
+import { getListEstados, getListFornecedores, getListOrgaos, getListUASG } from "@/hooks/api";
+import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 
 interface IProps {
   empresaPorte: IItemSelect[]
@@ -46,18 +42,35 @@ const PageClient: React.FC<IProps> = ({
   const clearForm = () => {
   }
 
-  const [isOpen, setIsOpen] = useState(false);
-  const {items, hasMore, isLoading, onLoadMore, setInputTextVal} = useAutocompleteList({
-    fetchDelay: 1500,
-    initWithData: true,
-    minCharactersLoad: 3,
+  const anos = [
+    {label: "2013", value: "2013"},
+    {label: "2014", value: "2014"},
+    {label: "2015", value: "2015"},
+    {label: "2016", value: "2016"},
+    {label: "2017", value: "2017"},
+    {label: "2018", value: "2018"},
+    {label: "2019", value: "2019"},
+    {label: "2020", value: "2020"},
+    {label: "2021", value: "2021"},
+    {label: "2022", value: "2022"},
+    {label: "2022", value: "2023"}
+  ]
+
+  const autoCompleteFornecedores = useAutocompleteFilter<IFornecedor>({
+    searchParams: ['nome', 'documento'],
     getList: getListFornecedores
   });
-  const [, scrollerRef] = useInfiniteScroll({
-    hasMore,
-    isEnabled: isOpen,
-    shouldUseLoader: false, // We don't want to show the loader at the bottom of the list
-    onLoadMore,
+
+  const autoCompleteOrgaos = useAutocompleteFilter<IOrgao>({
+    getList: getListOrgaos
+  });
+
+  const autoCompleteUASG = useAutocompleteFilter<IUnidadeGestora>({
+    getList: getListUASG
+  });
+
+  const autoCompleteUnidadesFederativas = useAutocompleteFilter<IUnidadeFederativa>({
+    getList: getListEstados
   });
 
   return (
@@ -70,14 +83,14 @@ const PageClient: React.FC<IProps> = ({
 
         <FormRow>
           <div className="basis-1/4">
-            <Input type="email" label="Email" />
-            {/* <Select label="Ano da Compra" className="w-full">
-              {compraAno.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
+            {/* <Input type="email" label="Email" /> */}
+            <Select label="Ano da Compra" className="w-full" items={anos}>
+              {anos.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
                 </SelectItem>
               ))}
-            </Select> */}
+            </Select>
           </div> 
           <div className="basis-1/4">
             <Select label="Porte da Empresa" className="w-full">
@@ -146,15 +159,31 @@ const PageClient: React.FC<IProps> = ({
             <Autocomplete
               className="w-full"
               variant="flat"
-              isLoading={isLoading}
               label="Fornecedor"
-              scrollRef={scrollerRef}
-              onOpenChange={setIsOpen}
+              inputValue={autoCompleteFornecedores.filterText}
+              isLoading={autoCompleteFornecedores.isLoading}
+              items={autoCompleteFornecedores.items}
+              placeholder="Digite para buscar..."
+              onInputChange={autoCompleteFornecedores.setFilterText}
+            >
+              {(item) => (
+                <AutocompleteItem key={item.uuid} className="capitalize">
+                  {item.nome}
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
+          </div>
 
-              defaultItems={items}
-              onInputChange={(val) => {
-                setInputTextVal(val);
-              }}
+          <div className="basis-1/2">
+            <Autocomplete
+              className="w-full"
+              variant="flat"
+              label="Orgão"
+              inputValue={autoCompleteOrgaos.filterText}
+              isLoading={autoCompleteOrgaos.isLoading}
+              items={autoCompleteOrgaos.items}
+              placeholder="Digite para buscar..."
+              onInputChange={autoCompleteOrgaos.setFilterText}
             >
               {(item) => (
                 <AutocompleteItem key={item.uuid} className="capitalize">
@@ -165,153 +194,46 @@ const PageClient: React.FC<IProps> = ({
           </div>
         </FormRow>
 
-        {/* <FormRow>
-          <div className="basis-1/2">
-            <AutocompleteFieldAsync 
-              id="CNPJ/CPF/NOME do Fornecedor"
-              autocompleteService={getListFornecedores}
-              autocompleteMinLength={5}
-              />
-          </div>
-          <div className="basis-1/4">
-            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor Fornecedor" />
-          </div>
-        </FormRow> */}
-
-
-
-{/* 
         <FormRow>
           <div className="basis-1/2">
-            <AutocompleteFieldAsync 
-              id="CNPJ/CPF/NOME do Fornecedor"
-              autocompleteService={getListFornecedores}
-              autocompleteMinLength={5}
-              />
+            <Autocomplete
+              className="w-full"
+              variant="flat"
+              label="Unidade Gestora"
+              inputValue={autoCompleteUASG.filterText}
+              isLoading={autoCompleteUASG.isLoading}
+              items={autoCompleteUASG.items}
+              placeholder="Digite para buscar..."
+              onInputChange={autoCompleteUASG.setFilterText}
+            >
+              {(item) => (
+                <AutocompleteItem key={item.uuid} className="capitalize">
+                  {item.nome}
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
           </div>
-          <div className="basis-1/4">
-            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor Fornecedor" />
+
+          <div className="basis-1/2">
+            <Autocomplete
+              className="w-full"
+              variant="flat"
+              label="Unidade Federativa"
+              inputValue={autoCompleteUnidadesFederativas.filterText}
+              isLoading={autoCompleteUnidadesFederativas.isLoading}
+              items={autoCompleteUnidadesFederativas.items}
+              placeholder="Digite para buscar..."
+              onInputChange={autoCompleteUnidadesFederativas.setFilterText}
+            >
+              {(item) => (
+                <AutocompleteItem key={item.uuid} className="capitalize">
+                  {item.nome}
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
           </div>
         </FormRow>
 
-        <FormRow>
-          <div className="basis-1/2">
-            <AutocompleteFieldAsync
-              id="Orgão"
-              autocompleteService={getListOrgaos}
-              />
-          </div>
-          <div className="basis-1/4">
-            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor Orgao" />
-          </div>
-        </FormRow>
-
-        <FormRow>
-          <div className="basis-1/2">
-            <AutocompleteFieldAsync 
-              id="UASG"
-              autocompleteService={getListUASG}
-              />
-          </div>
-          <div className="basis-1/4">
-            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor UASG" />
-          </div>
-        </FormRow>
-
-        <FormRow>
-          <div className="basis-1/2">
-            <AutocompleteFieldAsync 
-              id="Unidade Federativa"
-              autocompleteService={getListEstados}
-              />
-          </div>
-          <div className="basis-1/4">
-            <Input type="email" value={getValAutocomplete(valueFornecedor)} label="Teste Valor Unidade Federativa" />
-          </div>
-        </FormRow> */}
-
-
-
-{/* 
-
-
-          <div className="basis-1/4 flex items-center">
-            <AutocompleteField 
-              type="text" label="Código do Material"
-              suggestions={materialCodigo}
-              onSuggestionSelected={(e) => { console.log(e) }}
-              />
-          </div>
-
-        <FormRow className="justify-between">
-          <Checkbox>Pesquisar apenas o termo digitado</Checkbox>
-          <Button variant="bordered" color="primary" endContent={'\/'}>
-            Mais Filtros
-          </Button>
-        </FormRow>
-
-        <FormRow>
-          <div className="basis-1/2">
-            <AutocompleteField 
-              type="text" label="Fornecedor"
-              suggestions={[{key: 1, description: 'teste'},{key: 2, description: 'testa'},{key: 3, description: 'tess'},{key: 4, description: 'test'},{key: 5, description: 'teasd'}]}
-              onSuggestionSelected={(e) => { console.log(e) }}
-              />
-          </div>
-          <div className="basis-1/2">
-            <Input type="text" label="Modelo" />
-          </div>
-        </FormRow>
-
-        <FormRow>
-          <div className="basis-1/2">
-            <Input type="text" label="Qtd Fornecedores" />
-          </div>
-          <div className="basis-1/2">
-            <Input type="text" label="CNPJ Fornecedor" />
-          </div>
-          <div className="basis-1/2">
-            <Select label="Porte do Vendedor" className="w-full">
-              {fornecedores.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
-          <div className="basis-1/2 flex items-center">
-            <Checkbox isDisabled>Apenas Propostas Vencedoras</Checkbox>
-          </div>
-        </FormRow>
-
-        <FormRow>
-          <div className="basis-1/2">
-            <Select label="Modalidade" className="w-full">
-              {fornecedores.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
-          <div className="basis-1/2">
-            <Input type="text" label="Referência Licitação" />
-          </div>
-          <div className="basis-1/2">
-            <Input type="text" label="UASG / Instituição / CNPJ" />
-          </div>
-          <div className="basis-1/2 flex items-center">
-            <Select label="Âmbito" className="w-full">
-              {fornecedores.map((o) => (
-                <SelectItem key={o.key} value={o.key}>
-                  {o.description}
-                </SelectItem>
-              ))}
-            </Select>
-          </div>
-        </FormRow>
-
-      */}
         <FormRow className="justify-end">
           <Button color="default" endContent={'\/'} onClick={() => clearForm()}>
             Limpar

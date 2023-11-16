@@ -1,4 +1,5 @@
 import { IAPISearchProps, IObjetoAPI, IReturnRequestAPI } from "@/interfaces/types";
+import { useAsyncList } from "@react-stately/data";
 import React from "react";
 
 interface IAutocompleteListHook<T extends IObjetoAPI> {
@@ -17,8 +18,9 @@ export function useAutocompleteList<T extends IObjetoAPI>({
   getList
 } : IAutocompleteListHook<T>) {
 
-  const [inputTextVal, setInputTextVal] = React.useState<string>('');
+  const [filterText, setFilterText] = React.useState<string>('');
   const [items, setItems] = React.useState<T[]>([]);
+  const [selectedItem, setSelectedItem] = React.useState<string | number | null | undefined>();
   const [hasMore, setHasMore] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
   const [page, setPage] = React.useState<number>(0);
@@ -58,16 +60,9 @@ export function useAutocompleteList<T extends IObjetoAPI>({
       loadData(page);
   }, []);
 
-  // React.useEffect(() => {
-  //   if (inputTextVal.length >= minCharactersLoad) {
-  //     console.log('change ', inputTextVal)
-  //     if (items.length) {
-  //       onLoadMore();
-  //     } else {
-  //       loadData(page);
-  //     }
-  //   }
-  // }, [inputTextVal]);
+  React.useEffect(() => {
+    console.log(filterText)
+  }, [filterText]);
 
 
   const onLoadMore = () => {
@@ -81,6 +76,9 @@ export function useAutocompleteList<T extends IObjetoAPI>({
     hasMore,
     isLoading,
     onLoadMore,
-    setInputTextVal,
+    filterText,
+    setFilterText,
+    selectedItem,
+    setSelectedItem
   };
 };
