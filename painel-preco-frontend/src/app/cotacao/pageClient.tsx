@@ -16,6 +16,7 @@ interface IProps {
   compraModalidades: IItemSelect[]
   compraPeriodos: IItemSelect[]
   situacoesLicitacoes: IItemSelect[]
+  unidadesFederativas: IItemSelect[]
 
   compraAno?: IItemSelect[]
   materialNome?: IItemSelect[]
@@ -36,6 +37,7 @@ const PageClient: React.FC<IProps> = ({
   compraModalidades,
   compraPeriodos,
   situacoesLicitacoes,
+  unidadesFederativas,
   ...opts
 }) => {
 
@@ -67,10 +69,6 @@ const PageClient: React.FC<IProps> = ({
 
   const autoCompleteUASG = useAutocompleteFilter<IUnidadeGestora>({
     getList: getListUASG
-  });
-
-  const autoCompleteUnidadesFederativas = useAutocompleteFilter<IUnidadeFederativa>({
-    getList: getListEstados
   });
 
   return (
@@ -157,6 +155,40 @@ const PageClient: React.FC<IProps> = ({
         <FormRow>
           <div className="basis-1/2">
             <Autocomplete
+              label="Unidade Federativa"
+              className="w-full"
+            >
+              {unidadesFederativas.map((o) => (
+                <AutocompleteItem key={o.value} value={o.value}>
+                  {o.label}
+                </AutocompleteItem>
+              ))}
+            </Autocomplete>
+          </div>
+
+          <div className="basis-1/2">
+            <Autocomplete
+              className="w-full"
+              variant="flat"
+              label="Município"
+              inputValue={autoCompleteUASG.filterText}
+              isLoading={autoCompleteUASG.isLoading}
+              items={autoCompleteUASG.items}
+              placeholder="Selecione a Unidade Federativa para buscar..."
+              onInputChange={autoCompleteUASG.setFilterText}
+            >
+              {(item) => (
+                <AutocompleteItem key={item.uuid} className="capitalize">
+                  {item.nome}
+                </AutocompleteItem>
+              )}
+            </Autocomplete>
+          </div>
+        </FormRow>
+
+        <FormRow>
+          <div className="basis-1/2">
+            <Autocomplete
               className="w-full"
               variant="flat"
               label="Fornecedor"
@@ -205,25 +237,6 @@ const PageClient: React.FC<IProps> = ({
               items={autoCompleteUASG.items}
               placeholder="Digite para buscar..."
               onInputChange={autoCompleteUASG.setFilterText}
-            >
-              {(item) => (
-                <AutocompleteItem key={item.uuid} className="capitalize">
-                  {item.nome}
-                </AutocompleteItem>
-              )}
-            </Autocomplete>
-          </div>
-
-          <div className="basis-1/2">
-            <Autocomplete
-              className="w-full"
-              variant="flat"
-              label="Unidade Federativa"
-              inputValue={autoCompleteUnidadesFederativas.filterText}
-              isLoading={autoCompleteUnidadesFederativas.isLoading}
-              items={autoCompleteUnidadesFederativas.items}
-              placeholder="Digite para buscar..."
-              onInputChange={autoCompleteUnidadesFederativas.setFilterText}
             >
               {(item) => (
                 <AutocompleteItem key={item.uuid} className="capitalize">

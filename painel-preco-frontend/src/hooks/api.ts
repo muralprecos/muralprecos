@@ -84,6 +84,11 @@ const getListSituacoesLicitacao = async (
   return getGenericList<ISituacaoLicitacao>({ path: '/api/v1/situacoes-licitacao' , page, size });
 }
 
+const getListEstados = async (
+  { page, size } : IAPISearchProps<IUnidadeFederativa>) => {
+  return getGenericList<IUnidadeFederativa>({ path: '/api/v1/unidades-federativas' , page, size });
+}
+
 
 const getListFornecedores = async (
   { page, size, info } : IAPISearchProps<IFornecedor>) => {
@@ -96,11 +101,6 @@ const getListOrgaos = async (
 const getListUASG = async (
   { page, size, info } : IAPISearchProps<IUnidadeGestora>) => {
   return getGenericListPageable<IUnidadeGestora>({ path: '/api/v1/unidades-gestoras' , page, size, info });
-}
-
-const getListEstados = async (
-  { page, size, info } : IAPISearchProps<IUnidadeFederativa>) => {
-  return getGenericListPageable<IUnidadeFederativa>({ path: '/api/v1/unidades-federativas' , page, size, info });
 }
 
 

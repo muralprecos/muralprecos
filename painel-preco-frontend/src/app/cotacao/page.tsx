@@ -1,7 +1,7 @@
-import { getFormasCompra, getListEsferas, getListModalidadesCompra, getListPeriodosCompra, getListPorteFornecedor, getListSituacoesLicitacao } from "@/hooks/api";
+import { getFormasCompra, getListEsferas, getListEstados, getListModalidadesCompra, getListPeriodosCompra, getListPorteFornecedor, getListSituacoesLicitacao } from "@/hooks/api";
 import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
-import { IEsfera, IFormaCompra, IModalidadeCompra, IObjetoAPI, IPeriodoCompra, IPorteFornecedor, ISituacaoLicitacao } from "@/interfaces/types";
+import { IEsfera, IFormaCompra, IModalidadeCompra, IObjetoAPI, IPeriodoCompra, IPorteFornecedor, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
 
 export default async function Home() {
   
@@ -12,9 +12,10 @@ export default async function Home() {
   const dataModalidadesCompra = getListModalidadesCompra({});
   const dataPeriodosCompra = getListPeriodosCompra({});
   const dataSituacoesLicitacao = getListSituacoesLicitacao({});
+  const dataUnidadesFederativas = getListEstados({});
   
-  const resReq = await Promise.allSettled([dataPorteFornecedores, dataEsferas, dataFormasCompra, dataModalidadesCompra, dataPeriodosCompra, dataSituacoesLicitacao]);
-  const [settledPorteFornecedores, settledEsferas, settledFormasCompra, settledModalidadesCompra, settledPeriodosCompra, settledSituacoesLicitacao] = resReq;
+  const resReq = await Promise.allSettled([dataPorteFornecedores, dataEsferas, dataFormasCompra, dataModalidadesCompra, dataPeriodosCompra, dataSituacoesLicitacao, dataUnidadesFederativas]);
+  const [settledPorteFornecedores, settledEsferas, settledFormasCompra, settledModalidadesCompra, settledPeriodosCompra, settledSituacoesLicitacao, settledUnidadesFederativas] = resReq;
 
   function instanceOfIFormaCompra(object: any): object is IFormaCompra {
     return 'member' in object;
@@ -33,7 +34,9 @@ export default async function Home() {
       formasCompra : IFormaCompra[] = getSettledValue<IFormaCompra>(settledFormasCompra),
       modalidadesCompra : IModalidadeCompra[] = getSettledValue<IModalidadeCompra>(settledModalidadesCompra),
       periodosCompra : IPeriodoCompra[] = getSettledValue<IPeriodoCompra>(settledPeriodosCompra),
-      situacoesLicitacao : ISituacaoLicitacao[] = getSettledValue<ISituacaoLicitacao>(settledSituacoesLicitacao);
+      situacoesLicitacao : ISituacaoLicitacao[] = getSettledValue<ISituacaoLicitacao>(settledSituacoesLicitacao),
+      unidadesFederativas : IUnidadeFederativa[] = getSettledValue<IUnidadeFederativa>(settledUnidadesFederativas)
+      ;
 
   return (
     <PageClient
@@ -43,6 +46,7 @@ export default async function Home() {
         compraModalidades={reqDataListToSelect<IModalidadeCompra>(modalidadesCompra)}
         compraPeriodos={reqDataListToSelect<IPeriodoCompra>(periodosCompra, 'nome')}
         situacoesLicitacoes={reqDataListToSelect<ISituacaoLicitacao>(situacoesLicitacao)}
+        unidadesFederativas={reqDataListToSelect<ISituacaoLicitacao>(unidadesFederativas)}
       />
   )
 }
