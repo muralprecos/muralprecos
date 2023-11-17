@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.tt.painelpreco.api.dto.FornecedorDTO;
-import br.com.tt.painelpreco.api.dto.MaterialDTO;
+import br.com.tt.painelpreco.api.dto.form.filter.FornecedorFilter;
 import br.com.tt.painelpreco.domain.model.Fornecedor;
+import br.com.tt.painelpreco.domain.repository.spec.FornecedorSpecs;
 import br.com.tt.painelpreco.domain.service.FornecedorService;
 import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.ModelConverter;
@@ -28,8 +29,8 @@ public class FornecedorController {
 	private ModelConverter converter;
 	
 	@GetMapping
-	public Page<FornecedorDTO> listar(Pageable pageable) {
-		Page<Fornecedor> fornecedores = fornecedorService.listaTodos(pageable);
+	public Page<FornecedorDTO> pesquisar(Pageable pageable, FornecedorFilter filter) {
+		Page<Fornecedor> fornecedores = fornecedorService.listaByFilter(FornecedorSpecs.filtroGeral(filter), pageable);
 		List<FornecedorDTO> fornecedoresDTO = converter.toDTOCollection(fornecedores.getContent(), FornecedorDTO.class);
 		return new PageImpl<>(fornecedoresDTO, pageable, fornecedores.getTotalElements());
 	}

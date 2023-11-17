@@ -23,8 +23,16 @@ public class MaterialSpecs {
 			if (filtro.getCodigo() != null)
 				predicates.add(builder.equal(root.get("codigo"), filtro.getCodigo()));
 			
-			if (!StringUtil.isEmpty(filtro.getNome()))
-				predicates.add(builder.like(builder.upper(root.get("nome")), JPAUtil.likeExpression(filtro.getNome())));
+			if (!StringUtil.isEmpty(filtro.getNome())) {
+				int pCodigo = -1;
+				try {
+					pCodigo = Integer.parseInt(filtro.getNome());
+				} catch (Exception e) {} // best-efort
+				
+				Predicate codigo = builder.equal(root.get("codigo"), pCodigo);
+				Predicate nome = builder.like(builder.upper(root.get("nome")), JPAUtil.likeExpression(filtro.getNome()));
+				predicates.add(builder.or(codigo, nome));
+			}
 			
 			return builder.and(predicates.toArray(new Predicate[0]));
 		};
