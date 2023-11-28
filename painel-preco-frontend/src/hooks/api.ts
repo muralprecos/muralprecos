@@ -1,6 +1,6 @@
 import { IAPISearchProps, IEsfera, IFormaCompra, IFornecedor, IFornecedorSearch, IModalidadeCompra, IObjetoAPI, IOrgao, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora } from "@/interfaces/types";
 
-const host = 'http://localhost:8080';
+const host = 'http://muraldeprecos.com';//'http://localhost:8080';
 const token = `eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ6VDIyQkJTRXFmU1RRWGp2RkpWTzFIenNENWJfdEZnbVp5dVUtNGtqaHVvIn0.eyJleHAiOjE3MDAxNDI2NDcsImlhdCI6MTcwMDEwNjY0NywianRpIjoiNjI2MDJiZjktYjVhZS00ODQ0LTgzNDUtMWE3ODZiMzJiM2NiIiwiaXNzIjoiaHR0cDovLzE5Mi4xNjguMTUuMjo4MjgwL3JlYWxtcy90dHNvbHV0aW9ucyIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIxMGJmMDUwNS02MThkLTRkMjItODllMy1kZTdkNjg3MDFhNTkiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJwYWluZWwtcHJlY28iLCJzZXNzaW9uX3N0YXRlIjoiZWUxMzRmYTgtM2Q5Ny00YjAzLWE1NDAtMjQwZGU1OTAwMWZhIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwOi8vbG9jYWxob3N0OjgwODAiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iLCJkZWZhdWx0LXJvbGVzLXR0c29sdXRpb25zIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiZWUxMzRmYTgtM2Q5Ny00YjAzLWE1NDAtMjQwZGU1OTAwMWZhIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBUVCIsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJUVCIsImVtYWlsIjoiYWRtaW50dHNvbHV0aW9uc0BnbWFpbC5jb20ifQ.QrYyaDZZib65VARIC33PHONA5UjmGl0GZr3Pagy0w5cSBdwUMpW6F1nl_3dSx2wF_iXhi7oFsNvP41S_CSnq5F2Zh1H8cLiwwDCrqrK0AWZz466Ekik2AFIapGoVTldBFHE09xuUbXYR5z0b36WhCQELmcas1ColxbVO8-QJ2L-zgLJZa0enqHrzgZzdF_teERL3ySX5Ofq6ki5a0GOo4zKLZBg9fYQlfbhiedGhlWu91Y-4Gw1G7PaAwsmWmWh8guOgRsJF5zW_X1q-pAn0UmEUcqvEEY5s8S6Edipvb8OMPIppuGZiwdUW4R9-QSO-mCSwOiJeL_VMpdR3ibptMg`;
 export const revalidate = 3600; // revalida os dados a cada hora
 
@@ -20,7 +20,7 @@ const getGenericList =  async <T extends IObjetoAPI>(
   //   ...Object.entries(add_params), // [["c","a"],["d","2"],["e","false"]]
   // ]).toString();
 
-  const headers = { 'Authorization': `Bearer ${token}` };
+  const headers = {};//{ 'Authorization': `Bearer ${token}` };
   const res = await fetch(`${host}${path}?page=${page}&size=${size}`, { 
     cache: 'force-cache',
     next: {  },
@@ -46,7 +46,7 @@ const getGenericListPageable =  async <T extends IObjetoAPI>(
     })
   }
   
-  const headers = { 'Authorization': `Bearer ${token}` };
+  const headers = {};//{ 'Authorization': `Bearer ${token}` };
   const res = await fetch(url, { 
     cache: 'force-cache',
     next: {  },

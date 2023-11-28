@@ -59,7 +59,7 @@ const PageClient: React.FC<IProps> = ({
   ]
 
   const autoCompleteFornecedores = useAutocompleteFilter<IFornecedor>({
-    searchParams: ['nome', 'documento'],
+    searchParams: ['nome'],
     getList: getListFornecedores
   });
 

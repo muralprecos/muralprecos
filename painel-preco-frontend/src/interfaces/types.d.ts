@@ -45,9 +45,7 @@ interface IUnidadeGestora extends IObjetoAPI {}
 interface ISituacaoLicitacao extends IObjetoAPI {}
 
 
-interface IPeriodoCompra extends IObjetoAPI {
-  descricao: string
-}
+interface IPeriodoCompra extends IObjetoAPI {}
 
 
 type NameValue<T extends IObjetoAPI> = {
