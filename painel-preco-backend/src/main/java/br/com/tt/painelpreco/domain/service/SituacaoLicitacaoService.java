@@ -5,17 +5,17 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.tt.painelpreco.domain.model.UnidadeFederativa;
-import br.com.tt.painelpreco.domain.repository.UnidadeFederativaRepository;
+import br.com.tt.painelpreco.domain.model.SituacaoLicitacao;
+import br.com.tt.painelpreco.domain.repository.SituacaoLicitacaoRepository;
 
 @Service
 public class SituacaoLicitacaoService {
 	
 	@Autowired
-	private UnidadeFederativaRepository unidadeFederativaRepository;
+	private SituacaoLicitacaoRepository situacaoLicitacaoRepository;
 
-	public List<UnidadeFederativa> listaTodas() {
-		return unidadeFederativaRepository.findAll();
+	public List<SituacaoLicitacao> listaTodas() {
+		return situacaoLicitacaoRepository.findAll();
 	}
 
 }

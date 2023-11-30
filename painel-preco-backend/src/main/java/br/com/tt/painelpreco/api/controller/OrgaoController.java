@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.tt.painelpreco.api.dto.OrgaoDTO;
+import br.com.tt.painelpreco.api.dto.form.filter.OrgaoFilter;
 import br.com.tt.painelpreco.domain.model.Orgao;
+import br.com.tt.painelpreco.domain.repository.spec.OrgaoSpecs;
 import br.com.tt.painelpreco.domain.service.OrgaoService;
 import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.ModelConverter;
@@ -29,8 +31,8 @@ public class OrgaoController {
 	private ModelConverter converter;
 	
 	@GetMapping
-	public Page<OrgaoDTO> listar(Pageable pageable) {
-		Page<Orgao> orgaos = orgaoService.listaTodos(pageable);
+	public Page<OrgaoDTO> pesquisar(Pageable pageable, OrgaoFilter filter) {
+		Page<Orgao> orgaos = orgaoService.listaByFilter(OrgaoSpecs.filtroGeral(filter), pageable);
 		List<OrgaoDTO> orgaosDTO = converter.toDTOCollection(orgaos.getContent(), OrgaoDTO.class);
 		return new PageImpl<>(orgaosDTO, pageable, orgaos.getTotalElements());
 	}

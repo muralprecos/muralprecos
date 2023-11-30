@@ -38,11 +38,15 @@ public class Orgao {
 	
 	private String nome;
 	
-	@ManyToOne
-	@JoinColumn(name = "orgao_superior_id")
-	private Orgao orgaoSuperior;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "superior_id")
+	private Orgao superior;
 	
-	@OneToMany(mappedBy = "orgaoSuperior", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "superior", fetch = FetchType.LAZY)
 	private List<Orgao> subOrgaos;
+	
+	public boolean getEhSuperior() {
+		return superior == null;
+	}
 	
 }

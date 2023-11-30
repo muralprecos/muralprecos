@@ -12,6 +12,7 @@ public class OrgaoDTO {
 	private UUID uuid;
 	private Integer codigo;
 	private String nome;
+	private boolean ehSuperior;
 	private OrgaoDTO superior;
 
 }

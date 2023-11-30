@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 public class AnoCompraDTO {
 	
-	private Integer valor;
+	private Integer ano;
 
 }

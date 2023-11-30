@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import br.com.tt.painelpreco.domain.model.Orgao;
@@ -19,6 +20,10 @@ public class OrgaoService {
 
 	public Page<Orgao> listaTodos(Pageable pageable) {
 		return orgaoRepository.findAll(pageable);
+	}
+	
+	public Page<Orgao> listaByFilter(Specification<Orgao> filtro, Pageable pageable) {
+		return orgaoRepository.findAll(filtro, pageable);
 	}
 	
 	public Page<Orgao> listaTodosSubOrgaos(UUID uuid, Pageable pageable) {
