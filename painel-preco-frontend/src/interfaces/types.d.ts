@@ -34,6 +34,11 @@ interface IUnidadeFederativa extends IObjetoAPI {
 interface IOrgao extends IObjetoAPI {
   codigo: number
   ehsuperior?: booelan
+  superior?: IOrgao
+}
+
+interface INomeMaterial extends IObjetoAPI {
+  codigo: number
 }
 
 interface IEsfera extends IObjetoAPI {}
@@ -102,7 +107,7 @@ interface IAPISearchProps<T extends IObjetoAPI> {
   path?: string
   page?: number
   size?: number
-  info? : IAPISearchInfo[] | []
+  info? : IAPISearchInfo[]
 }
 
 interface IAPISearchInfo {
@@ -113,4 +118,4 @@ interface IAPISearchInfo {
 
 //type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;
 
-export { NameValue, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo };
+export { NameValue, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo, INomeMaterial };

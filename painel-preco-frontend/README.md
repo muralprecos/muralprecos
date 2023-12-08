@@ -74,30 +74,38 @@ https://tobiasahlin.com/blog/common-flexbox-patterns/
 
 ## TODO:
 -- PROX ETAPAS:
-* Unidade de Fornecimento, 		autocomplete * texto
+OK Unidade de Fornecimento, 		autocomplete * texto
 	http://muraldeprecos.com/api/v1/unidades-fornecimento?page=0&size=10&nome=litro
-* Nome do Material (PDM),		autocomplete * texto
-* Código Material,				autocomplete * texto
+OK Nome do Material (PDM),		autocomplete * texto
+OK Código Material,				autocomplete * texto
 	- Nome do Material (PDM) (consulta com like pelo nome ou código no parametro nome)
 	http://muraldeprecos.com/api/v1/materiais?size=10&page=0&nome=deter
 	http://muraldeprecos.com/api/v1/materiais?size=10&page=0&nome=112011
-Objeto da Compra, 				autocomplete * texto
-	http://muraldeprecos.com/api/v1/licitacoes?page=0&size=10&objeto=limpeza
-Descrição do Item, 				autocomplete * texto
-	http://muraldeprecos.com/api/v1/itens-licitacao?page=0&size=10&descricao=deter
-Descrição Complementar 	autocomplete * texto
-	http://muraldeprecos.com/api/v1/itens-licitacao?page=0&size=10&descricaoComplementar=deter
+OK UASG			autocomplete (nome)
+	http://muraldeprecos.com/api/v1/unidades-gestoras?nome=universidade&page=0&size=10
+OK Situação Licitação:	select (está com informações dos estados)
+	http://muraldeprecos.com/api/v1/situacoes-licitacao
+Ok Órgão		autocompete (nome + ehsuperior = true e all)
+	http://muraldeprecos.com/api/v1/orgaos?nome=ministerio&ehSuperior=true&page=0&size=10
+
+
+TODO:
 - Estados:						autocomplete * texto
 - Cidade: (aninhado com estado)	autocomplete * texto
+- Objeto da Compra, 				autocomplete * texto
+	http://muraldeprecos.com/api/v1/licitacoes?page=0&size=10&objeto=limpeza
+- Descrição do Item, 				autocomplete * texto
+	http://muraldeprecos.com/api/v1/itens-licitacao?page=0&size=10&descricao=deter
+- Descrição Complementar 	autocomplete * texto
+	http://muraldeprecos.com/api/v1/itens-licitacao?page=0&size=10&descricaoComplementar=deter
+- Orgao (caso superior seja selecionado, filtrar os menores por ele)
+
 - Filtro de Busca				tela
 - Tela de Login 				tela
 
 
 
--- APRIMORAMENTOS BACKEND:
-- Órgão 						autocomplete (nome + ehsuperior = true e all)
-- Órgão Superior 				autocomplete (nome + ehsuperior)
-- UASG							autocomplete (nome)
-- Situação Licitação:			select (está com informações dos estados)
-- Ano Compra 					(está estático)
-- Peíodo da Compra, 			select (alterar descricao para nome)
+
+== MELHORIAS NO BACK
+- Ano Compra 		alterar para padrão uuid / nome
+	http://muraldeprecos.com/api/v1/anos-compra?ano=2017&page=0&size=2

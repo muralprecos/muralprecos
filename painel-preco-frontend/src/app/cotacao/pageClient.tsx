@@ -5,9 +5,10 @@ import {Button, Select, SelectItem} from "@nextui-org/react";
 import { Autocomplete, AutocompleteItem, Divider, Input } from '@nextui-org/react'
 import FormTitle from '@/components/atoms/FormTitle'
 import FormRow from "@/components/atoms/FormRow";
-import { IFornecedor, IItemSelect, IOrgao, IUnidadeFederativa, IUnidadeGestora } from "@/interfaces/types";
-import { getListEstados, getListFornecedores, getListOrgaos, getListUASG } from "@/hooks/api";
+import { IFornecedor, IItemSelect, INomeMaterial, IObjetoAPI, IOrgao, IUnidadeFederativa, IUnidadeGestora } from "@/interfaces/types";
+import { getListEstados, getListFornecedores, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento } from "@/hooks/api";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
+import AutocompleteAPI from "@/components/molecules/AutocompleteAPI";
 
 interface IProps {
   empresaPorte: IItemSelect[]
@@ -67,8 +68,20 @@ const PageClient: React.FC<IProps> = ({
     getList: getListOrgaos
   });
 
+  const autoCompleteOrgaosSuperiores = useAutocompleteFilter<IOrgao>({
+    getList: getListOrgaosSuperiores
+  });
+
   const autoCompleteUASG = useAutocompleteFilter<IUnidadeGestora>({
     getList: getListUASG
+  });
+
+  const autoCompleteUnidadesFornecimento = useAutocompleteFilter<IObjetoAPI>({
+    getList: getListUnidadesFornecimento
+  });
+
+  const autoCompleteNomeMaterial = useAutocompleteFilter<INomeMaterial>({
+    getList: getListNomeMaterial
   });
 
   return (
@@ -167,85 +180,55 @@ const PageClient: React.FC<IProps> = ({
           </div>
 
           <div className="basis-1/2">
-            <Autocomplete
-              className="w-full"
-              variant="flat"
+            {/*  TODO : CRIAR PARA MUNICIPIO LIGADO AO ESTADO */}
+            <AutocompleteAPI<IUnidadeGestora>
               label="Município"
-              inputValue={autoCompleteUASG.filterText}
-              isLoading={autoCompleteUASG.isLoading}
-              items={autoCompleteUASG.items}
-              placeholder="Selecione a Unidade Federativa para buscar..."
-              onInputChange={autoCompleteUASG.setFilterText}
-            >
-              {(item) => (
-                <AutocompleteItem key={item.uuid} className="capitalize">
-                  {item.nome}
-                </AutocompleteItem>
-              )}
-            </Autocomplete>
+              autocompleteHook={autoCompleteUASG}/>
           </div>
         </FormRow>
 
         <FormRow>
           <div className="basis-1/2">
-            <Autocomplete
-              className="w-full"
-              variant="flat"
-              label="Fornecedor"
-              inputValue={autoCompleteFornecedores.filterText}
-              isLoading={autoCompleteFornecedores.isLoading}
-              items={autoCompleteFornecedores.items}
-              placeholder="Digite para buscar..."
-              onInputChange={autoCompleteFornecedores.setFilterText}
-            >
-              {(item) => (
-                <AutocompleteItem key={item.uuid} className="capitalize">
-                  {item.nome}
-                </AutocompleteItem>
-              )}
-            </Autocomplete>
+            <AutocompleteAPI<IOrgao>
+              label="Orgão Superior"
+              autocompleteHook={autoCompleteOrgaosSuperiores}/>
           </div>
 
           <div className="basis-1/2">
-            <Autocomplete
-              className="w-full"
-              variant="flat"
+            <AutocompleteAPI<IOrgao>
               label="Orgão"
-              inputValue={autoCompleteOrgaos.filterText}
-              isLoading={autoCompleteOrgaos.isLoading}
-              items={autoCompleteOrgaos.items}
-              placeholder="Digite para buscar..."
-              onInputChange={autoCompleteOrgaos.setFilterText}
-            >
-              {(item) => (
-                <AutocompleteItem key={item.uuid} className="capitalize">
-                  {item.nome}
-                </AutocompleteItem>
-              )}
-            </Autocomplete>
+              autocompleteHook={autoCompleteOrgaos}/>
           </div>
         </FormRow>
 
         <FormRow>
           <div className="basis-1/2">
-            <Autocomplete
-              className="w-full"
-              variant="flat"
-              label="Unidade Gestora"
-              inputValue={autoCompleteUASG.filterText}
-              isLoading={autoCompleteUASG.isLoading}
-              items={autoCompleteUASG.items}
-              placeholder="Digite para buscar..."
-              onInputChange={autoCompleteUASG.setFilterText}
-            >
-              {(item) => (
-                <AutocompleteItem key={item.uuid} className="capitalize">
-                  {item.nome}
-                </AutocompleteItem>
-              )}
-            </Autocomplete>
+            <AutocompleteAPI<IFornecedor>
+              label="Fornecedor"
+              autocompleteHook={autoCompleteFornecedores}/>
+          </div>
+
+          <div className="basis-1/2">
+            <AutocompleteAPI<IUnidadeGestora>
+              label="Nome/Código Material"
+              autocompleteHook={autoCompleteNomeMaterial}/>
           </div>
         </FormRow>
+
+        <FormRow>
+          <div className="basis-1/2">
+            <AutocompleteAPI<IUnidadeGestora>
+              label="Unidade Gestora"
+              autocompleteHook={autoCompleteUASG}/>
+          </div>
+          <div className="basis-1/2">
+            <AutocompleteAPI<IObjetoAPI>
+              label="Unidade de Fornecimento"
+              autocompleteHook={autoCompleteUnidadesFornecimento}/>
+          </div>
+        </FormRow>
+
+        
 
         <FormRow className="justify-end">
           <Button color="default" endContent={'\/'} onClick={() => clearForm()}>

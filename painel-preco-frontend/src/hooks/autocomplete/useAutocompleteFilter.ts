@@ -1,7 +1,7 @@
 import { IAPISearchInfo, IAPISearchProps, IObjetoAPI, IReturnRequestAPI } from "@/interfaces/types";
 import { useAsyncList } from "@react-stately/data";
 
-interface IAutocompleteListHook<T extends IObjetoAPI> {
+export interface IAutocompleteListHook<T extends IObjetoAPI> {
   minCharactersLoad?: number;
   size?: number;
   searchParams?: string[];
