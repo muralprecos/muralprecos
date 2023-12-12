@@ -60,6 +60,13 @@ public class ItemLicitacaoSpecs {
 			if (filtro.getEsferaId() != null)
 				predicates.add(builder.equal(root.join("licitacao").get("esfera").get("uuid"), filtro.getEsferaId()));
 			
+			if (filtro.getMunicipioId() != null)
+				predicates.add(builder.equal(root.join("licitacao").get("municipio").get("uuid"), filtro.getMunicipioId()));
+			
+			if (filtro.getUfId() != null)
+				predicates.add(builder.equal(root.join("licitacao").get("municipio").get("uf").get("uuid"), filtro.getUfId()));
+			/** ====================================================== LICITACAO ====================================================== **/
+			
 			if (!StringUtil.isEmpty(filtro.getDescricao()))
 				predicates.add(builder.like(builder.upper(root.get("descricao")), JPAUtil.likeExpression(filtro.getDescricao())));
 			

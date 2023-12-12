@@ -13,6 +13,6 @@ public class OrgaoDTO {
 	private Integer codigo;
 	private String nome;
 	private boolean ehSuperior;
-	private OrgaoDTO superior;
+//	private OrgaoDTO superior;
 
 }

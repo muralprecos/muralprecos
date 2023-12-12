@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.tt.painelpreco.api.dto.MunicipioDTO;
 import br.com.tt.painelpreco.api.dto.UnidadeFederativaDTO;
+import br.com.tt.painelpreco.api.dto.form.filter.MunicipioFilter;
 import br.com.tt.painelpreco.domain.model.Municipio;
+import br.com.tt.painelpreco.domain.repository.spec.MunicipioSpecs;
 import br.com.tt.painelpreco.domain.service.MunicipioService;
 import br.com.tt.painelpreco.domain.service.UnidadeFederativaService;
 import br.com.tt.painelpreco.util.ApiVersion;
@@ -39,8 +41,9 @@ public class UnidadeFederativaController {
 	}
 	
 	@GetMapping("{uuid}/municipios")
-	public Page<MunicipioDTO> listarMunicipios(@PathVariable UUID uuid, Pageable pageable) {
-		Page<Municipio> municipios = municipioService.listaTodosByUf(uuid, pageable);
+	public Page<MunicipioDTO> listarMunicipios(@PathVariable UUID uuid, Pageable pageable, MunicipioFilter filter) {
+		filter.setUf(uuid);
+		Page<Municipio> municipios = municipioService.listaByFilter(MunicipioSpecs.filtroGeral(filter), pageable);
 		List<MunicipioDTO> municipiosDTO = converter.toDTOCollection(municipios.getContent(), MunicipioDTO.class);
 		return new PageImpl<>(municipiosDTO, pageable, municipios.getTotalElements());
 	}

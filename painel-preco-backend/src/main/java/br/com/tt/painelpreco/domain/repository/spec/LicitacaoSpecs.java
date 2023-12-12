@@ -65,6 +65,12 @@ public class LicitacaoSpecs {
 			if (filtro.getFornecedorId() != null)
 				predicates.add(builder.equal(root.join("itens").get("fornecedor").get("uuid"), filtro.getFornecedorId()));
 			
+			if (filtro.getMunicipioId() != null)
+				predicates.add(builder.equal(root.get("municipio").get("uuid"), filtro.getMunicipioId()));
+			
+			if (filtro.getUfId() != null)
+				predicates.add(builder.equal(root.get("municipio").get("uf").get("uuid"), filtro.getUfId()));
+			
 			return builder.and(predicates.toArray(new Predicate[0]));
 		};
 	}

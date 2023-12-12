@@ -15,7 +15,7 @@ public class UnidadeFederativaService {
 	private UnidadeFederativaRepository unidadeFederativaRepository;
 
 	public List<UnidadeFederativa> listaTodas() {
-		return unidadeFederativaRepository.findAll();
+		return unidadeFederativaRepository.findAllByOrderByNome();
 	}
 
 }
