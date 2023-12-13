@@ -1,5 +1,5 @@
 
-import { IItemAutocomplete, IItemSelect, IObjetoAPI } from "@/interfaces/types";
+import { IItemSelect, IObjetoAPI } from "@/interfaces/types";
 
 export function listDataToSelectFromProp<T extends IObjetoAPI>(list: T[], prop: keyof T ): IItemSelect[] {
   return list.map(e => ({
