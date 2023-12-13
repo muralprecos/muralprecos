@@ -1,7 +1,10 @@
 
-interface IObjetoAPI {
-  uuid: string
+interface ISimpleObjetoAPI {
   nome: string
+}
+
+interface IObjetoAPI extends ISimpleObjetoAPI {
+  uuid: string
 }
 
 interface IObjetoAPISearch {
@@ -53,8 +56,16 @@ interface IUnidadeGestora extends IObjetoAPI {}
 
 interface ISituacaoLicitacao extends IObjetoAPI {}
 
-
 interface IPeriodoCompra extends IObjetoAPI {}
+
+interface IAnoCompra extends ISimpleObjetoAPI {}
+
+interface IObjetoCompra extends ISimpleObjetoAPI {}
+
+interface IItemDescricao extends ISimpleObjetoAPI {}
+
+interface IItemDescricaoComplementar extends ISimpleObjetoAPI {}
+
 
 
 type NameValue<T extends IObjetoAPI> = {
@@ -80,7 +91,7 @@ interface IPageable {
   sort: IPageableSort
 }
 
-interface IReturnRequestAPI<T extends IObjetoAPI> {
+interface IReturnRequestAPI<T> {
   content: T[]
   empty: boolean
   first: boolean
@@ -107,7 +118,7 @@ interface IItemSelect {
 
 
 
-interface IAPISearchProps<T extends IObjetoAPI> {
+interface IAPISearchProps {
   path?: string
   page?: number
   size?: number
@@ -122,4 +133,4 @@ interface IAPISearchInfo {
 
 //type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;
 
-export { NameValue, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo, INomeMaterial, IMunicipio };
+export { NameValue, ISimpleObjetoAPI, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo, INomeMaterial, IMunicipio, IAnoCompra, IObjetoCompra, IItemDescricao, IItemDescricaoComplementar };

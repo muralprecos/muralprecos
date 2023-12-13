@@ -78,8 +78,6 @@ https://tobiasahlin.com/blog/common-flexbox-patterns/
 # a partir dos parâmetros do formulário, verificamos a melhor forma de integrar o autocomplete aninhado
 # verificar padrão adotado pelo projeto https://github.com/wangly19/nextui-design-pro/blob/main/app/next/views/login/form.tsx
 
-- Cidade:
-	- Deixar desabilitado enquanto não tiver selecionado o estado
 
 - Orgao (caso superior seja selecionado, filtrar os menores por ele)
 	http://muraldeprecos.com/api/v1/orgaos/dfd49cc0-4f86-11ee-8095-0242ac120003/suborgaos?page=0&size=50
@@ -116,6 +114,9 @@ https://tobiasahlin.com/blog/common-flexbox-patterns/
 
 - Histórico de cotações;
 
+
+###### Aprimoramentos:
+- 
 
 
 

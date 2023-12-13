@@ -1,17 +1,23 @@
 'use client'
 
 import { Autocomplete, AutocompleteItem, AutocompleteProps } from '@nextui-org/react'
-import { IObjetoAPI } from '@/interfaces/types'
+import { ISimpleObjetoAPI } from '@/interfaces/types'
 import { AsyncListData } from '@react-stately/data'
 import { Controller, FieldError, FieldErrors, FieldErrorsImpl, FieldValues, Merge, UseControllerProps } from 'react-hook-form'
 
-interface IProps<T extends IObjetoAPI, P extends FieldValues> extends UseControllerProps<P>, Omit<AutocompleteProps, "children"|"items"|"defaultItems"|"name"> {
+type KeyOfType<T, V> = keyof {
+  [P in keyof T as T[P] extends V? P: never]: any
+}
+
+interface IProps<T extends ISimpleObjetoAPI, P extends FieldValues> extends UseControllerProps<P>, Omit<AutocompleteProps, "children"|"items"|"defaultItems"|"name"> {
+  attrVal: KeyOfType<T, string>
   autocompleteHook: AsyncListData<T>
   errors?: FieldErrors
 }
 
-function AutocompleteAsyncForm<T extends IObjetoAPI, P extends FieldValues>({
+function AutocompleteAsyncForm<T extends ISimpleObjetoAPI, P extends FieldValues>({
   autocompleteHook,
+  attrVal,
   name,
   label,
   control,
@@ -47,7 +53,7 @@ function AutocompleteAsyncForm<T extends IObjetoAPI, P extends FieldValues>({
           {...opts}
         >
           {(item:T) => (
-            <AutocompleteItem key={item.uuid} className="capitalize">
+            <AutocompleteItem key={item[attrVal]+''} className="capitalize">
               {item.nome}
             </AutocompleteItem>
           )}

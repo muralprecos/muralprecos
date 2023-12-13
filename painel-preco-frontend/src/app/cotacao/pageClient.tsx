@@ -7,8 +7,8 @@ import yupStrings from '@/utils/yupStrings';
 import { Divider, Button } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form"
 
-import { IFornecedor, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IOrgao, IUnidadeGestora } from "@/interfaces/types";
-import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento } from "@/hooks/api";
+import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IUnidadeGestora } from "@/interfaces/types";
+import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao } from "@/hooks/api";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 
 import FormTitle from '@/components/atoms/FormTitle'
@@ -18,6 +18,7 @@ import AutocompleteAsyncForm from '@/components/molecules/AutocompleteAsyncForm'
 import SelectForm from '@/components/molecules/SelectForm';
 
 interface IProps {
+  anosCompras: IItemSelect[]
   empresaPorte: IItemSelect[]
   esferas: IItemSelect[]
   compraFormas: IItemSelect[]
@@ -25,17 +26,6 @@ interface IProps {
   compraPeriodos: IItemSelect[]
   situacoesLicitacoes: IItemSelect[]
   unidadesFederativas: IItemSelect[]
-
-  compraAno?: IItemSelect[]
-  materialNome?: IItemSelect[]
-  materialCodigo?: IItemSelect[]
-  itemDescricao?: IItemSelect[]
-  itemDescricaoComplementar?: IItemSelect[]
-  compraObjeto?: IItemSelect[]
-  unidadeFornecimento?: IItemSelect[]
-  orgaoSuperior?: IItemSelect[]
-  orgao?: IItemSelect[]
-  uasg?: IItemSelect[]
 }
 
 const schema = yup.object({
@@ -46,14 +36,18 @@ const schema = yup.object({
   compra_modalidade: yup.string(),
   compra_periodo: yup.string(),
   situacao_licitacao: yup.string(),
-  unidade_federativa: yup.string(),
-  municipio: yup.string(),
-  orgao_superior: yup.string(),
-  orgao: yup.string(),
-  fornecedor: yup.string(),
-  material: yup.string(),
-  unidade_gestora: yup.string(),
-  unidade_fornecimento: yup.string(),
+
+  unidade_federativa: yup.string().nullable(),
+  municipio: yup.string().nullable(),
+  orgao_superior: yup.string().nullable(),
+  orgao: yup.string().nullable(),
+  fornecedor: yup.string().nullable(),
+  material: yup.string().nullable(),
+  unidade_gestora: yup.string().nullable(),
+  unidade_fornecimento: yup.string().nullable(),
+  objeto_compra: yup.string().nullable(),
+  descricao: yup.string().nullable(),
+  descricao_complementar: yup.string().nullable(),
 });
 type FormData = yup.InferType<typeof schema>;
 
@@ -73,9 +67,13 @@ const initialForm: FormData = {
   unidade_federativa: '',
   unidade_fornecimento: '',
   unidade_gestora: '',
+  objeto_compra: '',
+  descricao: '',
+  descricao_complementar: '',
 }
 
 const PageClient: React.FC<IProps> = ({
+  anosCompras,
   empresaPorte,
   esferas,
   compraFormas,
@@ -100,20 +98,6 @@ const PageClient: React.FC<IProps> = ({
 
   const onSubmit: SubmitHandler<FormData> = (data) => console.log(data)
   const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data)
-
-  const anos = [
-    {label: "2013", value: "2013"},
-    {label: "2014", value: "2014"},
-    {label: "2015", value: "2015"},
-    {label: "2016", value: "2016"},
-    {label: "2017", value: "2017"},
-    {label: "2018", value: "2018"},
-    {label: "2019", value: "2019"},
-    {label: "2020", value: "2020"},
-    {label: "2021", value: "2021"},
-    {label: "2022", value: "2022"},
-    {label: "2022", value: "2023"}
-  ]
 
   const unidade_federativa = watch("unidade_federativa");
 
@@ -148,6 +132,21 @@ const PageClient: React.FC<IProps> = ({
     infos: unidade_federativa ? [{ val: unidade_federativa, param: 'uuiduf' }] : []
   });
 
+  const autoCompleteObjetoCompra = useAutocompleteFilter<IObjetoCompra>({
+    searchParams: ['objeto'],
+    getList: getListObjetosCompras
+  });
+
+  const autoCompleteDescricao = useAutocompleteFilter<IItemDescricao>({
+    searchParams: ['descricao'],
+    getList: getListDescricao
+  });
+
+  const autoCompleteDescricaoComplementar = useAutocompleteFilter<IItemDescricao>({
+    searchParams: ['descricaoComplementar'],
+    getList: getListDescricao
+  });
+
 
   const clearForm = () => {
     console.log('clearForm')
@@ -159,9 +158,12 @@ const PageClient: React.FC<IProps> = ({
     autoCompleteUnidadesFornecimento.setFilterText('')
     autoCompleteNomeMaterial.setFilterText('')
     autoCompleteMunicipio.setFilterText('')
+    autoCompleteObjetoCompra.setFilterText('')
+    autoCompleteDescricao.setFilterText('')
+    autoCompleteDescricaoComplementar.setFilterText('')
   }
 
-  const [lastUF, setLastUF] = useState<string|undefined>();
+  const [lastUF, setLastUF] = useState<string|null>();
   //inicializar a lista de municipios ao alterar a unidade federativa
   useEffect(() => {
     setLastUF(unidade_federativa);
@@ -195,7 +197,7 @@ const PageClient: React.FC<IProps> = ({
               name="ano_compra"
               label="Ano da Compra"
               control={control}
-              items={anos}
+              items={anosCompras}
               errors={errors}
               />
           </div> 
@@ -273,6 +275,7 @@ const PageClient: React.FC<IProps> = ({
             <AutocompleteAsyncForm<IUnidadeGestora, FormData>
               name="municipio"
               label="Município"
+              attrVal="uuid"
               control={control}
               isDisabled={!hasUF()}
               errors={errors}
@@ -285,6 +288,7 @@ const PageClient: React.FC<IProps> = ({
             <AutocompleteAsyncForm<IOrgao, FormData>
               name="orgao_superior"
               label="Orgão Superior"
+              attrVal="uuid"
               control={control}
               errors={errors}
               autocompleteHook={autoCompleteOrgaosSuperiores}/>
@@ -294,6 +298,7 @@ const PageClient: React.FC<IProps> = ({
             <AutocompleteAsyncForm<IOrgao, FormData>
               name="orgao"
               label="Orgão"
+              attrVal="uuid"
               control={control}
               errors={errors}
               autocompleteHook={autoCompleteOrgaos}/>
@@ -305,6 +310,7 @@ const PageClient: React.FC<IProps> = ({
             <AutocompleteAsyncForm<IFornecedor, FormData>
               name="fornecedor"
               label="Fornecedor"
+              attrVal="uuid"
               control={control}
               errors={errors}
               autocompleteHook={autoCompleteFornecedores}/>
@@ -314,6 +320,7 @@ const PageClient: React.FC<IProps> = ({
             <AutocompleteAsyncForm<IUnidadeGestora, FormData>
               name="material"
               label="Nome/Código Material"
+              attrVal="uuid"
               control={control}
               errors={errors}
               autocompleteHook={autoCompleteNomeMaterial}/>
@@ -325,6 +332,7 @@ const PageClient: React.FC<IProps> = ({
             <AutocompleteAsyncForm<IUnidadeGestora, FormData>
               name="unidade_gestora"
               label="Unidade Gestora"
+              attrVal="uuid"
               control={control}
               errors={errors}
               autocompleteHook={autoCompleteUASG}/>
@@ -333,9 +341,43 @@ const PageClient: React.FC<IProps> = ({
             <AutocompleteAsyncForm<IObjetoAPI, FormData>
               name="unidade_fornecimento"
               label="Unidade de Fornecimento"
+              attrVal="uuid"
               control={control}
               errors={errors}
               autocompleteHook={autoCompleteUnidadesFornecimento}/>
+          </div>
+        </FormRow>
+
+        <FormRow>
+          <div className="basis-1/2">
+            <AutocompleteAsyncForm<IObjetoCompra, FormData>
+              name="descricao"
+              label="Descrição"
+              attrVal="nome"
+              control={control}
+              errors={errors}
+              autocompleteHook={autoCompleteDescricao}/>
+          </div>
+          <div className="basis-1/2">
+            <AutocompleteAsyncForm<IObjetoCompra, FormData>
+              name="descricao_complementar"
+              label="Descrição Complementar"
+              attrVal="nome"
+              control={control}
+              errors={errors}
+              autocompleteHook={autoCompleteDescricaoComplementar}/>
+          </div>
+        </FormRow>
+
+        <FormRow>
+          <div className="basis-full">
+            <AutocompleteAsyncForm<IObjetoCompra, FormData>
+              name="objeto_compra"
+              label="Objeto da Compra"
+              attrVal="nome"
+              control={control}
+              errors={errors}
+              autocompleteHook={autoCompleteObjetoCompra}/>
           </div>
         </FormRow>
         

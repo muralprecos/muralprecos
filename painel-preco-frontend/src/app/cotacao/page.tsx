@@ -1,7 +1,7 @@
-import { getFormasCompra, getListEsferas, getListEstados, getListModalidadesCompra, getListPeriodosCompra, getListPorteFornecedor, getListSituacoesLicitacao } from "@/hooks/api";
+import { getFormasCompra, getListAnos, getListEsferas, getListEstados, getListModalidadesCompra, getListPeriodosCompra, getListPorteFornecedor, getListSituacoesLicitacao } from "@/hooks/api";
 import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
-import { IEsfera, IFormaCompra, IModalidadeCompra, IObjetoAPI, IPeriodoCompra, IPorteFornecedor, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
+import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IObjetoAPI, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
 
 export default async function Home() {
   
@@ -13,20 +13,25 @@ export default async function Home() {
   const dataPeriodosCompra = getListPeriodosCompra({});
   const dataSituacoesLicitacao = getListSituacoesLicitacao({});
   const dataUnidadesFederativas = getListEstados({});
+  const dataAnosCompras = getListAnos({});
   
-  const resReq = await Promise.allSettled([dataPorteFornecedores, dataEsferas, dataFormasCompra, dataModalidadesCompra, dataPeriodosCompra, dataSituacoesLicitacao, dataUnidadesFederativas]);
-  const [settledPorteFornecedores, settledEsferas, settledFormasCompra, settledModalidadesCompra, settledPeriodosCompra, settledSituacoesLicitacao, settledUnidadesFederativas] = resReq;
+  const resReq = await Promise.allSettled([dataPorteFornecedores, dataEsferas, dataFormasCompra, dataModalidadesCompra, dataPeriodosCompra, dataSituacoesLicitacao, dataUnidadesFederativas, dataAnosCompras]);
+  const [settledPorteFornecedores, settledEsferas, settledFormasCompra, settledModalidadesCompra, settledPeriodosCompra, settledSituacoesLicitacao, settledUnidadesFederativas, settledAnosCompras] = resReq;
 
-  function instanceOfIFormaCompra(object: any): object is IFormaCompra {
-    return 'member' in object;
-  }
-
-  function getSettledValue<T extends IObjetoAPI>(req: PromiseSettledResult<T[]>) {
+  function getSettledValue<T>(req: PromiseSettledResult<T[]>) {
     if (req.status === "rejected") {
       //TODO: tratamento de erro para enviar ao frontend
       return [];
     }
     return req.status === "fulfilled" ? req.value : []
+  }
+
+  function getSettledValuePageable<T>(req: PromiseSettledResult<IReturnRequestAPI<T>>) {
+    if (req.status === "rejected") {
+      //TODO: tratamento de erro para enviar ao frontend
+      return [];
+    }
+    return req.status === "fulfilled" ? req.value.content : []
   }
 
   const porteFornecedores : IPorteFornecedor[] = getSettledValue<IPorteFornecedor>(settledPorteFornecedores),
@@ -35,18 +40,20 @@ export default async function Home() {
       modalidadesCompra : IModalidadeCompra[] = getSettledValue<IModalidadeCompra>(settledModalidadesCompra),
       periodosCompra : IPeriodoCompra[] = getSettledValue<IPeriodoCompra>(settledPeriodosCompra),
       situacoesLicitacao : ISituacaoLicitacao[] = getSettledValue<ISituacaoLicitacao>(settledSituacoesLicitacao),
-      unidadesFederativas : IUnidadeFederativa[] = getSettledValue<IUnidadeFederativa>(settledUnidadesFederativas)
+      unidadesFederativas : IUnidadeFederativa[] = getSettledValue<IUnidadeFederativa>(settledUnidadesFederativas),
+      anosCompras : IAnoCompra[] = getSettledValuePageable<IAnoCompra>(settledAnosCompras)
       ;
 
   return (
     <PageClient
-        empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores)}
-        esferas={reqDataListToSelect<IEsfera>(esferas)}
-        compraFormas={reqDataListToSelect<IFormaCompra>(formasCompra)}
-        compraModalidades={reqDataListToSelect<IModalidadeCompra>(modalidadesCompra)}
-        compraPeriodos={reqDataListToSelect<IPeriodoCompra>(periodosCompra, 'nome')}
-        situacoesLicitacoes={reqDataListToSelect<ISituacaoLicitacao>(situacoesLicitacao)}
-        unidadesFederativas={reqDataListToSelect<ISituacaoLicitacao>(unidadesFederativas)}
+        empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores, 'nome', 'uuid')}
+        esferas={reqDataListToSelect<IEsfera>(esferas, 'nome', 'uuid')}
+        compraFormas={reqDataListToSelect<IFormaCompra>(formasCompra, 'nome', 'uuid')}
+        compraModalidades={reqDataListToSelect<IModalidadeCompra>(modalidadesCompra, 'nome', 'uuid')}
+        compraPeriodos={reqDataListToSelect<IPeriodoCompra>(periodosCompra, 'nome', 'uuid')}
+        situacoesLicitacoes={reqDataListToSelect<ISituacaoLicitacao>(situacoesLicitacao, 'nome', 'uuid')}
+        unidadesFederativas={reqDataListToSelect<IUnidadeFederativa>(unidadesFederativas, 'nome', 'uuid')}
+        anosCompras={reqDataListToSelect<IAnoCompra>(anosCompras, 'nome', 'nome')}
       />
   )
 }
