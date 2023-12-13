@@ -1,0 +1,148 @@
+
+interface ISimpleObjetoAPI {
+  nome: string
+}
+
+interface IObjetoAPI extends ISimpleObjetoAPI {
+  uuid: string
+}
+
+interface IObjetoAPISearch {
+  uuid?: string
+  nome?: string
+}
+
+
+interface IFornecedor extends IObjetoAPI {
+  documento: string
+  porte: string
+}
+
+interface IFornecedorSearch extends IObjetoAPISearch {
+  documento?: string
+}
+
+interface IFormaCompra extends IObjetoAPI {
+  sigla: string
+}
+
+interface IModalidadeCompra extends IObjetoAPI {
+  codigo: number
+}
+
+interface IOrgao extends IObjetoAPI {
+  codigo: number
+  ehsuperior?: booelan
+  superior?: IOrgao
+}
+
+interface INomeMaterial extends IObjetoAPI {
+  codigo: number
+}
+
+interface IUnidadeFederativa extends IObjetoAPI {
+  sigla: string
+}
+
+interface IMunicipio extends IObjetoAPI {
+  uf: IUnidadeFederativa
+}
+
+interface IEsfera extends IObjetoAPI {}
+
+interface IPorteFornecedor extends IObjetoAPI {}
+
+interface IUnidadeGestora extends IObjetoAPI {}
+
+interface ISituacaoLicitacao extends IObjetoAPI {}
+
+interface IPeriodoCompra extends IObjetoAPI {}
+
+interface IAnoCompra extends ISimpleObjetoAPI {}
+
+interface IObjetoCompra extends ISimpleObjetoAPI {}
+
+interface IItemDescricao extends ISimpleObjetoAPI {}
+
+interface IItemDescricaoComplementar extends ISimpleObjetoAPI {}
+
+
+
+type NameValue<T extends IObjetoAPI> = {
+  [K in keyof T]: {
+    name: K,
+    value: T[K]
+  }
+}[keyof T]
+interface IPageableSort {
+  empty: boolean
+  sorted: boolean
+  unsorted: boolean
+}
+
+interface IPageable {
+  offset: number
+  pageNumber: number
+  pageSize: number
+  paged: boolean
+  unpaged: boolean
+  sort: IPageableSort
+}
+
+interface IReturnRequestAPI<T> {
+  content: T[]
+  empty: boolean
+  first: boolean
+  last: boolean
+  number: number
+  numberOfElements: number
+  pageable: IPageable
+  size: number
+  sort: IPageableSort
+  totalElements: number
+  totalPages: number
+}
+
+interface IItemAutocomplete {
+  key: React.Key
+  description: string
+}
+
+interface IItemSelect {
+  value: string
+  label: string
+}
+
+interface IAPISearchProps {
+  path?: string
+  page?: number
+  size?: number
+  info? : IAPISearchInfo[]
+  reqType?: 'POST'|'GET'
+  filterFields?: string
+}
+
+interface IAPISearchInfo {
+  val: string
+  param: string
+}
+
+
+interface IRetornoPesquisaItensLicitacao {
+  uuid: string
+  descricao: string
+  quantidade: number
+  valor: number
+  licitacao: {
+    municipio: {
+      uf: {
+        nome: string
+      }
+    }
+    dataResultadoCompra: string
+  }
+}
+
+//type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;
+
+export { NameValue, ISimpleObjetoAPI, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo, INomeMaterial, IMunicipio, IAnoCompra, IObjetoCompra, IItemDescricao, IItemDescricaoComplementar, IRetornoPesquisaItensLicitacao };
