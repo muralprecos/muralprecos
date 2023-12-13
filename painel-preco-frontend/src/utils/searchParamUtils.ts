@@ -11,6 +11,20 @@ export function getValParamSearch(info: IAPISearchInfo[] | undefined, param: str
   return res;
 }
 
+export function objToParamSearch(obj: object) : IAPISearchInfo[] {
+  const info:IAPISearchInfo[] = [];
+  Object.keys(obj).forEach(function(key) {
+    const res = obj[key as keyof typeof obj];
+    if (res != null && res != '') {
+      info.push({
+        param: key,
+        val: res
+      })
+    }
+  });
+  return info;
+}
+
 export function extractParamSearch(info: IAPISearchInfo[] | undefined, param: string) : IAPISearchInfo[] {
   if (info != null) {
     return info.filter(el => ( param != el.param ))

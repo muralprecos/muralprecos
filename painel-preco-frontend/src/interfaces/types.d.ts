@@ -74,8 +74,6 @@ type NameValue<T extends IObjetoAPI> = {
     value: T[K]
   }
 }[keyof T]
-
-
 interface IPageableSort {
   empty: boolean
   sorted: boolean
@@ -115,14 +113,13 @@ interface IItemSelect {
   label: string
 }
 
-
-
-
 interface IAPISearchProps {
   path?: string
   page?: number
   size?: number
   info? : IAPISearchInfo[]
+  reqType?: 'POST'|'GET'
+  filterFields?: string
 }
 
 interface IAPISearchInfo {
@@ -131,6 +128,21 @@ interface IAPISearchInfo {
 }
 
 
+interface IRetornoPesquisaItensLicitacao {
+  uuid: string
+  descricao: string
+  quantidade: number
+  valor: number
+  licitacao: {
+    municipio: {
+      uf: {
+        nome: string
+      }
+    }
+    dataResultadoCompra: string
+  }
+}
+
 //type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;
 
-export { NameValue, ISimpleObjetoAPI, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo, INomeMaterial, IMunicipio, IAnoCompra, IObjetoCompra, IItemDescricao, IItemDescricaoComplementar };
+export { NameValue, ISimpleObjetoAPI, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo, INomeMaterial, IMunicipio, IAnoCompra, IObjetoCompra, IItemDescricao, IItemDescricaoComplementar, IRetornoPesquisaItensLicitacao };

@@ -8,7 +8,7 @@ import { Divider, Button } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form"
 
 import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IUnidadeGestora } from "@/interfaces/types";
-import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao } from "@/hooks/api";
+import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, getPesquisarCotacoes } from "@/hooks/api";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 
 import FormTitle from '@/components/atoms/FormTitle'
@@ -16,6 +16,7 @@ import FormRow from "@/components/atoms/FormRow";
 import AutocompleteForm from '@/components/molecules/AutocompleteForm';
 import AutocompleteAsyncForm from '@/components/molecules/AutocompleteAsyncForm';
 import SelectForm from '@/components/molecules/SelectForm';
+import { objToParamSearch } from '@/utils/searchParamUtils';
 
 interface IProps {
   anosCompras: IItemSelect[]
@@ -29,47 +30,48 @@ interface IProps {
 }
 
 const schema = yup.object({
-  ano_compra: yup.string().required(yupStrings.required),
-  porte_empresa: yup.string(),
-  esfera: yup.string(),
-  compra_forma: yup.string(),
-  compra_modalidade: yup.string(),
-  compra_periodo: yup.string(),
-  situacao_licitacao: yup.string(),
+  ano: yup.string().required(yupStrings.required),
+  porteFornecedor: yup.string(),
+  esferaId: yup.string(),
+  formaCompraId: yup.string(),
+  modalidadeCompraId: yup.string(),
+  periodoCompraId: yup.string(),
 
-  unidade_federativa: yup.string().nullable(),
-  municipio: yup.string().nullable(),
-  orgao_superior: yup.string().nullable(),
-  orgao: yup.string().nullable(),
-  fornecedor: yup.string().nullable(),
-  material: yup.string().nullable(),
-  unidade_gestora: yup.string().nullable(),
-  unidade_fornecimento: yup.string().nullable(),
-  objeto_compra: yup.string().nullable(),
+  ufId: yup.string().nullable(),
+  municipioId: yup.string().nullable(),
+  orgaoSuperiorId: yup.string().nullable(),
+  orgaoId: yup.string().nullable(),
+  fornecedorId: yup.string().nullable(),
+  materialId: yup.string().nullable(),
+  ugId: yup.string().nullable(),
+  objeto: yup.string().nullable(),
   descricao: yup.string().nullable(),
-  descricao_complementar: yup.string().nullable(),
+  descricaoComplementar: yup.string().nullable(),
+
+  situacao_licitacao: yup.string(),
+  unidade_fornecimento: yup.string().nullable(),
 });
 type FormData = yup.InferType<typeof schema>;
 
 const initialForm: FormData = {
-  ano_compra: '',
-  compra_forma: '',
-  compra_modalidade: '',
-  compra_periodo: '',
-  esfera: '',
-  fornecedor: '',
-  material: '',
-  municipio: '',
-  orgao: '',
-  orgao_superior: '',
-  porte_empresa: '',
+  ano: '',
+  formaCompraId: '',
+  modalidadeCompraId: '',
+  periodoCompraId: '',
+  esferaId: '',
+  fornecedorId: '',
+  materialId: '',
+  municipioId: '',
+  orgaoId: '',
+  orgaoSuperiorId: '',
+  porteFornecedor: '',
   situacao_licitacao: '',
-  unidade_federativa: '',
+  ufId: '',
   unidade_fornecimento: '',
-  unidade_gestora: '',
-  objeto_compra: '',
+  ugId: '',
+  objeto: '',
   descricao: '',
-  descricao_complementar: '',
+  descricaoComplementar: '',
 }
 
 const PageClient: React.FC<IProps> = ({
@@ -96,10 +98,14 @@ const PageClient: React.FC<IProps> = ({
     defaultValues: initialForm
   });
 
-  const onSubmit: SubmitHandler<FormData> = (data) => console.log(data)
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    const info = objToParamSearch(data);
+    const req = await getPesquisarCotacoes({ page: 0, size: 20, info });
+    console.log(req)
+  }
   const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data)
 
-  const unidade_federativa = watch("unidade_federativa");
+  const ufId = watch("ufId");
 
   const autoCompleteFornecedores = useAutocompleteFilter<IFornecedor>({
     searchParams: ['nome'],
@@ -129,7 +135,7 @@ const PageClient: React.FC<IProps> = ({
   const autoCompleteMunicipio = useAutocompleteFilter<IMunicipio>({
     minCharactersLoad: 0,
     getList: getListMunicipios,
-    infos: unidade_federativa ? [{ val: unidade_federativa, param: 'uuiduf' }] : []
+    infos: ufId ? [{ val: ufId, param: 'uuiduf' }] : []
   });
 
   const autoCompleteObjetoCompra = useAutocompleteFilter<IObjetoCompra>({
@@ -149,7 +155,6 @@ const PageClient: React.FC<IProps> = ({
 
 
   const clearForm = () => {
-    console.log('clearForm')
     reset();
     autoCompleteFornecedores.setFilterText('')
     autoCompleteOrgaos.setFilterText('')
@@ -166,19 +171,19 @@ const PageClient: React.FC<IProps> = ({
   const [lastUF, setLastUF] = useState<string|null>();
   //inicializar a lista de municipios ao alterar a unidade federativa
   useEffect(() => {
-    setLastUF(unidade_federativa);
-    if (unidade_federativa != lastUF) {
-      if (unidade_federativa != null) {
+    setLastUF(ufId);
+    if (ufId != lastUF) {
+      if (ufId != null) {
         autoCompleteMunicipio.reload()
       }
       autoCompleteMunicipio.setFilterText('')
-      resetField('municipio')
+      resetField('municipioId')
     }
-  }, [unidade_federativa, autoCompleteMunicipio, lastUF, resetField])
+  }, [ufId, autoCompleteMunicipio, lastUF, resetField])
 
   const hasUF = useCallback(() => {
-    return unidade_federativa != undefined && unidade_federativa != '';
-  }, [unidade_federativa]);
+    return ufId != undefined && ufId != '';
+  }, [ufId]);
 
 
   return (
@@ -194,7 +199,7 @@ const PageClient: React.FC<IProps> = ({
           <div className="basis-1/4">
             {/* <Input type="email" label="Email" /> */}
             <SelectForm<FormData>
-              name="ano_compra"
+              name="ano"
               label="Ano da Compra"
               control={control}
               items={anosCompras}
@@ -203,7 +208,7 @@ const PageClient: React.FC<IProps> = ({
           </div> 
           <div className="basis-1/4">
             <SelectForm<FormData>
-              name="porte_empresa"
+              name="porteFornecedor"
               label="Porte da Empresa"
               items={empresaPorte}
               control={control}
@@ -212,7 +217,7 @@ const PageClient: React.FC<IProps> = ({
           </div>
           <div className="basis-1/4">
             <SelectForm<FormData>
-              name="esfera"
+              name="esferaId"
               label="Esfera"
               items={esferas}
               control={control}
@@ -221,7 +226,7 @@ const PageClient: React.FC<IProps> = ({
           </div>
           <div className="basis-1/4">
             <SelectForm<FormData>
-              name="compra_forma"
+              name="formaCompraId"
               label="Forma da Compra"
               items={compraFormas}
               control={control}
@@ -233,7 +238,7 @@ const PageClient: React.FC<IProps> = ({
         <FormRow>
           <div className="basis-1/3">
             <SelectForm<FormData>
-              name="compra_modalidade"
+              name="modalidadeCompraId"
               label="Modalidade Compra"
               items={compraModalidades}
               control={control}
@@ -242,7 +247,7 @@ const PageClient: React.FC<IProps> = ({
           </div>
           <div className="basis-1/3">
             <SelectForm<FormData>
-              name="compra_periodo"
+              name="periodoCompraId"
               label="Período da Compra"
               items={compraPeriodos}
               control={control}
@@ -263,7 +268,7 @@ const PageClient: React.FC<IProps> = ({
         <FormRow>
           <div className="basis-1/2">
             <AutocompleteForm<FormData>
-              name="unidade_federativa"
+              name="ufId"
               label="Unidade Federativa"
               control={control}
               items={unidadesFederativas}
@@ -273,7 +278,7 @@ const PageClient: React.FC<IProps> = ({
 
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IUnidadeGestora, FormData>
-              name="municipio"
+              name="municipioId"
               label="Município"
               attrVal="uuid"
               control={control}
@@ -286,7 +291,7 @@ const PageClient: React.FC<IProps> = ({
         <FormRow>
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IOrgao, FormData>
-              name="orgao_superior"
+              name="orgaoSuperiorId"
               label="Orgão Superior"
               attrVal="uuid"
               control={control}
@@ -296,7 +301,7 @@ const PageClient: React.FC<IProps> = ({
 
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IOrgao, FormData>
-              name="orgao"
+              name="orgaoId"
               label="Orgão"
               attrVal="uuid"
               control={control}
@@ -308,7 +313,7 @@ const PageClient: React.FC<IProps> = ({
         <FormRow>
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IFornecedor, FormData>
-              name="fornecedor"
+              name="fornecedorId"
               label="Fornecedor"
               attrVal="uuid"
               control={control}
@@ -318,7 +323,7 @@ const PageClient: React.FC<IProps> = ({
 
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IUnidadeGestora, FormData>
-              name="material"
+              name="materialId"
               label="Nome/Código Material"
               attrVal="uuid"
               control={control}
@@ -330,7 +335,7 @@ const PageClient: React.FC<IProps> = ({
         <FormRow>
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IUnidadeGestora, FormData>
-              name="unidade_gestora"
+              name="ugId"
               label="Unidade Gestora"
               attrVal="uuid"
               control={control}
@@ -360,7 +365,7 @@ const PageClient: React.FC<IProps> = ({
           </div>
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IObjetoCompra, FormData>
-              name="descricao_complementar"
+              name="descricaoComplementar"
               label="Descrição Complementar"
               attrVal="nome"
               control={control}
@@ -372,7 +377,7 @@ const PageClient: React.FC<IProps> = ({
         <FormRow>
           <div className="basis-full">
             <AutocompleteAsyncForm<IObjetoCompra, FormData>
-              name="objeto_compra"
+              name="objeto"
               label="Objeto da Compra"
               attrVal="nome"
               control={control}

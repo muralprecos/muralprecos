@@ -1,4 +1,4 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IFornecedorSearch, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora } from "@/interfaces/types";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IFornecedorSearch, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora } from "@/interfaces/types";
 import { extractParamSearch, forceParamSearch, getValParamSearch } from "@/utils/searchParamUtils";
 
 const host = 'http://muraldeprecos.com';//'http://localhost:8080';
@@ -7,7 +7,7 @@ export const revalidate = 3600; // revalida os dados a cada hora
 
 
 const mountUrl = (
-  { path, page = 0, size = 50, info } : IAPISearchProps) : string => {
+  { path, page = 0, size = 50, info, filterFields } : IAPISearchProps) : string => {
   let url = `${host}${path}?page=${page}&size=${size}`;
   if (info != null && info.length > 0) {
     info.forEach(i => {
@@ -17,35 +17,48 @@ const mountUrl = (
       }
     })
   }
-  console.log(url)
+  if (filterFields != null && filterFields.length > 0) {
+    url += `&fields=${filterFields}`
+  }
   return url;
 }
 
 const doReq = async (
-  { path, page, size, info } : IAPISearchProps) => {
-  const headers = {};//{ 'Authorization': `Bearer ${token}` };
-  const res = await fetch(mountUrl({ path, page, size, info}), { 
-    //TODO: aprimorar cache de requisições
+  { path, page, size, info, reqType, filterFields } : IAPISearchProps) => {
+  const reqOpts = { 
+    //TODO: aprimorar cache de requisições e adicionar body
     // cache: 'force-cache',
+    // body: bodyData,
+    method: reqType,
     next: {  },
-    headers
-  })
+    headers: new Headers({
+      //{ 'Authorization': `Bearer ${token}` },
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }),
+  }
+  const res = await fetch(mountUrl({ path, page, size, info, filterFields}), reqOpts);
   if (!res.ok) {
     throw new Error('Failed to fetch data')
   }
   return res.json()
 }
 
-const getGenericList =  async <T extends IObjetoAPI>(
-  { path, page, size, info } : IAPISearchProps) : Promise<T[]> => {
-  return doReq({ path, page, size, info });
+const getGenericList =  async <T>(
+  { path, page, size, info, filterFields } : IAPISearchProps) : Promise<T[]> => {
+  return doReq({ path, page, size, info, reqType: 'GET', filterFields });
 }
-
 const getGenericListPageable =  async <T>(
-    { path, page, size, info } : IAPISearchProps
+    { path, page, size, info, filterFields } : IAPISearchProps
   ) : Promise<IReturnRequestAPI<T>> => {
-  return doReq({ path, page, size, info });
+  return doReq({ path, page, size, info, reqType: 'GET', filterFields });
 }
+// const postGeneric =  async <T extends IObjetoAPI>(
+//   { path, page, size, info } : IAPISearchProps) : Promise<T[]> => {
+//   return doReq({ path, page, size, info, reqType: 'POST' });
+// }
+
+
 
 const getListPorteFornecedor = async (
   { page, size } : { page?: number; size?: number }) => {
@@ -86,7 +99,6 @@ const getListMunicipios = async (
   info = extractParamSearch(info, 'uuiduf');
   return getGenericListPageable<IMunicipio>({ path: `/api/v1/unidades-federativas/${uuiduf}/municipios` , page, size, info });
 }
-
 const getListFornecedores = async (
   { page, size, info } : IAPISearchProps) => {
   return getGenericListPageable<IFornecedor>({ path: '/api/v1/fornecedores' , page, size, info });
@@ -112,13 +124,11 @@ const getListNomeMaterial = async (
   { page, size, info } : IAPISearchProps) => {
   return getGenericListPageable<INomeMaterial>({ path: '/api/v1/materiais' , page, size, info });
 }
-
 const getListObjetosCompras = async (
   { page, size, info } : IAPISearchProps) => {
   info = forceParamSearch(info, 'only', 'true');
   return getGenericListPageable<IObjetoCompra>({ path: '/api/v1/licitacoes' , page, size, info });
 }
-
 const getListDescricao = async (
   { page, size, info } : IAPISearchProps) => {
   info = forceParamSearch(info, 'only', 'true');
@@ -126,4 +136,10 @@ const getListDescricao = async (
 }
 
 
-export { getListPorteFornecedor, getListPeriodosCompra, getListEsferas, getFormasCompra, getListFornecedores, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListModalidadesCompra, getListSituacoesLicitacao, getListEstados, getListUnidadesFornecimento, getListNomeMaterial, getListMunicipios, getListAnos, getListObjetosCompras, getListDescricao };
+const getPesquisarCotacoes = async (
+  { page, size, info } : IAPISearchProps) => {
+  return getGenericList<IRetornoPesquisaItensLicitacao>({ path: '/api/v1/itens-licitacao' , page, size, info, filterFields: 'content[uuid,descricao,quantidade,valor,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra]' });
+}
+
+
+export { getListPorteFornecedor, getListPeriodosCompra, getListEsferas, getFormasCompra, getListFornecedores, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListModalidadesCompra, getListSituacoesLicitacao, getListEstados, getListUnidadesFornecimento, getListNomeMaterial, getListMunicipios, getListAnos, getListObjetosCompras, getListDescricao, getPesquisarCotacoes };
