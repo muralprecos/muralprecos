@@ -38,7 +38,7 @@ export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
           }
         }
         
-        const res = doReq ? await getList({size, info}) : { content: [] };
+        const res = doReq ? await getList({size, info, config: { signal }}) : { content: [] };
 
         return {
           items: res.content || []

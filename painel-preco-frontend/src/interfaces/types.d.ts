@@ -118,8 +118,8 @@ interface IAPISearchProps {
   page?: number
   size?: number
   info? : IAPISearchInfo[]
-  reqType?: 'POST'|'GET'
   filterFields?: string
+  config?: RequestInit
 }
 
 interface IAPISearchInfo {
