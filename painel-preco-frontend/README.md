@@ -78,6 +78,10 @@ https://tobiasahlin.com/blog/common-flexbox-patterns/
 # verificar padrão adotado pelo projeto https://github.com/wangly19/nextui-design-pro/blob/main/app/next/views/login/form.tsx
 
 
+- Criar layout com filtros retráteis e listagem na mesma página;
+
+
+
 - Listar Itens;
 
 - Detalhar Itens;
