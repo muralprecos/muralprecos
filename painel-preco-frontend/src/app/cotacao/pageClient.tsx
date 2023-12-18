@@ -1,9 +1,12 @@
 // app/tabs/page.tsx
 "use client";
 
-import { Card, CardBody, Skeleton, Tab, Tabs } from "@nextui-org/react";
+import { Button, Card, CardBody, Skeleton, Tab, Tabs } from "@nextui-org/react";
 import {usePathname} from "next/navigation";
 import SearchItensLicitacaoForm, { IPropsSearchItensLicitacaoForm } from "./searchItensLicitacaoForm";
+import ListItensLicitacao from "./listItensLicitacao";
+import { useState } from "react";
+import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
 
 const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   anosCompras,
@@ -18,41 +21,49 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
 }) => {
   const pathname = usePathname();
 
+  const [itens, setItens] = useState<IRetornoPesquisaItensLicitacao[]>([]);
+  const [loadingItens, setIsLoadingItens] = useState<boolean>(false);
+
+  const [tabSelected, setTabSelected] = useState("search");
+
   return (
-    <section className='py-4 flex items-center justify-center flex-col'>
-      <Tabs aria-label="Options" >
-        <Tab key="search" title="Formulário de Busca" >
-          <Card>
-            <CardBody>
-              <SearchItensLicitacaoForm
-                empresaPorte={empresaPorte}
-                esferas={esferas}
-                compraFormas={compraFormas}
-                compraModalidades={compraModalidades}
-                compraPeriodos={compraPeriodos}
-                situacoesLicitacoes={situacoesLicitacoes}
-                unidadesFederativas={unidadesFederativas}
-                anosCompras={anosCompras}
-                />
-            </CardBody>
-          </Card>
-        </Tab>
-        <Tab key="result" title="Resultados">
-          <Card>
-            <CardBody>
-              <p>Buscando Itens de Licitação</p>
-              <div className="max-w-[300px] w-full flex items-center gap-3">
-                <div className="w-full flex flex-col gap-2">
-                  <Skeleton className="h-3 w-4/5 rounded-lg"/>
-                  <Skeleton className="h-3 w-3/5 rounded-lg"/>
-                  <Skeleton className="h-3 w-5/5 rounded-lg"/>
-                  <Skeleton className="h-3 w-4/5 rounded-lg"/>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Tab>
-      </Tabs>
+    <section className='py-4 flex items-center justify-center flex-col w-full'>
+      <div className='container'>
+        <Tabs aria-label="Options" color="default" variant="solid"
+          selectedKey={tabSelected}
+          onSelectionChange={(e) => {setTabSelected(e+'')}}>
+          <Tab key="search" title="Cotação Rápida" >
+            <Card>
+              <CardBody>
+                <SearchItensLicitacaoForm
+                  empresaPorte={empresaPorte}
+                  esferas={esferas}
+                  compraFormas={compraFormas}
+                  compraModalidades={compraModalidades}
+                  compraPeriodos={compraPeriodos}
+                  situacoesLicitacoes={situacoesLicitacoes}
+                  unidadesFederativas={unidadesFederativas}
+                  anosCompras={anosCompras}
+                  setItens={setItens}
+                  setTabSelected={setTabSelected}
+                  setIsLoadingItens={setIsLoadingItens}
+                  />
+              </CardBody>
+            </Card>
+          </Tab>
+          <Tab key="result" title="Resultados da Cotação">
+            <Card>
+              <CardBody>
+                <ListItensLicitacao
+                  itensLicitacao={itens}
+                  isLoading={loadingItens}
+                  setTabSelected={setTabSelected}
+                  />
+              </CardBody>
+            </Card>
+          </Tab>
+        </Tabs>
+      </div>
     </section>
   );
 }

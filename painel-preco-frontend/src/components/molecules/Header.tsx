@@ -49,7 +49,7 @@ const Header: React.FC<FormTitleProps> = ({
             <NavbarContent className="sm:hidden pr-3" justify="center">
               <NavbarBrand >
                 <IconHome />
-                <p className="font-bold text-inherit">Painel Preço</p>
+                <p className="font-bold text-inherit">Mural de Preço</p>
               </NavbarBrand>
             </NavbarContent>
 
@@ -57,7 +57,7 @@ const Header: React.FC<FormTitleProps> = ({
               <NavbarBrand className="mr-4">
                 <Link href={'/'} className="text-inherit">
                   <IconHome />
-                  <p className="ml-2 font-bold text-inherit">Painel Preço</p>
+                  <p className="ml-2 font-bold text-inherit">Mural de Preço</p>
                 </Link>
               </NavbarBrand>
               {links.map((item, index) => (

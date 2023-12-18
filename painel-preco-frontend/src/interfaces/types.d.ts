@@ -127,6 +127,9 @@ interface IAPISearchInfo {
   param: string
 }
 
+interface IReturnRequestAPIBasic<T> {
+  content: T[]
+}
 
 interface IRetornoPesquisaItensLicitacao {
   uuid: string
@@ -145,4 +148,4 @@ interface IRetornoPesquisaItensLicitacao {
 
 //type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;
 
-export { NameValue, ISimpleObjetoAPI, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo, INomeMaterial, IMunicipio, IAnoCompra, IObjetoCompra, IItemDescricao, IItemDescricaoComplementar, IRetornoPesquisaItensLicitacao };
+export { NameValue, ISimpleObjetoAPI, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo, INomeMaterial, IMunicipio, IAnoCompra, IObjetoCompra, IItemDescricao, IItemDescricaoComplementar, IRetornoPesquisaItensLicitacao, IReturnRequestAPIBasic };

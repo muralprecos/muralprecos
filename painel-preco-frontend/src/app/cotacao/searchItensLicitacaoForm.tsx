@@ -1,13 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import yupStrings from '@/utils/yupStrings';
 import { Divider, Button } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form"
 
-import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IUnidadeGestora } from "@/interfaces/types";
+import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IRetornoPesquisaItensLicitacao, IReturnRequestAPIBasic, IUnidadeGestora } from "@/interfaces/types";
 import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, getPesquisarCotacoes } from "@/hooks/api";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 
@@ -27,6 +27,9 @@ export interface IPropsSearchItensLicitacaoForm {
   compraPeriodos: IItemSelect[]
   situacoesLicitacoes: IItemSelect[]
   unidadesFederativas: IItemSelect[]
+  setItens?: Dispatch<SetStateAction<IRetornoPesquisaItensLicitacao[]>>
+  setIsLoadingItens?: Dispatch<SetStateAction<boolean>>
+  setTabSelected?: Dispatch<SetStateAction<string>>
 }
 
 const schema = yup.object({
@@ -83,6 +86,9 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   compraPeriodos,
   situacoesLicitacoes,
   unidadesFederativas,
+  setItens,
+  setIsLoadingItens,
+  setTabSelected,
   ...opts
 }) => {
 
@@ -99,9 +105,20 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
+    if (!!setItens) {
+      setItens([])
+    }
+    if (!!setTabSelected) {
+      setTabSelected('result');
+    }
+    setIsLoadingItens ? setIsLoadingItens(true) : null;
     const info = objToParamSearch(data);
-    const req = await getPesquisarCotacoes({ page: 0, size: 20, info });
-    console.log(req)
+    const req: IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao> = await getPesquisarCotacoes({ page: 0, size: 20, info });
+    if (!!setItens) {
+      console.log(req.content)
+      setIsLoadingItens ? setIsLoadingItens(false) : null;
+      setItens(req.content)
+    }
   }
   const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data)
 

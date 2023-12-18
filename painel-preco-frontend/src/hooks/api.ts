@@ -1,4 +1,4 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IFornecedorSearch, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora } from "@/interfaces/types";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IFornecedorSearch, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IReturnRequestAPIBasic } from "@/interfaces/types";
 import { extractParamSearch, forceParamSearch, getValParamSearch } from "@/utils/searchParamUtils";
 
 const host = 'http://muraldeprecos.com';//'http://localhost:8080';
@@ -46,6 +46,10 @@ const doReq = async (
 
 const getGenericList =  async <T>(
   { path, page, size, info, filterFields, config } : IAPISearchProps) : Promise<T[]> => {
+  return doReq({ path, page, size, info, filterFields, config });
+}
+const getGenericObject =  async <T>(
+  { path, page, size, info, filterFields, config } : IAPISearchProps) : Promise<T> => {
   return doReq({ path, page, size, info, filterFields, config });
 }
 const getGenericListPageable =  async <T>(
@@ -138,7 +142,7 @@ const getListDescricao = async (
 
 const getPesquisarCotacoes = async (
   { page, size, info, config } : IAPISearchProps) => {
-  return getGenericList<IRetornoPesquisaItensLicitacao>({ path: '/api/v1/itens-licitacao' , page, size, info, config, filterFields: 'content[uuid,descricao,quantidade,valor,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra]' });
+  return getGenericObject<IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , page, size, info, config, filterFields: 'content[uuid,descricao,quantidade,valor,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra]' });
 }
 
 
