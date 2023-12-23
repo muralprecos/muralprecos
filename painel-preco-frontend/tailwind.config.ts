@@ -19,7 +19,6 @@ module.exports = {
   theme: {
     extend: {
       backgroundImage: {
-        'gradient-linear': 'linear-gradient(to left bottom, #0e0326, #1b0747)',
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
@@ -31,10 +30,13 @@ module.exports = {
     nextui({
       //https://colors.muz.li/palette/6d0bd8/350a97/d6c3ff/ac88ff/ffffff
       //https://coolors.co/palettes/popular/violet
+      prefix: 'tt',
       themes: {
         light: {
           layout: {}, // light theme layout tokens
           colors: {
+            'bg-gradiente-inicial': '#daccf8',
+            'bg-gradiente-final': '#eee8fa',
             background: '#fff',
             foreground: '#222',
             primary: {
@@ -55,9 +57,11 @@ module.exports = {
         modern: {
           extend: 'dark', // <- inherit default values from dark theme
           colors: {
+            'bg-gradiente-inicial': '#0e0326',
+            'bg-gradiente-final': '#1b0747',
             background: '#150636',
             foreground: '#ffffff',
-            primary: {
+            secondary: {
               50: '#1e1259',//250°, 80%, 35%
               100: '#2f1982',//253°, 83%, 44%
               200: '#341387',//257°, 86%, 53%
@@ -71,7 +75,7 @@ module.exports = {
               DEFAULT: '#6d0bd8',
               foreground: '#ffffff'
             },
-            secondary: {
+            primary: {
               DEFAULT: COLORS.green,
               foreground: COLORS.purpleDark
             },
@@ -94,4 +98,4 @@ module.exports = {
       }
     })
   ],
-};
+}

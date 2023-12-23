@@ -9,9 +9,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <NextThemesProvider
         attribute='class'
         defaultTheme='modern'
-        themes={['light', 'dark', 'modern']}
+        themes={['light', 'modern']}
       >
-        <main className="text-foreground bg-gradient-linear min-h-screen">
+        <main className="text-foreground min-h-screen gradient-background">
           {children}
         </main>
       </NextThemesProvider>

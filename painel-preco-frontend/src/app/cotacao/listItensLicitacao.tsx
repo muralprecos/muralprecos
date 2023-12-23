@@ -9,6 +9,7 @@ import { HeartIcon } from "@/components/atoms/icons/HeartIcon";
 import { Dispatch, SetStateAction } from "react";
 import ClipboardIcon from "@/components/atoms/icons/ClipboardIcon";
 import EyeIcon from "@/components/atoms/icons/EyeIcon";
+import { useTheme } from "next-themes";
 
 export interface IPropsListItensLicitacao {
   isLoading: boolean
@@ -22,6 +23,8 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
   setTabSelected,
   ...opts
 }) => {
+  const { theme, setTheme } = useTheme()
+
   const liked = false;
   const hastItens = () => {
     return itensLicitacao != null && itensLicitacao.length > 0;
@@ -46,13 +49,25 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
               </div>
             </div>
           }
-          { !hastItens() && !isLoading && <p>Sem resultados de buscas... Realize uma cotação rápida.</p>}
+          { !hastItens() && !isLoading && 
+            <div className='flex flex-col w-full items-start justify-start'>
+              <p>Sem resultados de buscas... Realize uma cotação rápida.</p>
+              <Divider className="my-4" />
+              <FormRow className="flex flex-row items-center justify-end">
+                <div className="flex">
+                  <Button color="primary" type="button" onClick={goSearchTab}>
+                    Nova Cotação
+                  </Button>
+                </div>
+              </FormRow>
+            </div>
+          }
           { hastItens() && !isLoading && 
             <div className='flex flex-col w-full items-start justify-start'>
               <ScrollShadow className="h-[500px] w-full">
               { itensLicitacao?.map(i =>
-                <div key={i.uuid} className="flex-1 w-full flex-wrap md:flex-nowrap gap-4 py-3">
-                  <Card className="bg-default-100/50 dark:bg-default-100/50 flex flex-row" shadow="sm">
+                <div key={i.uuid} className="flex-1 w-full flex-wrap md:flex-nowrap gap-4 py-2">
+                  <Card className="bg-default-100/50 flex flex-row" shadow="sm">
                     <CardBody className="flex-row items-center justify-between">
 
                       <div className="flex gap-6 md:gap-4 items-center justify-center basis-1/12">
@@ -74,12 +89,13 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
                       <div className="flex flex-col basis-1/12 items-center">
                         <Button
                           isIconOnly
-                          className="text-default-900/60 data-[hover]:bg-foreground/10 -translate-y-2 translate-x-2"
+                          className="text-default-900/60 -translate-y-2 translate-x-2"
                           radius="full"
-                          variant="light"
+                          color="primary"
+                          variant="solid"
                           // onPress={() => setLiked((v) => !v)}
                         >
-                          <EyeIcon></EyeIcon>
+                          <EyeIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}></EyeIcon>
                           {/* <HeartIcon
                             className={liked ? "[&>path]:stroke-transparent" : ""}
                             fill={liked ? "currentColor" : "none"}
@@ -97,11 +113,10 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
                   Itens Retornados: {itensLicitacao?.length}  
                 </div>
                 <div className="flex">
-                  <Button color="secondary" type="button" onClick={goSearchTab}>
+                  <Button color="primary" type="button" onClick={goSearchTab}>
                     Nova Cotação
                   </Button>
                 </div>
-                
               </FormRow>
             </div>
           }
