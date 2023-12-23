@@ -401,7 +401,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           <Button color="default" onClick={() => clearForm()}>
             Limpar
           </Button>
-          <Button color="primary" type="submit">
+          <Button color="secondary" type="submit">
             Pesquisar
           </Button>
         </FormRow>

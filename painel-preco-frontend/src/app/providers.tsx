@@ -11,7 +11,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         defaultTheme='modern'
         themes={['light', 'dark', 'modern']}
       >
-        <main className="text-foreground bg-background min-h-screen">
+        <main className="text-foreground bg-gradient-linear min-h-screen">
           {children}
         </main>
       </NextThemesProvider>

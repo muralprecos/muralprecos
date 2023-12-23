@@ -97,7 +97,7 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
                   Itens Retornados: {itensLicitacao?.length}  
                 </div>
                 <div className="flex">
-                  <Button color="primary" type="button" onClick={goSearchTab}>
+                  <Button color="secondary" type="button" onClick={goSearchTab}>
                     Nova Cotação
                   </Button>
                 </div>
