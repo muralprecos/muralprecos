@@ -77,9 +77,7 @@ https://tobiasahlin.com/blog/common-flexbox-patterns/
 
 - Aprimoramentos de layout:
 	- Ao realizar busca, não apagar os campos;
-	- Melhorar ícones de visualização de detalhes (tema claro);
-
-- Listar Itens;
+	- Apresentar filtros buscados;
 
 - Detalhar Itens;
 	http://muraldeprecos.com/api/v1/itens-licitacao/1ab3be84-9924-11ee-96b8-0242ac140002

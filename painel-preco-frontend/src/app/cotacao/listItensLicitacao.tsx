@@ -4,34 +4,56 @@
 import { Button, Card, CardBody, Divider, ScrollShadow, Skeleton } from "@nextui-org/react";
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
-import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
-import { HeartIcon } from "@/components/atoms/icons/HeartIcon";
+import { IItemLicitacao, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
 import { Dispatch, SetStateAction } from "react";
 import ClipboardIcon from "@/components/atoms/icons/ClipboardIcon";
 import EyeIcon from "@/components/atoms/icons/EyeIcon";
 import { useTheme } from "next-themes";
+import { getItemLicitacao } from "@/hooks/api";
+import { TABS_COTACAO } from "./pageClient";
 
 export interface IPropsListItensLicitacao {
   isLoading: boolean
   itensLicitacao: IRetornoPesquisaItensLicitacao[]
   setTabSelected: Dispatch<SetStateAction<string>>
+  setIsLoadingItens?: Dispatch<SetStateAction<boolean>>
+  setItem: Dispatch<SetStateAction<IItemLicitacao|null>>
 }
 
 const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
   isLoading = false,
   itensLicitacao,
   setTabSelected,
+  setIsLoadingItens,
+  setItem,
   ...opts
 }) => {
   const { theme, setTheme } = useTheme()
 
-  const liked = false;
   const hastItens = () => {
     return itensLicitacao != null && itensLicitacao.length > 0;
   }
 
   const goSearchTab = () => {
-    setTabSelected("search")
+    setTabSelected(TABS_COTACAO.SEARCH.key)
+  }
+
+  const selectItem = async (uuid : string) => {
+    if (!!setItem) {
+      setItem(null)
+    }
+    if (!!setTabSelected) {
+      setTabSelected(TABS_COTACAO.VIEW.key);
+    }
+    setIsLoadingItens ? setIsLoadingItens(true) : null;
+
+    console.log(uuid)
+    const req: IItemLicitacao = await getItemLicitacao({ info: [{ val: uuid, param: 'uuid' }] });
+    console.log(req)
+    if (!!setItem) {
+      setIsLoadingItens ? setIsLoadingItens(false) : null;
+      setItem(req)
+    }
   }
 
   return (
@@ -72,7 +94,9 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
 
                       <div className="flex gap-6 md:gap-4 items-center justify-center basis-1/12">
                         <div className="relative col-span-6 md:col-span-4">
-                          <ClipboardIcon></ClipboardIcon>
+                          <ClipboardIcon height={48} width={48}
+                            classNamesArrPath={theme == 'light' ? ['stroke-gray-500'] : ['stroke-gray-400']}
+                            ></ClipboardIcon>
                         </div>
                       </div>
 
@@ -93,13 +117,9 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
                           radius="full"
                           color="primary"
                           variant="solid"
-                          // onPress={() => setLiked((v) => !v)}
+                          onPress={() => selectItem(i.uuid) }
                         >
                           <EyeIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}></EyeIcon>
-                          {/* <HeartIcon
-                            className={liked ? "[&>path]:stroke-transparent" : ""}
-                            fill={liked ? "currentColor" : "none"}
-                          /> */}
                         </Button>
                       </div>
                     </CardBody>

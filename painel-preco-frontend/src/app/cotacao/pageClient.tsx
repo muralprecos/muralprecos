@@ -1,12 +1,28 @@
 // app/tabs/page.tsx
 "use client";
 
-import { Button, Card, CardBody, Skeleton, Tab, Tabs } from "@nextui-org/react";
+import { Card, CardBody, Tab, Tabs } from "@nextui-org/react";
 import {usePathname} from "next/navigation";
 import SearchItensLicitacaoForm, { IPropsSearchItensLicitacaoForm } from "./searchItensLicitacaoForm";
 import ListItensLicitacao from "./listItensLicitacao";
 import { useState } from "react";
-import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
+import { IItemLicitacao, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
+import ViewItemLicitacao from "./viewItemLicitacao";
+
+export const TABS_COTACAO = {
+  SEARCH: {
+    desc: "Cotação Rápida",
+    key: "search"
+  },
+  LIST: {
+    desc: "Resultados da Cotação",
+    key: "result"
+  },
+  VIEW: {
+    desc: "Detalhes do Item de Licitação",
+    key: "view"
+  }
+}
 
 const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   anosCompras,
@@ -23,16 +39,18 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   const [itens, setItens] = useState<IRetornoPesquisaItensLicitacao[]>([]);
   const [loadingItens, setIsLoadingItens] = useState<boolean>(false);
+  const [item, setItem] = useState<IItemLicitacao|null>(null);
 
-  const [tabSelected, setTabSelected] = useState("search");
+  const [tabSelected, setTabSelected] = useState(TABS_COTACAO.SEARCH.key);
 
   return (
     <section className='py-4 flex items-center justify-center flex-col w-full'>
       <div className='container'>
         <Tabs aria-label="Options" color="default" variant="solid"
           selectedKey={tabSelected}
+          disabledKeys={[TABS_COTACAO.VIEW.key]} 
           onSelectionChange={(e) => {setTabSelected(e+'')}}>
-          <Tab key="search" title="Cotação Rápida" >
+          <Tab key={TABS_COTACAO.SEARCH.key} title={TABS_COTACAO.SEARCH.desc} >
             <Card>
               <CardBody>
                 <SearchItensLicitacaoForm
@@ -51,11 +69,23 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
               </CardBody>
             </Card>
           </Tab>
-          <Tab key="result" title="Resultados da Cotação">
+          <Tab key={TABS_COTACAO.LIST.key} title={TABS_COTACAO.LIST.desc}>
             <Card>
               <CardBody>
                 <ListItensLicitacao
                   itensLicitacao={itens}
+                  isLoading={loadingItens}
+                  setTabSelected={setTabSelected}
+                  setItem={setItem}
+                  />
+              </CardBody>
+            </Card>
+          </Tab>
+          <Tab key={TABS_COTACAO.VIEW.key} title={TABS_COTACAO.VIEW.desc}>
+            <Card>
+              <CardBody>
+                <ViewItemLicitacao
+                  itemLicitacao={item}
                   isLoading={loadingItens}
                   setTabSelected={setTabSelected}
                   />

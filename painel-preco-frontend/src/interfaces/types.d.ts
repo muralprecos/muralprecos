@@ -1,70 +1,74 @@
 
-interface ISimpleObjetoAPI {
+export interface ISimpleObjetoAPI {
   nome: string
 }
 
-interface IObjetoAPI extends ISimpleObjetoAPI {
+export interface IObjetoAPI extends ISimpleObjetoAPI {
   uuid: string
 }
 
-interface IObjetoAPISearch {
+export interface IObjetoAPISearch {
   uuid?: string
   nome?: string
 }
 
 
-interface IFornecedor extends IObjetoAPI {
+export interface IFornecedor extends IObjetoAPI {
   documento: string
-  porte: string
+  porte: IPorteFornecedor
 }
 
-interface IFornecedorSearch extends IObjetoAPISearch {
+export interface IFornecedorSearch extends IObjetoAPISearch {
   documento?: string
 }
 
-interface IFormaCompra extends IObjetoAPI {
+export interface IFormaCompra extends IObjetoAPI {
   sigla: string
 }
 
-interface IModalidadeCompra extends IObjetoAPI {
+export interface IModalidadeCompra extends IObjetoAPI {
   codigo: number
 }
 
-interface IOrgao extends IObjetoAPI {
+export interface IOrgao extends IObjetoAPI {
   codigo: number
   ehsuperior?: booelan
   superior?: IOrgao
 }
 
-interface INomeMaterial extends IObjetoAPI {
+export interface INomeMaterial extends IObjetoAPI {
   codigo: number
 }
 
-interface IUnidadeFederativa extends IObjetoAPI {
+export interface IUnidadeFederativa extends IObjetoAPI {
   sigla: string
 }
 
-interface IMunicipio extends IObjetoAPI {
+export interface IMunicipio extends IObjetoAPI {
   uf: IUnidadeFederativa
 }
 
-interface IEsfera extends IObjetoAPI {}
+export interface IUnidadeGestora extends IObjetoAPI {
+  codigo: number
+}
 
-interface IPorteFornecedor extends IObjetoAPI {}
+export interface IEsfera extends IObjetoAPI {}
 
-interface IUnidadeGestora extends IObjetoAPI {}
+export interface IPorteFornecedor extends IObjetoAPI {}
 
-interface ISituacaoLicitacao extends IObjetoAPI {}
+export interface ISituacaoLicitacao extends IObjetoAPI {}
 
-interface IPeriodoCompra extends IObjetoAPI {}
+export interface IPeriodoCompra extends IObjetoAPI {}
 
-interface IAnoCompra extends ISimpleObjetoAPI {}
+export interface IAnoCompra extends ISimpleObjetoAPI {}
 
-interface IObjetoCompra extends ISimpleObjetoAPI {}
+export interface IObjetoCompra extends ISimpleObjetoAPI {}
 
-interface IItemDescricao extends ISimpleObjetoAPI {}
+export interface IItemDescricao extends ISimpleObjetoAPI {}
 
-interface IItemDescricaoComplementar extends ISimpleObjetoAPI {}
+export interface IItemDescricaoComplementar extends ISimpleObjetoAPI {}
+
+export interface IUnidadeFornecimento extends IObjetoAPI {}
 
 
 
@@ -74,13 +78,13 @@ type NameValue<T extends IObjetoAPI> = {
     value: T[K]
   }
 }[keyof T]
-interface IPageableSort {
+export interface IPageableSort {
   empty: boolean
   sorted: boolean
   unsorted: boolean
 }
 
-interface IPageable {
+export interface IPageable {
   offset: number
   pageNumber: number
   pageSize: number
@@ -89,7 +93,7 @@ interface IPageable {
   sort: IPageableSort
 }
 
-interface IReturnRequestAPI<T> {
+export interface IReturnRequestAPI<T> {
   content: T[]
   empty: boolean
   first: boolean
@@ -103,17 +107,17 @@ interface IReturnRequestAPI<T> {
   totalPages: number
 }
 
-interface IItemAutocomplete {
+export interface IItemAutocomplete {
   key: React.Key
   description: string
 }
 
-interface IItemSelect {
+export interface IItemSelect {
   value: string
   label: string
 }
 
-interface IAPISearchProps {
+export interface IAPISearchProps {
   path?: string
   page?: number
   size?: number
@@ -122,16 +126,16 @@ interface IAPISearchProps {
   config?: RequestInit
 }
 
-interface IAPISearchInfo {
+export interface IAPISearchInfo {
   val: string
   param: string
 }
 
-interface IReturnRequestAPIBasic<T> {
+export interface IReturnRequestAPIBasic<T> {
   content: T[]
 }
 
-interface IRetornoPesquisaItensLicitacao {
+export interface IRetornoPesquisaItensLicitacao {
   uuid: string
   descricao: string
   quantidade: number
@@ -146,6 +150,38 @@ interface IRetornoPesquisaItensLicitacao {
   }
 }
 
-//type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;
+export interface IItemLicitacao {
+  uuid: string
+  codigo: number
+  descricao: string
+  descricaoComplementar: string
+  unidadeFornecimento: IUnidadeFornecimento
+  quantidade: number
+  valor: number
+  material: INomeMaterial
+  fornecedor: IFornecedor
+  licitacao: ILicitacao
+}
 
-export { NameValue, ISimpleObjetoAPI, IObjetoAPI, IPeriodoCompra, IFornecedor, IFormaCompra, IModalidadeCompra, IEsfera, IPageableSort, IPageable, IReturnRequestAPI, IItemAutocomplete, IItemSelect, IPorteFornecedor, IAPISearchProps,IObjetoAPISearch, IFornecedorSearch, IUnidadeFederativa, IUnidadeGestora, IOrgao, ISituacaoLicitacao, IAPISearchInfo, INomeMaterial, IMunicipio, IAnoCompra, IObjetoCompra, IItemDescricao, IItemDescricaoComplementar, IRetornoPesquisaItensLicitacao, IReturnRequestAPIBasic };
+export interface ILicitacao {
+  uuid: string
+  numero: number
+  unidadeGestora: IUnidadeGestora
+  modalidadeCompra: IModalidadeCompra
+  numeroProcesso: string
+  objeto: string
+  situacao: ISituacaoLicitacao
+  orgao: IOrgao
+  orgaoSuperior: IOrgao
+  municipio: IMunicipio
+  formaCompra: IFormaCompra
+  esfera: IEsfera
+  dataAbertura: any
+  dataResultadoCompra: string
+  valor: number
+  anoCompra: number
+  periodoCompra: string
+}
+
+
+//type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;

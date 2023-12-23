@@ -4,11 +4,11 @@ import Icon, { IconProps } from "../Icon"
 const EyeIcon: React.FC<Omit<IconProps, "file"|"color">> = ({
   classNamesArrSvg,
   classNamesArrPath,
-  wrapper = 'div',
-  isCursorPointer = true
+  isCursorPointer = false,
+  ...opts
 }) => {
   return (
-    <Icon file="icons/eye-svgrepo-com.svg" isCursorPointer={false} classNamesArrSvg={classNamesArrSvg} classNamesArrPath={classNamesArrPath} />
+    <Icon file="icons/eye-svgrepo-com.svg" isCursorPointer={isCursorPointer} classNamesArrSvg={classNamesArrSvg} classNamesArrPath={classNamesArrPath} {...opts} />
   )
 }
 export default EyeIcon

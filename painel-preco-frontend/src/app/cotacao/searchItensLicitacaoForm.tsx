@@ -17,6 +17,7 @@ import AutocompleteForm from '@/components/molecules/AutocompleteForm';
 import AutocompleteAsyncForm from '@/components/molecules/AutocompleteAsyncForm';
 import SelectForm from '@/components/molecules/SelectForm';
 import { objToParamSearch } from '@/utils/searchParamUtils';
+import { TABS_COTACAO } from './pageClient';
 
 export interface IPropsSearchItensLicitacaoForm {
   anosCompras: IItemSelect[]
@@ -109,7 +110,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
       setItens([])
     }
     if (!!setTabSelected) {
-      setTabSelected('result');
+      setTabSelected(TABS_COTACAO.LIST.key);
     }
     setIsLoadingItens ? setIsLoadingItens(true) : null;
     const info = objToParamSearch(data);
@@ -288,7 +289,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
 
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IUnidadeGestora, FormData>
+            <AutocompleteAsyncForm<IMunicipio, FormData>
               name="municipioId"
               label="Município"
               attrVal="uuid"

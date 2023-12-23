@@ -1,4 +1,4 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IFornecedorSearch, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IReturnRequestAPIBasic } from "@/interfaces/types";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IFornecedorSearch, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IReturnRequestAPIBasic, IItemLicitacao } from "@/interfaces/types";
 import { extractParamSearch, forceParamSearch, getValParamSearch } from "@/utils/searchParamUtils";
 
 const host = 'http://muraldeprecos.com';//'http://localhost:8080';
@@ -138,6 +138,12 @@ const getListDescricao = async (
   info = forceParamSearch(info, 'only', 'true');
   return getGenericListPageable<IItemDescricao>({ path: '/api/v1/itens-licitacao' , page, size, info, config });
 }
+const getItemLicitacao = async (
+  { page, size, info, config } : IAPISearchProps) => {
+  const uuid = getValParamSearch(info, 'uuid');
+  info = extractParamSearch(info, 'uuid');
+  return getGenericObject<IItemLicitacao>({ path: `/api/v1/itens-licitacao/${uuid}` , page, size, info, config });
+}
 
 
 const getPesquisarCotacoes = async (
@@ -146,4 +152,4 @@ const getPesquisarCotacoes = async (
 }
 
 
-export { getListPorteFornecedor, getListPeriodosCompra, getListEsferas, getFormasCompra, getListFornecedores, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListModalidadesCompra, getListSituacoesLicitacao, getListEstados, getListUnidadesFornecimento, getListNomeMaterial, getListMunicipios, getListAnos, getListObjetosCompras, getListDescricao, getPesquisarCotacoes };
+export { getListPorteFornecedor, getListPeriodosCompra, getListEsferas, getFormasCompra, getListFornecedores, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListModalidadesCompra, getListSituacoesLicitacao, getListEstados, getListUnidadesFornecimento, getListNomeMaterial, getListMunicipios, getListAnos, getListObjetosCompras, getListDescricao, getPesquisarCotacoes, getItemLicitacao };
