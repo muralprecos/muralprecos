@@ -5,6 +5,7 @@ import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenu
 import IconHome from "../atoms/icons/IconHome";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
+import TTIcon from "../atoms/icons/TTIcon";
 
 export interface ILink {
   description: string
@@ -48,16 +49,16 @@ const Header: React.FC<FormTitleProps> = ({
 
             <NavbarContent className="sm:hidden pr-3" justify="center">
               <NavbarBrand >
-                <IconHome />
-                <p className="font-bold text-inherit">Painel Preço</p>
+                <TTIcon />
+                <p className="font-bold text-inherit">Mural de Preço</p>
               </NavbarBrand>
             </NavbarContent>
 
             <NavbarContent className="hidden sm:flex gap-4" justify="center">
               <NavbarBrand className="mr-4">
                 <Link href={'/'} className="text-inherit">
-                  <IconHome />
-                  <p className="ml-2 font-bold text-inherit">Painel Preço</p>
+                  <TTIcon />
+                  <p className="ml-2 font-bold text-inherit">Mural de Preço</p>
                 </Link>
               </NavbarBrand>
               {links.map((item, index) => (
@@ -80,7 +81,7 @@ const Header: React.FC<FormTitleProps> = ({
                 <Link href="#">Login</Link>
               </NavbarItem>
               <NavbarItem>
-                <Button as={Link} color="warning" href="#" variant="flat">
+                <Button as={Link} color="default" href="#" variant="flat">
                   Criar Conta
                 </Button>
               </NavbarItem>

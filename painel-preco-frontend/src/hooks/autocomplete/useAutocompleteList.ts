@@ -7,7 +7,7 @@ interface IAutocompleteListHook<T extends IObjetoAPI> {
   size?: number;
   minCharactersLoad?: number;
   initWithData?: boolean;
-  getList: (props: IAPISearchProps<T>) => Promise<IReturnRequestAPI<T>>;
+  getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T>>;
 }
 
 export function useAutocompleteList<T extends IObjetoAPI>({

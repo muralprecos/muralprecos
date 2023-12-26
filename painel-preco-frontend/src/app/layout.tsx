@@ -9,7 +9,7 @@ import Header from '@/components/molecules/Header'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Painel de Preço - TTSolutions',
+  title: 'Mural de Preço - TTSolutions',
   description: 'Aplicação para auxiliar em licitações e pregões',
 }
 

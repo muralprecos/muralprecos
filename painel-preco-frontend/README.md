@@ -46,9 +46,6 @@ https://www.svgrepo.com/collection/solar-outline-icons/
 NavBar
 https://nextui.org/docs/components/navbar
 
-Forms Tailwind
-https://tailwind-elements.com/docs/standard/forms/form-templates/
-
 Flex Layout Aux:
 https://angrytools.com/css-flex/
 https://flexbox.tech/
@@ -78,13 +75,33 @@ https://tobiasahlin.com/blog/common-flexbox-patterns/
 # verificar padrão adotado pelo projeto https://github.com/wangly19/nextui-design-pro/blob/main/app/next/views/login/form.tsx
 
 
-- Listar Itens;
+- Padronizar botão de voltar na parte superior da barra;
 
-- Detalhar Itens;
-	http://muraldeprecos.com/api/v1/itens-licitacao/1ab3be84-9924-11ee-96b8-0242ac140002
+- Melhorar documentação de deploy;
+
+- Alterar tabs para breadcrumbs;
+
+- Aprimoramentos de layout:
+	- Ao realizar busca, não apagar os campos;
+	- Apresentar filtros buscados;
+
+- Adicionar itens de licitação para um carrinho;
+	https://nextui.org/docs/components/badge
+	https://nextui.org/docs/components/table#async-pagination
+
+- Listar itens no carrinho para finalizar cotação;
+
+- Na listagem de itens de licitação, adicionar um componente de paginação para retornar novos itens;
 
 
-# Aprimoramentos:
+- Histórico de cotações;
+
+- Tela de Login (e informação de login na área superior da tela)
+	https://nextui.org/docs/components/avatar
+	https://nextui.org/docs/components/popover
+
+
+# Aprimoramentos Front:
 
 - Nome/Código Material -> apresentar nome e código na listagem do autocomplete;
 
@@ -99,17 +116,6 @@ https://tobiasahlin.com/blog/common-flexbox-patterns/
 
 - Filtrar textos de descrição, descrição complementar e objeto para não retornar textos iguais;
 
-
-
-# Prox Passos:
-
-- Tela de Login 				tela
-
-- Adicionar itens de licitação para um carrinho;
-
-- Listar itens no carrinho para finalizar cotação;
-
-- Histórico de cotações;
 
 
 

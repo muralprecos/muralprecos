@@ -13,12 +13,16 @@ export type IconProps = {
   classNamesArrSvg?: string[]
   classNamesArrPath?: string[]
   isCursorPointer?: boolean
+  width?: number
+  height?: number
 } & React.AllHTMLAttributes<HTMLElement>
 
 const Icon: React.FC<IconProps> = ({
   file,
   color,
   className,
+  width = 24,
+  height = 24,
   classNamesArrSvg,
   classNamesArrPath,
   wrapper = 'div',
@@ -31,6 +35,9 @@ const Icon: React.FC<IconProps> = ({
   const content = (
     <Fragment>
       <ReactSVG src={file} wrapper={wrapper} className={className} beforeInjection={(svg) => {
+          svg.setAttribute('width', width.toString());
+          svg.setAttribute('height', height.toString());
+
           if (strClassNameSvg != '') {
             strClassNameSvg.split(' ').forEach((s) => {
               svg.classList.add(s);
