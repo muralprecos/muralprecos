@@ -40,7 +40,17 @@ module.exports = {
             background: '#fff',
             foreground: '#222',
             primary: {
-              DEFAULT: COLORS.purple,
+              50: '#1e1259',//250°, 80%, 35%
+              100: '#2f1982',//253°, 83%, 44%
+              200: '#341387',//257°, 86%, 53%
+              300: '#4412a1',//261°, 89%, 63%
+              400: '#580fbd',//265°, 92%, 74%
+              500: '#6d0bd8',//269°, 95%, 85%
+              600: '#a866ff',
+              700: '#d1adff',
+              800: '#e8d6ff',
+              900: '#f5edff',
+              DEFAULT: '#6d0bd8',
               foreground: '#ffffff'
             },
             secondary: {
@@ -76,6 +86,9 @@ module.exports = {
               foreground: '#ffffff'
             },
             primary: {
+              300: '#bef781',
+              500: COLORS.green,
+              600: '#47960b',
               DEFAULT: COLORS.green,
               foreground: COLORS.purpleDark
             },

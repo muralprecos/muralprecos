@@ -58,7 +58,14 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
 
   return (
     <section className='container flex flex-col items-start justify-start'>
-        <FormTitle className='text-lg font-bold uppercase text-primary'>Resultado da Cotação</FormTitle>
+        <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full'>
+          <div className="flex-auto">
+            Resultado da Cotação
+          </div>
+          <Button color="secondary" type="button" onClick={goSearchTab}>
+            Voltar para Cotação
+          </Button>
+        </FormTitle>
         <Divider className="my-4" />
         <FormRow className='flex flex-col items-start justify-start'>
           { isLoading && 
@@ -74,14 +81,6 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
           { !hastItens() && !isLoading && 
             <div className='flex flex-col w-full items-start justify-start'>
               <p>Sem resultados de buscas... Realize uma cotação rápida.</p>
-              <Divider className="my-4" />
-              <FormRow className="flex flex-row items-center justify-end">
-                <div className="flex">
-                  <Button color="primary" type="button" onClick={goSearchTab}>
-                    Nova Cotação
-                  </Button>
-                </div>
-              </FormRow>
             </div>
           }
           { hastItens() && !isLoading && 
@@ -131,11 +130,6 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
               <FormRow className="flex flex-row items-center justify-between">
                 <div className="flex">
                   Itens Retornados: {itensLicitacao?.length}  
-                </div>
-                <div className="flex">
-                  <Button color="primary" type="button" onClick={goSearchTab}>
-                    Nova Cotação
-                  </Button>
                 </div>
               </FormRow>
             </div>

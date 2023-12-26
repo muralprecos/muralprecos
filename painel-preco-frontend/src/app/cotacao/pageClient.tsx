@@ -75,6 +75,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                 <ListItensLicitacao
                   itensLicitacao={itens}
                   isLoading={loadingItens}
+                  setIsLoadingItens={setIsLoadingItens}
                   setTabSelected={setTabSelected}
                   setItem={setItem}
                   />
