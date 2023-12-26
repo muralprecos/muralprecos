@@ -10,6 +10,7 @@ import { useTheme } from "next-themes";
 import { TABS_COTACAO } from "./pageClient";
 import InfoText from "@/components/atoms/InfoText";
 import InfoTitle from "@/components/atoms/InfoTitle";
+import CartPlusIcon from "@/components/atoms/icons/CartPlusIcon";
 
 export interface IPropsViewItensLicitacao {
   isLoading: boolean
@@ -102,26 +103,41 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
           }
           { hastItens() && !isLoading && 
             <div className='flex md:flex-row flex-col w-full items-start justify-start gap-4'>
-              <div className='flex flex-col md:flex-row items-start justify-start basis-1/4 border-small rounded-small border-default-200 dark:border-default-100 w-full'>
-                <Listbox
-                  aria-label="Seleção do Tipo de Visualização"
-                  variant="flat"
-                  className="w-full"
-                  disallowEmptySelection
-                  selectionMode="single"
-                  items={items}
-                  selectedKeys={selectedKeys}
-                  onSelectionChange={selectValue}
-                >
-                  <ListboxSection title="Modos de Visualização">
-                    
+              <div className='flex flex-col items-start justify-start basis-1/4 gap-2'> 
+                <div className="flex flex-1 flex-col border-small rounded-small border-default-200 dark:border-default-100 w-full">
+                  <h3 className={`text-sm font-bold uppercase text-primary-600 w-full bg-opacity-5 bg-primary-300 p-4 text-center`}>
+                    Modos de Visualização
+                  </h3>
+                  <Listbox
+                    aria-label="Seleção do Tipo de Visualização"
+                    variant="flat"
+                    className="w-full flex-1"
+                    disallowEmptySelection
+                    selectionMode="single"
+                    items={items}
+                    selectedKeys={selectedKeys}
+                    onSelectionChange={selectValue}
+                  >
                     {items.map((item) => (
                       <ListboxItem key={item.key}>
                         {item.label}
                       </ListboxItem>
                     ))}
-                  </ListboxSection>
-                </Listbox>
+                  </Listbox>
+                </div>
+                <div className="flex flex-1 w-full">
+                  <Button
+                    isIconOnly
+                    className="w-full"
+                    color="secondary"
+                    variant="solid"
+                    onPress={() => alert('Adicionado ao Carrinho!') }
+                  >
+                    <CartPlusIcon className="mr-2" classNamesArrPath={theme != 'light' ? ['stroke-white fill-white'] : []}></CartPlusIcon>
+                    <span>Adicionar ao Carrinho</span>
+                  </Button>
+                </div>
+                
               </div>
 
               <div className='flex flex-col items-start justify-start basis-3/4'>

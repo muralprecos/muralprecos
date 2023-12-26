@@ -1,16 +1,17 @@
 // app/tabs/page.tsx
 "use client";
 
-import { Button, Card, CardBody, Divider, ScrollShadow, Skeleton } from "@nextui-org/react";
+import { Button, Card, CardBody, Divider, ScrollShadow, Skeleton, Pagination } from "@nextui-org/react";
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
 import { IItemLicitacao, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import ClipboardIcon from "@/components/atoms/icons/ClipboardIcon";
-import EyeIcon from "@/components/atoms/icons/EyeIcon";
 import { useTheme } from "next-themes";
 import { getItemLicitacao } from "@/hooks/api";
 import { TABS_COTACAO } from "./pageClient";
+import WallpaperIcon from "@/components/atoms/icons/WallpaperIcon";
+import CartPlusIcon from "@/components/atoms/icons/CartPlusIcon";
 
 export interface IPropsListItensLicitacao {
   isLoading: boolean
@@ -29,6 +30,7 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
   ...opts
 }) => {
   const { theme, setTheme } = useTheme()
+  const [currentPage, setCurrentPage] = useState(1);
 
   const hastItens = () => {
     return itensLicitacao != null && itensLicitacao.length > 0;
@@ -46,10 +48,7 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
       setTabSelected(TABS_COTACAO.VIEW.key);
     }
     setIsLoadingItens ? setIsLoadingItens(true) : null;
-
-    console.log(uuid)
     const req: IItemLicitacao = await getItemLicitacao({ info: [{ val: uuid, param: 'uuid' }] });
-    console.log(req)
     if (!!setItem) {
       setIsLoadingItens ? setIsLoadingItens(false) : null;
       setItem(req)
@@ -93,9 +92,9 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
 
                       <div className="flex gap-6 md:gap-4 items-center justify-center basis-1/12">
                         <div className="relative col-span-6 md:col-span-4">
-                          <ClipboardIcon height={48} width={48}
+                          <WallpaperIcon height={48} width={48}
                             classNamesArrPath={theme == 'light' ? ['stroke-gray-500'] : ['stroke-gray-400']}
-                            ></ClipboardIcon>
+                            ></WallpaperIcon>
                         </div>
                       </div>
 
@@ -109,7 +108,17 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
                         </div>
                       </div>
 
-                      <div className="flex flex-col basis-1/12 items-center">
+                      <div className="flex flex-row gap-3 basis-1/12 items-start justify-start">
+                        <Button
+                          isIconOnly
+                          className="text-default-900/60 -translate-y-2 translate-x-2"
+                          radius="full"
+                          color="secondary"
+                          variant="solid"
+                          onPress={() => alert('Adicionado ao Carrinho!') }
+                        >
+                          <CartPlusIcon classNamesArrPath={theme != 'light' ? ['stroke-white fill-white'] : []}></CartPlusIcon>
+                        </Button>
                         <Button
                           isIconOnly
                           className="text-default-900/60 -translate-y-2 translate-x-2"
@@ -118,7 +127,7 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
                           variant="solid"
                           onPress={() => selectItem(i.uuid) }
                         >
-                          <EyeIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}></EyeIcon>
+                          <ClipboardIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}></ClipboardIcon>
                         </Button>
                       </div>
                     </CardBody>
@@ -128,8 +137,33 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
               </ScrollShadow>
               <Divider className="my-4" />
               <FormRow className="flex flex-row items-center justify-between">
-                <div className="flex">
-                  Itens Retornados: {itensLicitacao?.length}  
+                <div className="flex flex-col gap-2">
+                  <p className="text-small text-default-500">Página Selecionada: {currentPage}</p>
+                  <p className="text-small text-default-500">Itens na Página: {itensLicitacao?.length}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    color="primary"
+                    onPress={() => setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))}
+                  >
+                    Previous
+                  </Button>
+                  <Pagination
+                    total={10}
+                    color="primary"
+                    page={currentPage}
+                    onChange={setCurrentPage}
+                  />
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    color="primary"
+                    onPress={() => setCurrentPage((prev) => (prev < 10 ? prev + 1 : prev))}
+                  >
+                    Next
+                  </Button>
                 </div>
               </FormRow>
             </div>

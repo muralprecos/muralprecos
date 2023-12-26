@@ -61,16 +61,19 @@ Customizing tailwind-css with react:
 
 ## TODO:
 
+### Study:
+
+- Integrar com REDUX ( https://redux.js.org/usage/nextjs ):
+	- carregar dados e migrar entre páginas sem ter que refazer a requisição (inclusive formulário)
+	- realizar paginação necessita dos parâmetros buscados também
+
 - verificar padrão adotado pelo projeto https://github.com/wangly19/nextui-design-pro/blob/main/app/next/views/login/form.tsx
 
-- Integrar com REDUX (possibilita carregar dados e migrar entre páginas sem ter que refazer a requisição) 
-	https://redux.js.org/usage/nextjs;
 
-- Alterar tabs para breadcrumbs;
+### Work:
 
-- Aprimoramentos de layout:
-	- Ao realizar busca, não apagar os campos;
-	- Apresentar filtros buscados;
+- ESTUDAR INTEGRAÇÃO COM REDUX:
+	https://redux.js.org/usage/nextjs
 
 - Adicionar itens de licitação para um carrinho;
 	https://nextui.org/docs/components/badge
@@ -78,8 +81,11 @@ Customizing tailwind-css with react:
 
 - Listar itens no carrinho para finalizar cotação;
 
-- Na listagem de itens de licitação, adicionar um componente de paginação para retornar novos itens;
-
+- Aprimoramentos de layout (após integração com redux):
+	- Ao realizar busca, não apagar os campos;
+	- Apresentar filtros buscados;
+	- Alterar tabs para breadcrumbs;
+	- Na listagem de itens de licitação, adicionar um componente de paginação para retornar novos itens;
 
 - Histórico de cotações;
 

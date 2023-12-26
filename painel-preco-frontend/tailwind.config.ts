@@ -54,7 +54,7 @@ module.exports = {
               foreground: '#ffffff'
             },
             secondary: {
-              DEFAULT: COLORS.green,
+              DEFAULT: '#bef781',
               foreground: COLORS.purpleDark
             },
             focus: '#a866ff'

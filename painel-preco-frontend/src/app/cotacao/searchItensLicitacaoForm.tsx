@@ -116,7 +116,6 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     const info = objToParamSearch(data);
     const req: IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao> = await getPesquisarCotacoes({ page: 0, size: 20, info });
     if (!!setItens) {
-      console.log(req.content)
       setIsLoadingItens ? setIsLoadingItens(false) : null;
       setItens(req.content)
     }

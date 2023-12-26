@@ -46,8 +46,12 @@ const Icon: React.FC<IconProps> = ({
 
           if (strClassNamePaths != '') {
             const paths = svg.querySelectorAll('path');
+            const circles = svg.querySelectorAll('circle');
             strClassNamePaths.split(' ').forEach((s) => {
               paths.forEach(path => {
+                path.classList.add(s);
+              })
+              circles.forEach(path => {
                 path.classList.add(s);
               })
             })

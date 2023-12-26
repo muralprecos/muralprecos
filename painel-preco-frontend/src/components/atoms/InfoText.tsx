@@ -24,9 +24,6 @@ const InfoText: React.FC<FormTitleProps> = ({
       <div className="flex flex-row items-center justify-between">
         { children }
       </div>
-      {/* <h3 className="font-semibold text-foreground/90">Daily Mix</h3>
-      <p className="text-small text-foreground/80">12 Tracks</p>
-      <h1 className="text-large font-medium mt-2">Frontend Radio</h1> */}
     </div>
   );
 };
