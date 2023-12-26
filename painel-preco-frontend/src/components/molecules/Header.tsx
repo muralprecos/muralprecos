@@ -2,10 +2,13 @@
 
 import React from "react";
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenu, NavbarMenuItem} from "@nextui-org/react";
-import IconHome from "../atoms/icons/IconHome";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
 import TTIcon from "../atoms/icons/TTIcon";
+import { AppDispatch, useAppSelector } from "@/redux/store";
+import { useDispatch } from 'react-redux'
+import { logOut } from "@/redux/features/auth-slice";
+import { hasString } from "@/utils/validateUtils";
 
 export interface ILink {
   description: string
@@ -23,11 +26,17 @@ const Header: React.FC<FormTitleProps> = ({
   ...opts
 }) => {
 
+  const username = useAppSelector((state) => state.authReducer.value.username);
   const _className = opts.className;
   delete opts.className;
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const onClickLogout = () => {
+    dispatch(logOut())
+  };
 
   const activeLink = (url: string, pathname: string) => {
     return pathname === url
@@ -77,14 +86,29 @@ const Header: React.FC<FormTitleProps> = ({
 
             <NavbarContent justify="end">
               <ThemeSwitcher />
-              <NavbarItem className="hidden lg:flex">
-                <Link href="#">Login</Link>
-              </NavbarItem>
-              <NavbarItem>
-                <Button as={Link} color="default" href="#" variant="flat">
-                  Criar Conta
-                </Button>
-              </NavbarItem>
+              { !hasString(username) ?
+                <div className="flex gap-4">
+                  <NavbarItem className="hidden lg:flex">
+                    <Link href="/login">Login</Link>
+                  </NavbarItem>
+                  <NavbarItem>
+                    <Button as={Link} color="default" href="/" variant="flat">
+                      Criar Conta
+                    </Button>
+                  </NavbarItem>
+                </div>
+              :
+                <div className="flex gap-4">
+                  <NavbarItem>
+                    { username }
+                  </NavbarItem>
+                  <NavbarItem className="hidden lg:flex">
+                    <Button color="default" variant="flat" onClick={onClickLogout}>
+                      Sair
+                    </Button>
+                  </NavbarItem>
+                </div>
+              }
             </NavbarContent>
           </div>
           
