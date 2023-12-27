@@ -21,7 +21,8 @@ export default function RootLayout({
 
   const linksHeader = [
     {description: 'Início', link: '/'},
-    {description: 'Cotação', link: '/cotacao'}
+    {description: 'Cotação', link: '/cotacao'},
+    {description: 'Carrinho', link: '/carrinho'}
   ]
 
   return (
@@ -29,7 +30,7 @@ export default function RootLayout({
       <body className={`${inter.className} min-h-screen flex flex-col`}>
         <Providers>
           <Header links={linksHeader}/>
-          <main>{children}</main>
+          <main className='flex-1 flex flex-col'>{children}</main>
           <footer></footer>
         </Providers>
       </body>

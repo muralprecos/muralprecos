@@ -59,34 +59,35 @@ Customizing tailwind-css with react:
 
 
 
-## TODO:
+### TODO Work:
 
-- verificar padrão adotado pelo projeto https://github.com/wangly19/nextui-design-pro/blob/main/app/next/views/login/form.tsx
-
-- Integrar com REDUX (possibilita carregar dados e migrar entre páginas sem ter que refazer a requisição) 
-	https://redux.js.org/usage/nextjs;
-
-- Alterar tabs para breadcrumbs;
-
-- Aprimoramentos de layout:
-	- Ao realizar busca, não apagar os campos;
+- Integrar com REDUX:
+	- Manter campos de busca ao realizar cotação;
+	- Realizar paginação necessita dos parâmetros buscados também;
 	- Apresentar filtros buscados;
+	- Alterar tabs para breadcrumbs;
 
-- Adicionar itens de licitação para um carrinho;
-	https://nextui.org/docs/components/badge
-	https://nextui.org/docs/components/table#async-pagination
+- Carrinho:
+	- Adicionar componente modal ao limpar carrinho;
+	- Adicionar verificação isloading;
 
-- Listar itens no carrinho para finalizar cotação;
-
-- Na listagem de itens de licitação, adicionar um componente de paginação para retornar novos itens;
-
+- Evitar o lazy loading de itens (por exemplo, header verificando carrinho e logado);
 
 - Histórico de cotações;
 
-- Tela de Login (e informação de login na área superior da tela)
-	https://nextui.org/docs/components/avatar
-	https://nextui.org/docs/components/popover
+- Tela de cadastro de usuário;
 
+- Adicionar rodapé com referência à TT e versão do sistema;
+
+V1.1
+
+- Estudo: https://nextjs.org/docs/app/building-your-application/caching
+
+- rever oq pode ter renderização no servidor: https://nextjs.org/docs/app/building-your-application/rendering/composition-patterns
+
+- revisar formulário: https://www.youtube.com/watch?v=dDpZfOQBMaU&t=5s&ab_channel=LeeRobinson
+
+- verificar padrão adotado para requisições com type: https://douglasmoura.dev/en-US/using-fetch-with-typescript
 
 # Aprimoramentos Front:
 
@@ -101,7 +102,8 @@ Customizing tailwind-css with react:
 
 # Aprimoramentos Back:
 
-- Filtrar textos de descrição, descrição complementar e objeto para não retornar textos iguais;
+- Retornar textos de descrição como setlist (descrição complementar, objeto, etc) para não retornar textos iguais;
+
 
 +++++++++++
 -Identificar quais dados devem ser apresentados na listagem do itens de compra bem como no detalhamento do item;
