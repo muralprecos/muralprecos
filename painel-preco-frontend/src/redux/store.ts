@@ -5,8 +5,10 @@ import {
   useSelector as _useSelector
 } from "react-redux";
 import { listenerMiddleware } from "./middleware";
-import authReducer, { authInitialState } from './features/auth-slice'
 import { verifyIsOnlyClientNextjs } from '@/utils/validateUtils';
+
+import authReducer, { initialState as authInitialState } from './features/auth-slice'
+import cartReducer, { initialState as cartInitialState } from './features/cart-slice'
 
 let authState = null;
 if (verifyIsOnlyClientNextjs()) {
@@ -18,7 +20,8 @@ export const store = configureStore({
     authReducer: authState === null ? authInitialState : authState
   },
   reducer: {
-    authReducer
+    authReducer,
+    cartReducer
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware()
     .concat(listenerMiddleware.middleware)

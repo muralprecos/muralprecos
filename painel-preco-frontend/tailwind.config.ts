@@ -57,6 +57,9 @@ module.exports = {
               DEFAULT: '#bef781',
               foreground: COLORS.purpleDark
             },
+            danger: {
+              DEFAULT: '#ff5252',
+            },
             focus: '#a866ff'
           } // light theme colors
         },
@@ -91,6 +94,9 @@ module.exports = {
               600: '#47960b',
               DEFAULT: COLORS.green,
               foreground: COLORS.purpleDark
+            },
+            danger: {
+              DEFAULT: '#bf3b3b',
             },
             focus: '#a866ff'
           },

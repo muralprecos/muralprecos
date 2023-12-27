@@ -148,7 +148,7 @@ const getItemLicitacao = async (
 
 const getPesquisarCotacoes = async (
   { page, size, info, config } : IAPISearchProps) => {
-  return getGenericObject<IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , page, size, info, config, filterFields: 'content[uuid,descricao,quantidade,valor,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra]' });
+  return getGenericObject<IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , page, size, info, config, filterFields: 'content[uuid,descricao,quantidade,valor,licitacao.municipio.nome,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra,unidadeFornecimento.nome]' });
 }
 
 

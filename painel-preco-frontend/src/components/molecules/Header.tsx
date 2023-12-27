@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from "react";
-import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Avatar} from "@nextui-org/react";
+import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Avatar, Badge} from "@nextui-org/react";
 import { redirect, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
 import TTIcon from "../atoms/icons/TTIcon";
@@ -9,6 +9,8 @@ import { AppDispatch, useAppSelector } from "@/redux/store";
 import { useDispatch } from 'react-redux'
 import { logOut } from "@/redux/features/auth-slice";
 import { hasString } from "@/utils/validateUtils";
+import CartIcon from "../atoms/icons/CartIcon";
+import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
 
 export interface ILink {
   description: string
@@ -26,7 +28,8 @@ const Header: React.FC<FormTitleProps> = ({
   ...opts
 }) => {
 
-  const uname = useAppSelector((state) => state.authReducer.value.username);
+  const _uname = useAppSelector((state) => state.authReducer.value.username);
+  const _cartList = useAppSelector((state) => state.cartReducer.value);
 
   const _className = opts.className;
   delete opts.className;
@@ -34,6 +37,7 @@ const Header: React.FC<FormTitleProps> = ({
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [username, setUsername] = React.useState<string>('');
+  const [cartsize, setCartsize] = React.useState<number>(0);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -48,8 +52,9 @@ const Header: React.FC<FormTitleProps> = ({
   };
 
   useEffect(() => {
-    setUsername(uname);
-  }, [uname]);
+    setUsername(_uname);
+    setCartsize(_cartList.length);
+  }, [_uname, _cartList]);
 
   return (
     
@@ -111,6 +116,13 @@ const Header: React.FC<FormTitleProps> = ({
                   <NavbarItem className="flex flex-row justify-center items-center gap-2">
                     <Avatar name={ username } />
                     <span>{ username }</span>
+                    <Button isIconOnly variant='flat'>
+                      <Badge color="danger" content={cartsize} isInvisible={cartsize==0} shape="circle">
+                        <CartIcon
+                          classNamesArrSvg={['stroke-primary']}
+                          classNamesArrPath={['stroke-primary']}/>
+                      </Badge>
+                    </Button>
                   </NavbarItem>
                   <ThemeSwitcher />
                   <NavbarItem className="hidden lg:flex">

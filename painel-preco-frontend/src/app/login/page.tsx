@@ -5,7 +5,7 @@ import KeyIcon from "@/components/atoms/icons/KeyIcon";
 import MailIcon from "@/components/atoms/icons/MailIcon";
 import { Button, Card, CardBody, CardFooter, CardHeader, Checkbox, Divider, Input, Link } from "@nextui-org/react";
 import { logIn, logOut } from '@/redux/features/auth-slice'
-import { AppDispatch, useAppSelector, useDispatch } from "@/redux/store";
+import { useAppSelector, useDispatch } from "@/redux/store";
 import { useEffect, useState } from "react";
 import { redirect, useRouter } from 'next/navigation'
 

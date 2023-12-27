@@ -142,11 +142,15 @@ export interface IRetornoPesquisaItensLicitacao {
   valor: number
   licitacao: {
     municipio: {
+      nome: string
       uf: {
         nome: string
       }
     }
     dataResultadoCompra: string
+  }
+  unidadeFornecimento: {
+    nome: string
   }
 }
 

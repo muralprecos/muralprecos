@@ -10,7 +10,7 @@ type AuthState = {
   uuid: string
 }
 
-export const authInitialState = {
+export const initialState = {
   value: {
     isAuth: false,
     username: '',
@@ -28,10 +28,10 @@ export const authInitialState = {
 
 export const auth = createSlice({
   name: 'auth',
-  initialState: authInitialState,
+  initialState: initialState,
   reducers: {
     logOut: () => {
-      return authInitialState;
+      return initialState;
     },
     logIn: (state, action: PayloadAction<string>) => {
       return {
