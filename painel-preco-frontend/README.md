@@ -59,39 +59,23 @@ Customizing tailwind-css with react:
 
 
 
-## TODO:
+### TODO Work:
 
-### Study:
-
-- Integrar com REDUX ( https://redux.js.org/usage/nextjs ):
-	- carregar dados e migrar entre páginas sem ter que refazer a requisição (inclusive formulário)
-	- realizar paginação necessita dos parâmetros buscados também
-
-- verificar padrão adotado pelo projeto https://github.com/wangly19/nextui-design-pro/blob/main/app/next/views/login/form.tsx
-
-
-### Work:
-
-- ESTUDAR INTEGRAÇÃO COM REDUX:
-	https://redux.js.org/usage/nextjs
-
-- Adicionar itens de licitação para um carrinho;
-	https://nextui.org/docs/components/badge
-	https://nextui.org/docs/components/table#async-pagination
-
-- Listar itens no carrinho para finalizar cotação;
-
-- Aprimoramentos de layout (após integração com redux):
-	- Ao realizar busca, não apagar os campos;
+- Integrar com REDUX:
+	- Manter campos de busca ao realizar cotação;
+	- Realizar paginação necessita dos parâmetros buscados também;
 	- Apresentar filtros buscados;
 	- Alterar tabs para breadcrumbs;
-	- Na listagem de itens de licitação, adicionar um componente de paginação para retornar novos itens;
+
+- Adicionar componente modal ao limpar carrinho;
+
+- Evitar o lazy loading de itens (por exemplo, header verificando carrinho e logado);
 
 - Histórico de cotações;
 
-- Tela de Login (e informação de login na área superior da tela)
-	https://nextui.org/docs/components/avatar
-	https://nextui.org/docs/components/popover
+- Tela de cadastro de usuário;
+
+- verificar padrão adotado pelo projeto https://github.com/wangly19/nextui-design-pro/blob/main/app/next/views/login/form.tsx
 
 
 # Aprimoramentos Front:
@@ -107,7 +91,8 @@ Customizing tailwind-css with react:
 
 # Aprimoramentos Back:
 
-- Filtrar textos de descrição, descrição complementar e objeto para não retornar textos iguais;
+- Retornar textos de descrição como setlist (descrição complementar, objeto, etc) para não retornar textos iguais;
+
 
 +++++++++++
 -Identificar quais dados devem ser apresentados na listagem do itens de compra bem como no detalhamento do item;

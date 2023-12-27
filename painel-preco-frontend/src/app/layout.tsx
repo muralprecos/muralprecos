@@ -21,7 +21,8 @@ export default function RootLayout({
 
   const linksHeader = [
     {description: 'Início', link: '/'},
-    {description: 'Cotação', link: '/cotacao'}
+    {description: 'Cotação', link: '/cotacao'},
+    {description: 'Carrinho', link: '/carrinho'}
   ]
 
   return (

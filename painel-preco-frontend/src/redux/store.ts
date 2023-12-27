@@ -10,14 +10,13 @@ import { verifyIsOnlyClientNextjs } from '@/utils/validateUtils';
 import authReducer, { initialState as authInitialState } from './features/auth-slice'
 import cartReducer, { initialState as cartInitialState } from './features/cart-slice'
 
-let authState = null;
-if (verifyIsOnlyClientNextjs()) {
-  authState = JSON.parse(localStorage.getItem("auth") || "null");
-}
+const authState = verifyIsOnlyClientNextjs() ? JSON.parse(localStorage.getItem("auth") || "null") : null;
+const cartState = verifyIsOnlyClientNextjs() ? JSON.parse(localStorage.getItem("cart") || "null") : null;
 
 export const store = configureStore({
   preloadedState: {
-    authReducer: authState === null ? authInitialState : authState
+    authReducer: authState === null ? authInitialState : authState,
+    cartReducer: cartState === null ? cartInitialState : cartState
   },
   reducer: {
     authReducer,
