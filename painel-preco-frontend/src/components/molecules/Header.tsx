@@ -1,11 +1,14 @@
 'use client'
 
-import React from "react";
-import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenu, NavbarMenuItem} from "@nextui-org/react";
-import IconHome from "../atoms/icons/IconHome";
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import React, { useEffect } from "react";
+import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Avatar} from "@nextui-org/react";
+import { redirect, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
 import TTIcon from "../atoms/icons/TTIcon";
+import { AppDispatch, useAppSelector } from "@/redux/store";
+import { useDispatch } from 'react-redux'
+import { logOut } from "@/redux/features/auth-slice";
+import { hasString } from "@/utils/validateUtils";
 
 export interface ILink {
   description: string
@@ -23,15 +26,30 @@ const Header: React.FC<FormTitleProps> = ({
   ...opts
 }) => {
 
+  const uname = useAppSelector((state) => state.authReducer.value.username);
+
   const _className = opts.className;
   delete opts.className;
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [username, setUsername] = React.useState<string>('');
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const onClickLogout = () => {
+    dispatch(logOut())
+    console.log('redirect')
+    redirect('/login')
+  };
 
   const activeLink = (url: string, pathname: string) => {
     return pathname === url
   };
+
+  useEffect(() => {
+    setUsername(uname);
+  }, [uname]);
 
   return (
     
@@ -76,15 +94,32 @@ const Header: React.FC<FormTitleProps> = ({
             </NavbarContent>
 
             <NavbarContent justify="end">
-              <ThemeSwitcher />
-              <NavbarItem className="hidden lg:flex">
-                <Link href="#">Login</Link>
-              </NavbarItem>
-              <NavbarItem>
-                <Button as={Link} color="default" href="#" variant="flat">
-                  Criar Conta
-                </Button>
-              </NavbarItem>
+              { !hasString(username) ?
+                <div className="flex gap-3">
+                  <ThemeSwitcher />
+                  <NavbarItem className="hidden lg:flex">
+                    <Link href="/login">Login</Link>
+                  </NavbarItem>
+                  <NavbarItem>
+                    <Button as={Link} color="default" href="/" variant="flat">
+                      Criar Conta
+                    </Button>
+                  </NavbarItem>
+                </div>
+              :
+                <div className="flex gap-3">
+                  <NavbarItem className="flex flex-row justify-center items-center gap-2">
+                    <Avatar name={ username } />
+                    <span>{ username }</span>
+                  </NavbarItem>
+                  <ThemeSwitcher />
+                  <NavbarItem className="hidden lg:flex">
+                    <Button className="min-w-unit-0" color="default" variant="flat" onClick={onClickLogout}>
+                      Sair
+                    </Button>
+                  </NavbarItem>
+                </div>
+              }
             </NavbarContent>
           </div>
           

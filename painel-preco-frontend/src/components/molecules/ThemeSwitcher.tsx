@@ -18,13 +18,13 @@ export default function ThemeSwitcher() {
     theme == 'light'
   )
 
-  const moonIcon = <Icon file="icons/moon-svgrepo-com.svg"
-                        classNamesArrPath={['fill-gray-400']}
+  const moonIcon = <Icon file="icons/moon-stars-svgrepo-com.svg"
+                        classNamesArrPath={['fill-gray-500']}
                         isCursorPointer />;
 
   const sunIcon = <Icon file="icons/sun-svgrepo-com.svg" 
-                        classNamesArrSvg={['fill-white', 'stroke-white']}
-                        classNamesArrPath={['stroke-white']}
+                        classNamesArrSvg={['fill-gray-200', 'stroke-gray-400']}
+                        classNamesArrPath={['stroke-gray-400']}
                         isCursorPointer />;
 
   if (!mounted) return null;
@@ -32,7 +32,7 @@ export default function ThemeSwitcher() {
   return (
     <div className='flex gap-4'>
       <Button isIconOnly variant='flat' onClick={() => setTheme(isLight() ? 'modern' : 'light')}>
-        { isLight() ? moonIcon : sunIcon }
+        { isLight() ? sunIcon : moonIcon }
       </Button>
       
     </div>

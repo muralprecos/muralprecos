@@ -1,5 +1,6 @@
 'use client'
 
+import { ReduxProvider } from '@/redux/provider'
 import { NextUIProvider } from '@nextui-org/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 
@@ -11,9 +12,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         defaultTheme='modern'
         themes={['light', 'modern']}
       >
-        <main className="text-foreground min-h-screen gradient-background">
-          {children}
-        </main>
+        <ReduxProvider>
+          <main className="text-foreground min-h-screen gradient-background flex flex-col">
+            {children}
+          </main>
+        </ReduxProvider>
       </NextThemesProvider>
     </NextUIProvider>
   )
