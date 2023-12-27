@@ -6,9 +6,12 @@ import {
 } from "react-redux";
 import { listenerMiddleware } from "./middleware";
 import authReducer, { authInitialState } from './features/auth-slice'
+import { verifyIsOnlyClientNextjs } from '@/utils/validateUtils';
 
-const authState = JSON.parse(localStorage.getItem("auth") || "null");
-console.log('authState', authState)
+let authState = null;
+if (verifyIsOnlyClientNextjs()) {
+  authState = JSON.parse(localStorage.getItem("auth") || "null");
+}
 
 export const store = configureStore({
   preloadedState: {

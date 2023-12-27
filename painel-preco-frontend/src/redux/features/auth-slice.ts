@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
 type initialState = {
   value: AuthState
@@ -18,6 +18,14 @@ export const authInitialState = {
   } as AuthState
 } as initialState;
 
+// export const fetchContent = createAsyncThunk(
+//   'content/fetchContent',
+//   async (userId: number) => {
+//     const res = await fetch(`https://jsonplaceholder.typicode.com/photos/${userId}`);
+//     const data = await res.json()
+//   }
+// )
+
 export const auth = createSlice({
   name: 'auth',
   initialState: authInitialState,
@@ -34,6 +42,19 @@ export const auth = createSlice({
         }
       }
     }
+  },
+  extraReducers: (builder) => {
+    // builder.addCase(fetchContent.pending, (state) => {
+    //   state.isLoading = true
+    // })
+    // builder.addCase(fetchContent.fulfilled, (state, action) => {
+    //   state.isLoading = false
+    //   state.contents = action.payload
+    // })
+    // builder.addCase(fetchContent.rejected, (state, action) => {
+    //   state.isLoading = false
+    //   state.error = action.error.message
+    // })
   }
 })
 
