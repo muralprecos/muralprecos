@@ -67,7 +67,9 @@ Customizing tailwind-css with react:
 	- Apresentar filtros buscados;
 	- Alterar tabs para breadcrumbs;
 
-- Adicionar componente modal ao limpar carrinho;
+- Carrinho:
+	- Adicionar componente modal ao limpar carrinho;
+	- Adicionar verificação isloading;
 
 - Evitar o lazy loading de itens (por exemplo, header verificando carrinho e logado);
 
@@ -75,8 +77,17 @@ Customizing tailwind-css with react:
 
 - Tela de cadastro de usuário;
 
-- verificar padrão adotado pelo projeto https://github.com/wangly19/nextui-design-pro/blob/main/app/next/views/login/form.tsx
+- Adicionar rodapé com referência à TT e versão do sistema;
 
+V1.1
+
+- Estudo: https://nextjs.org/docs/app/building-your-application/caching
+
+- rever oq pode ter renderização no servidor: https://nextjs.org/docs/app/building-your-application/rendering/composition-patterns
+
+- revisar formulário: https://www.youtube.com/watch?v=dDpZfOQBMaU&t=5s&ab_channel=LeeRobinson
+
+- verificar padrão adotado para requisições com type: https://douglasmoura.dev/en-US/using-fetch-with-typescript
 
 # Aprimoramentos Front:
 

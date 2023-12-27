@@ -1,7 +1,7 @@
 // app/tabs/page.tsx
 "use client";
 
-import { Button, Card, CardBody, Divider, ScrollShadow, Skeleton, Pagination } from "@nextui-org/react";
+import { Button, Card, CardBody, Divider, ScrollShadow, Pagination } from "@nextui-org/react";
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
 import { IItemLicitacao, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
@@ -15,6 +15,7 @@ import CartPlusIcon from "@/components/atoms/icons/CartPlusIcon";
 import { useAppSelector, useDispatch } from "@/redux/store";
 import { add, remove } from "@/redux/features/cart-slice";
 import CartRemoveIcon from "@/components/atoms/icons/CartRemoveIcon";
+import LoadingList from "@/components/molecules/LoadingList";
 
 export interface IPropsListItensLicitacao {
   isLoading: boolean
@@ -92,14 +93,7 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
         <Divider className="my-4" />
         <FormRow className='flex flex-col items-start justify-start'>
           { isLoading && 
-            <div className="max-w-[300px] w-full flex items-center gap-3">
-              <div className="w-full flex flex-col gap-2">
-                <Skeleton className="h-3 w-4/5 rounded-lg"/>
-                <Skeleton className="h-3 w-3/5 rounded-lg"/>
-                <Skeleton className="h-3 w-5/5 rounded-lg"/>
-                <Skeleton className="h-3 w-4/5 rounded-lg"/>
-              </div>
-            </div>
+            <LoadingList/>
           }
           { !hastItens() && !isLoading && 
             <div className='flex flex-col w-full items-start justify-start'>

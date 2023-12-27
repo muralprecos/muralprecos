@@ -1,7 +1,7 @@
 // app/tabs/page.tsx
 "use client";
 
-import { Button, Card, CardBody, Divider, ScrollShadow, Skeleton } from "@nextui-org/react";
+import { Button, Card, CardBody, Divider, ScrollShadow } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
 import FormTitle from "@/components/atoms/FormTitle";
@@ -11,6 +11,7 @@ import WallpaperIcon from "@/components/atoms/icons/WallpaperIcon";
 import { useTheme } from "next-themes";
 import CartRemoveIcon from "@/components/atoms/icons/CartRemoveIcon";
 import { clear, remove } from "@/redux/features/cart-slice";
+import LoadingList from "@/components/molecules/LoadingList";
 
 export interface IPropsCartPge {
 }
@@ -21,14 +22,14 @@ const CartPage: React.FC<IPropsCartPge> = ({
 
   const dispatch = useDispatch();
 
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
   const _cartList = useAppSelector((state) => state.cartReducer.value);
   const [cart, setCart] = useState<IRetornoPesquisaItensLicitacao[]>([]);
 
-  const isLoading = false;
-
   useEffect(() => {
     setCart(_cartList);
+    setIsLoading(false);
   }, [_cartList]);
 
   const hastItens = () => {
@@ -57,18 +58,11 @@ const CartPage: React.FC<IPropsCartPge> = ({
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
               { isLoading && 
-                <div className="max-w-[300px] w-full flex items-center gap-3">
-                  <div className="w-full flex flex-col gap-2">
-                    <Skeleton className="h-3 w-4/5 rounded-lg"/>
-                    <Skeleton className="h-3 w-3/5 rounded-lg"/>
-                    <Skeleton className="h-3 w-5/5 rounded-lg"/>
-                    <Skeleton className="h-3 w-4/5 rounded-lg"/>
-                  </div>
-                </div>
+                <LoadingList/>
               }
               { !hastItens() && !isLoading && 
                 <div className='flex flex-col w-full items-start justify-start'>
-                  <p>Sem resultados de buscas... Realize uma cotação rápida.</p>
+                  <p>Sem itens no carrinho... Realize cotações para adicionar itens.</p>
                 </div>
               }
               { hastItens() && !isLoading && 
