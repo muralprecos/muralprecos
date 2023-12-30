@@ -1,7 +1,7 @@
 import { getFormasCompra, getListAnos, getListEsferas, getListEstados, getListModalidadesCompra, getListPeriodosCompra, getListPorteFornecedor, getListSituacoesLicitacao } from "@/hooks/api";
 import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
-import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IObjetoAPI, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
+import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
 
 export default async function Home() {
   
@@ -19,7 +19,7 @@ export default async function Home() {
   const [settledPorteFornecedores, settledEsferas, settledFormasCompra, settledModalidadesCompra, settledPeriodosCompra, settledSituacoesLicitacao, settledUnidadesFederativas, settledAnosCompras] = resReq;
 
   function getSettledValue<T>(req: PromiseSettledResult<T[]>) {
-    if (req.status === "rejected") {
+    if (req.status === "rejected" || (req.status === "fulfilled" && req.value == undefined) ) {
       //TODO: tratamento de erro para enviar ao frontend
       return [];
     }
@@ -27,7 +27,7 @@ export default async function Home() {
   }
 
   function getSettledValuePageable<T>(req: PromiseSettledResult<IReturnRequestAPI<T>>) {
-    if (req.status === "rejected") {
+    if (req.status === "rejected" || (req.status === "fulfilled" && req.value == undefined) ) {
       //TODO: tratamento de erro para enviar ao frontend
       return [];
     }

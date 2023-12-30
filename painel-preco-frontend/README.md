@@ -24,6 +24,8 @@ Check configs in docker-compose.yml file. Default target is production, but can 
 
 ```bash
 docker compose up
+docker build . -t ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest --target production
+docker push ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
 ```
 
 ## Development Without CORS
@@ -89,6 +91,7 @@ V1.1
 
 - verificar padrão adotado para requisições com type: https://douglasmoura.dev/en-US/using-fetch-with-typescript
 
+
 # Aprimoramentos Front:
 
 - Nome/Código Material -> apresentar nome e código na listagem do autocomplete;
@@ -98,6 +101,7 @@ V1.1
 
 - Verificar TODOs
 
+- Botão de carrinho do detalhe do item condicional para add/remove;
 
 
 # Aprimoramentos Back:
