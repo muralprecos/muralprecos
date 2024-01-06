@@ -1,5 +1,6 @@
 package br.com.tt.painelpreco.domain.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,10 @@ public class ItemLicitacaoService {
 
 	public ItemLicitacao findByUuid(UUID uuid) {
 		return itemLicitacaomaterialRepository.findByUuid(uuid);
+	}
+	
+	public List<ItemLicitacao> findAllByUuid(List<UUID> uuids) {
+		return itemLicitacaomaterialRepository.findAllByUuidIn(uuids);
 	}
 	
 	public Page<ItemLicitacao> listaByFilter(Specification<ItemLicitacao> filtro, Pageable pageable) {

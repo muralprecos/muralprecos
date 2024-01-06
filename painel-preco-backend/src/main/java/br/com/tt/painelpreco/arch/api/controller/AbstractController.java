@@ -5,6 +5,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.keycloak.KeycloakPrincipal;
@@ -21,11 +22,15 @@ import br.com.tt.painelpreco.arch.api.dto.DTO;
 import br.com.tt.painelpreco.arch.exception.ArchException;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.util.ReflectionUtil;
+import br.com.tt.painelpreco.util.ReportUtil;
 
 public abstract class AbstractController {
 	
 	@Autowired
 	private ApplicationContext context;
+	
+	@Autowired
+	private ReportUtil reportUtil;
 	
 	public Map<String, Object> dtoToMap(DTO dto) {
 		Map<String, Object> parameters = new HashMap<>();
@@ -101,6 +106,10 @@ public abstract class AbstractController {
 			return new Usuario();
 			// TODO: handle exception
 		}
+	}
+	
+	public void reportExportPDF(String reportFileName, Map<String, Object> params, HttpServletResponse response, String fileNamePDF) {
+		reportUtil.downloadReportWithPDF(reportFileName, params, response, fileNamePDF);
 	}
 
 }

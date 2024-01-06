@@ -57,4 +57,12 @@ public class ItemLicitacao {
 	@JoinColumn(name = "fornecedor_id")
 	private Fornecedor fornecedor;
 
+	public Integer getCatMat() {
+		try {
+			return this.getMaterial().getCodigo();
+		} catch (NullPointerException e) {
+			return null;
+		}
+	}
+
 }
