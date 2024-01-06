@@ -63,6 +63,20 @@ Customizing tailwind-css with react:
 
 ### TODO Work:
 
+https://michaelangelo-io.medium.com/better-logging-with-nextjs-app-directory-60a07c96d146
+https://github.com/pinojs/pino
+https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
+
+- Otimizar frond para funcionar em dispositivos móveis;
+
+- Adicionar rodapé com versão;
+
+- Request com signal;
+
+- Resolver hints;
+
+- Criar CI/CD;
+
 - Integrar com REDUX:
 	- Manter campos de busca ao realizar cotação;
 	- Realizar paginação necessita dos parâmetros buscados também;

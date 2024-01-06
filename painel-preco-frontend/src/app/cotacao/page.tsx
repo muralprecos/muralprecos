@@ -2,6 +2,7 @@ import { getFormasCompra, getListAnos, getListEsferas, getListEstados, getListMo
 import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
 import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
+import logger from "../../../services/logger";
 
 export default async function Home() {
   

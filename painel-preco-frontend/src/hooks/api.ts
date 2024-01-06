@@ -48,7 +48,7 @@ const doReq = async (
       }).catch((error) => {
         throw error;
       });
-      if (res.ok) {
+      if (!res.ok) {
         throw new Error(`Failed to fetch. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${res.status}.`)
       }
       return res.json();

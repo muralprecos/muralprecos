@@ -1,15 +1,19 @@
 version: '3.8'
+
+volumes:
+  frontend-data:
+
 services:
   app:
-    image: mural-de-preco
-    build:
-      context: ./
-      # target: dev
-      target: production
-      dockerfile: Dockerfile
+    image: painelpreco-frontend-test:latest
+    # build:
+    #   context: ./
+    #   # target: dev
+    #   target: production
+    #   dockerfile: Dockerfile
     volumes:
-        - .:/app
-        - /app/node_modules
-        - /app/.next
+      - ./logs:/appserverlogs
+    #     - /app/node_modules
+    #     - /app/.next
     ports:
       - "3000:3000"
