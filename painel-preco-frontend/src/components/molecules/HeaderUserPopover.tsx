@@ -1,11 +1,14 @@
+'use client'
+
 import React from "react";
-import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Listbox, ListboxItem } from "@nextui-org/react";
+import { Avatar, Card, CardBody, CardFooter, CardHeader, Listbox, ListboxItem } from "@nextui-org/react";
 import ThemeSwitcher from "./ThemeSwitcher";
+const { version } = require('@/../package.json');
 
 type HeaderUserPopoverProps = {
   username: string
   cartsize: number
-  logout: (event: React.MouseEvent<HTMLButtonElement>) => void
+  logout: (event: React.MouseEvent<HTMLElement>) => void
 } //& React.AllHTMLAttributes<HTMLElement>
 
 const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
@@ -14,7 +17,8 @@ const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
   logout,
   ...opts
 }) => {
-  
+
+  console.log(process.env)
 
   return (
     <Card shadow="none" className="max-w-[300px] border-none bg-transparent">
@@ -39,17 +43,13 @@ const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
           <ListboxItem key="edit">Editar Perfil</ListboxItem>
           <ListboxItem key="cart">Carrinho</ListboxItem>
           <ListboxItem key="history">Histórico de Cotações</ListboxItem>
-          <ListboxItem key="logout">
-            <Button className="w-full" color="danger" variant="solid" radius="full" size="sm" onClick={logout}>
-              Sair
-            </Button>
-          </ListboxItem>
+          <ListboxItem key="logout" className="text-danger" color="danger" onClick={(e) => {logout(e)}}>Sair</ListboxItem>
         </Listbox>
       </CardBody>
       <CardFooter className="gap-1">
         <div className="flex justify-end flex-1">
           <p className="text-default-500 text-tiny mr-1">Mural Preço versão </p>
-          <p className="font-semibold text-default-600 text-tiny">0.0.1</p>
+          <p className="font-semibold text-default-600 text-tiny">{version}</p>
         </div>
       </CardFooter>
     </Card>

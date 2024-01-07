@@ -54,7 +54,7 @@ const Header: React.FC<FormTitleProps> = ({
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const onClickLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const onClickLogout = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     dispatch(logOut());
     push('/login');

@@ -70,11 +70,13 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 - Adicionar rodapé com versão; (atualizar o popover de usuário)
 
+- Criar CI/CD;
+
+
+
 - Request com signal;
 
 - Resolver hints;
-
-- Criar CI/CD;
 
 - Integrar com REDUX:
 	- Manter campos de busca ao realizar cotação;

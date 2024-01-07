@@ -11,7 +11,7 @@ import HeaderUserPopover from './HeaderUserPopover';
 type HeaderUserInfoProps = {
   username: string
   cartsize: number
-  logout: (event: React.MouseEvent<HTMLButtonElement>) => void
+  logout: (event: React.MouseEvent<HTMLElement>) => void
 } //& React.AllHTMLAttributes<HTMLElement>
 
 const HeaderUserInfo: React.FC<HeaderUserInfoProps> = ({
