@@ -11,11 +11,9 @@ import { useTheme } from "next-themes";
 import { getItemLicitacao } from "@/hooks/api";
 import { TABS_COTACAO } from "./pageClient";
 import WallpaperIcon from "@/components/atoms/icons/WallpaperIcon";
-import CartPlusIcon from "@/components/atoms/icons/CartPlusIcon";
-import { useAppSelector, useDispatch } from "@/redux/store";
-import { add, remove } from "@/redux/features/cart-slice";
-import CartRemoveIcon from "@/components/atoms/icons/CartRemoveIcon";
+import { useAppSelector } from "@/redux/store";
 import LoadingList from "@/components/molecules/LoadingList";
+import CartButton from "@/components/molecules/CartButton";
 
 export interface IPropsListItensLicitacao {
   isLoading: boolean
@@ -34,7 +32,6 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
   ...opts
 }) => {
 
-  const dispatch = useDispatch();
   const _cartList = useAppSelector((state) => state.cartReducer.value);
 
   const { theme, setTheme } = useTheme()
@@ -51,14 +48,6 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
 
   const goSearchTab = () => {
     setTabSelected(TABS_COTACAO.SEARCH.key)
-  }
-
-  const onClickAddCart = (item: IRetornoPesquisaItensLicitacao) => {
-    dispatch(add(item));
-  }
-
-  const onClickRemoveCart = (item: IRetornoPesquisaItensLicitacao) => {
-    dispatch(remove(item));
   }
 
   const selectItem = async (uuid : string) => {
@@ -129,29 +118,7 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
                       </div>
 
                       <div className="flex flex-row gap-3 basis-1/12 items-start justify-start">
-                        { !isOnCar(i) ? 
-                          <Button
-                            isIconOnly
-                            className="text-default-900/60"
-                            radius="full"
-                            color="secondary"
-                            variant="solid"
-                            onPress={() => onClickAddCart(i) }
-                          >
-                            <CartPlusIcon classNamesArrPath={theme != 'light' ? ['stroke-white fill-white'] : []}></CartPlusIcon>
-                          </Button>
-                        : 
-                          <Button
-                            isIconOnly
-                            className="text-default-900/60"
-                            radius="full"
-                            color="danger"
-                            variant="solid"
-                            onPress={() => onClickRemoveCart(i) }
-                          >
-                            <CartRemoveIcon classNamesArrPath={['stroke-white fill-white']}></CartRemoveIcon>
-                          </Button>
-                        }
+                        <CartButton itemRetornoLicitacao={i} isCompact={true} />
                         <Button
                           isIconOnly
                           className="text-default-900/60"

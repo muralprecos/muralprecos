@@ -6,11 +6,10 @@ import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
 import { IItemLicitacao } from "@/interfaces/types";
 import { Dispatch, SetStateAction, useState } from "react";
-import { useTheme } from "next-themes";
 import { TABS_COTACAO } from "./pageClient";
 import InfoText from "@/components/atoms/InfoText";
 import InfoTitle from "@/components/atoms/InfoTitle";
-import CartPlusIcon from "@/components/atoms/icons/CartPlusIcon";
+import CartButton from "@/components/molecules/CartButton";
 
 export interface IPropsViewItensLicitacao {
   isLoading: boolean
@@ -30,7 +29,6 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
   setTabSelected,
   ...opts
 }) => {
-  const { theme, setTheme } = useTheme()
 
   const showTitle = () => {
     return itemLicitacao != null ? itemLicitacao.descricao : isLoading ? 'Carregando Item...' : 'Item não encontrado';
@@ -124,16 +122,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                   </Listbox>
                 </div>
                 <div className="flex flex-1 w-full">
-                  <Button
-                    isIconOnly
-                    className="w-full"
-                    color="secondary"
-                    variant="solid"
-                    onPress={() => alert('Adicionado ao Carrinho!') }
-                  >
-                    <CartPlusIcon className="mr-2" classNamesArrPath={theme != 'light' ? ['stroke-white fill-white'] : []}></CartPlusIcon>
-                    <span>Adicionar ao Carrinho</span>
-                  </Button>
+                  <CartButton itemRetornoLicitacao={itemLicitacao}/>
                 </div>
                 
               </div>

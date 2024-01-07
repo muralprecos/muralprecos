@@ -135,24 +135,24 @@ export interface IReturnRequestAPIBasic<T> {
   content: T[]
 }
 
-export interface IRetornoPesquisaItensLicitacao {
-  uuid: string
-  descricao: string
-  quantidade: number
-  valor: number
-  licitacao: {
-    municipio: {
-      nome: string
-      uf: {
-        nome: string
-      }
-    }
-    dataResultadoCompra: string
-  }
-  unidadeFornecimento: {
-    nome: string
-  }
-}
+export interface IRetornoPesquisaItensLicitacao extends Pick<IItemLicitacao, "uuid" | "descricao" | "quantidade" | "valor" | "unidadeFornecimento">, Partial<IItemLicitacao> {}
+  // uuid: string
+  // descricao: string
+  // quantidade: number
+  // valor: number
+  // licitacao: {
+  //   municipio: {
+  //     nome: string
+  //     uf: {
+  //       nome: string
+  //     }
+  //   }
+  //   dataResultadoCompra: string
+  // }
+  // unidadeFornecimento: {
+  //   nome: string
+  // }
+// }
 
 export interface IItemLicitacao {
   uuid: string

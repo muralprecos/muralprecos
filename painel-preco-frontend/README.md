@@ -67,7 +67,6 @@ https://michaelangelo-io.medium.com/better-logging-with-nextjs-app-directory-60a
 https://github.com/pinojs/pino
 https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
-- Carrinho de visualização integrado para remover do carrinho;
 
 - Adicionar rodapé com versão; (atualizar o popover de usuário)
 
