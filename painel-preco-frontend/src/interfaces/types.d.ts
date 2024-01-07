@@ -135,7 +135,9 @@ export interface IReturnRequestAPIBasic<T> {
   content: T[]
 }
 
-export interface IRetornoPesquisaItensLicitacao extends Pick<IItemLicitacao, "uuid" | "descricao" | "quantidade" | "valor" | "unidadeFornecimento">, Partial<IItemLicitacao> {}
+export interface IRetornoPesquisaItensLicitacao extends Pick<IItemLicitacao, "uuid" | "descricao" | "quantidade" | "valor" | "unidadeFornecimento">, Partial<IItemLicitacao> {
+  licitacao: Pick<ILicitacao, "municipio" | "dataResultadoCompra"> & Partial<ILicitacao>
+}
   // uuid: string
   // descricao: string
   // quantidade: number
