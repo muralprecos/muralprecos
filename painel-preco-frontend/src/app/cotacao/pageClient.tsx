@@ -1,4 +1,3 @@
-// app/tabs/page.tsx
 "use client";
 
 import { Card, CardBody, Tab, Tabs } from "@nextui-org/react";
@@ -15,11 +14,11 @@ export const TABS_COTACAO = {
     key: "search"
   },
   LIST: {
-    desc: "Resultados da Cotação",
+    desc: "Resultados",
     key: "result"
   },
   VIEW: {
-    desc: "Detalhes do Item de Licitação",
+    desc: "Detalhes",
     key: "view"
   }
 }

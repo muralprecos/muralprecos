@@ -1,11 +1,11 @@
 // app/tabs/page.tsx
 "use client";
 
-import { Button, Card, CardBody, Divider, Listbox, ListboxItem, ListboxSection, ScrollShadow, Selection, Skeleton, Spacer } from "@nextui-org/react";
+import { Button, Divider, Listbox, ListboxItem, Selection, Skeleton, Spacer } from "@nextui-org/react";
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
-import { IItemLicitacao, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
-import { Dispatch, Key, SetStateAction, useCallback, useMemo, useState } from "react";
+import { IItemLicitacao } from "@/interfaces/types";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useTheme } from "next-themes";
 import { TABS_COTACAO } from "./pageClient";
 import InfoText from "@/components/atoms/InfoText";
@@ -43,8 +43,6 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
   const goListTab = () => {
     setTabSelected(TABS_COTACAO.LIST.key)
   }
-
-
 
   const items = [
     {
@@ -102,8 +100,8 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
             </div>
           }
           { hastItens() && !isLoading && 
-            <div className='flex md:flex-row flex-col w-full items-start justify-start gap-4'>
-              <div className='flex flex-col items-start justify-start basis-1/4 gap-2'> 
+            <div className='flex lg:flex-row flex-col w-full items-start justify-start gap-4'>
+              <div className='flex flex-col items-start justify-start basis-1/4 gap-2 w-full'> 
                 <div className="flex flex-1 flex-col border-small rounded-small border-default-200 dark:border-default-100 w-full">
                   <h3 className={`text-sm font-bold uppercase text-primary-600 w-full bg-opacity-5 bg-primary-300 p-4 text-center`}>
                     Modos de Visualização

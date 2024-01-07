@@ -3,10 +3,18 @@
 import { useEffect, useState } from 'react'
 import { useTheme } from 'next-themes'
 
-import { Button } from '@nextui-org/button'
+import { Button, ButtonProps } from '@nextui-org/button'
 import Icon from '../atoms/Icon'
 
-export default function ThemeSwitcher() {
+type ThemeSwitcherProps = {
+  isCompact?: boolean
+} & React.AllHTMLAttributes<HTMLElement> & Pick<ButtonProps, 'variant'>
+
+const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
+  isCompact = true,
+  variant = 'flat',
+  ...opts
+}) => {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
 
@@ -16,6 +24,10 @@ export default function ThemeSwitcher() {
 
   const isLight = () => (
     theme == 'light'
+  )
+
+  const isLightDesc = () => (
+    theme == 'light' ? 'claro': 'escuro'
   )
 
   const moonIcon = <Icon file="icons/moon-stars-svgrepo-com.svg"
@@ -30,11 +42,13 @@ export default function ThemeSwitcher() {
   if (!mounted) return null;
 
   return (
-    <div className='flex gap-4'>
-      <Button isIconOnly variant='flat' onClick={() => setTheme(isLight() ? 'modern' : 'light')}>
-        { isLight() ? sunIcon : moonIcon }
+    <div className='flex gap-4' { ...opts}>
+      <Button isIconOnly={isCompact} variant={variant} onClick={() => setTheme(isLight() ? 'modern' : 'light')}>
+        { isLight() ? sunIcon : moonIcon } { isCompact ? '' : `Tema ${isLightDesc()}`}
       </Button>
       
     </div>
   )
 }
+
+export default ThemeSwitcher;

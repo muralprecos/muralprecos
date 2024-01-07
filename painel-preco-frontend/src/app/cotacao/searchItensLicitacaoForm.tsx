@@ -202,12 +202,14 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     return ufId != undefined && ufId != '';
   }, [ufId]);
 
+  const classname_rowmobile = "flex-col md:flex-row";
+
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onSubmitError)} className='container flex flex-col items-start justify-start'>
         <FormTitle className='text-lg font-bold uppercase text-primary'>Cotação Rápida</FormTitle>
         <Divider className="my-4" />
-        <FormRow>
+        <FormRow className={classname_rowmobile}>
           <div className="basis-1/4">
             <SelectForm<FormData>
               name="ano"
@@ -246,7 +248,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
         </FormRow>
 
-        <FormRow>
+        <FormRow className={classname_rowmobile}>
           <div className="basis-1/3">
             <SelectForm<FormData>
               name="modalidadeCompraId"
@@ -276,7 +278,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
         </FormRow>
 
-        <FormRow>
+        <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
             <AutocompleteForm<FormData>
               name="ufId"
@@ -299,7 +301,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
         </FormRow>
 
-        <FormRow>
+        <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IOrgao, FormData>
               name="orgaoSuperiorId"
@@ -321,7 +323,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
         </FormRow>
 
-        <FormRow>
+        <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IFornecedor, FormData>
               name="fornecedorId"
@@ -343,7 +345,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
         </FormRow>
 
-        <FormRow>
+        <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IUnidadeGestora, FormData>
               name="ugId"
@@ -364,7 +366,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
         </FormRow>
 
-        <FormRow>
+        <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
             <AutocompleteAsyncForm<IObjetoCompra, FormData>
               name="descricao"
@@ -385,7 +387,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
         </FormRow>
 
-        <FormRow>
+        <FormRow className={classname_rowmobile}>
           <div className="basis-full">
             <AutocompleteAsyncForm<IObjetoCompra, FormData>
               name="objeto"
