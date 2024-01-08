@@ -70,9 +70,7 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 - Adicionar rodapé com versão; (atualizar o popover de usuário)
 
-- Criar CI/CD;
-
-
+- Gerar PDF de cotação;
 
 - Request com signal;
 
