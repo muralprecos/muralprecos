@@ -13,7 +13,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         themes={['light', 'modern']}
       >
         <ReduxProvider>
-          <main className="text-foreground min-h-screen gradient-background flex flex-col">
+          <main className="text-foreground min-h-svh gradient-background flex flex-col">
             {children}
           </main>
         </ReduxProvider>
