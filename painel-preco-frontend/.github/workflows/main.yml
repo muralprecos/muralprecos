@@ -22,5 +22,5 @@ jobs:
       
       - name: 'Build Inventory Image'
         run: |
-          docker build . --tag ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
-          docker push ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
+          docker build . --tag ghcr.io/ttsolutionspi/painel-precos-frontend:latest
+          docker push ghcr.io/ttsolutionspi/painel-precos-frontend:latest
