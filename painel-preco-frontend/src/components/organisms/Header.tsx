@@ -71,7 +71,7 @@ const Header: React.FC<FormTitleProps> = ({
           <div className="justify-center flex flex-1">
             <div className="container flex justify-center">
               <NavbarContent className="sm:hidden" justify="start">
-                <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+                <NavbarMenuToggle className="outline-none" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
               </NavbarContent>
 
               <NavbarContent className="sm:hidden pr-3" justify="center">
@@ -141,7 +141,7 @@ const Header: React.FC<FormTitleProps> = ({
                   </NavbarMenuItem>
                 ))}
               </div>
-              <div  className="flex flex-col gap-3 py-3">
+              <div className="flex flex-col gap-3 py-3 pb-20">
                 <NavbarMenuItem>
                   <Link className="w-full" size="lg" color="foreground">
                     <ThemeSwitcher isCompact={false} variant="light"/>
