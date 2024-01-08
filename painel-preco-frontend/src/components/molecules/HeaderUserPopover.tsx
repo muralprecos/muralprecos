@@ -1,7 +1,7 @@
 'use client'
 
 import React from "react";
-import { Avatar, Card, CardBody, CardFooter, CardHeader, Listbox, ListboxItem } from "@nextui-org/react";
+import { Avatar, Card, CardBody, CardFooter, CardHeader, Chip, Listbox, ListboxItem } from "@nextui-org/react";
 import ThemeSwitcher from "./ThemeSwitcher";
 const { version } = require('@/../package.json');
 
@@ -17,8 +17,6 @@ const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
   logout,
   ...opts
 }) => {
-
-  console.log(process.env)
 
   return (
     <Card shadow="none" className="max-w-[300px] border-none bg-transparent">
@@ -38,17 +36,17 @@ const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
       <CardBody className="px-3 py-0">
         <Listbox
           aria-label="Actions"
-          onAction={(key) => alert(key)}
         >
-          <ListboxItem key="edit">Editar Perfil</ListboxItem>
-          <ListboxItem key="cart">Carrinho</ListboxItem>
-          <ListboxItem key="history">Histórico de Cotações</ListboxItem>
-          <ListboxItem key="logout" className="text-danger" color="danger" onClick={(e) => {logout(e)}}>Sair</ListboxItem>
+          <ListboxItem key="edit" href="/">Editar Perfil</ListboxItem>
+          <ListboxItem key="cart" href="/carrinho" endContent={cartsize > 0 ? <Chip size="sm" radius="sm" color="primary">{cartsize}</Chip> : ''
+          }>Carrinho</ListboxItem>
+          <ListboxItem key="history" href="/">Histórico de Cotações</ListboxItem>
+          <ListboxItem key="logout" className="text-danger" color="danger" onClick={(e) => {logout(e)}}>Sair da Conta</ListboxItem>
         </Listbox>
       </CardBody>
       <CardFooter className="gap-1">
         <div className="flex justify-end flex-1">
-          <p className="text-default-500 text-tiny mr-1">Mural Preço versão </p>
+          <p className="text-default-500 text-tiny mr-1">Mural de Preço versão </p>
           <p className="font-semibold text-default-600 text-tiny">{version}</p>
         </div>
       </CardFooter>
