@@ -77,7 +77,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
             {showTitle()}
           </div>
           <Button color="secondary" type="button" onClick={goListTab}>
-            Voltar para Listagem
+            Voltar
           </Button>
         </FormTitle>
         <Divider className="my-4" />

@@ -76,7 +76,7 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
             Resultado da Cotação
           </div>
           <Button color="secondary" type="button" onClick={goSearchTab}>
-            Voltar para Cotação
+            Voltar
           </Button>
         </FormTitle>
         <Divider className="my-4" />

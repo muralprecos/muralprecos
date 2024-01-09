@@ -1,7 +1,7 @@
 // app/tabs/page.tsx
 "use client";
 
-import { Button, Card, CardBody, Divider, ScrollShadow } from "@nextui-org/react";
+import { Button, Card, CardBody, Divider, ScrollShadow, useDisclosure } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
 import FormTitle from "@/components/atoms/FormTitle";
@@ -12,6 +12,9 @@ import { useTheme } from "next-themes";
 import CartRemoveIcon from "@/components/atoms/icons/CartRemoveIcon";
 import { clear, remove } from "@/redux/features/cart-slice";
 import LoadingList from "@/components/molecules/LoadingList";
+import ClipboardIcon from "@/components/atoms/icons/ClipboardIcon";
+import Link from "next/link";
+import ModalConfirm from "@/components/molecules/ModalConfirm";
 
 export interface IPropsCartPge {
 }
@@ -22,6 +25,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
 
   const dispatch = useDispatch();
 
+  const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();
   const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const _cartList = useAppSelector((state) => state.cartReducer.value);
@@ -108,38 +112,49 @@ const CartPage: React.FC<IPropsCartPge> = ({
                               <CartRemoveIcon classNamesArrPath={['stroke-white fill-white']}></CartRemoveIcon>
                             </Button>
                           
-                            {/* <Button
+                            <Button
                               isIconOnly
                               className="text-default-900/60"
                               radius="full"
                               color="primary"
                               variant="solid"
+                              isDisabled={true}
                               onPress={() => selectItem(i.uuid) }
                             >
                               <ClipboardIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}></ClipboardIcon>
-                            </Button> */}
+                            </Button>
                           </div>
                         </CardBody>
                       </Card>
                     </div>
                   )}
                   </ScrollShadow>
-                  <Divider className="my-4" />
-                  <FormRow className="flex flex-row items-center justify-between px-2">
-                    <div className="flex flex-col gap-2">
-                      <p className="text-small text-default-500">Itens no Carrinho: {cart?.length}</p>
-                    </div>
-                    <div className="flex gap-4">
-                      <Button color="danger" onClick={() => clearCart()}>
-                        Limpar
-                      </Button>
-                      <Button color="primary" type="submit">
-                        Pesquisar
-                      </Button>
-                    </div>
-                  </FormRow>
                 </div>
               }
+              <Divider className="my-4" />
+                <FormRow className="flex flex-row items-center justify-between px-2">
+                  <div className="flex flex-col gap-2">
+                    <p className="text-small text-default-500">Itens no Carrinho: {cart?.length}</p>
+                  </div>
+                  <div className="flex gap-4">
+                    <Button color="default" as={Link} href="/cotacao">
+                      Nova Cotação
+                    </Button>
+                    <Button color="danger" onPress={onModalOpen} isDisabled={!(hastItens() && !isLoading)}>
+                      Limpar
+                    </Button>
+                    <ModalConfirm 
+                      title="Você deseja limpar o carrinho de itens de licitações?" 
+                      description="" 
+                      isOpen={isModalOpen} 
+                      onOpenChange={onModalOpenChange}
+                      actionYes={() => {clearCart()}}
+                      />
+                    <Button color="primary" type="submit" isDisabled={true}>
+                      Gerar PDF
+                    </Button>
+                  </div>
+                </FormRow>
             </FormRow>
           </div>
           </CardBody>

@@ -126,7 +126,7 @@ const Header: React.FC<FormTitleProps> = ({
             </div>
             
 
-            <NavbarMenu className="justify-between">
+            <NavbarMenu className="justify-between pb-16" >
               <div className="flex flex-col gap-3">
                 {links.map((item, index) => (
                   <NavbarMenuItem key={`${item.description}-${index}`}>
