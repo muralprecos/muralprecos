@@ -37,3 +37,8 @@ export function downloadFile(blob: Blob, filename: string) {
   document.body.removeChild(a);
   window.URL.revokeObjectURL(url);
 }
+
+export function showFileInOtherTab(blob: Blob) {
+  const url = window.URL.createObjectURL(blob);
+  window.open(url);
+}

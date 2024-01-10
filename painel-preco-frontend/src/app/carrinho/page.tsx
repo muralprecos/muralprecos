@@ -16,9 +16,8 @@ import ClipboardIcon from "@/components/atoms/icons/ClipboardIcon";
 import Link from "next/link";
 import ModalConfirm from "@/components/molecules/ModalConfirm";
 import { postDownloadItensCotacoes } from "@/hooks/api";
-import { DATE_PATTERN, convertTZ, datePattern } from "@/utils/dateUtils";
+import { DATE_PATTERN, convertTZptBR, datePattern } from "@/utils/dateUtils";
 import { downloadFile } from "@/utils/requestUtils";
-import { ResponseError } from "@/hooks/genericapi";
 
 export interface IPropsCartPge {
 }
@@ -57,7 +56,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
   }
 
   const generatePDF = async () => {
-    const now = convertTZ(new Date(), "America/Fortaleza");
+    const now = convertTZptBR(new Date());
     const res = await postDownloadItensCotacoes(_cartList)
     if (res != null) {
       if (res instanceof Blob) {

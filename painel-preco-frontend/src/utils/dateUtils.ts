@@ -4,6 +4,10 @@ export enum DATE_PATTERN {
   FULL
 }
 
+export function convertTZptBR(date: Date | string) : Date {
+  return convertTZ(date, "America/Fortaleza");
+}
+
 export function convertTZ(date: Date | string, tzString: string) : Date {
   return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: tzString}));   
 }
