@@ -17,30 +17,28 @@ export default async function Home() {
   const resReq = await Promise.allSettled([dataPorteFornecedores, dataEsferas, dataFormasCompra, dataModalidadesCompra, dataPeriodosCompra, dataSituacoesLicitacao, dataUnidadesFederativas, dataAnosCompras]);
   const [settledPorteFornecedores, settledEsferas, settledFormasCompra, settledModalidadesCompra, settledPeriodosCompra, settledSituacoesLicitacao, settledUnidadesFederativas, settledAnosCompras] = resReq;
 
-  function getSettledValue<T>(req: PromiseSettledResult<T[]>) {
+  function getSettledValue<T>(req: PromiseSettledResult<T[] | null>) {
     if (req.status === "rejected" || (req.status === "fulfilled" && req.value == undefined) ) {
-      //TODO: tratamento de erro para enviar ao frontend
       return [];
     }
     return req.status === "fulfilled" ? req.value : []
   }
 
-  function getSettledValuePageable<T>(req: PromiseSettledResult<IReturnRequestAPI<T>>) {
+  function getSettledValuePageable<T>(req: PromiseSettledResult<IReturnRequestAPI<T> | null>) {
     if (req.status === "rejected" || (req.status === "fulfilled" && req.value == undefined) ) {
-      //TODO: tratamento de erro para enviar ao frontend
       return [];
     }
-    return req.status === "fulfilled" ? req.value.content : []
+    return req.status === "fulfilled" ? req.value ? req.value.content : [] : null
   }
 
-  const porteFornecedores : IPorteFornecedor[] = getSettledValue<IPorteFornecedor>(settledPorteFornecedores),
-      esferas : IEsfera[] = getSettledValue<IEsfera>(settledEsferas),
-      formasCompra : IFormaCompra[] = getSettledValue<IFormaCompra>(settledFormasCompra),
-      modalidadesCompra : IModalidadeCompra[] = getSettledValue<IModalidadeCompra>(settledModalidadesCompra),
-      periodosCompra : IPeriodoCompra[] = getSettledValue<IPeriodoCompra>(settledPeriodosCompra),
-      situacoesLicitacao : ISituacaoLicitacao[] = getSettledValue<ISituacaoLicitacao>(settledSituacoesLicitacao),
-      unidadesFederativas : IUnidadeFederativa[] = getSettledValue<IUnidadeFederativa>(settledUnidadesFederativas),
-      anosCompras : IAnoCompra[] = getSettledValuePageable<IAnoCompra>(settledAnosCompras)
+  const porteFornecedores : IPorteFornecedor[] | null = getSettledValue<IPorteFornecedor>(settledPorteFornecedores),
+      esferas : IEsfera[] | null = getSettledValue<IEsfera>(settledEsferas),
+      formasCompra : IFormaCompra[] | null = getSettledValue<IFormaCompra>(settledFormasCompra),
+      modalidadesCompra : IModalidadeCompra[] | null = getSettledValue<IModalidadeCompra>(settledModalidadesCompra),
+      periodosCompra : IPeriodoCompra[] | null = getSettledValue<IPeriodoCompra>(settledPeriodosCompra),
+      situacoesLicitacao : ISituacaoLicitacao[] | null = getSettledValue<ISituacaoLicitacao>(settledSituacoesLicitacao),
+      unidadesFederativas : IUnidadeFederativa[] | null = getSettledValue<IUnidadeFederativa>(settledUnidadesFederativas),
+      anosCompras : IAnoCompra[] | null = getSettledValuePageable<IAnoCompra>(settledAnosCompras)
       ;
 
   return (

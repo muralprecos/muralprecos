@@ -21,7 +21,7 @@ export type ResponseError = {
   timestamp: string
 }
 
-const doReq = async <T>(
+const doReq = async (
   { path, page, size, info, filterFields, config, contentType = 'application/json', acceptType = 'application/json' } : IAPISearchProps) : Promise<ResponseReq> => {
     try {
       const HEADERS : HeadersInit = {}
@@ -81,8 +81,7 @@ const doReq = async <T>(
 export const getGenericObject =  async <T>(
   { path, page = 0, size = 50, info, filterFields, config } : IAPISearchProps
   ) : Promise<T|null> => {
-
-    const res = await doReq<T>({ path, page, size, info, filterFields, config });
+    const res = await doReq({ path, page, size, info, filterFields, config });
     return res.data?.json();
 }
 export const getGenericListPageable =  async <T>(
@@ -94,7 +93,7 @@ export const getGenericListPageable =  async <T>(
 export const postGeneric =  async <T>(
   { path, bodydata, acceptType } : IAPISearchProps
   ) : Promise<ResponseReq> => {
-    const res = await doReq<T>({ path, config: {
+    const res = await doReq({ path, config: {
       method: 'POST',
       body: bodydata
     }, acceptType });

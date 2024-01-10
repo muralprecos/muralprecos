@@ -68,8 +68,6 @@ https://github.com/pinojs/pino
 https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 
-- Mensagem de erro genérica;
-
 - Loading a cada request;
 
 - Request com signal;

@@ -4,9 +4,11 @@ import { Card, CardBody, Tab, Tabs } from "@nextui-org/react";
 import {usePathname} from "next/navigation";
 import SearchItensLicitacaoForm, { IPropsSearchItensLicitacaoForm } from "./searchItensLicitacaoForm";
 import ListItensLicitacao from "./listItensLicitacao";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IItemLicitacao, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
 import ViewItemLicitacao from "./viewItemLicitacao";
+import { useSnackbar } from "notistack";
+import { addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
 
 export const TABS_COTACAO = {
   SEARCH: {
@@ -35,6 +37,18 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   ...opts
 }) => {
   const pathname = usePathname();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  useEffect(() => {
+    addSnackIfSelectEmpty(enqueueSnackbar, "Anos da Compra", anosCompras);
+    addSnackIfSelectEmpty(enqueueSnackbar, "Portes das Empresas", empresaPorte);
+    addSnackIfSelectEmpty(enqueueSnackbar, "Esferas", esferas);
+    addSnackIfSelectEmpty(enqueueSnackbar, "Formas de Compra", compraFormas);
+    addSnackIfSelectEmpty(enqueueSnackbar, "Modalidades de Compra", compraModalidades);
+    addSnackIfSelectEmpty(enqueueSnackbar, "Períodos de Compra", compraPeriodos);
+    addSnackIfSelectEmpty(enqueueSnackbar, "Situações das Licitações", situacoesLicitacoes);
+    addSnackIfSelectEmpty(enqueueSnackbar, "Unidades Federativas", unidadesFederativas);
+  }, [enqueueSnackbar, anosCompras, compraFormas, compraModalidades, compraPeriodos, empresaPorte, esferas, situacoesLicitacoes, unidadesFederativas])
 
   const [itens, setItens] = useState<IRetornoPesquisaItensLicitacao[]>([]);
   const [loadingItens, setIsLoadingItens] = useState<boolean>(false);

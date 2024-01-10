@@ -19,7 +19,6 @@ function ModalConfirm({
 } : IProp) {
 
   const x : (isOpen: boolean) => void = (isOpen) => {
-    console.log('onOpenChange',isOpen)
     if (!!onOpenChange) onOpenChange(isOpen);
   }
 

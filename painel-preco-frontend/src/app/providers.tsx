@@ -3,6 +3,7 @@
 import { ReduxProvider } from '@/redux/provider'
 import { NextUIProvider } from '@nextui-org/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
+import { SnackbarProvider } from 'notistack'
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -13,9 +14,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         themes={['light', 'modern']}
       >
         <ReduxProvider>
-          <main className="text-foreground min-h-svh gradient-background flex flex-col">
-            {children}
-          </main>
+          <SnackbarProvider maxSnack={3} autoHideDuration={4000} anchorOrigin={ {horizontal: 'left', vertical: 'bottom' }}>
+            <main className="text-foreground min-h-svh gradient-background flex flex-col">
+              {children}
+            </main>
+          </SnackbarProvider>
         </ReduxProvider>
       </NextThemesProvider>
     </NextUIProvider>

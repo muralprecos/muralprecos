@@ -18,6 +18,8 @@ import ModalConfirm from "@/components/molecules/ModalConfirm";
 import { postDownloadItensCotacoes } from "@/hooks/api";
 import { DATE_PATTERN, convertTZptBR, datePattern } from "@/utils/dateUtils";
 import { downloadFile } from "@/utils/requestUtils";
+import { useSnackbar } from "notistack";
+import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 
 export interface IPropsCartPge {
 }
@@ -27,6 +29,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
 }) => {
 
   const dispatch = useDispatch();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();
   const { theme, setTheme } = useTheme();
@@ -61,11 +64,12 @@ const CartPage: React.FC<IPropsCartPge> = ({
     if (res != null) {
       if (res instanceof Blob) {
         downloadFile(res, `cotacao-${datePattern(now, DATE_PATTERN.FULL)}.pdf`);
+        addSnackSuccess(enqueueSnackbar, 'Iniciando download da cotação!');
       } else if (res.error) {
-        console.log(res)
+        addSnackError(enqueueSnackbar, res.error);
       }
     } else {
-      console.error('problema ao carregar o arquivo')
+      addSnackError(enqueueSnackbar, 'Nenhum arquivo retornado!');
     }
     
   }
