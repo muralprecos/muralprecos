@@ -6,7 +6,7 @@ export interface IAutocompleteListHook<T extends ISimpleObjetoAPI> {
   size?: number;
   searchParams?: string[];
   infos?: IAPISearchInfo[] | undefined;
-  getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T>>;
+  getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T>|null>;
 }
 
 export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
@@ -41,7 +41,7 @@ export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
         const res = doReq ? await getList({size, info, config: { signal }}) : { content: [] };
 
         return {
-          items: res.content || []
+          items: res != null ? res.content : []
         };
       }
       return {

@@ -15,6 +15,10 @@ import LoadingList from "@/components/molecules/LoadingList";
 import ClipboardIcon from "@/components/atoms/icons/ClipboardIcon";
 import Link from "next/link";
 import ModalConfirm from "@/components/molecules/ModalConfirm";
+import { postDownloadItensCotacoes } from "@/hooks/api";
+import { DATE_PATTERN, convertTZ, datePattern } from "@/utils/dateUtils";
+import { downloadFile } from "@/utils/requestUtils";
+import { ResponseError } from "@/hooks/genericapi";
 
 export interface IPropsCartPge {
 }
@@ -50,6 +54,21 @@ const CartPage: React.FC<IPropsCartPge> = ({
 
   const selectItem = async (uuid : string) => {
     //TODO
+  }
+
+  const generatePDF = async () => {
+    const now = convertTZ(new Date(), "America/Fortaleza");
+    const res = await postDownloadItensCotacoes(_cartList)
+    if (res != null) {
+      if (res instanceof Blob) {
+        downloadFile(res, `cotacao-${datePattern(now, DATE_PATTERN.FULL)}.pdf`);
+      } else if (res.error) {
+        console.log(res)
+      }
+    } else {
+      console.error('problema ao carregar o arquivo')
+    }
+    
   }
 
   return (
@@ -144,13 +163,15 @@ const CartPage: React.FC<IPropsCartPge> = ({
                       Limpar
                     </Button>
                     <ModalConfirm 
-                      title="Você deseja limpar o carrinho de itens de licitações?" 
-                      description="" 
+                      title="Limpar Carrinho" 
+                      description="Você deseja limpar o carrinho de itens de licitações?" 
+                      backdrop="blur"
+                      placement="center"
                       isOpen={isModalOpen} 
                       onOpenChange={onModalOpenChange}
                       actionYes={() => {clearCart()}}
                       />
-                    <Button color="primary" type="submit" isDisabled={true}>
+                    <Button color="primary" onPress={generatePDF}>
                       Gerar PDF
                     </Button>
                   </div>

@@ -1,110 +1,34 @@
 import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IReturnRequestAPIBasic, IItemLicitacao } from "@/interfaces/types";
+import { ResponseError, getGenericListPageable, getGenericObject, postGeneric, postGenericBlob } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getValParamSearch } from "@/utils/searchParamUtils";
-import logger from "../../services/logger";
-
-const host = 'http://muraldeprecos.com';//'http://localhost:8080';
-
-export const revalidate = 3600; // revalida os dados a cada hora
-
-
-const mountUrl = (
-  { path, page = 0, size = 50, info, filterFields } : IAPISearchProps) : string => {
-  let url = `${host}${path}?page=${page}&size=${size}`;
-  if (info != null && info.length > 0) {
-    info.forEach(i => {
-      const vi = encodeURIComponent(i.val);
-      if(vi !== '' && i.param !== '') {
-        url += `&${i.param}=${vi}`
-      }
-    })
-  }
-  if (filterFields != null && filterFields.length > 0) {
-    url += `&fields=${filterFields}`
-  }
-  return url;
-}
-
-const doReq = async (
-  { path, page, size, info, filterFields, config } : IAPISearchProps) => {
-    try {
-      const reqOpts = { 
-        //TODO: aprimorar cache de requisições e adicionar body
-        // cache: 'force-cache',
-        // body: bodyData,
-        next: {  },
-        headers: new Headers({
-          //{ 'Authorization': `Bearer ${token}` },
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }),
-        ...config
-      }
-      const url = mountUrl({ path, page, size, info, filterFields});
-      const res = await fetch(url, reqOpts).then((resp) => {
-        if (resp.status >= 400 && resp.status < 600) {
-          logger.error(`Bad response from server. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${resp.status}.`);
-        }
-        return resp;
-      }).catch((error) => {
-        throw error;
-      });
-      if (!res.ok) {
-        throw new Error(`Failed to fetch. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${res.status}.`)
-      }
-      return res.json();
-    } catch (error) {
-      logger.error(error);
-    }
-    
-}
-
-const getGenericList =  async <T>(
-  { path, page, size, info, filterFields, config } : IAPISearchProps) : Promise<T[]> => {
-  return doReq({ path, page, size, info, filterFields, config });
-}
-const getGenericObject =  async <T>(
-  { path, page, size, info, filterFields, config } : IAPISearchProps) : Promise<T> => {
-  return doReq({ path, page, size, info, filterFields, config });
-}
-const getGenericListPageable =  async <T>(
-    { path, page, size, info, filterFields, config } : IAPISearchProps
-  ) : Promise<IReturnRequestAPI<T>> => {
-  return doReq({ path, page, size, info, filterFields, config });
-}
-// const postGeneric =  async <T extends IObjetoAPI>(
-//   { path, page, size, info } : IAPISearchProps) : Promise<T[]> => {
-//   return doReq({ path, page, size, info, reqType: 'POST' });
-// }
-
-
 
 const getListPorteFornecedor = async (
   { page, size } : { page?: number; size?: number }) => {
-  return getGenericList<IPorteFornecedor>({ path: '/api/v1/portes-fornecedor' , page, size });
+  return getGenericObject<IPorteFornecedor[]>({ path: '/api/v1/portes-fornecedor' , page, size });
 }
 const getListEsferas = async (
   { page, size } : { page?: number; size?: number }) => {
-  return getGenericList<IEsfera>({ path: '/api/v1/esferas' , page, size });
+  return getGenericObject<IEsfera[]>({ path: '/api/v1/esferas' , page, size });
 }
 const getFormasCompra = async (
   { page, size } : { page?: number; size?: number }) => {
-  return getGenericList<IFormaCompra>({ path: '/api/v1/formas-compra' , page, size });
+  return getGenericObject<IFormaCompra[]>({ path: '/api/v1/formas-compra' , page, size });
 }
 const getListModalidadesCompra = async (
   { page, size } : { page?: number; size?: number }) => {
-  return getGenericList<IModalidadeCompra>({ path: '/api/v1/modalidades-compra' , page, size });
+  return getGenericObject<IModalidadeCompra[]>({ path: '/api/v1/modalidades-compra' , page, size });
 }
 const getListPeriodosCompra = async (
   { page, size } : { page?: number; size?: number }) => {
-  return getGenericList<IPeriodoCompra>({ path: '/api/v1/periodos-compra' , page, size });
+  return getGenericObject<IPeriodoCompra[]>({ path: '/api/v1/periodos-compra' , page, size });
 }
 const getListSituacoesLicitacao = async (
   { page, size } : { page?: number; size?: number }) => {
-  return getGenericList<ISituacaoLicitacao>({ path: '/api/v1/situacoes-licitacao' , page, size });
+  return getGenericObject<ISituacaoLicitacao[]>({ path: '/api/v1/situacoes-licitacao' , page, size });
 }
 const getListEstados = async (
   { page, size } : IAPISearchProps) => {
-  return getGenericList<IUnidadeFederativa>({ path: '/api/v1/unidades-federativas' , page, size });
+  return getGenericObject<IUnidadeFederativa[]>({ path: '/api/v1/unidades-federativas' , page, size });
 }
 const getListAnos = async (
   { page, size } : { page?: number; size?: number }) => {
@@ -165,5 +89,16 @@ const getPesquisarCotacoes = async (
   return getGenericObject<IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , page, size, info, config, filterFields: 'content[uuid,descricao,quantidade,valor,licitacao.municipio.nome,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra,unidadeFornecimento.nome]' });
 }
 
+const postDownloadItensCotacoes = async (
+  itens: IRetornoPesquisaItensLicitacao[]) : Promise<Blob|ResponseError|null> => {
+    return postGenericBlob({
+      path: '/api/v1/cotacoes',
+      bodydata: JSON.stringify({
+        "itens": itens.map( i => i.uuid )
+      }),
+      acceptType: ''
+    });
+}
 
-export { getListPorteFornecedor, getListPeriodosCompra, getListEsferas, getFormasCompra, getListFornecedores, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListModalidadesCompra, getListSituacoesLicitacao, getListEstados, getListUnidadesFornecimento, getListNomeMaterial, getListMunicipios, getListAnos, getListObjetosCompras, getListDescricao, getPesquisarCotacoes, getItemLicitacao };
+
+export { getListPorteFornecedor, getListPeriodosCompra, getListEsferas, getFormasCompra, getListFornecedores, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListModalidadesCompra, getListSituacoesLicitacao, getListEstados, getListUnidadesFornecimento, getListNomeMaterial, getListMunicipios, getListAnos, getListObjetosCompras, getListDescricao, getPesquisarCotacoes, getItemLicitacao, postDownloadItensCotacoes };

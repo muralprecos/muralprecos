@@ -68,19 +68,19 @@ https://github.com/pinojs/pino
 https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 
-- Adicionar rodapé com versão; (atualizar o popover de usuário)
+- Mensagem de erro genérica;
 
-- Gerar PDF de cotação;
+- Loading a cada request;
 
 - Request com signal;
-
-- Resolver hints;
 
 - Integrar com REDUX:
 	- Manter campos de busca ao realizar cotação;
 	- Realizar paginação necessita dos parâmetros buscados também;
 	- Apresentar filtros buscados;
 	- Alterar tabs para breadcrumbs;
+
+- Resolver hints;
 
 - Carrinho:
 	- Adicionar componente modal ao limpar carrinho;
@@ -92,9 +92,10 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 - Tela de cadastro de usuário;
 
-- Adicionar rodapé com referência à TT e versão do sistema;
+- Loading de imagens
 
-V1.1
+
+
 
 - Estudo: https://nextjs.org/docs/app/building-your-application/caching
 

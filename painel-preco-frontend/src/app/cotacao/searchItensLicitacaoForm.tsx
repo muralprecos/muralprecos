@@ -114,10 +114,12 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     }
     setIsLoadingItens ? setIsLoadingItens(true) : null;
     const info = objToParamSearch(data);
-    const req: IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao> = await getPesquisarCotacoes({ page: 0, size: 20, info });
+    const req: IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ page: 0, size: 20, info });
     if (!!setItens) {
       setIsLoadingItens ? setIsLoadingItens(false) : null;
-      setItens(req.content)
+      if (req != null) {
+        setItens(req.content)
+      }
     }
   }
   const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data)

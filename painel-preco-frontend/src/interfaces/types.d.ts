@@ -118,12 +118,16 @@ export interface IItemSelect {
 }
 
 export interface IAPISearchProps {
+  host?: string
   path?: string
   page?: number
   size?: number
   info? : IAPISearchInfo[]
   filterFields?: string
   config?: RequestInit
+  bodydata?: BodyInit
+  contentType?: string
+  acceptType?: string
 }
 
 export interface IAPISearchInfo {
