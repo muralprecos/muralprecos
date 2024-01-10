@@ -58,7 +58,7 @@ export function useAutocompleteList<T extends IObjetoAPI>({
   React.useEffect(() => {
     if (initWithData)
       loadData(page);
-  }, []);
+  });
 
   React.useEffect(() => {
     console.log(filterText)

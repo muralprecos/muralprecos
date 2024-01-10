@@ -5,13 +5,12 @@ import { Button, Card, CardBody, Divider, ScrollShadow, Pagination } from "@next
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
 import { IItemLicitacao, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import ClipboardIcon from "@/components/atoms/icons/ClipboardIcon";
 import { useTheme } from "next-themes";
 import { getItemLicitacao } from "@/hooks/api";
 import { TABS_COTACAO } from "./pageClient";
 import WallpaperIcon from "@/components/atoms/icons/WallpaperIcon";
-import { useAppSelector } from "@/redux/store";
 import LoadingList from "@/components/molecules/LoadingList";
 import CartButton from "@/components/molecules/CartButton";
 
@@ -32,15 +31,8 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
   ...opts
 }) => {
 
-  const _cartList = useAppSelector((state) => state.cartReducer.value);
-
   const { theme, setTheme } = useTheme()
   const [currentPage, setCurrentPage] = useState(1);
-  const [cart, setCart] = useState<IRetornoPesquisaItensLicitacao[]>([]);
-
-  useEffect(() => {
-    setCart(_cartList);
-  }, [_cartList]);
 
   const hastItens = () => {
     return itensLicitacao != null && itensLicitacao.length > 0;
@@ -58,15 +50,11 @@ const ListItensLicitacao: React.FC<IPropsListItensLicitacao> = ({
       setTabSelected(TABS_COTACAO.VIEW.key);
     }
     setIsLoadingItens ? setIsLoadingItens(true) : null;
-    const req: IItemLicitacao = await getItemLicitacao({ info: [{ val: uuid, param: 'uuid' }] });
+    const req: IItemLicitacao | null = await getItemLicitacao({ info: [{ val: uuid, param: 'uuid' }] });
     if (!!setItem) {
       setIsLoadingItens ? setIsLoadingItens(false) : null;
       setItem(req)
     }
-  }
-
-  const isOnCar = (item: IRetornoPesquisaItensLicitacao) => {
-    return cart.filter((el) => el.uuid == item.uuid).length > 0;
   }
 
   return (
