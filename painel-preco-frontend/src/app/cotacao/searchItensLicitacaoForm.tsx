@@ -1,14 +1,14 @@
 'use client'
 
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import yupStrings from '@/utils/yupStrings';
 import { Divider, Button } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form"
 
-import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IRetornoPesquisaItensLicitacao, IReturnRequestAPIBasic, IUnidadeGestora } from "@/interfaces/types";
-import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, getPesquisarCotacoes } from "@/hooks/api";
+import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IUnidadeGestora } from "@/interfaces/types";
+import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, getPesquisarCotacoes, FIELDS_COTACOES_LIST } from "@/hooks/api";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 
 import FormTitle from '@/components/atoms/FormTitle'
@@ -17,7 +17,12 @@ import AutocompleteForm from '@/components/molecules/AutocompleteForm';
 import AutocompleteAsyncForm from '@/components/molecules/AutocompleteAsyncForm';
 import SelectForm from '@/components/molecules/SelectForm';
 import { objToParamSearch } from '@/utils/searchParamUtils';
-import { TABS_COTACAO } from './pageClient';
+import { useAppSelector, useDispatch } from '@/redux/store';
+import { doSearch, initialFormData } from '@/redux/features/cotacao-search-slice';
+import { isClientNextjs } from '@/utils/validateUtils';
+import { useRouter } from 'next/navigation';
+import { mountUrl } from '@/utils/requestUtils';
+import { URLPageCotacaoListagem } from './listagem/page';
 
 export interface IPropsSearchItensLicitacaoForm {
   anosCompras: IItemSelect[]
@@ -28,18 +33,15 @@ export interface IPropsSearchItensLicitacaoForm {
   compraPeriodos: IItemSelect[]
   situacoesLicitacoes: IItemSelect[]
   unidadesFederativas: IItemSelect[]
-  setItens?: Dispatch<SetStateAction<IRetornoPesquisaItensLicitacao[]>>
-  setIsLoadingItens?: Dispatch<SetStateAction<boolean>>
-  setTabSelected?: Dispatch<SetStateAction<string>>
 }
 
 const schema = yup.object({
-  ano: yup.string().required(yupStrings.required),
+  ano: yup.string(),
   porteFornecedor: yup.string(),
   esferaId: yup.string(),
   formaCompraId: yup.string(),
   modalidadeCompraId: yup.string(),
-  periodoCompraId: yup.string(),
+  periodoCompraId: yup.string().required(yupStrings.required),
 
   ufId: yup.string().nullable(),
   municipioId: yup.string().nullable(),
@@ -55,28 +57,7 @@ const schema = yup.object({
   situacao_licitacao: yup.string(),
   unidade_fornecimento: yup.string().nullable(),
 });
-type FormData = yup.InferType<typeof schema>;
-
-const initialForm: FormData = {
-  ano: '',
-  formaCompraId: '',
-  modalidadeCompraId: '',
-  periodoCompraId: '',
-  esferaId: '',
-  fornecedorId: '',
-  materialId: '',
-  municipioId: '',
-  orgaoId: '',
-  orgaoSuperiorId: '',
-  porteFornecedor: '',
-  situacao_licitacao: '',
-  ufId: '',
-  unidade_fornecimento: '',
-  ugId: '',
-  objeto: '',
-  descricao: '',
-  descricaoComplementar: '',
-}
+export type FormDataCotacao = yup.InferType<typeof schema>;
 
 const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   anosCompras,
@@ -87,11 +68,12 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   compraPeriodos,
   situacoesLicitacoes,
   unidadesFederativas,
-  setItens,
-  setIsLoadingItens,
-  setTabSelected,
   ...opts
 }) => {
+
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const _initialFormData: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
 
   const {
     control,
@@ -99,30 +81,46 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     watch,
     resetField,
     reset,
+    getValues,
+    setValue,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<FormDataCotacao>({
     resolver: yupResolver(schema),
-    defaultValues: initialForm
+    defaultValues: initialFormData
   });
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    if (!!setItens) {
-      setItens([])
-    }
-    if (!!setTabSelected) {
-      setTabSelected(TABS_COTACAO.LIST.key);
-    }
-    setIsLoadingItens ? setIsLoadingItens(true) : null;
-    const info = objToParamSearch(data);
-    const req: IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ page: 0, size: 20, info });
-    if (!!setItens) {
-      setIsLoadingItens ? setIsLoadingItens(false) : null;
-      if (req != null) {
-        setItens(req.content)
+  useEffect(() => {
+    if (isClientNextjs()) {
+      //TODO: caso seja autocomplete simular pesquisa
+      //Sugestão: criar um map de nome, useAutocompleteFilter
+      for (const [key, value] of Object.entries(getValues())) {
+        if (initialFormData.hasOwnProperty(key)) {
+          const k = key as keyof FormDataCotacao;
+          const newVal = _initialFormData[k];
+          if (newVal != value) {
+            // console.log(`${k}: old: ${value}, new: ${newVal}`);
+            setValue(k, newVal, { shouldValidate: true, shouldTouch: true, shouldDirty: true });
+          }
+        }
       }
     }
+  }, [_initialFormData, getValues, setValue]);
+
+
+  const onSubmit: SubmitHandler<FormDataCotacao> = async (data) => {
+    //armazenar dados da busca no redux
+    dispatch(doSearch(data));
+    const info = objToParamSearch(data);
+    router.push(mountUrl({
+      host: '',
+      path: URLPageCotacaoListagem,
+      page: 0,
+      size: 20,
+      info,
+      filterFields: FIELDS_COTACOES_LIST
+    }));
   }
-  const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data)
+  const onSubmitError: SubmitErrorHandler<FormDataCotacao> = (data) => console.log(data)
 
   const ufId = watch("ufId");
 
@@ -173,7 +171,8 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   });
 
 
-  const clearForm = () => {
+  const clearForm = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
     reset();
     autoCompleteFornecedores.setFilterText('')
     autoCompleteOrgaos.setFilterText('')
@@ -185,6 +184,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     autoCompleteObjetoCompra.setFilterText('')
     autoCompleteDescricao.setFilterText('')
     autoCompleteDescricaoComplementar.setFilterText('')
+    dispatch(doSearch(getValues()));
   }
 
   const [lastUF, setLastUF] = useState<string|null>();
@@ -209,11 +209,11 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onSubmitError)} className='container flex flex-col items-start justify-start'>
-        <FormTitle className='text-lg font-bold uppercase text-primary'>Cotação Rápida</FormTitle>
+        <FormTitle className='text-lg font-bold uppercase text-primary'>Cotação</FormTitle>
         <Divider className="my-4" />
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/4">
-            <SelectForm<FormData>
+            <SelectForm<FormDataCotacao>
               name="ano"
               label="Ano da Compra"
               control={control}
@@ -222,7 +222,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
               />
           </div> 
           <div className="basis-1/4">
-            <SelectForm<FormData>
+            <SelectForm<FormDataCotacao>
               name="porteFornecedor"
               label="Porte da Empresa"
               items={empresaPorte}
@@ -231,7 +231,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
               />
           </div>
           <div className="basis-1/4">
-            <SelectForm<FormData>
+            <SelectForm<FormDataCotacao>
               name="esferaId"
               label="Esfera"
               items={esferas}
@@ -240,7 +240,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
               />
           </div>
           <div className="basis-1/4">
-            <SelectForm<FormData>
+            <SelectForm<FormDataCotacao>
               name="formaCompraId"
               label="Forma da Compra"
               items={compraFormas}
@@ -252,7 +252,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/3">
-            <SelectForm<FormData>
+            <SelectForm<FormDataCotacao>
               name="modalidadeCompraId"
               label="Modalidade Compra"
               items={compraModalidades}
@@ -261,7 +261,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
               />
           </div>
           <div className="basis-1/3">
-            <SelectForm<FormData>
+            <SelectForm<FormDataCotacao>
               name="periodoCompraId"
               label="Período da Compra"
               items={compraPeriodos}
@@ -270,7 +270,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
               />
           </div>
           <div className="basis-1/3">
-            <AutocompleteForm<FormData>
+            <AutocompleteForm<FormDataCotacao>
               name="situacao_licitacao"
               label="Situação da Licitação"
               control={control}
@@ -282,7 +282,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteForm<FormData>
+            <AutocompleteForm<FormDataCotacao>
               name="ufId"
               label="Unidade Federativa"
               control={control}
@@ -292,7 +292,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
 
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IMunicipio, FormData>
+            <AutocompleteAsyncForm<IMunicipio, FormDataCotacao>
               name="municipioId"
               label="Município"
               attrVal="uuid"
@@ -305,7 +305,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IOrgao, FormData>
+            <AutocompleteAsyncForm<IOrgao, FormDataCotacao>
               name="orgaoSuperiorId"
               label="Orgão Superior"
               attrVal="uuid"
@@ -315,7 +315,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
 
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IOrgao, FormData>
+            <AutocompleteAsyncForm<IOrgao, FormDataCotacao>
               name="orgaoId"
               label="Orgão"
               attrVal="uuid"
@@ -327,7 +327,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IFornecedor, FormData>
+            <AutocompleteAsyncForm<IFornecedor, FormDataCotacao>
               name="fornecedorId"
               label="Fornecedor"
               attrVal="uuid"
@@ -337,7 +337,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
 
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IUnidadeGestora, FormData>
+            <AutocompleteAsyncForm<IUnidadeGestora, FormDataCotacao>
               name="materialId"
               label="Nome/Código Material"
               attrVal="uuid"
@@ -349,7 +349,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IUnidadeGestora, FormData>
+            <AutocompleteAsyncForm<IUnidadeGestora, FormDataCotacao>
               name="ugId"
               label="Unidade Gestora"
               attrVal="uuid"
@@ -358,7 +358,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
               autocompleteHook={autoCompleteUASG}/>
           </div>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IObjetoAPI, FormData>
+            <AutocompleteAsyncForm<IObjetoAPI, FormDataCotacao>
               name="unidade_fornecimento"
               label="Unidade de Fornecimento"
               attrVal="uuid"
@@ -370,7 +370,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IObjetoCompra, FormData>
+            <AutocompleteAsyncForm<IObjetoCompra, FormDataCotacao>
               name="descricao"
               label="Descrição"
               attrVal="nome"
@@ -379,7 +379,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
               autocompleteHook={autoCompleteDescricao}/>
           </div>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IObjetoCompra, FormData>
+            <AutocompleteAsyncForm<IObjetoCompra, FormDataCotacao>
               name="descricaoComplementar"
               label="Descrição Complementar"
               attrVal="nome"
@@ -391,7 +391,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-full">
-            <AutocompleteAsyncForm<IObjetoCompra, FormData>
+            <AutocompleteAsyncForm<IObjetoCompra, FormDataCotacao>
               name="objeto"
               label="Objeto da Compra"
               attrVal="nome"
@@ -402,7 +402,8 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
         </FormRow>
         
         <FormRow className="justify-end">
-          <Button color="default" onClick={() => clearForm()}>
+        
+          <Button color="default" onClick={(e) => clearForm(e)}>
             Limpar
           </Button>
           <Button color="primary" type="submit">

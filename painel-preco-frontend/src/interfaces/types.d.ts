@@ -167,7 +167,7 @@ export interface IItemLicitacao {
   descricaoComplementar: string
   unidadeFornecimento: IUnidadeFornecimento
   quantidade: number
-  valor: number
+  valor: string
   material: INomeMaterial
   fornecedor: IFornecedor
   licitacao: ILicitacao

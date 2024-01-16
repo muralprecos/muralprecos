@@ -1,4 +1,9 @@
-import { IAPISearchInfo, IObjetoAPI } from "@/interfaces/types";
+import { IAPISearchInfo } from "@/interfaces/types";
+
+export function getNumberOrUndefined(info: string | string[] | undefined) : number | undefined {
+  const s = info != undefined ? +info : NaN;
+  return isNaN(s) ? undefined : s; 
+}
 
 export function getValParamSearch(info: IAPISearchInfo[] | undefined, param: string) : string {
   let res = '';
