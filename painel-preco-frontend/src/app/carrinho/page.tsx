@@ -17,9 +17,10 @@ import Link from "next/link";
 import ModalConfirm from "@/components/molecules/ModalConfirm";
 import { postDownloadItensCotacoes } from "@/hooks/api";
 import { DATE_PATTERN, convertTZptBR, datePattern } from "@/utils/dateUtils";
-import { downloadFile } from "@/utils/requestUtils";
+import { downloadFile, mountUrl } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
 import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
+import { useRouter } from "next/navigation";
 
 export interface IPropsCartPge {
 }
@@ -28,6 +29,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
   ...opts
 }) => {
 
+  const router = useRouter();
   const dispatch = useDispatch();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -55,7 +57,11 @@ const CartPage: React.FC<IPropsCartPge> = ({
   }
 
   const selectItem = async (uuid : string) => {
-    //TODO
+    setIsLoading ? setIsLoading(true) : null;
+    router.push(mountUrl({
+      host: '',
+      path: '/cotacao/[uuid]'.replace('[uuid]',uuid)
+    }));
   }
 
   const generatePDF = async () => {
@@ -140,7 +146,6 @@ const CartPage: React.FC<IPropsCartPge> = ({
                               radius="full"
                               color="primary"
                               variant="solid"
-                              isDisabled={true}
                               onPress={() => selectItem(i.uuid) }
                             >
                               <ClipboardIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}></ClipboardIcon>
@@ -174,7 +179,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
                       onOpenChange={onModalOpenChange}
                       actionYes={() => {clearCart()}}
                       />
-                    <Button color="primary" onPress={generatePDF}>
+                    <Button color="primary" isDisabled={!(hastItens() && !isLoading)} onPress={generatePDF}>
                       Gerar PDF
                     </Button>
                   </div>

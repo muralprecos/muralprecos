@@ -73,6 +73,7 @@ function PaginationFooter<T extends any>({
             size="sm"
             variant="flat"
             color="primary"
+            className={`hidden sm:block`}
             isDisabled={!canDecrement()}
             onPress={decrementPage}
           >
@@ -90,6 +91,7 @@ function PaginationFooter<T extends any>({
             size="sm"
             variant="flat"
             color="primary"
+            className={`hidden sm:block`}
             isDisabled={!canIncrement()}
             onPress={incrementPage}
           >
