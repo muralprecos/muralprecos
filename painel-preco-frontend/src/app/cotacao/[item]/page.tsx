@@ -1,7 +1,7 @@
 // app/tabs/page.tsx
 "use client";
 
-import { Button, Card, CardBody, Divider, Listbox, ListboxItem, Selection, Skeleton, Spacer } from "@nextui-org/react";
+import { Button, Card, CardBody, Divider, Listbox, ListboxItem, Selection, Spacer } from "@nextui-org/react";
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
 import { IItemLicitacao } from "@/interfaces/types";
@@ -11,10 +11,10 @@ import InfoTitle from "@/components/atoms/InfoTitle";
 import CartButton from "@/components/molecules/CartButton";
 import { useRouter } from "next/navigation";
 import { isClientNextjs } from "@/utils/validateUtils";
-import { searchParamsToInfo } from "@/utils/requestUtils";
 import { getItemLicitacao } from "@/hooks/api";
 import { addSnackError } from "@/utils/snackbarUtils";
 import { useSnackbar } from "notistack";
+import LoadingItem from "@/components/molecules/LoadingItem";
 
 export interface IPropsViewItensLicitacao {
   params: { item: string }
@@ -34,15 +34,13 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
 
   const router = useRouter();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [itemLicitacao, setItemLicitacao] = useState<IItemLicitacao|null>();
 
   useEffect(() => {
     const fetchData = async () => {
       if (isClientNextjs()) {
         setIsLoading ? setIsLoading(true) : null;
-        // console.log(searchParamsToInfo(searchParams))
-        
         const req: IItemLicitacao | null = await getItemLicitacao({ info: [{ val: params.item, param: 'uuid' }] });
         setIsLoading ? setIsLoading(false) : null;
         if (req) {
@@ -112,14 +110,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
               <Divider className="my-4" />
               <FormRow className='flex flex-col items-start justify-start'>
                 { isLoading && 
-                  <div className="max-w-[300px] w-full flex items-center gap-3">
-                    <div className="w-full flex flex-col gap-2">
-                      <Skeleton className="h-3 w-4/5 rounded-lg"/>
-                      <Skeleton className="h-3 w-3/5 rounded-lg"/>
-                      <Skeleton className="h-3 w-5/5 rounded-lg"/>
-                      <Skeleton className="h-3 w-4/5 rounded-lg"/>
-                    </div>
-                  </div>
+                  <LoadingItem/>
                 }
                 { !hastItens() && !isLoading && 
                   <div className='flex flex-col w-full items-start justify-start'>

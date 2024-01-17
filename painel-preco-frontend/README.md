@@ -72,7 +72,9 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 ok - Período de Compra; (obrigatório)
 
-- Checar reload de página;
+- middleware de autenticação;
+
+- Página de busca com parâmetros via get (retirar localstorage);
 
 - Integrar com REDUX:
 	ok - Manter campos de busca ao realizar cotação;

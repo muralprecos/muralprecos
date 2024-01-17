@@ -3,11 +3,11 @@
 import { Button, Card, CardBody, Divider, ScrollShadow } from "@nextui-org/react";
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
-import { IItemLicitacao, IRetornoPesquisaItensLicitacao, IReturnRequestAPI } from "@/interfaces/types";
+import { IRetornoPesquisaItensLicitacao, IReturnRequestAPI } from "@/interfaces/types";
 import { useEffect, useState } from "react";
 import ClipboardIcon from "@/components/atoms/icons/ClipboardIcon";
 import { useTheme } from "next-themes";
-import { getItemLicitacao, getPesquisarCotacoes } from "@/hooks/api";
+import { getPesquisarCotacoes } from "@/hooks/api";
 import WallpaperIcon from "@/components/atoms/icons/WallpaperIcon";
 import LoadingList from "@/components/molecules/LoadingList";
 import CartButton from "@/components/molecules/CartButton";
@@ -30,14 +30,16 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
 
   const router = useRouter();
   const { theme, setTheme } = useTheme()
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [itensLicitacao, setItensLicitacao] = useState<IRetornoPesquisaItensLicitacao[]>([]);
   const [paginationInfo, setPaginationInfo] = useState<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null>();
 
   useEffect(() => {
     const fetchData = async () => {
       if (isClientNextjs()) {
+        setIsLoading ? setIsLoading(true) : null;
         const req: IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ info: searchParamsToInfo(searchParams) });
+        setIsLoading ? setIsLoading(false) : null;
         if (req?.content) {
           setPaginationInfo(req);
           setItensLicitacao(req?.content)
@@ -56,12 +58,6 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
   }
 
   const selectItem = async (uuid : string) => {
-    setIsLoading ? setIsLoading(true) : null;
-    const req: IItemLicitacao | null = await getItemLicitacao({ info: [{ val: uuid, param: 'uuid' }] });
-    setIsLoading ? setIsLoading(false) : null;
-    //TODO: goto item
-
-    
     router.push(mountUrl({
       host: '',
       path: URLPageViewItemLicitacao.replace('[uuid]',uuid)
@@ -86,17 +82,18 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
             </FormTitle>
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
-              { isLoading && 
-                <LoadingList/>
-              }
-              { !hastItens() && !isLoading && 
+              { !hastItens() && 
                 <div className='flex flex-col w-full items-start justify-start'>
-                  <p>Sem resultados de buscas... Realize uma cotação rápida.</p>
+                  { !isLoading ? 
+                    <p>Sem resultados de buscas... Realize uma cotação rápida.</p>
+                  : 
+                    <LoadingList/>
+                  }
                 </div>
               }
-              { hastItens() && !isLoading && 
+              { hastItens() && 
                 <div className='flex flex-col w-full items-start justify-start'>
-                  <ScrollShadow className="h-[400px] w-full">
+                  <ScrollShadow className={`h-[400px] w-full ${isLoading ? 'opacity-30': ''}`}>
                   { itensLicitacao?.map(i =>
                     <div key={i.uuid} className="flex-1 w-full flex-wrap md:flex-nowrap gap-4 py-2">
                       <Card className="bg-default-100/50 flex flex-row mx-4" shadow="sm">
@@ -142,7 +139,6 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
                   </ScrollShadow>
 
                   <Divider className="my-4" />
-
                   <PaginationFooter paginationInfo={paginationInfo} searchParams={searchParams} />
                 </div>
               }
