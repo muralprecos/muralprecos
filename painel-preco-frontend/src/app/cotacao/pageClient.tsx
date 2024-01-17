@@ -8,6 +8,7 @@ import { addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
 import FormRow from "@/components/atoms/FormRow";
 import FormTitle from "@/components/atoms/FormTitle";
 import Link from "next/link";
+import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 
 export const TABS_COTACAO = {
   SEARCH: {
@@ -25,7 +26,6 @@ export const TABS_COTACAO = {
 }
 
 const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
-  searchParams,
   anosCompras,
   empresaPorte,
   esferas,
@@ -37,6 +37,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   ...opts
 }) => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const searchParams : ReadonlyURLSearchParams = useSearchParams();
 
   useEffect(() => {
     addSnackIfSelectEmpty(enqueueSnackbar, "Anos da Compra", anosCompras);
@@ -92,7 +93,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                       // onSelectionChange={selectValue}
                     >
                       {items.map((item) => (
-                        <ListboxItem key={item.key} as={Link} href={item.href}>
+                        <ListboxItem key={item.key} href={item.href}>
                           {item.label}
                         </ListboxItem>
                       ))}

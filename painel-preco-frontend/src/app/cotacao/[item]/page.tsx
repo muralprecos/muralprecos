@@ -1,4 +1,3 @@
-// app/tabs/page.tsx
 "use client";
 
 import { Button, Card, CardBody, Divider, Listbox, ListboxItem, Selection, Spacer } from "@nextui-org/react";

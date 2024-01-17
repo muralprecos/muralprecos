@@ -47,7 +47,6 @@ export const cotacaoSearch = createSlice({
       return initialState;
     },
     doSearch: (state, action: PayloadAction<FormDataCotacao>) => {
-      console.log('doSearch', state, action)
       return {
         value: action.payload
       }

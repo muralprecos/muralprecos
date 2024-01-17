@@ -55,6 +55,7 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
   }
 
   const selectItem = async (uuid : string) => {
+    setIsLoading ? setIsLoading(true) : null;
     router.push(mountUrl({
       host: '',
       path: '/cotacao/[uuid]'.replace('[uuid]',uuid)

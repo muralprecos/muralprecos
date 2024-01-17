@@ -19,11 +19,11 @@ import { objToParamSearch } from '@/utils/searchParamUtils';
 import { useAppSelector, useDispatch } from '@/redux/store';
 import { doSearch, initialFormData } from '@/redux/features/cotacao-search-slice';
 import { isClientNextjs } from '@/utils/validateUtils';
-import { useRouter } from 'next/navigation';
+import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
 import { mountUrl } from '@/utils/requestUtils';
 
 export interface IPropsSearchItensLicitacaoForm {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams?: ReadonlyURLSearchParams
   anosCompras: IItemSelect[]
   empresaPorte: IItemSelect[]
   esferas: IItemSelect[]
@@ -92,11 +92,11 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   useEffect(() => {
     if (isClientNextjs()) {
       //se possuir parametros get, ignora a última busca armazenada em localstorage
-      if (Object.entries(searchParams).length > 0) {
+      if (searchParams != null && Object.entries(searchParams).length > 0) {
         for (const [key, value] of Object.entries(getValues())) {
-          if (searchParams.hasOwnProperty(key)) {
+          const newVal = searchParams.get(key);
+          if (newVal != null) {
             const k = key as keyof FormDataCotacao;
-            const newVal = searchParams[key];
             if (newVal != value) {
               setValue(k, newVal+'', { shouldValidate: true, shouldTouch: true, shouldDirty: true });
             }
@@ -133,7 +133,9 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
       filterFields: FIELDS_COTACOES_LIST
     }));
   }
-  const onSubmitError: SubmitErrorHandler<FormDataCotacao> = (data) => console.log(data)
+  const onSubmitError: SubmitErrorHandler<FormDataCotacao> = (data) => {
+    //console.log(data)
+  }
 
   const ufId = watch("ufId");
 

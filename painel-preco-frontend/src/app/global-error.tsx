@@ -1,4 +1,4 @@
-import logger from "../../services/logger"
+"use client";
 
 export default function GlobalError({
   error,
@@ -7,7 +7,6 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  logger.error(`Global Error. ${error.name}\n. ${error.message}\n. ${error.cause}\n. ${error.stack}\n`);
   return (
     <html>
       <body>

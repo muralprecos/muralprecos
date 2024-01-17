@@ -1,4 +1,3 @@
-// app/tabs/page.tsx
 "use client";
 
 import KeyIcon from "@/components/atoms/icons/KeyIcon";
