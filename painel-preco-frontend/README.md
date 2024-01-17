@@ -68,29 +68,60 @@ https://github.com/pinojs/pino
 https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 
+======================================
+
+ok - Período de Compra; (obrigatório)
+
+- Página de busca com parâmetros via get (retirar localstorage);
+
+- Integrar com REDUX:
+	ok - Manter campos de busca ao realizar cotação;
+	ok - Realizar paginação necessita dos parâmetros buscados também;
+	- Apresentar filtros buscados;
+	- Alterar tabs para breadcrumbs;
+
+- middleware de autenticação;
+
 - Loading a cada request;
 
 - Request com signal;
 
-- Integrar com REDUX:
-	- Manter campos de busca ao realizar cotação;
-	- Realizar paginação necessita dos parâmetros buscados também;
-	- Apresentar filtros buscados;
-	- Alterar tabs para breadcrumbs;
+- Pré-loading de imagens/svg;
 
 - Resolver hints;
-
-- Carrinho:
-	- Adicionar componente modal ao limpar carrinho;
-	- Adicionar verificação isloading;
 
 - Evitar o lazy loading de itens (por exemplo, header verificando carrinho e logado);
 
 - Histórico de cotações;
 
-- Tela de cadastro de usuário;
+- Tela de cadastro/edição de usuário / login;
 
-- Loading de imagens
+- Listagem de itens de licitação antes de gerar PDF;
+	- Segunda listagem informando período de compra;
+
+- Aprimorar segurança nos parâmetros get (algoritmos de criptografia)
+
+====================================== Pós Reunião 10/01
+
+Filtros pré-definidos (armazenar filtros);
+    - Pessoal;
+    - Institucional;
+
+Filtros mais usados:
+    Período de Compra; (obrigatório)
+    Região;
+    Modalidade;
+    Tipo: serviço / material;
+
+Média / Media de preço dos vencedores;
+
+Botão para link para o edital / termo de referência;
+
+Geração do relatório de cotação:
+    Período da compra;
+
+=======================================
+
 
 
 

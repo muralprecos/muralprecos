@@ -15,6 +15,9 @@ function LoadingList({
           <Skeleton className="rounded-lg">
             <div className="h-24 rounded-lg bg-default-300"></div>
           </Skeleton>
+          <Skeleton className="rounded-lg">
+            <div className="h-24 rounded-lg bg-default-300"></div>
+          </Skeleton>
           <div className="space-y-3">
             <Skeleton className="w-3/5 rounded-lg">
               <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>

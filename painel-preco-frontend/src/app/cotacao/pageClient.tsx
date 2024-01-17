@@ -1,14 +1,13 @@
 "use client";
 
-import { Card, CardBody, Tab, Tabs } from "@nextui-org/react";
-import {usePathname} from "next/navigation";
+import { Card, CardBody, Divider, Listbox, ListboxItem } from "@nextui-org/react";
 import SearchItensLicitacaoForm, { IPropsSearchItensLicitacaoForm } from "./searchItensLicitacaoForm";
-import ListItensLicitacao from "./listItensLicitacao";
-import { useEffect, useState } from "react";
-import { IItemLicitacao, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
-import ViewItemLicitacao from "./viewItemLicitacao";
+import { useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
+import FormRow from "@/components/atoms/FormRow";
+import FormTitle from "@/components/atoms/FormTitle";
+import Link from "next/link";
 
 export const TABS_COTACAO = {
   SEARCH: {
@@ -25,7 +24,9 @@ export const TABS_COTACAO = {
   }
 }
 
+export const URLPageCotacaoSearch = '/cotacao';
 const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
+  searchParams,
   anosCompras,
   empresaPorte,
   esferas,
@@ -36,7 +37,6 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   unidadesFederativas,
   ...opts
 }) => {
-  const pathname = usePathname();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   useEffect(() => {
@@ -50,63 +50,73 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
     addSnackIfSelectEmpty(enqueueSnackbar, "Unidades Federativas", unidadesFederativas);
   }, [enqueueSnackbar, anosCompras, compraFormas, compraModalidades, compraPeriodos, empresaPorte, esferas, situacoesLicitacoes, unidadesFederativas])
 
-  const [itens, setItens] = useState<IRetornoPesquisaItensLicitacao[]>([]);
-  const [loadingItens, setIsLoadingItens] = useState<boolean>(false);
-  const [item, setItem] = useState<IItemLicitacao|null>(null);
-
-  const [tabSelected, setTabSelected] = useState(TABS_COTACAO.SEARCH.key);
+  const items = [
+    {
+      key: '1',
+      href: '/cotacao?ano=2015',
+      label: "Cotações de 2015",
+    },
+    {
+      key: '2',
+      href: '/cotacao?ano=2014',
+      label: "Cotações de 2014",
+    },
+    {
+      key: '3',
+      href: '/cotacao?ano=2016',
+      label: "Cotações de 2016",
+    },
+  ];
 
   return (
     <section className='py-4 flex items-center justify-center flex-col w-full'>
       <div className='container'>
-        <Tabs aria-label="Options" color="default" variant="solid"
-          selectedKey={tabSelected}
-          disabledKeys={[TABS_COTACAO.VIEW.key]} 
-          onSelectionChange={(e) => {setTabSelected(e+'')}}>
-          <Tab key={TABS_COTACAO.SEARCH.key} title={TABS_COTACAO.SEARCH.desc} >
-            <Card>
-              <CardBody>
-                <SearchItensLicitacaoForm
-                  empresaPorte={empresaPorte}
-                  esferas={esferas}
-                  compraFormas={compraFormas}
-                  compraModalidades={compraModalidades}
-                  compraPeriodos={compraPeriodos}
-                  situacoesLicitacoes={situacoesLicitacoes}
-                  unidadesFederativas={unidadesFederativas}
-                  anosCompras={anosCompras}
-                  setItens={setItens}
-                  setTabSelected={setTabSelected}
-                  setIsLoadingItens={setIsLoadingItens}
-                  />
-              </CardBody>
-            </Card>
-          </Tab>
-          <Tab key={TABS_COTACAO.LIST.key} title={TABS_COTACAO.LIST.desc}>
-            <Card>
-              <CardBody>
-                <ListItensLicitacao
-                  itensLicitacao={itens}
-                  isLoading={loadingItens}
-                  setIsLoadingItens={setIsLoadingItens}
-                  setTabSelected={setTabSelected}
-                  setItem={setItem}
-                  />
-              </CardBody>
-            </Card>
-          </Tab>
-          <Tab key={TABS_COTACAO.VIEW.key} title={TABS_COTACAO.VIEW.desc}>
-            <Card>
-              <CardBody>
-                <ViewItemLicitacao
-                  itemLicitacao={item}
-                  isLoading={loadingItens}
-                  setTabSelected={setTabSelected}
-                  />
-              </CardBody>
-            </Card>
-          </Tab>
-        </Tabs>
+        <Card>
+          <CardBody>
+            <div className='container flex flex-col items-start justify-start'>
+              <FormTitle className='text-lg font-bold uppercase text-primary'>Realizar Cotação</FormTitle>
+              <Divider className="my-4" />
+              <FormRow className="flex lg:flex-row flex-col w-full items-start justify-start gap-4">
+                <div className='flex flex-col items-start justify-start basis-1/4 gap-2 w-full mt-3'>
+                  <div className="flex flex-1  flex-col border-small rounded-small border-default-200 dark:border-default-100 w-full">
+                    <h3 className={`text-sm font-bold uppercase text-primary-600 w-full bg-opacity-5 bg-primary-300 p-4 text-center`}>
+                      Cotações Pré-Definidas
+                    </h3>
+                    <Listbox
+                      aria-label="Seleção do Tipo de Visualização"
+                      variant="flat"
+                      className="w-full flex-1"
+                      disallowEmptySelection
+                      selectionMode="single"
+                      items={items}
+                      // selectedKeys={selectedKeys}
+                      // onSelectionChange={selectValue}
+                    >
+                      {items.map((item) => (
+                        <ListboxItem key={item.key} as={Link} href={item.href}>
+                          {item.label}
+                        </ListboxItem>
+                      ))}
+                    </Listbox>
+                  </div>
+                </div>
+                <div className="flex flex-col items-start justify-start basis-3/4 w-full">
+                  <SearchItensLicitacaoForm
+                    searchParams={searchParams}
+                    empresaPorte={empresaPorte}
+                    esferas={esferas}
+                    compraFormas={compraFormas}
+                    compraModalidades={compraModalidades}
+                    compraPeriodos={compraPeriodos}
+                    situacoesLicitacoes={situacoesLicitacoes}
+                    unidadesFederativas={unidadesFederativas}
+                    anosCompras={anosCompras}
+                    />
+                </div>
+              </FormRow>
+            </div>
+          </CardBody>
+        </Card>
       </div>
     </section>
   );

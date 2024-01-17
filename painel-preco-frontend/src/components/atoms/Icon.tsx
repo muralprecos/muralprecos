@@ -34,7 +34,7 @@ const Icon: React.FC<IconProps> = ({
 
   const content = (
     <Fragment>
-      <ReactSVG src={file} wrapper={wrapper} className={className} beforeInjection={(svg) => {
+      <ReactSVG src={`/${file}`} wrapper={wrapper} className={className} beforeInjection={(svg) => {
           svg.setAttribute('width', width.toString());
           svg.setAttribute('height', height.toString());
 

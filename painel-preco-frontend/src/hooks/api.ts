@@ -1,6 +1,6 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IReturnRequestAPIBasic, IItemLicitacao } from "@/interfaces/types";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IReturnRequestAPIBasic, IItemLicitacao, IReturnRequestAPI } from "@/interfaces/types";
 import { ResponseError, getGenericListPageable, getGenericObject, postGenericBlob } from "./genericapi";
-import { extractParamSearch, forceParamSearch, getValParamSearch } from "@/utils/searchParamUtils";
+import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
 
 const getListPorteFornecedor = async (
   { page, size } : { page?: number; size?: number }): Promise<IPorteFornecedor[]|null> => {
@@ -84,9 +84,12 @@ const getItemLicitacao = async (
 }
 
 
+const FIELDS_COTACOES_LIST = 'content[uuid,descricao,quantidade,valor,licitacao.municipio.nome,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra,unidadeFornecimento.nome],pageable,last,totalElements,totalPages,size,number,sort,first,numberOfElements,empty';
 const getPesquisarCotacoes = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  return getGenericObject<IReturnRequestAPIBasic<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , page, size, info, config, filterFields: 'content[uuid,descricao,quantidade,valor,licitacao.municipio.nome,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra,unidadeFornecimento.nome]' });
+  { info, config } : IAPISearchProps) => {
+    const pageinfo = getNumberOrUndefined(getValParamSearch(info, 'page'));
+    const sizeinfo = getNumberOrUndefined(getValParamSearch(info, 'size'));
+    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo });
 }
 
 const postDownloadItensCotacoes = async (
@@ -101,4 +104,4 @@ const postDownloadItensCotacoes = async (
 }
 
 
-export { getListPorteFornecedor, getListPeriodosCompra, getListEsferas, getFormasCompra, getListFornecedores, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListModalidadesCompra, getListSituacoesLicitacao, getListEstados, getListUnidadesFornecimento, getListNomeMaterial, getListMunicipios, getListAnos, getListObjetosCompras, getListDescricao, getPesquisarCotacoes, getItemLicitacao, postDownloadItensCotacoes };
+export { getListPorteFornecedor, getListPeriodosCompra, getListEsferas, getFormasCompra, getListFornecedores, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListModalidadesCompra, getListSituacoesLicitacao, getListEstados, getListUnidadesFornecimento, getListNomeMaterial, getListMunicipios, getListAnos, getListObjetosCompras, getListDescricao, getPesquisarCotacoes, getItemLicitacao, postDownloadItensCotacoes, FIELDS_COTACOES_LIST };
