@@ -26,7 +26,6 @@ const INFO_TYPE = {
   LICITACAO: "licitacao"
 }
 
-export const URLPageViewItemLicitacao = '/cotacao/[uuid]';
 const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
   params,
   ...opts

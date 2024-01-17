@@ -21,7 +21,6 @@ import { doSearch, initialFormData } from '@/redux/features/cotacao-search-slice
 import { isClientNextjs } from '@/utils/validateUtils';
 import { useRouter } from 'next/navigation';
 import { mountUrl } from '@/utils/requestUtils';
-import { URLPageCotacaoListagem } from './listagem/page';
 
 export interface IPropsSearchItensLicitacaoForm {
   searchParams: { [key: string]: string | string[] | undefined }
@@ -127,7 +126,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     const info = objToParamSearch(data);
     router.push(mountUrl({
       host: '',
-      path: URLPageCotacaoListagem,
+      path: '/cotacao/listagem',
       page: 0,
       size: 20,
       info,

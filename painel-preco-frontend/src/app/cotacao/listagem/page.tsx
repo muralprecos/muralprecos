@@ -12,17 +12,14 @@ import WallpaperIcon from "@/components/atoms/icons/WallpaperIcon";
 import LoadingList from "@/components/molecules/LoadingList";
 import CartButton from "@/components/molecules/CartButton";
 import { useRouter } from "next/navigation";
-import { URLPageCotacaoSearch } from "../pageClient";
 import { isClientNextjs } from "@/utils/validateUtils";
 import { mountUrl, searchParamsToInfo } from "@/utils/requestUtils";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
-import { URLPageViewItemLicitacao } from "../[item]/page";
 
 interface IPropsPageCotacaoListagem {
   searchParams: { [key: string]: string | string[] | undefined }
 }
 
-export const URLPageCotacaoListagem = '/cotacao/listagem';
 const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
   searchParams,
   ...opts
@@ -54,13 +51,13 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
   }
 
   const goSearchTab = () => {
-    router.push(URLPageCotacaoSearch);
+    router.push('/cotacao');
   }
 
   const selectItem = async (uuid : string) => {
     router.push(mountUrl({
       host: '',
-      path: URLPageViewItemLicitacao.replace('[uuid]',uuid)
+      path: '/cotacao/[uuid]'.replace('[uuid]',uuid)
     }));
   }
   

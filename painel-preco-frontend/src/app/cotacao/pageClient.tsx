@@ -24,7 +24,6 @@ export const TABS_COTACAO = {
   }
 }
 
-export const URLPageCotacaoSearch = '/cotacao';
 const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   searchParams,
   anosCompras,
