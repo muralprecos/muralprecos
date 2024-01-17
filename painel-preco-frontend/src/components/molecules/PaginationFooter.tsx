@@ -3,13 +3,13 @@
 import { Button, Pagination } from "@nextui-org/react";
 import FormRow from "../atoms/FormRow";
 import { IAPISearchInfo, IReturnRequestAPI } from "@/interfaces/types";
-import { usePathname, useRouter } from 'next/navigation';
+import { ReadonlyURLSearchParams, usePathname, useRouter } from 'next/navigation';
 import { mountUrl, searchParamsToInfo } from "@/utils/requestUtils";
 import { forceParamSearch } from "@/utils/searchParamUtils";
 
 interface IPropsPageCotacaoListagem<T> {
   paginationInfo: IReturnRequestAPI<T>|null|undefined,
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: ReadonlyURLSearchParams
 }
 
 function PaginationFooter<T extends any>({

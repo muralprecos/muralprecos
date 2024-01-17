@@ -1,19 +1,16 @@
 import { IAPISearchInfo, IAPISearchProps } from "@/interfaces/types";
+import { ReadonlyURLSearchParams } from "next/navigation";
 
 const addParam = (url: string, hasAttr: boolean, complement: string) : string => {
   return `${url}${hasAttr ? '&' : '?'}${complement}`
 }
 
-const paramToStr = (s: string | string[] | undefined) : string=> {
-  return s !== undefined ? s.toString() : '';
-}
-
-export const searchParamsToInfo = (sp: { [key: string]: string | string[] | undefined }) : IAPISearchInfo[] => {
+export const searchParamsToInfo = (sp: ReadonlyURLSearchParams) : IAPISearchInfo[] => {
   const props : IAPISearchInfo[] = [];
-  Object.keys(sp).forEach((p) => {
+  sp.forEach((v, k) => {
     props.push({
-      param: p,
-      val: paramToStr(sp[p])
+      param: k,
+      val: v
     })
   })
   return props;

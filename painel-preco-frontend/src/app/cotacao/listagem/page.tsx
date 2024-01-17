@@ -11,21 +11,20 @@ import { getPesquisarCotacoes } from "@/hooks/api";
 import WallpaperIcon from "@/components/atoms/icons/WallpaperIcon";
 import LoadingList from "@/components/molecules/LoadingList";
 import CartButton from "@/components/molecules/CartButton";
-import { useRouter } from "next/navigation";
+import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/navigation";
 import { isClientNextjs } from "@/utils/validateUtils";
 import { mountUrl, searchParamsToInfo } from "@/utils/requestUtils";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
 
-interface IPropsPageCotacaoListagem {
-  searchParams: { [key: string]: string | string[] | undefined }
-}
+interface IPropsPageCotacaoListagem {}
 
 const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
-  searchParams,
   ...opts
 }) => {
 
   const router = useRouter();
+  const searchParams : ReadonlyURLSearchParams = useSearchParams();
+
   const { theme, setTheme } = useTheme()
   const [isLoading, setIsLoading] = useState(true);
   const [itensLicitacao, setItensLicitacao] = useState<IRetornoPesquisaItensLicitacao[]>([]);
