@@ -72,8 +72,6 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 ok - Período de Compra; (obrigatório)
 
-- middleware de autenticação;
-
 - Página de busca com parâmetros via get (retirar localstorage);
 
 - Integrar com REDUX:
@@ -82,7 +80,7 @@ ok - Período de Compra; (obrigatório)
 	- Apresentar filtros buscados;
 	- Alterar tabs para breadcrumbs;
 
-- Aprimorar segurança nos parâmetros get (algoritmos de criptografia)
+- middleware de autenticação;
 
 - Loading a cada request;
 
@@ -100,6 +98,8 @@ ok - Período de Compra; (obrigatório)
 
 - Listagem de itens de licitação antes de gerar PDF;
 	- Segunda listagem informando período de compra;
+
+- Aprimorar segurança nos parâmetros get (algoritmos de criptografia)
 
 ====================================== Pós Reunião 10/01
 

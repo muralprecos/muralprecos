@@ -4,14 +4,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import yupStrings from '@/utils/yupStrings';
-import { Divider, Button } from '@nextui-org/react'
+import { Button } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form"
 
 import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IUnidadeGestora } from "@/interfaces/types";
-import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, getPesquisarCotacoes, FIELDS_COTACOES_LIST } from "@/hooks/api";
+import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, FIELDS_COTACOES_LIST } from "@/hooks/api";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 
-import FormTitle from '@/components/atoms/FormTitle'
 import FormRow from "@/components/atoms/FormRow";
 import AutocompleteForm from '@/components/molecules/AutocompleteForm';
 import AutocompleteAsyncForm from '@/components/molecules/AutocompleteAsyncForm';
@@ -25,6 +24,7 @@ import { mountUrl } from '@/utils/requestUtils';
 import { URLPageCotacaoListagem } from './listagem/page';
 
 export interface IPropsSearchItensLicitacaoForm {
+  searchParams: { [key: string]: string | string[] | undefined }
   anosCompras: IItemSelect[]
   empresaPorte: IItemSelect[]
   esferas: IItemSelect[]
@@ -60,6 +60,7 @@ const schema = yup.object({
 export type FormDataCotacao = yup.InferType<typeof schema>;
 
 const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
+  searchParams,
   anosCompras,
   empresaPorte,
   esferas,
@@ -91,20 +92,33 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   useEffect(() => {
     if (isClientNextjs()) {
-      //TODO: caso seja autocomplete simular pesquisa
-      //Sugestão: criar um map de nome, useAutocompleteFilter
-      for (const [key, value] of Object.entries(getValues())) {
-        if (initialFormData.hasOwnProperty(key)) {
-          const k = key as keyof FormDataCotacao;
-          const newVal = _initialFormData[k];
-          if (newVal != value) {
-            // console.log(`${k}: old: ${value}, new: ${newVal}`);
-            setValue(k, newVal, { shouldValidate: true, shouldTouch: true, shouldDirty: true });
+      //se possuir parametros get, ignora a última busca armazenada em localstorage
+      if (Object.entries(searchParams).length > 0) {
+        for (const [key, value] of Object.entries(getValues())) {
+          if (searchParams.hasOwnProperty(key)) {
+            const k = key as keyof FormDataCotacao;
+            const newVal = searchParams[key];
+            if (newVal != value) {
+              setValue(k, newVal+'', { shouldValidate: true, shouldTouch: true, shouldDirty: true });
+            }
+          }
+        }
+      } else {
+        //TODO: caso seja autocomplete simular pesquisa
+        //Sugestão: criar um map de nome, useAutocompleteFilter
+        for (const [key, value] of Object.entries(getValues())) {
+          if (initialFormData.hasOwnProperty(key)) {
+            const k = key as keyof FormDataCotacao;
+            const newVal = _initialFormData[k];
+            if (newVal != value) {
+              setValue(k, newVal, { shouldValidate: true, shouldTouch: true, shouldDirty: true });
+            }
           }
         }
       }
+      
     }
-  }, [_initialFormData, getValues, setValue]);
+  }, [_initialFormData, searchParams, getValues, setValue]);
 
 
   const onSubmit: SubmitHandler<FormDataCotacao> = async (data) => {
@@ -209,8 +223,6 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onSubmitError)} className='container flex flex-col items-start justify-start'>
-        <FormTitle className='text-lg font-bold uppercase text-primary'>Cotação</FormTitle>
-        <Divider className="my-4" />
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/4">
             <SelectForm<FormDataCotacao>

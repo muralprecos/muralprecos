@@ -3,7 +3,13 @@ import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
 import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
 
-export default async function Home() {
+interface IPropsSearchItensLicitacaoForm {
+  searchParams: { [key: string]: string | string[] | undefined }
+}
+
+export default async function CotacaoHome({
+  searchParams
+} : IPropsSearchItensLicitacaoForm) {
   
   const dataPorteFornecedores = getListPorteFornecedor({});
   const dataEsferas = getListEsferas({});
@@ -43,6 +49,7 @@ export default async function Home() {
 
   return (
     <PageClient
+        searchParams={searchParams}
         empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores, 'nome', 'uuid')}
         esferas={reqDataListToSelect<IEsfera>(esferas, 'nome', 'uuid')}
         compraFormas={reqDataListToSelect<IFormaCompra>(formasCompra, 'nome', 'uuid')}
