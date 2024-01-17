@@ -92,7 +92,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   useEffect(() => {
     if (isClientNextjs()) {
       //se possuir parametros get, ignora a última busca armazenada em localstorage
-      if (searchParams != null && Object.entries(searchParams).length > 0) {
+      if (searchParams != null && Array.from(searchParams.keys()).length > 0) {
         for (const [key, value] of Object.entries(getValues())) {
           const newVal = searchParams.get(key);
           if (newVal != null) {

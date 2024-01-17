@@ -80,7 +80,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                 <div className='flex flex-col items-start justify-start basis-1/4 gap-2 w-full mt-3'>
                   <div className="flex flex-1  flex-col border-small rounded-small border-default-200 dark:border-default-100 w-full">
                     <h3 className={`text-sm font-bold uppercase text-primary-600 w-full bg-opacity-5 bg-primary-300 p-4 text-center`}>
-                      Cotações Pré-Definidas
+                      Minhas Cotações Favoritas
                     </h3>
                     <Listbox
                       aria-label="Seleção do Tipo de Visualização"
@@ -89,8 +89,6 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                       disallowEmptySelection
                       selectionMode="single"
                       items={items}
-                      // selectedKeys={selectedKeys}
-                      // onSelectionChange={selectValue}
                     >
                       {items.map((item) => (
                         <ListboxItem key={item.key} href={item.href}>
@@ -98,6 +96,14 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                         </ListboxItem>
                       ))}
                     </Listbox>
+                  </div>
+                  <div className="flex flex-1  flex-col border-small rounded-small border-default-200 dark:border-default-100 w-full">
+                    <h3 className={`text-sm font-bold uppercase text-primary-600 w-full bg-opacity-5 bg-primary-300 p-4 text-center`}>
+                      Cotações Favoritas da Equipe
+                    </h3>
+                    <div className="w-full flex-1 p-4 text-center text-small text-gray-400 cursor-default">
+                        Sem Cotações Salvos
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col items-start justify-start basis-3/4 w-full">
