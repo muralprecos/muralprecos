@@ -121,7 +121,6 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   const onSubmit: SubmitHandler<FormDataCotacao> = async (data) => {
     //armazenar dados da busca no redux
-    console.log('submit', data)
     dispatch(doSearch(data));
     const info = objToParamSearch(data);
     router.push(mountUrl({
@@ -238,10 +237,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   }, [ufId, lastUF, resetField])
 
   useEffect(() => {
-    console.log('inicializando', _initialFormDataLocalStorage);
-
     const changeVal = async (attr: keyof FormDataCotacao, val: string) => {
-      console.log('changeVal', attr, val);
       const f = fields[attr];
       if (isFieldAutocompleteAsync(f)) {
         let desc = null;
