@@ -1,29 +1,35 @@
-import { IAPISearchInfo, IAPISearchProps, IObjetoAPI, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
+import { IAPISearchInfo, IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
 import { useAsyncList } from "@react-stately/data";
 
 export interface IAutocompleteListHook<T extends ISimpleObjetoAPI> {
-  minCharactersLoad?: number;
-  size?: number;
-  searchParams?: string[];
-  infos?: IAPISearchInfo[] | undefined;
-  getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T>|null>;
+  initialFilterText?: string | null
+  initialSelectedKeys?: Iterable<string | number> | null
+  minCharactersLoad?: number
+  size?: number
+  params?: string[]
+  infos?: IAPISearchInfo[] | undefined
+  getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T>|null>
 }
 
 export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
+  initialFilterText = '',
+  initialSelectedKeys = '',
   minCharactersLoad = 3,
   size = 20,
-  searchParams = ['nome'],
+  params = ['nome'],
   infos,
   getList
 } : IAutocompleteListHook<T>) {
 
   const list = useAsyncList<T>({
+    initialFilterText: initialFilterText || '',
+    initialSelectedKeys: initialSelectedKeys || '',
     //TODO: passar parametros para o fetch, por ex: {signal}
     async load({signal, filterText}) {
       if (filterText != null && filterText.length >= minCharactersLoad) {
         let info: IAPISearchInfo[] = [];
         let doReq = true;
-        searchParams.forEach(p => {
+        params.forEach(p => {
           info.push({
             param: p,
             val: filterText || ''

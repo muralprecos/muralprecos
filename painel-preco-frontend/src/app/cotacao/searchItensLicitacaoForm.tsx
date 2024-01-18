@@ -7,8 +7,8 @@ import yupStrings from '@/utils/yupStrings';
 import { Button } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form"
 
-import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IUnidadeGestora } from "@/interfaces/types";
-import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, FIELDS_COTACOES_LIST } from "@/hooks/api";
+import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, ISimpleObjetoAPI, IUnidadeGestora } from "@/interfaces/types";
+import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, FIELDS_COTACOES_LIST, getFornecedorDesc, getOrgaoDesc, getNomeMaterialDesc, getUASGDesc, getUnidadeFornecimentoDesc } from "@/hooks/api";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 
 import FormRow from "@/components/atoms/FormRow";
@@ -21,6 +21,7 @@ import { doSearch, initialFormData } from '@/redux/features/cotacao-search-slice
 import { isClientNextjs } from '@/utils/validateUtils';
 import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
 import { mountUrl } from '@/utils/requestUtils';
+import { AsyncListData } from '@react-stately/data';
 
 export interface IPropsSearchItensLicitacaoForm {
   searchParams?: ReadonlyURLSearchParams
@@ -57,6 +58,31 @@ const schema = yup.object({
   unidade_fornecimento: yup.string().nullable(),
 });
 export type FormDataCotacao = yup.InferType<typeof schema>;
+type FieldAutocompleteAsync<T extends ISimpleObjetoAPI> = {
+  async: AsyncListData<T>
+  attrVal: 'uuid' | 'nome'
+  isDisabled?: boolean
+  apiFindDesc?: (uuid: string) => Promise<string|null>
+}
+type FieldFormSelect = {
+  type: 'select'
+  label: string
+  items: IItemSelect[]
+};
+type FieldFormAutocompleteStatic = {
+  type: 'autocompletStatic'
+  label: string
+  items: IItemSelect[]
+};
+type FieldFormAutocompleteAsync = {
+  type: 'autocompleteAsync'
+  label: string
+  auto: FieldAutocompleteAsync<any>
+};
+type FieldFormTypes = FieldFormSelect | FieldFormAutocompleteStatic | FieldFormAutocompleteAsync;
+type FieldsForms = {
+  [K in keyof FormDataCotacao]: FieldFormTypes
+}
 
 const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   searchParams,
@@ -73,8 +99,8 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const _initialFormData: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
-
+  const _initialFormDataLocalStorage: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
+  const [lastUF, setLastUF] = useState<string|null>();
   const {
     control,
     handleSubmit,
@@ -88,40 +114,14 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     resolver: yupResolver(schema),
     defaultValues: initialFormData
   });
-
-  useEffect(() => {
-    if (isClientNextjs()) {
-      //se possuir parametros get, ignora a última busca armazenada em localstorage
-      if (searchParams != null && Array.from(searchParams.keys()).length > 0) {
-        for (const [key, value] of Object.entries(getValues())) {
-          const newVal = searchParams.get(key);
-          if (newVal != null) {
-            const k = key as keyof FormDataCotacao;
-            if (newVal != value) {
-              setValue(k, newVal+'', { shouldValidate: true, shouldTouch: true, shouldDirty: true });
-            }
-          }
-        }
-      } else {
-        //TODO: caso seja autocomplete simular pesquisa
-        //Sugestão: criar um map de nome, useAutocompleteFilter
-        for (const [key, value] of Object.entries(getValues())) {
-          if (initialFormData.hasOwnProperty(key)) {
-            const k = key as keyof FormDataCotacao;
-            const newVal = _initialFormData[k];
-            if (newVal != value) {
-              setValue(k, newVal, { shouldValidate: true, shouldTouch: true, shouldDirty: true });
-            }
-          }
-        }
-      }
-      
-    }
-  }, [_initialFormData, searchParams, getValues, setValue]);
-
+  const ufId = watch("ufId");
+  const hasUF = useCallback(() => {
+    return ufId != undefined && ufId != '';
+  }, [ufId]);
 
   const onSubmit: SubmitHandler<FormDataCotacao> = async (data) => {
     //armazenar dados da busca no redux
+    console.log('submit', data)
     dispatch(doSearch(data));
     const info = objToParamSearch(data);
     router.push(mountUrl({
@@ -137,280 +137,246 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     //console.log(data)
   }
 
-  const ufId = watch("ufId");
+  const fields : FieldsForms = {
+    ano: { type: 'select', label: 'Ano da Compra', items: anosCompras },
+    porteFornecedor: { type: 'select', label: 'Porte da Empresa', items: empresaPorte },
+    esferaId: { type: 'select', label: 'Esfera', items: esferas },
+    formaCompraId: { type: 'select', label: 'Forma da Compra', items: compraFormas },
+    modalidadeCompraId: { type: 'select', label: 'Modalidade Compra', items: compraModalidades },
+    periodoCompraId: { type: 'select', label: 'Período da Compra', items: compraPeriodos },
 
-  const autoCompleteFornecedores = useAutocompleteFilter<IFornecedor>({
-    searchParams: ['nome'],
-    getList: getListFornecedores
-  });
+    situacao_licitacao: { type: 'autocompletStatic', label: 'Situação da Licitação', items: situacoesLicitacoes },
+    ufId: { type: 'autocompletStatic', label: 'Unidade Federativa', items: unidadesFederativas },
 
-  const autoCompleteOrgaos = useAutocompleteFilter<IOrgao>({
-    getList: getListOrgaos
-  });
-
-  const autoCompleteOrgaosSuperiores = useAutocompleteFilter<IOrgao>({
-    getList: getListOrgaosSuperiores
-  });
-
-  const autoCompleteUASG = useAutocompleteFilter<IUnidadeGestora>({
-    getList: getListUASG
-  });
-
-  const autoCompleteUnidadesFornecimento = useAutocompleteFilter<IObjetoAPI>({
-    getList: getListUnidadesFornecimento
-  });
-
-  const autoCompleteNomeMaterial = useAutocompleteFilter<INomeMaterial>({
-    getList: getListNomeMaterial
-  });
-
-  const autoCompleteMunicipio = useAutocompleteFilter<IMunicipio>({
-    minCharactersLoad: 0,
-    getList: getListMunicipios,
-    infos: ufId ? [{ val: ufId, param: 'uuiduf' }] : []
-  });
-
-  const autoCompleteObjetoCompra = useAutocompleteFilter<IObjetoCompra>({
-    searchParams: ['objeto'],
-    getList: getListObjetosCompras
-  });
-
-  const autoCompleteDescricao = useAutocompleteFilter<IItemDescricao>({
-    searchParams: ['descricao'],
-    getList: getListDescricao
-  });
-
-  const autoCompleteDescricaoComplementar = useAutocompleteFilter<IItemDescricao>({
-    searchParams: ['descricaoComplementar'],
-    getList: getListDescricao
-  });
-
+    municipioId: { type: 'autocompleteAsync', label: 'Município', auto: {
+      async: useAutocompleteFilter<IMunicipio>({
+        minCharactersLoad: 0,
+        getList: getListMunicipios,
+        infos: ufId ? [{ val: ufId, param: 'uuiduf' }] : []
+      }),
+      attrVal: "uuid",
+      isDisabled: !hasUF()
+    }},
+    orgaoSuperiorId: { type: 'autocompleteAsync', label: 'Orgão Superior', auto: {
+      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaosSuperiores }),
+      attrVal: "uuid",
+      apiFindDesc: getOrgaoDesc
+    }},
+    orgaoId: { type: 'autocompleteAsync', label: 'Orgão', auto: {
+      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaos }),
+      attrVal: "uuid",
+      apiFindDesc: getOrgaoDesc
+    }},
+    fornecedorId: { type: 'autocompleteAsync', label: 'Fornecedor', auto: {
+      async: useAutocompleteFilter<IFornecedor>({ params: ['nome'], getList: getListFornecedores }),
+      attrVal: "uuid",
+      apiFindDesc: getFornecedorDesc
+    }},
+    materialId: { type: 'autocompleteAsync', label: 'Nome/Código Material', auto: {
+      async: useAutocompleteFilter<INomeMaterial>({ getList: getListNomeMaterial }),
+      attrVal: "uuid",
+      apiFindDesc: getNomeMaterialDesc
+    }},
+    ugId: { type: 'autocompleteAsync', label: 'Unidade Gestora', auto: {
+      async: useAutocompleteFilter<IUnidadeGestora>({ getList: getListUASG }),
+      attrVal: "uuid",
+      apiFindDesc: getUASGDesc
+    }},
+    unidade_fornecimento: { type: 'autocompleteAsync', label: 'Unidade de Fornecimento', auto: {
+      async: useAutocompleteFilter<IObjetoAPI>({ getList: getListUnidadesFornecimento }),
+      attrVal: "uuid",
+      apiFindDesc: getUnidadeFornecimentoDesc
+    }},
+    descricao: { type: 'autocompleteAsync', label: 'Descrição', auto: {
+      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricao'], getList: getListDescricao }),
+      attrVal: "nome"
+    }},
+    descricaoComplementar: { type: 'autocompleteAsync', label: 'Descrição Complementar', auto: {
+      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: getListDescricao }),
+      attrVal: "nome"
+    }},
+    objeto: { type: 'autocompleteAsync', label: 'Objeto da Comprar', auto: {
+      async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: getListObjetosCompras }),
+      attrVal: "nome"
+    }},
+  };
+  
+  function isFieldSelect(obj: FieldFormTypes | undefined): obj is FieldFormSelect {
+    return !!obj && obj.type === 'select';
+  }
+  function isFieldAutocompleteStatic(obj: FieldFormTypes | undefined): obj is FieldFormAutocompleteStatic {
+    return !!obj && obj.type === 'autocompletStatic';
+  }
+  function isFieldAutocompleteAsync(obj: FieldFormTypes | undefined): obj is FieldFormAutocompleteAsync {
+    return !!obj && obj.type === 'autocompleteAsync';
+  }
 
   const clearForm = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
     reset();
-    autoCompleteFornecedores.setFilterText('')
-    autoCompleteOrgaos.setFilterText('')
-    autoCompleteOrgaosSuperiores.setFilterText('')
-    autoCompleteUASG.setFilterText('')
-    autoCompleteUnidadesFornecimento.setFilterText('')
-    autoCompleteNomeMaterial.setFilterText('')
-    autoCompleteMunicipio.setFilterText('')
-    autoCompleteObjetoCompra.setFilterText('')
-    autoCompleteDescricao.setFilterText('')
-    autoCompleteDescricaoComplementar.setFilterText('')
+    Object.keys(fields).forEach(k => {
+      const key = k as keyof FormDataCotacao;
+      const v = fields[key];
+      if (v != undefined && isFieldAutocompleteAsync(v)) {
+        v.auto.async.setFilterText('');
+      }
+    })
     dispatch(doSearch(getValues()));
   }
 
-  const [lastUF, setLastUF] = useState<string|null>();
   //inicializar a lista de municipios ao alterar a unidade federativa
   useEffect(() => {
     setLastUF(ufId);
-    if (ufId != lastUF) {
+    const fieldMunicipio = fields.municipioId;
+    if (ufId != lastUF && fieldMunicipio != undefined && isFieldAutocompleteAsync(fieldMunicipio)) {
       if (ufId != null) {
-        autoCompleteMunicipio.reload()
+        fieldMunicipio.auto.async.reload();
       }
-      autoCompleteMunicipio.setFilterText('')
+      fieldMunicipio.auto.async.setFilterText('')
       resetField('municipioId')
     }
-  }, [ufId, autoCompleteMunicipio, lastUF, resetField])
+  }, [ufId, lastUF, resetField])
 
-  const hasUF = useCallback(() => {
-    return ufId != undefined && ufId != '';
-  }, [ufId]);
+  useEffect(() => {
+    console.log('inicializando', _initialFormDataLocalStorage);
+
+    const changeVal = async (attr: keyof FormDataCotacao, val: string) => {
+      console.log('changeVal', attr, val);
+      const f = fields[attr];
+      if (isFieldAutocompleteAsync(f)) {
+        let desc = null;
+        if (f.auto.apiFindDesc) {
+          desc = await f.auto.apiFindDesc(val);
+        } else if (f.auto.attrVal == 'nome') {
+          desc = val;
+        }
+        if (desc != null) {
+          f.auto.async.setFilterText(desc);
+          f.auto.async.setSelectedKeys(new Set(val));
+          setValue(attr, val, { shouldValidate: true, shouldTouch: true, shouldDirty: true });
+        }
+      } else {
+        setValue(attr, val, { shouldValidate: true, shouldTouch: true, shouldDirty: true });
+      }
+    }
+    
+    if (isClientNextjs()) {
+      //se possuir parametros get, ignora a última busca armazenada em localstorage
+      for (const [key, value] of Object.entries(getValues())) {
+        const k = key as keyof FormDataCotacao;
+        if (searchParams != null && Array.from(searchParams.keys()).length > 0) {
+          const newVal = searchParams.get(key);
+          if (newVal != null && newVal != value) {
+            changeVal(k, newVal+'');
+          }
+        } else if (initialFormData.hasOwnProperty(key)) {
+          const newVal = _initialFormDataLocalStorage[k];
+          if (newVal != value && !!newVal) {
+            changeVal(k, newVal+'');
+          }
+        }
+      }     
+    }
+  }, [_initialFormDataLocalStorage, searchParams, getValues, setValue]);
+
+  const mountFieldForm = (name: keyof FormDataCotacao, attr: FieldFormTypes | undefined) => {
+    if (isFieldSelect(attr)) {
+      return (
+        <SelectForm<FormDataCotacao> name={name} label={attr.label} control={control} items={attr.items} errors={errors} />
+      )
+    } else if (isFieldAutocompleteStatic(attr)) {
+      return (
+        <AutocompleteForm<FormDataCotacao> name={name} label={attr.label} control={control} items={attr.items} errors={errors} />
+      )
+    } else if (isFieldAutocompleteAsync(attr)) {
+      return (
+        <AutocompleteAsyncForm<IObjetoAPI, FormDataCotacao> name={name} label={attr.label} attrVal={attr.auto.attrVal} control={control} isDisabled={attr.auto.isDisabled} errors={errors} autocompleteHook={attr.auto.async}/>
+      )
+    }
+  }
 
   const classname_rowmobile = "flex-col md:flex-row";
-
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onSubmitError)} className='container flex flex-col items-start justify-start'>
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/4">
-            <SelectForm<FormDataCotacao>
-              name="ano"
-              label="Ano da Compra"
-              control={control}
-              items={anosCompras}
-              errors={errors}
-              />
+            { mountFieldForm("ano", fields.ano) }
           </div> 
           <div className="basis-1/4">
-            <SelectForm<FormDataCotacao>
-              name="porteFornecedor"
-              label="Porte da Empresa"
-              items={empresaPorte}
-              control={control}
-              errors={errors}
-              />
+            { mountFieldForm("porteFornecedor", fields.porteFornecedor) }
           </div>
           <div className="basis-1/4">
-            <SelectForm<FormDataCotacao>
-              name="esferaId"
-              label="Esfera"
-              items={esferas}
-              control={control}
-              errors={errors}
-              />
+            { mountFieldForm("esferaId", fields.esferaId) }
           </div>
           <div className="basis-1/4">
-            <SelectForm<FormDataCotacao>
-              name="formaCompraId"
-              label="Forma da Compra"
-              items={compraFormas}
-              control={control}
-              errors={errors}
-              />
+            { mountFieldForm("formaCompraId", fields.formaCompraId) }
           </div>
         </FormRow>
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/3">
-            <SelectForm<FormDataCotacao>
-              name="modalidadeCompraId"
-              label="Modalidade Compra"
-              items={compraModalidades}
-              control={control}
-              errors={errors}
-              />
+            { mountFieldForm("modalidadeCompraId", fields.modalidadeCompraId) }
           </div>
           <div className="basis-1/3">
-            <SelectForm<FormDataCotacao>
-              name="periodoCompraId"
-              label="Período da Compra"
-              items={compraPeriodos}
-              control={control}
-              errors={errors}
-              />
+            { mountFieldForm("periodoCompraId", fields.periodoCompraId) }
           </div>
           <div className="basis-1/3">
-            <AutocompleteForm<FormDataCotacao>
-              name="situacao_licitacao"
-              label="Situação da Licitação"
-              control={control}
-              items={situacoesLicitacoes}
-              errors={errors}
-              />
+            { mountFieldForm("situacao_licitacao", fields.situacao_licitacao) }
           </div>
         </FormRow>
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteForm<FormDataCotacao>
-              name="ufId"
-              label="Unidade Federativa"
-              control={control}
-              items={unidadesFederativas}
-              errors={errors}
-              />
+            { mountFieldForm("ufId", fields.ufId) }
           </div>
 
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IMunicipio, FormDataCotacao>
-              name="municipioId"
-              label="Município"
-              attrVal="uuid"
-              control={control}
-              isDisabled={!hasUF()}
-              errors={errors}
-              autocompleteHook={autoCompleteMunicipio}/>
+            { mountFieldForm("municipioId", fields.municipioId) }
           </div>
         </FormRow>
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IOrgao, FormDataCotacao>
-              name="orgaoSuperiorId"
-              label="Orgão Superior"
-              attrVal="uuid"
-              control={control}
-              errors={errors}
-              autocompleteHook={autoCompleteOrgaosSuperiores}/>
+            { mountFieldForm("orgaoSuperiorId", fields.orgaoSuperiorId) }
           </div>
 
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IOrgao, FormDataCotacao>
-              name="orgaoId"
-              label="Orgão"
-              attrVal="uuid"
-              control={control}
-              errors={errors}
-              autocompleteHook={autoCompleteOrgaos}/>
+            { mountFieldForm("orgaoId", fields.orgaoId) }
           </div>
         </FormRow>
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IFornecedor, FormDataCotacao>
-              name="fornecedorId"
-              label="Fornecedor"
-              attrVal="uuid"
-              control={control}
-              errors={errors}
-              autocompleteHook={autoCompleteFornecedores}/>
+            { mountFieldForm("fornecedorId", fields.fornecedorId) }
           </div>
 
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IUnidadeGestora, FormDataCotacao>
-              name="materialId"
-              label="Nome/Código Material"
-              attrVal="uuid"
-              control={control}
-              errors={errors}
-              autocompleteHook={autoCompleteNomeMaterial}/>
+            { mountFieldForm("materialId", fields.materialId) }
           </div>
         </FormRow>
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IUnidadeGestora, FormDataCotacao>
-              name="ugId"
-              label="Unidade Gestora"
-              attrVal="uuid"
-              control={control}
-              errors={errors}
-              autocompleteHook={autoCompleteUASG}/>
+            { mountFieldForm("ugId", fields.ugId) }
           </div>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IObjetoAPI, FormDataCotacao>
-              name="unidade_fornecimento"
-              label="Unidade de Fornecimento"
-              attrVal="uuid"
-              control={control}
-              errors={errors}
-              autocompleteHook={autoCompleteUnidadesFornecimento}/>
+            { mountFieldForm("unidade_fornecimento", fields.unidade_fornecimento) }
           </div>
         </FormRow>
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IObjetoCompra, FormDataCotacao>
-              name="descricao"
-              label="Descrição"
-              attrVal="nome"
-              control={control}
-              errors={errors}
-              autocompleteHook={autoCompleteDescricao}/>
+            { mountFieldForm("descricao", fields.descricao) }
           </div>
           <div className="basis-1/2">
-            <AutocompleteAsyncForm<IObjetoCompra, FormDataCotacao>
-              name="descricaoComplementar"
-              label="Descrição Complementar"
-              attrVal="nome"
-              control={control}
-              errors={errors}
-              autocompleteHook={autoCompleteDescricaoComplementar}/>
+            { mountFieldForm("descricaoComplementar", fields.descricaoComplementar) }
           </div>
         </FormRow>
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-full">
-            <AutocompleteAsyncForm<IObjetoCompra, FormDataCotacao>
-              name="objeto"
-              label="Objeto da Compra"
-              attrVal="nome"
-              control={control}
-              errors={errors}
-              autocompleteHook={autoCompleteObjetoCompra}/>
+            { mountFieldForm("objeto", fields.objeto) }
           </div>
         </FormRow>
         

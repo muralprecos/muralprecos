@@ -72,11 +72,12 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 ok - Período de Compra; (obrigatório)
 
+- Autocomplete com carregamento do municipio via request/localstorage
+
 - Integrar com REDUX:
 	ok - Manter campos de busca ao realizar cotação;
 	ok - Realizar paginação necessita dos parâmetros buscados também;
 	- Apresentar filtros buscados;
-	- Alterar tabs para breadcrumbs;
 
 - middleware de autenticação;
 

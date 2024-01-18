@@ -53,18 +53,18 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   const items = [
     {
       key: '1',
-      href: '/cotacao?ano=2015',
-      label: "Cotações de 2015",
+      href: '/cotacao',
+      label: "Última Cotação Realizada",
     },
     {
       key: '2',
-      href: '/cotacao?ano=2014',
-      label: "Cotações de 2014",
+      href: '/cotacao?ano=2014&periodoCompraId=181',
+      label: "Cotações de 2014 (Há mais de 180 dias)",
     },
     {
       key: '3',
-      href: '/cotacao?ano=2016',
-      label: "Cotações de 2016",
+      href: '/cotacao?ano=2015&periodoCompraId=181&ufId=e1b49932-4f86-11ee-8095-0242ac120003',
+      label: "Cotações no Piauí em 2015",
     },
   ];
 
@@ -102,7 +102,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                       Cotações Favoritas da Equipe
                     </h3>
                     <div className="w-full flex-1 p-4 text-center text-small text-gray-400 cursor-default">
-                        Sem Cotações Salvos
+                        Sem Cotações Salvas
                     </div>
                   </div>
                 </div>

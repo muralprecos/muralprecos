@@ -10,7 +10,7 @@ type KeyOfType<T, V> = keyof {
 }
 
 interface IProps<T extends ISimpleObjetoAPI, P extends FieldValues> extends UseControllerProps<P>, Omit<AutocompleteProps, "children"|"items"|"defaultItems"|"name"> {
-  attrVal: KeyOfType<T, string>
+  attrVal: keyof T
   autocompleteHook: AsyncListData<T>
   errors?: FieldErrors
 }

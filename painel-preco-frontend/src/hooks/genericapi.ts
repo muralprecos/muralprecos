@@ -1,6 +1,6 @@
 import logger from "../../services/logger";
 import { mountUrl } from "@/utils/requestUtils";
-import { IAPISearchProps, IReturnRequestAPI } from "@/interfaces/types";
+import { IAPISearchInfo, IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
 
 const host = 'http://muraldeprecos.com';//'http://localhost:8080';
 
@@ -110,4 +110,9 @@ export const postGenericBlob =  async (
   ) : Promise<Blob|ResponseError|null> => {
     const res = await postGeneric<Blob>({ path, bodydata, acceptType });
     return res.status ? res.data?.blob() : res.data?.json();
+}
+
+export const getObjectDesc = async <T extends ISimpleObjetoAPI>(props: IAPISearchProps, getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T> | null>) : Promise<string | null> => {
+  const list = await getList(props);
+  return list != null && list.content != null && list?.content.length > 0 ? list.content[0].nome : null;
 }
