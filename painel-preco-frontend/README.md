@@ -72,12 +72,12 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 ok - Período de Compra; (obrigatório)
 
+- Botão de limpar autocomplete não está retirando as informações do formulário (Unidade Gestora, por exemplo)
+
 - Autocomplete com carregamento do municipio via request/localstorage
 
-- Integrar com REDUX:
-	ok - Manter campos de busca ao realizar cotação;
-	ok - Realizar paginação necessita dos parâmetros buscados também;
-	- Apresentar filtros buscados;
+- Apresentar filtros buscados;
+
 
 - middleware de autenticação;
 
@@ -122,6 +122,11 @@ Geração do relatório de cotação:
 =======================================
 
 
+https://medium.com/@raphox/rails-and-next-js-the-perfect-combination-for-modern-web-development-final-part-a88af492a00
+https://levelup.gitconnected.com/authentication-in-two-lines-of-code-auth-js-next-js-14-653b252abfd3
+https://www.youtube.com/watch?v=SO8lBVWF2Y8&t=68s&ab_channel=WebDevSimplified
+https://redux-toolkit.js.org/api/createAsyncThunk
+https://orizens.com/blog/integrating-react-hook-form-and-redux-toolkit-rtk/
 
 
 

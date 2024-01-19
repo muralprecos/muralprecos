@@ -69,7 +69,7 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
           <CardBody>
             
           <section className='container flex flex-col items-start justify-start'>
-            <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full'>
+            <FormTitle>
               <div className="flex-auto">
                 Resultado da Cotação
               </div>

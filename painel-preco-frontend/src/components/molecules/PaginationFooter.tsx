@@ -63,22 +63,23 @@ function PaginationFooter<T extends any>({
 
   return (
     <FormRow className="flex flex-row items-center justify-between">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 w-full text-center md:text-left">
         <p className="text-small text-default-500">Página Atual: {paginationInfo ? paginationInfo.number+1 : ''} de {paginationInfo?.totalPages} ({paginationInfo?.totalElements} itens)</p>
         <p className="text-small text-default-500">Itens por Página: {paginationInfo?.size}</p>
       </div>
       { paginationInfo &&
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full md:justify-end justify-center border-gray-200 border-t-1 md:border-none py-3">
           <Button
             size="sm"
             variant="flat"
             color="primary"
-            className={`hidden sm:block`}
+            className={`hidden md:block`}
             isDisabled={!canDecrement()}
             onPress={decrementPage}
           >
             Anterior
           </Button>
+          
           <Pagination
             total={paginationInfo.totalPages}
             color="primary"
@@ -91,7 +92,7 @@ function PaginationFooter<T extends any>({
             size="sm"
             variant="flat"
             color="primary"
-            className={`hidden sm:block`}
+            className={`hidden md:block`}
             isDisabled={!canIncrement()}
             onPress={incrementPage}
           >

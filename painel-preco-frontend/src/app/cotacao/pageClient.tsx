@@ -73,8 +73,8 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
       <div className='container'>
         <Card>
           <CardBody>
-            <div className='container flex flex-col items-start justify-start'>
-              <FormTitle className='text-lg font-bold uppercase text-primary'>Realizar Cotação</FormTitle>
+            <section className='container flex flex-col items-start justify-start'>
+              <FormTitle className="py-2">Realizar Cotação</FormTitle>
               <Divider className="my-4" />
               <FormRow className="flex lg:flex-row flex-col w-full items-start justify-start gap-4">
                 <div className='flex flex-col items-start justify-start basis-1/4 gap-2 w-full mt-3'>
@@ -120,7 +120,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                     />
                 </div>
               </FormRow>
-            </div>
+            </section>
           </CardBody>
         </Card>
       </div>

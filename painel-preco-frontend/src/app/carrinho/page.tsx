@@ -86,7 +86,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
         <Card>
           <CardBody>
           <div className='container flex flex-col items-start justify-start'>
-            <FormTitle className='text-lg font-bold uppercase text-primary'>Carrinho de Cotações</FormTitle>
+            <FormTitle className="py-2">Carrinho de Cotações</FormTitle>
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
               { isLoading && 

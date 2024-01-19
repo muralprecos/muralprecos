@@ -1,8 +1,8 @@
 import logger from "../../services/logger";
 import { mountUrl } from "@/utils/requestUtils";
-import { IAPISearchInfo, IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
+import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
 
-const host = 'http://muraldeprecos.com';//'http://localhost:8080';
+const host = 'https://muraldeprecos.com';
 
 export const revalidate = 3600; // revalida os dados a cada hora
 
