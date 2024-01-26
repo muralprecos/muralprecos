@@ -27,7 +27,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @Entity
-@Table(name = "licitacao", schema = "painel")
+@Table(name = "licitacao", schema = "mural")
 public class Licitacao {
 	
 	@EqualsAndHashCode.Include

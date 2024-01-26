@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @Entity
-@Table(name = "municipio", schema = "painel")
+@Table(name = "municipio", schema = "mural")
 public class Municipio {
 	
 	@EqualsAndHashCode.Include
