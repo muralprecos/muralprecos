@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -26,7 +24,6 @@ public class UnidadeFornecimento {
 	@Column(name = "id_unidade_fornecimento")
 	private Integer id;
 	
-	@Type(type = "uuid-char")
 	private UUID uuid;
 	
 	/** Nome da Unidade de Fornecimento **/

@@ -12,10 +12,10 @@ from (
 	select distinct m.nome || ' (CATMAT: ' || m.codigo || ')' as material,
 		o.nome as orgao, mc.nome || ' n.º ' || l.numero || '/' || extract(year from l.data_resultado_compra) as identificacao,
 		to_char(l.data_resultado_compra, 'dd/MM/yyyy') as data_licitacao, (il.valor / il.quantidade) as preco
-	from painel.licitacao l join painel.item_licitacao il on il.licitacao_id = l.id_licitacao
-		join painel.material m on m.id_material = il.material_id
-		join painel.orgao o on o.id_orgao = l.orgao_id
-		join painel.modalidade_compra mc on mc.id_modalidade_compra = l.modalidade_compra_id
+	from mural.licitacao l join mural.item_licitacao il on il.licitacao_id = l.id_licitacao
+		join mural.material m on m.id_material = il.material_id
+		join mural.orgao o on o.id_orgao = l.orgao_id
+		join mural.modalidade_compra mc on mc.id_modalidade_compra = l.modalidade_compra_id
 	where $X{IN, m.codigo, catmats}
 	order by 1, 4, 2, 3, 5
 ) as i]]>
@@ -23,6 +23,10 @@ from (
 	<field name="id" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.name" value="id"/>
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
+	</field>
+	<field name="material" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="material"/>
+		<property name="com.jaspersoft.studio.field.label" value="material"/>
 	</field>
 	<field name="orgao" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="orgao"/>
@@ -41,7 +45,6 @@ from (
 		<property name="com.jaspersoft.studio.field.name" value="preco"/>
 		<property name="com.jaspersoft.studio.field.label" value="preco"/>
 	</field>
-	<field name="material" class="java.lang.String"/>
 	<variable name="preco1" class="java.lang.Double" resetType="Group" resetGroup="Group1" calculation="Average">
 		<variableExpression><![CDATA[$F{preco}]]></variableExpression>
 	</variable>

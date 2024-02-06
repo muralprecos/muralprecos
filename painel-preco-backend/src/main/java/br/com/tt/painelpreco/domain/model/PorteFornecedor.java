@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -31,7 +29,6 @@ public class PorteFornecedor {
 	@Column(name = "id_porte_fornecedor")
 	private Integer id;
 	
-	@Type(type = "uuid-char")
 	private UUID uuid;
 	
 	private String nome;

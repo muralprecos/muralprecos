@@ -14,8 +14,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -31,7 +29,6 @@ public class Orgao {
 	private Integer id;
 	
 	@EqualsAndHashCode.Include
-	@Type(type = "uuid-char")
 	private UUID uuid;
 	
 	private Integer codigo;

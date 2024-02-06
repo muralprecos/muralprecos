@@ -11,8 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -28,7 +26,6 @@ public class Municipio {
 	@Column(name = "id_municipio")
 	private Integer id;
 	
-	@Type(type = "uuid-char")
 	private UUID uuid;
 	
 	private String nome;

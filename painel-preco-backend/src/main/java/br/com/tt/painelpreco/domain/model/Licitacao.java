@@ -17,8 +17,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.Type;
-
 import br.com.tt.painelpreco.domain.model.vo.PeriodoCompra;
 import br.com.tt.painelpreco.util.DateUtil;
 import lombok.Data;
@@ -36,7 +34,6 @@ public class Licitacao {
 	@Column(name = "id_licitacao")
 	private Long id;
 	
-	@Type(type = "uuid-char")
 	private UUID uuid;
 	
 	private Integer numero;

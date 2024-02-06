@@ -11,8 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -28,7 +26,6 @@ public class Fornecedor {
 	@Column(name = "id_fornecedor")
 	private Integer id;
 	
-	@Type(type = "uuid-char")
 	private UUID uuid;
 	
 	/** CNPJ/CPF/NOME do Fornecedor **/

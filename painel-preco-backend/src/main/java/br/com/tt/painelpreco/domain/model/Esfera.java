@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -31,7 +29,6 @@ public class Esfera {
 	private Integer id;
 	
 	@EqualsAndHashCode.Include
-	@Type(type = "uuid-char")
 	private UUID uuid;
 	
 	private String nome;
