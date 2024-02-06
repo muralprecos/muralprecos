@@ -15,6 +15,7 @@ import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/naviga
 import { isClientNextjs } from "@/utils/validateUtils";
 import { mountUrl, searchParamsToInfo } from "@/utils/requestUtils";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
+import { useAppSelector } from '@/redux/store';
 
 interface IPropsPageCotacaoListagem {}
 
@@ -24,6 +25,8 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
 
   const router = useRouter();
   const searchParams : ReadonlyURLSearchParams = useSearchParams();
+  const _auth = useAppSelector((state) => state.authReducer.value);
+  const authToken = !!_auth.user && !!_auth.user.userToken ? _auth.user?.userToken : null;
 
   const { theme, setTheme } = useTheme()
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +37,7 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
     const fetchData = async () => {
       if (isClientNextjs()) {
         setIsLoading ? setIsLoading(true) : null;
-        const req: IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ info: searchParamsToInfo(searchParams) });
+        const req: IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ info: searchParamsToInfo(searchParams), auth: authToken });
         setIsLoading ? setIsLoading(false) : null;
         if (req?.content) {
           setPaginationInfo(req);
@@ -43,7 +46,7 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
       }
     }
     fetchData().catch(console.error);
-  }, [searchParams,setItensLicitacao]);
+  }, [authToken, searchParams,setItensLicitacao]);
 
   const hastItens = () => {
     return itensLicitacao != null && itensLicitacao.length > 0;

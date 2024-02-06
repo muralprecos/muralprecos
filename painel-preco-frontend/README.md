@@ -72,11 +72,25 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 ok - Período de Compra; (obrigatório)
 
+- Apresentar mensagem de erro após retorno problemático de request;
+
+- Linkar com autenticação:
+    Criar Middleware de autenticação
+        Serverside:
+            https://nextjs.org/docs/app/building-your-application/authentication#authorization-using-server-components
+    Autenticar:
+        Parâmetro docker: client_secret e client_id
+        Tratar erros de login errado
+    Verificar informações do JWT;
+
+
+
 - Botão de limpar autocomplete não está retirando as informações do formulário (Unidade Gestora, por exemplo)
 
 - Autocomplete com carregamento do municipio via request/localstorage
 
 - Apresentar filtros buscados;
+
 
 
 - middleware de autenticação;

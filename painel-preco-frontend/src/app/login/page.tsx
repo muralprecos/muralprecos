@@ -3,7 +3,6 @@
 import KeyIcon from "@/components/atoms/icons/KeyIcon";
 import MailIcon from "@/components/atoms/icons/MailIcon";
 import { Button, Card, CardBody, CardFooter, CardHeader, Checkbox, Divider, Input, Link } from "@nextui-org/react";
-import { logIn, logOut } from '@/redux/features/auth-slice'
 import { useAppSelector, useDispatch } from "@/redux/store";
 import { useEffect, useState } from "react";
 import { redirect, useRouter } from 'next/navigation'
@@ -13,6 +12,8 @@ import * as yup from "yup";
 import yupStrings from "@/utils/yupStrings";
 import { yupResolver } from "@hookform/resolvers/yup";
 import InputForm from "@/components/molecules/InputForm";
+import { registerUser } from "@/redux/actions/authActions";
+import { isLoggedIn } from "@/utils/authUtils";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -29,7 +30,7 @@ const LoginPage: React.FC = ({
   ...opts
 }) => {
 
-  const isAuth = useAppSelector((state) => state.authReducer.value.isAuth);
+  const { value: authvalue } = useAppSelector((state) => state.authReducer);
 
   const router = useRouter();
   const [isLogged, setIsLogged] = useState<boolean>(false);
@@ -46,15 +47,15 @@ const LoginPage: React.FC = ({
   });
 
   useEffect(() => {
-    setIsLogged(isAuth);
-    if (isAuth) {
-      redirect('/')
+    const lgd = isLoggedIn(authvalue);
+    setIsLogged(lgd);
+    if (lgd) {
+      redirect('/');
     }
-  }, [isAuth]);
+  }, [authvalue]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log(data);
-    dispatch(logIn(data.login));
+    dispatch(registerUser(data));
     router.push('/');
   }
 

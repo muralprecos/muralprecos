@@ -99,7 +99,10 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   const router = useRouter();
   const dispatch = useDispatch();
+  
+  const _auth = useAppSelector((state) => state.authReducer.value);
   const _initialFormDataLocalStorage: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
+
   const [lastUF, setLastUF] = useState<string|null>();
   const {
     control,
@@ -136,6 +139,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     //console.log(data)
   }
 
+  const authToken = !!_auth.user && !!_auth.user.userToken ? _auth.user?.userToken : null;
   const fields : FieldsForms = {
     ano: { type: 'select', label: 'Ano da Compra', items: anosCompras },
     porteFornecedor: { type: 'select', label: 'Porte da Empresa', items: empresaPorte },
@@ -151,51 +155,52 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
       async: useAutocompleteFilter<IMunicipio>({
         minCharactersLoad: 0,
         getList: getListMunicipios,
-        infos: ufId ? [{ val: ufId, param: 'uuiduf' }] : []
+        infos: ufId ? [{ val: ufId, param: 'uuiduf' }] : [],
+        auth: authToken
       }),
       attrVal: "uuid",
       isDisabled: !hasUF()
     }},
     orgaoSuperiorId: { type: 'autocompleteAsync', label: 'Orgão Superior', auto: {
-      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaosSuperiores }),
+      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaosSuperiores, auth: authToken }),
       attrVal: "uuid",
       apiFindDesc: getOrgaoDesc
     }},
     orgaoId: { type: 'autocompleteAsync', label: 'Orgão', auto: {
-      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaos }),
+      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaos, auth: authToken }),
       attrVal: "uuid",
       apiFindDesc: getOrgaoDesc
     }},
     fornecedorId: { type: 'autocompleteAsync', label: 'Fornecedor', auto: {
-      async: useAutocompleteFilter<IFornecedor>({ params: ['nome'], getList: getListFornecedores }),
+      async: useAutocompleteFilter<IFornecedor>({ params: ['nome'], getList: getListFornecedores, auth: authToken }),
       attrVal: "uuid",
       apiFindDesc: getFornecedorDesc
     }},
     materialId: { type: 'autocompleteAsync', label: 'Nome/Código Material', auto: {
-      async: useAutocompleteFilter<INomeMaterial>({ getList: getListNomeMaterial }),
+      async: useAutocompleteFilter<INomeMaterial>({ getList: getListNomeMaterial, auth: authToken }),
       attrVal: "uuid",
       apiFindDesc: getNomeMaterialDesc
     }},
     ugId: { type: 'autocompleteAsync', label: 'Unidade Gestora', auto: {
-      async: useAutocompleteFilter<IUnidadeGestora>({ getList: getListUASG }),
+      async: useAutocompleteFilter<IUnidadeGestora>({ getList: getListUASG, auth: authToken }),
       attrVal: "uuid",
       apiFindDesc: getUASGDesc
     }},
     unidade_fornecimento: { type: 'autocompleteAsync', label: 'Unidade de Fornecimento', auto: {
-      async: useAutocompleteFilter<IObjetoAPI>({ getList: getListUnidadesFornecimento }),
+      async: useAutocompleteFilter<IObjetoAPI>({ getList: getListUnidadesFornecimento, auth: authToken }),
       attrVal: "uuid",
       apiFindDesc: getUnidadeFornecimentoDesc
     }},
     descricao: { type: 'autocompleteAsync', label: 'Descrição', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricao'], getList: getListDescricao }),
+      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricao'], getList: getListDescricao, auth: authToken }),
       attrVal: "nome"
     }},
     descricaoComplementar: { type: 'autocompleteAsync', label: 'Descrição Complementar', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: getListDescricao }),
+      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: getListDescricao, auth: authToken }),
       attrVal: "nome"
     }},
     objeto: { type: 'autocompleteAsync', label: 'Objeto da Comprar', auto: {
-      async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: getListObjetosCompras }),
+      async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: getListObjetosCompras, auth: authToken }),
       attrVal: "nome"
     }},
   };
@@ -222,6 +227,12 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     })
     dispatch(doSearch(getValues()));
   }
+
+
+  //_auth
+  useEffect(() => {
+    console.log('effect _auth', _auth)
+  }, [_auth])
 
   //inicializar a lista de municipios ao alterar a unidade federativa
   useEffect(() => {

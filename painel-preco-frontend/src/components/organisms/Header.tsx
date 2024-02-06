@@ -31,11 +31,9 @@ const Header: React.FC<FormTitleProps> = ({
   const { push } = useRouter();
   const pathname = usePathname();
 
-  const _uname = useAppSelector((state) => state.authReducer.value.username);
+  const _isAuth = useAppSelector((state) => state.authReducer.value.isAuth);
+  const _uname = useAppSelector((state) => state.authReducer.value.user?.userInfo?.name);
   const _cartList = useAppSelector((state) => state.cartReducer.value);
-
-  const _className = opts.className;
-  delete opts.className;
 
   const [isMenuLoaded, setIsMenuLoaded] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -43,7 +41,7 @@ const Header: React.FC<FormTitleProps> = ({
   const [cartsize, setCartsize] = React.useState<number>(0);
 
   useEffect(() => {
-    setUsername(_uname);
+    setUsername(_uname||'');
     setCartsize(_cartList.length);
     setIsMenuLoaded(true);
   }, [_uname, _cartList]);
@@ -53,6 +51,10 @@ const Header: React.FC<FormTitleProps> = ({
   };
 
   const dispatch = useDispatch<AppDispatch>();
+
+  const isLogged = () : boolean => {
+    return _isAuth && hasString(username);
+  }
 
   const onClickLogout = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -107,7 +109,7 @@ const Header: React.FC<FormTitleProps> = ({
               <ul className="flex-1">
                 { isMenuLoaded &&
                   <ul className="flex-1">
-                    { !hasString(username) ?
+                    { !isLogged() ?
                       <NavbarContent className="flex gap-3" justify="end">
                         <ThemeSwitcher className="sm:flex hidden" />
                         <NavbarItem className="hidden lg:flex">
@@ -147,7 +149,7 @@ const Header: React.FC<FormTitleProps> = ({
                     <ThemeSwitcher isCompact={false} variant="light"/>
                   </Link>
                 </NavbarMenuItem>
-                { !hasString(username) ?
+                { !isLogged() ?
                   <NavbarMenuItem>
                     <Button as={Link} className="w-full" size="lg" color="primary" href={'/login'}>
                       Acessar Conta

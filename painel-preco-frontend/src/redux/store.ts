@@ -10,14 +10,18 @@ import { isClientNextjs } from '@/utils/validateUtils';
 import authReducer, { initialState as authInitialState } from './features/auth-slice'
 import cartReducer, { initialState as cartInitialState } from './features/cart-slice'
 import cotacaoSearchReducer, { initialState as cotacaoSearchInitialState } from './features/cotacao-search-slice'
+import { IUser } from '@/interfaces/types';
 
-const authState = isClientNextjs() ? JSON.parse(localStorage.getItem("auth") || "null") : null;
+const authState = isClientNextjs() ? {
+  value: JSON.parse(localStorage.getItem("authValue") || "null") as IUser,
+  loading: 'idle'
+} as any : null;
 const cartState = isClientNextjs() ? JSON.parse(localStorage.getItem("cart") || "null") : null;
 const cotacaoSearchState = isClientNextjs() ? JSON.parse(localStorage.getItem("cotacaoSearch") || "null") : null;
 
 export const store = configureStore({
   preloadedState: {
-    authReducer: authState === null ? authInitialState : authState,
+    authReducer: authState === null || authState.value === null ? authInitialState : authState,
     cartReducer: cartState === null ? cartInitialState : cartState,
     cotacaoSearchReducer: cotacaoSearchState === null ? cotacaoSearchInitialState : cotacaoSearchState,
   },
