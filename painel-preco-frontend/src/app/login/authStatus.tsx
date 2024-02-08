@@ -1,8 +1,7 @@
 "use client";
 
-import { decrypt } from "@/utils/encryption";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { ReactElement, useEffect } from "react";
+import { useEffect } from "react";
 
 async function keycloakSessionLogOut(): Promise<boolean> {
   try {

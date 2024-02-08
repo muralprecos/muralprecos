@@ -8,8 +8,8 @@ import { IUserInfo } from "@/interfaces/types";
 // this will refresh an expired access token, when needed
 async function refreshAccessToken(token: JWT) {
   const body = new URLSearchParams();
-  body.append('client_id', `${process.env.DEMO_FRONTEND_CLIENT_ID}`);
-  body.append('client_secret', `${process.env.DEMO_FRONTEND_CLIENT_SECRET}`);
+  body.append('client_id', `${process.env.KEYCLOAK_ID}`);
+  body.append('client_secret', `${process.env.KEYCLOAK_SECRET}`);
   body.append('grant_type', "refresh_token");
   body.append('refresh_token', token.refresh_token+'');
 
