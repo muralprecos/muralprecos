@@ -21,6 +21,8 @@ import { downloadFile, mountUrl } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
 import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { getAccessTokenClient } from "@/utils/sessionTokenAccessor";
 
 export interface IPropsCartPge {
 }
@@ -32,6 +34,25 @@ const CartPage: React.FC<IPropsCartPge> = ({
   const router = useRouter();
   const dispatch = useDispatch();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  const { data: session, status } = useSession();
+  const [token, setToken] = useState<string|null>(null);
+
+  useEffect(() => {
+    async function getToken() {
+      const accessToken = await getAccessTokenClient(session);
+      setToken(accessToken);
+    }
+    getToken();
+  }, [session]);
+
+  useEffect(() => {
+    if (status == "unauthenticated") {
+      router.push("/unauthorized");
+      router.refresh();
+    }
+  }, [session, status, router]);
+
 
   const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();
   const { theme, setTheme } = useTheme();
@@ -118,7 +139,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
                               <div className="flex flex-col gap-0">
                                 <h3 className="font-semibold text-foreground/90">{i.descricao}</h3>
                                 <p className="text-small mt-1 text-foreground/80">
-                                  Quantidade: {i.quantidade} {i.unidadeFornecimento.nome}
+                                  Quantidade: {i.quantidade} {i.unidadeFornecimento?.nome}
                                 </p>
                                 <p className="text-small mt-1 text-foreground/80">
                                   Data Compra: {i.licitacao.dataResultadoCompra}

@@ -2,7 +2,7 @@
 
 import { Button, Divider } from '@nextui-org/react'
 import { useEffect } from 'react'
-import { redirect } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 
 export default function Unauthorized({
   error,
@@ -12,13 +12,15 @@ export default function Unauthorized({
   reset: () => void
 }) {
 
+  const router = useRouter();
+
   useEffect(() => {
     // Log the error to an error reporting service
     console.error('error.tsx', error)
   }, [error]);
 
   const tryAgain = () => {
-    redirect("/");
+    router.push("/");
   }
 
   return (

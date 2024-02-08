@@ -5,12 +5,10 @@ import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenu
 import { usePathname } from 'next/navigation';
 import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
 import TTIcon from "../atoms/icons/TTIcon";
-import { AppDispatch, useAppSelector } from "@/redux/store";
-import { hasString } from "@/utils/validateUtils";
+import { useAppSelector } from "@/redux/store";
 import HeaderUserInfo from "../molecules/HeaderUserInfo";
-import { useDispatch } from "react-redux";
-import { logOut } from "@/redux/features/auth-slice";
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from "next-auth/react";
 
 export interface ILink {
   description: string
@@ -22,44 +20,76 @@ type FormTitleProps = {
   children?: React.ReactNode
 } & React.AllHTMLAttributes<HTMLElement>
 
+async function keycloakSessionLogOut(): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/auth/logout`, { method: "GET" });
+    if (res.ok) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}
+
 const Header: React.FC<FormTitleProps> = ({
   children,
   links = [],
   ...opts
 }) => {
 
-  const { push } = useRouter();
+  const router = useRouter();
   const pathname = usePathname();
-
-  const _isAuth = useAppSelector((state) => state.authReducer.value.isAuth);
-  const _uname = useAppSelector((state) => state.authReducer.value.user?.userInfo?.name);
   const _cartList = useAppSelector((state) => state.cartReducer.value);
 
-  const [isMenuLoaded, setIsMenuLoaded] = React.useState(false);
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const { data: session, status } = useSession();
   const [username, setUsername] = React.useState<string>('');
   const [cartsize, setCartsize] = React.useState<number>(0);
+  const [isMenuLoaded, setIsMenuLoaded] = React.useState(false);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   useEffect(() => {
-    setUsername(_uname||'');
-    setCartsize(_cartList.length);
-    setIsMenuLoaded(true);
-  }, [_uname, _cartList]);
+    if (status != 'loading') {
+      setUsername(status ==  'authenticated' ? session?.userInfo?.name || '' : '');
+      setCartsize(_cartList.length);
+      setIsMenuLoaded(true);
+    }
+  }, [session, status, _cartList])
+
+  // useEffect(() => {
+  //   if (
+  //     status != "loading" &&
+  //     session && session?.error === "RefreshAccessTokenError"
+  //   ) {
+  //     signOut({ callbackUrl: "/" });
+  //   }
+  // }, [session, status]);
 
   const activeLink = (url: string, pathname: string) => {
     return pathname === url
   };
 
-  const dispatch = useDispatch<AppDispatch>();
-
   const isLogged = () : boolean => {
-    return _isAuth && hasString(username);
+    return status == 'authenticated';
   }
 
   const onClickLogout = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    dispatch(logOut());
-    push('/login');
+    keycloakSessionLogOut()
+      .then((ok: boolean) => {
+        if (ok) {
+          signOut({ callbackUrl: "/" })
+          router.push('/login');
+        } else {
+          //TODO: adicionar snack com erro de login
+          console.log('ocorreu um problema, tente novamente')
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   return (
@@ -149,19 +179,22 @@ const Header: React.FC<FormTitleProps> = ({
                     <ThemeSwitcher isCompact={false} variant="light"/>
                   </Link>
                 </NavbarMenuItem>
-                { !isLogged() ?
-                  <NavbarMenuItem>
-                    <Button as={Link} className="w-full" size="lg" color="primary" href={'/login'}>
-                      Acessar Conta
-                    </Button>
-                  </NavbarMenuItem>
-                :
-                  <NavbarMenuItem>
-                    <Button as={Link} className="w-full" size="lg" color="danger" onClick={onClickLogout}>
-                      Sair da Conta
-                    </Button>
-                  </NavbarMenuItem>
-                }
+                { isMenuLoaded &&
+                <>
+                  { !isLogged() ?
+                    <NavbarMenuItem>
+                      <Button as={Link} className="w-full" size="lg" color="primary" href={'/login'}>
+                        Acessar Conta
+                      </Button>
+                    </NavbarMenuItem>
+                  :
+                    <NavbarMenuItem>
+                      <Button as={Link} className="w-full" size="lg" color="danger" onClick={onClickLogout}>
+                        Sair da Conta
+                      </Button>
+                    </NavbarMenuItem>
+                  }
+                </> }
               </div>
             </NavbarMenu>
           </div>

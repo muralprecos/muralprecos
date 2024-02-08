@@ -74,7 +74,9 @@ ok - Período de Compra; (obrigatório)
 
 - Apresentar mensagem de erro após retorno problemático de request;
 
-- Configurar o deploy para utilizar o arquivo de environment correto
+- Configurar o deploy para utilizar o arquivo de environment correto;
+
+- Gestão de erro ao realizar login errado;
 
 - Linkar com autenticação:
     Refreshtoken;

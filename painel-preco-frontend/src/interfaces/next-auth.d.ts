@@ -11,6 +11,17 @@ declare module 'next-auth' {
     userInfo?: IUserInfo
     roles?: string[]
   }
+
+  interface User {
+    token?: {
+      decoded?: IUserInfo
+      access_token?: string
+      id_token?: string
+      expires_at?: number
+      refresh_token?: string
+      error?: string
+    } | null
+  }
 }
 
 declare module 'next-auth/jwt' {

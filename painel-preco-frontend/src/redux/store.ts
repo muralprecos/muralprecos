@@ -7,7 +7,6 @@ import {
 import { listenerMiddleware } from "./middleware";
 import { isClientNextjs } from '@/utils/validateUtils';
 
-import authReducer, { initialState as authInitialState } from './features/auth-slice'
 import cartReducer, { initialState as cartInitialState } from './features/cart-slice'
 import cotacaoSearchReducer, { initialState as cotacaoSearchInitialState } from './features/cotacao-search-slice'
 import { IUser } from '@/interfaces/types';
@@ -21,12 +20,10 @@ const cotacaoSearchState = isClientNextjs() ? JSON.parse(localStorage.getItem("c
 
 export const store = configureStore({
   preloadedState: {
-    authReducer: authState === null || authState.value === null ? authInitialState : authState,
     cartReducer: cartState === null ? cartInitialState : cartState,
     cotacaoSearchReducer: cotacaoSearchState === null ? cotacaoSearchInitialState : cotacaoSearchState,
   },
   reducer: {
-    authReducer,
     cartReducer,
     cotacaoSearchReducer
   },

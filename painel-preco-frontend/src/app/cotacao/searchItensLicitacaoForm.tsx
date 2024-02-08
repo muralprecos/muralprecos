@@ -100,9 +100,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 }) => {
 
   const router = useRouter();
-  const dispatch = useDispatch();
   const { data: session, status } = useSession();
-
   const [token, setToken] = useState<string|null>(null);
 
   useEffect(() => {
@@ -121,6 +119,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     }
   }, [session, status, router]);
 
+  const dispatch = useDispatch();
   const _initialFormDataLocalStorage: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
 
   const [lastUF, setLastUF] = useState<string|null>();

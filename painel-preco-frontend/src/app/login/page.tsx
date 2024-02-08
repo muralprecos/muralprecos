@@ -2,19 +2,16 @@
 
 import KeyIcon from "@/components/atoms/icons/KeyIcon";
 import MailIcon from "@/components/atoms/icons/MailIcon";
-import { Button, Card, CardBody, CardFooter, CardHeader, Checkbox, Divider, Input, Link } from "@nextui-org/react";
-import { useAppSelector, useDispatch } from "@/redux/store";
+import { Button, Card, CardBody, CardFooter, CardHeader, Checkbox, Divider, Link } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import { redirect, useRouter } from 'next/navigation'
+import { redirect, useSearchParams } from 'next/navigation'
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
+import { useSession, signIn } from 'next-auth/react';
 
 import * as yup from "yup";
 import yupStrings from "@/utils/yupStrings";
 import { yupResolver } from "@hookform/resolvers/yup";
 import InputForm from "@/components/molecules/InputForm";
-import { registerUser } from "@/redux/actions/authActions";
-import { isLoggedIn } from "@/utils/authUtils";
-import AuthStatus from "./authStatus";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -31,12 +28,10 @@ const LoginPage: React.FC = ({
   ...opts
 }) => {
 
-  const { value: authvalue } = useAppSelector((state) => state.authReducer);
-
-  const router = useRouter();
+  const searchParams = useSearchParams()
   const [isLogged, setIsLogged] = useState<boolean>(false);
 
-  const dispatch = useDispatch();
+  const { data: session, status } = useSession();
 
   const {
     control,
@@ -48,16 +43,21 @@ const LoginPage: React.FC = ({
   });
 
   useEffect(() => {
-    const lgd = isLoggedIn(authvalue);
+    const lgd = status == 'authenticated';
     setIsLogged(lgd);
     if (lgd) {
-      // redirect('/');
+      redirect('/');
     }
-  }, [authvalue]);
+  }, [status]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    dispatch(registerUser(data));
-    // router.push('/');
+    console.log(data)
+    signIn('credentials', {
+      username: data.login,
+      password: data.password,
+      redirect: true,
+      callbackUrl: searchParams.get('callbackUrl') ?? '/'
+    })
   }
 
   const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data);
@@ -73,7 +73,6 @@ const LoginPage: React.FC = ({
                 <p className="text-md text-primary font-semibold">Acessar Conta - Mural de Preço</p>
               </div>
             </CardHeader>
-            <AuthStatus/>
             <Divider/>
             <form onSubmit={handleSubmit(onSubmit, onSubmitError)}>
               <CardBody className="gap-2">
@@ -103,13 +102,13 @@ const LoginPage: React.FC = ({
                   />
                 
                 <div className="flex py-2 px-1 justify-between">
-                  <Checkbox
+                  {/* <Checkbox
                     classNames={{
                       label: "text-small",
                     }}
                   >
                     Lembrar-me
-                  </Checkbox>
+                  </Checkbox> */}
                   <Link color="primary" href="#" size="sm">
                     Esqueceu a senha?
                   </Link>

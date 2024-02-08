@@ -1,6 +1,8 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IUserKeyCloak } from "@/interfaces/types";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IUserKeyCloak, IAPISearchPropsLogged } from "@/interfaces/types";
 import { ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob, postGenericJson } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
+import { JWT } from "next-auth/jwt";
+
 
 export const getListPorteFornecedor = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged): Promise<IPorteFornecedor[]|null> => {
@@ -109,10 +111,10 @@ export const getItemLicitacao = async (
 
 export const FIELDS_COTACOES_LIST = 'content[uuid,descricao,quantidade,valor,licitacao.municipio.nome,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra,unidadeFornecimento.nome],pageable,last,totalElements,totalPages,size,number,sort,first,numberOfElements,empty';
 export const getPesquisarCotacoes = async (
-  { info, config, accessToken } : IAPISearchProps) => {
+  { info, config, accessToken } : IAPISearchPropsLogged) => {
     const pageinfo = getNumberOrUndefined(getValParamSearch(info, 'page'));
     const sizeinfo = getNumberOrUndefined(getValParamSearch(info, 'size'));
-    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo, accessToken });
+    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo, accessToken: accessToken ?? undefined });
 }
 
 export const postDownloadItensCotacoes = async (
@@ -127,16 +129,21 @@ export const postDownloadItensCotacoes = async (
 }
 
 export const postLogin = async (
-  userAuth: IUserAuth) => {
+  userAuth: IUserAuth) : Promise<JWT|null> => {
+    const URL = `${process.env.GET_TOKEN_URL}`;
     const b = new URLSearchParams();
-    b.append('client_id', 'mural-preco');
-    b.append('client_secret', 'sivs0FpnTAUvVAdNo55m9ZhuXYvpBQ28');
+    b.append('client_id', `${process.env.KEYCLOAK_ID}`);
+    b.append('client_secret', `${process.env.KEYCLOAK_SECRET}`);
     b.append('grant_type', 'password');
-    b.append('username', userAuth.login);
+    b.append('scope', 'openid');
+    b.append('username', userAuth.username);
     b.append('password', userAuth.password);
-    return postGenericJson<IUserKeyCloak>({
-      path: '/api/v1/auth/logon',
-      bodydata: b,
-      contentType: 'application/x-www-form-urlencoded'
-    });
+    const resp = await fetch(URL, { 
+      method: "POST",
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: b
+    }).then((res) => {
+      return res.json();
+    })
+    return resp;
 }

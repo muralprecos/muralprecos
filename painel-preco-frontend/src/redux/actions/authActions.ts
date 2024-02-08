@@ -13,10 +13,10 @@ export const registerUser = createAsyncThunk(
         userToken: null
       };
       const res = await postLogin(u);
-      if (res != null && res.access_token) {
-        usr.userToken = res;
-        usr.userInfo = decodeToken(res.access_token);
-      }
+      // if (res != null && res.access_token) {
+      //   usr.userToken = res;
+      //   usr.userInfo = decodeToken(res.access_token);
+      // }
       return usr;
     } catch (e) {
       if (typeof e === "string") {

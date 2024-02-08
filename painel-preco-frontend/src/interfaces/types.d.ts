@@ -127,6 +127,10 @@ export interface IAPISimpleSearchProps {
   accessToken?: string
 }
 
+export interface IAPISearchPropsLogged extends IAPISearchProps {
+  accessToken: string
+}
+
 export interface IAPISearchProps {
   host?: string
   path?: string
@@ -227,7 +231,7 @@ export interface IUserInfo {
 }
 
 export interface IUserAuth {
-  login: string
+  username: string
   password: string
 }
 

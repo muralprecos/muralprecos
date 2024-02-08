@@ -1,9 +1,12 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import KeycloakProvider from "next-auth/providers/keycloak";
+import CredentialsProvider from "next-auth/providers/credentials";
+
 import { jwtDecode } from "jwt-decode";
 import { encrypt } from "@/utils/encryption";
 import { IUserInfo } from "@/interfaces/types";
+import { postLogin } from "@/hooks/api";
 
 // this will refresh an expired access token, when needed
 async function refreshAccessToken(token: JWT) {
@@ -37,13 +40,47 @@ export const authOptions: AuthOptions = {
       clientId: `${process.env.KEYCLOAK_ID}`,
       clientSecret: `${process.env.KEYCLOAK_SECRET}`,
       issuer: `${process.env.KEYCLOAK_ISSUER}`
-    })
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        username: {
+          label: "Usuário",
+          type: "text",
+          placeholder: "Usuário",
+        },
+        password: { 
+          label: "Senha",
+          type: "password"
+        },
+      },
+      async authorize(credentials, req) {
+        if (!credentials?.username || !credentials?.password) return null;
+        try {
+          const res = await postLogin(credentials);
+          return {
+            id: res?.session_state+'',
+            token: res
+          };
+        } catch (e) {
+          console.error(e);
+          return null;
+        }
+      },
+    }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, user, account }) {
       const nowTimeStamp = Math.floor(Date.now() / 1000);
       const tokenExpires : number = token.expires_at != null ? +token.expires_at : nowTimeStamp;
-      if (account) {
+      if (user && account?.provider === 'credentials') {
+        token.decoded = jwtDecode<IUserInfo>(`${user.token?.access_token}`);
+        token.access_token = user.token?.access_token;
+        token.id_token = user.token?.id_token;
+        token.expires_at = user.token?.expires_at;
+        token.refresh_token = user.token?.refresh_token;
+        return token;
+      } else if (account) {
         // apenas na primeira chamada de login
         token.decoded = jwtDecode<IUserInfo>(`${account.access_token}`);
         token.access_token = account.access_token;
@@ -77,6 +114,9 @@ export const authOptions: AuthOptions = {
       session.error = token.error;
       return session;
     },
+  },
+  pages: {
+    signIn: '/login'
   }
 }
 

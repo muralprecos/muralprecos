@@ -15,7 +15,8 @@ import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/naviga
 import { isClientNextjs } from "@/utils/validateUtils";
 import { mountUrl, searchParamsToInfo } from "@/utils/requestUtils";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
-import { useAppSelector } from '@/redux/store';
+import { useSession } from "next-auth/react";
+import { getAccessTokenClient } from "@/utils/sessionTokenAccessor";
 
 interface IPropsPageCotacaoListagem {}
 
@@ -24,9 +25,18 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
 }) => {
 
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const [token, setToken] = useState<string|null>(null);
+
+  useEffect(() => {
+    async function getToken() {
+      const accessToken = await getAccessTokenClient(session);
+      setToken(accessToken);
+    }
+    getToken();
+  }, [session])
+
   const searchParams : ReadonlyURLSearchParams = useSearchParams();
-  const _auth = useAppSelector((state) => state.authReducer.value);
-  const authToken = !!_auth.user && !!_auth.user.userToken ? _auth.user?.userToken : null;
 
   const { theme, setTheme } = useTheme()
   const [isLoading, setIsLoading] = useState(true);
@@ -34,19 +44,25 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
   const [paginationInfo, setPaginationInfo] = useState<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null>();
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (isClientNextjs()) {
-        setIsLoading ? setIsLoading(true) : null;
-        const req: IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ info: searchParamsToInfo(searchParams), auth: authToken });
-        setIsLoading ? setIsLoading(false) : null;
-        if (req?.content) {
-          setPaginationInfo(req);
-          setItensLicitacao(req?.content)
+    if (status == "unauthenticated") {
+      router.push("/unauthorized");
+      router.refresh();
+    } else if (status == 'authenticated' && !!token) {
+      const fetchData = async () => {
+        if (isClientNextjs()) {
+          setIsLoading ? setIsLoading(true) : null;
+          const req: IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ info: searchParamsToInfo(searchParams), accessToken: token });
+          setIsLoading ? setIsLoading(false) : null;
+          if (req?.content) {
+            console.log(req)
+            setPaginationInfo(req);
+            setItensLicitacao(req?.content)
+          }
         }
       }
+      fetchData().catch(console.error);
     }
-    fetchData().catch(console.error);
-  }, [authToken, searchParams,setItensLicitacao]);
+  }, [status, searchParams, router, token, setItensLicitacao]);
 
   const hastItens = () => {
     return itensLicitacao != null && itensLicitacao.length > 0;
@@ -94,7 +110,7 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
               { hastItens() && 
                 <div className='flex flex-col w-full items-start justify-start'>
                   <ScrollShadow className={`h-[400px] w-full ${isLoading ? 'opacity-30': ''}`}>
-                  { itensLicitacao?.map(i =>
+                  { itensLicitacao.map(i =>
                     <div key={i.uuid} className="flex-1 w-full flex-wrap md:flex-nowrap gap-4 py-2">
                       <Card className="bg-default-100/50 flex flex-row mx-4" shadow="sm">
                         <CardBody className="flex-row items-center justify-between">
@@ -112,7 +128,7 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
                               <div className="flex flex-col gap-0">
                                 <h3 className="font-semibold text-foreground/90">{i.descricao}</h3>
                                 <p className="text-small mt-1 text-foreground/80">
-                                  Quantidade: {i.quantidade} {i.unidadeFornecimento.nome}
+                                  Quantidade: {i.quantidade} {i.unidadeFornecimento?.nome}
                                 </p>
                                 <h1 className="text-small font-medium">Valor: {i.valor}</h1>
                               </div>

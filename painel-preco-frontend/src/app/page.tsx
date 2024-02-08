@@ -1,20 +1,22 @@
 "use client";
 
-import { useAppSelector } from '@/redux/store';
-import { isLoggedIn } from '@/utils/authUtils';
 import { redirect } from 'next/navigation'
 import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function Home() {
-  const value = useAppSelector((state) => state.authReducer.value);
+
+  const { status } = useSession();
 
   useEffect(() => {
-    if (!isLoggedIn(value)) {
-      redirect('/login')
-    } else {
-      redirect('/cotacao')
+    if (status != 'loading'){
+      if (status == 'unauthenticated') {
+        redirect('/login')
+      } else {
+        redirect('/cotacao')
+      }
     }
-  }, [value]);
+  }, [status]);
 
   return (
     <section className='py-4'>
