@@ -1,4 +1,4 @@
-import { IAPISearchInfo, IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI, IUserKeyCloak } from "@/interfaces/types";
+import { IAPISearchInfo, IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
 import { useAsyncList } from "@react-stately/data";
 
 export interface IAutocompleteListHook<T extends ISimpleObjetoAPI> {
@@ -9,7 +9,7 @@ export interface IAutocompleteListHook<T extends ISimpleObjetoAPI> {
   params?: string[]
   infos?: IAPISearchInfo[] | undefined
   getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T>|null>
-  auth?: IUserKeyCloak | null
+  accessToken?: string|null
 }
 
 export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
@@ -20,7 +20,7 @@ export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
   params = ['nome'],
   infos,
   getList,
-  auth
+  accessToken
 } : IAutocompleteListHook<T>) {
 
   const list = useAsyncList<T>({
@@ -47,7 +47,8 @@ export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
         }
         
         const opts:IAPISearchProps = {size, info, config: { signal }};
-        if (auth!=null) opts.auth = auth;
+        console.log('accessToken', accessToken)
+        if (accessToken!=null) opts.accessToken = accessToken;
         const res = doReq ? await getList(opts) : { content: [] };
 
         return {

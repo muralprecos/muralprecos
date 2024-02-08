@@ -22,13 +22,13 @@ export type ResponseError = {
 }
 
 const doReq = async (
-  { path, page, size, info, filterFields, config, contentType = 'application/json', acceptType = 'application/json', auth } : IAPISearchProps) : Promise<ResponseReq> => {
+  { path, page, size, info, filterFields, config, contentType = 'application/json', acceptType = 'application/json', accessToken } : IAPISearchProps) : Promise<ResponseReq> => {
     try {
       const HEADERS : HeadersInit = {}
       //'Authorization': `Bearer ${token}`
       if (!!contentType) { HEADERS['Content-Type'] = contentType; }
       if (!!acceptType) { HEADERS['Accept'] = acceptType; }
-      if (!!auth && !!auth.access_token) { HEADERS['Authorization'] = `Bearer ${auth.access_token}`; }
+      if (!!accessToken) { HEADERS['Authorization'] = `Bearer ${accessToken}`; }
 
       const reqOpts = { 
         //TODO: aprimorar cache de requisições e adicionar body

@@ -14,6 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import InputForm from "@/components/molecules/InputForm";
 import { registerUser } from "@/redux/actions/authActions";
 import { isLoggedIn } from "@/utils/authUtils";
+import AuthStatus from "./authStatus";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -50,13 +51,13 @@ const LoginPage: React.FC = ({
     const lgd = isLoggedIn(authvalue);
     setIsLogged(lgd);
     if (lgd) {
-      redirect('/');
+      // redirect('/');
     }
   }, [authvalue]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     dispatch(registerUser(data));
-    router.push('/');
+    // router.push('/');
   }
 
   const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data);
@@ -72,6 +73,7 @@ const LoginPage: React.FC = ({
                 <p className="text-md text-primary font-semibold">Acessar Conta - Mural de Preço</p>
               </div>
             </CardHeader>
+            <AuthStatus/>
             <Divider/>
             <form onSubmit={handleSubmit(onSubmit, onSubmitError)}>
               <CardBody className="gap-2">

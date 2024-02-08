@@ -74,7 +74,13 @@ ok - Período de Compra; (obrigatório)
 
 - Apresentar mensagem de erro após retorno problemático de request;
 
+- Configurar o deploy para utilizar o arquivo de environment correto
+
 - Linkar com autenticação:
+    Refreshtoken;
+    Plugar o NextAuth ao formulário interno;
+    Remover Interfaces de Autenticação anterior;
+
     Criar Middleware de autenticação
         Serverside:
             https://nextjs.org/docs/app/building-your-application/authentication#authorization-using-server-components

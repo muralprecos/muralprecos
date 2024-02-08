@@ -117,6 +117,16 @@ export interface IItemSelect {
   label: string
 }
 
+export interface IAPISimpleSearchPropsLogged extends IAPISimpleSearchProps {
+  accessToken: string
+}
+
+export interface IAPISimpleSearchProps { 
+  page?: number
+  size?: number
+  accessToken?: string
+}
+
 export interface IAPISearchProps {
   host?: string
   path?: string
@@ -128,7 +138,7 @@ export interface IAPISearchProps {
   bodydata?: BodyInit
   contentType?: string
   acceptType?: string
-  auth?: IUserKeyCloak | null
+  accessToken?: string
 }
 
 export interface IAPISearchInfo {
@@ -203,16 +213,6 @@ export interface IOrganizacao {
   }
 }
 
-export interface IUserAuth {
-  login: string
-  password: string
-}
-
-export interface IUserRequest {
-  userInfo: IUserInfo | null
-  userToken: IUserKeyCloak | null
-}
-
 export interface IUserInfo {
   name: string
   given_name: string
@@ -221,6 +221,19 @@ export interface IUserInfo {
   email_verified: boolean
   organizacao: IOrganizacao
   preferred_username: string
+  realm_access: {
+    roles: string[] | null
+  }
+}
+
+export interface IUserAuth {
+  login: string
+  password: string
+}
+
+export interface IUserRequest {
+  userInfo: IUserInfo | null
+  userToken: IUserKeyCloak | null
 }
 
 export interface IUserKeyCloak {

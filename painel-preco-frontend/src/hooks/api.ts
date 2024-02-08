@@ -1,38 +1,38 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IUserInfo, IUserKeyCloak, IUser } from "@/interfaces/types";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IUserKeyCloak } from "@/interfaces/types";
 import { ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob, postGenericJson } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
 
 export const getListPorteFornecedor = async (
-  { page, size } : { page?: number; size?: number }): Promise<IPorteFornecedor[]|null> => {
-  return getGenericObject<IPorteFornecedor[]>({ path: '/api/v1/portes-fornecedor' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged): Promise<IPorteFornecedor[]|null> => {
+  return getGenericObject<IPorteFornecedor[]>({ path: '/api/v1/portes-fornecedor' , accessToken, ...opts });
 }
 export const getListEsferas = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<IEsfera[]>({ path: '/api/v1/esferas' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IEsfera[]>({ path: '/api/v1/esferas', accessToken, ...opts });
 }
 export const getFormasCompra = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<IFormaCompra[]>({ path: '/api/v1/formas-compra' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IFormaCompra[]>({ path: '/api/v1/formas-compra' , accessToken, ...opts });
 }
 export const getListModalidadesCompra = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<IModalidadeCompra[]>({ path: '/api/v1/modalidades-compra' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IModalidadeCompra[]>({ path: '/api/v1/modalidades-compra' , accessToken, ...opts });
 }
 export const getListPeriodosCompra = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<IPeriodoCompra[]>({ path: '/api/v1/periodos-compra' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IPeriodoCompra[]>({ path: '/api/v1/periodos-compra' , accessToken, ...opts });
 }
 export const getListSituacoesLicitacao = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<ISituacaoLicitacao[]>({ path: '/api/v1/situacoes-licitacao' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<ISituacaoLicitacao[]>({ path: '/api/v1/situacoes-licitacao' , accessToken, ...opts });
 }
 export const getListEstados = async (
-  { page, size } : IAPISearchProps) => {
-  return getGenericObject<IUnidadeFederativa[]>({ path: '/api/v1/unidades-federativas' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IUnidadeFederativa[]>({ path: '/api/v1/unidades-federativas' , accessToken, ...opts });
 }
 export const getListAnos = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericListPageable<IAnoCompra>({ path: '/api/v1/anos-compra' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericListPageable<IAnoCompra>({ path: '/api/v1/anos-compra' , accessToken, ...opts });
 }
 
 export const getListMunicipios = async (
@@ -109,10 +109,10 @@ export const getItemLicitacao = async (
 
 export const FIELDS_COTACOES_LIST = 'content[uuid,descricao,quantidade,valor,licitacao.municipio.nome,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra,unidadeFornecimento.nome],pageable,last,totalElements,totalPages,size,number,sort,first,numberOfElements,empty';
 export const getPesquisarCotacoes = async (
-  { info, config, auth } : IAPISearchProps) => {
+  { info, config, accessToken } : IAPISearchProps) => {
     const pageinfo = getNumberOrUndefined(getValParamSearch(info, 'page'));
     const sizeinfo = getNumberOrUndefined(getValParamSearch(info, 'size'));
-    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo, auth });
+    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo, accessToken });
 }
 
 export const postDownloadItensCotacoes = async (

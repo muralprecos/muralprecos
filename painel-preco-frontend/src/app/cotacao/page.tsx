@@ -2,17 +2,27 @@ import { getFormasCompra, getListAnos, getListEsferas, getListEstados, getListMo
 import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
 import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
+import { redirect } from "next/navigation";
+import { getAccessToken } from "@/utils/sessionTokenAccessor";
+import { SetDynamicRoute } from "@/utils/setDynamicRoute";
 
 export default async function CotacaoHome() {
+
+  const accessToken = await getAccessToken();
   
-  const dataPorteFornecedores = getListPorteFornecedor({});
-  const dataEsferas = getListEsferas({});
-  const dataFormasCompra = getFormasCompra({});
-  const dataModalidadesCompra = getListModalidadesCompra({});
-  const dataPeriodosCompra = getListPeriodosCompra({});
-  const dataSituacoesLicitacao = getListSituacoesLicitacao({});
-  const dataUnidadesFederativas = getListEstados({});
-  const dataAnosCompras = getListAnos({});
+  //session.roles?.includes("viewer")
+  if (!accessToken) {
+    redirect("/unauthorized");
+  }
+
+  const dataPorteFornecedores = getListPorteFornecedor({accessToken});
+  const dataEsferas = getListEsferas({accessToken});
+  const dataFormasCompra = getFormasCompra({accessToken});
+  const dataModalidadesCompra = getListModalidadesCompra({accessToken});
+  const dataPeriodosCompra = getListPeriodosCompra({accessToken});
+  const dataSituacoesLicitacao = getListSituacoesLicitacao({accessToken});
+  const dataUnidadesFederativas = getListEstados({accessToken});
+  const dataAnosCompras = getListAnos({accessToken});
   
   const resReq = await Promise.allSettled([dataPorteFornecedores, dataEsferas, dataFormasCompra, dataModalidadesCompra, dataPeriodosCompra, dataSituacoesLicitacao, dataUnidadesFederativas, dataAnosCompras]);
   const [settledPorteFornecedores, settledEsferas, settledFormasCompra, settledModalidadesCompra, settledPeriodosCompra, settledSituacoesLicitacao, settledUnidadesFederativas, settledAnosCompras] = resReq;
@@ -42,7 +52,9 @@ export default async function CotacaoHome() {
       ;
 
   return (
-    <PageClient
+    <>
+      <SetDynamicRoute/>
+      <PageClient
         empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores, 'nome', 'uuid')}
         esferas={reqDataListToSelect<IEsfera>(esferas, 'nome', 'uuid')}
         compraFormas={reqDataListToSelect<IFormaCompra>(formasCompra, 'nome', 'uuid')}
@@ -52,5 +64,6 @@ export default async function CotacaoHome() {
         unidadesFederativas={reqDataListToSelect<IUnidadeFederativa>(unidadesFederativas, 'nome', 'uuid')}
         anosCompras={reqDataListToSelect<IAnoCompra>(anosCompras, 'nome', 'nome')}
       />
+    </>
   )
 }

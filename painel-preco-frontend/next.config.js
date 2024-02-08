@@ -5,6 +5,9 @@ const nextConfig = {
   // experimental: {
   //   serverActions: true,
   // },
+  env: {
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET, // pulls from .env file
+  },
   webpack(config) {
     config.resolve.extensions.push('.ts', '.tsx');
     config.resolve.fallback = { fs: false };
