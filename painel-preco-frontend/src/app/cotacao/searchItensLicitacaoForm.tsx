@@ -258,7 +258,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
       fieldMunicipio.auto.async.setFilterText('')
       resetField('municipioId')
     }
-  }, [ufId, lastUF, resetField])
+  }, [ufId, lastUF, resetField, fields.municipioId])
 
   useEffect(() => {
     const changeVal = async (attr: keyof FormDataCotacao, val: string) => {
@@ -297,7 +297,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
         }
       }     
     }
-  }, [_initialFormDataLocalStorage, searchParams, getValues, setValue]);
+  }, [_initialFormDataLocalStorage, searchParams, getValues, setValue, fields]);
 
   const mountFieldForm = (name: keyof FormDataCotacao, attr: FieldFormTypes | undefined) => {
     if (isFieldSelect(attr)) {

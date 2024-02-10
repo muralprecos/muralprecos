@@ -51,7 +51,6 @@ const LoginPage: React.FC = ({
   }, [status]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log(data)
     signIn('credentials', {
       username: data.login,
       password: data.password,

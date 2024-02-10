@@ -47,7 +47,6 @@ export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
         }
         
         const opts:IAPISearchProps = {size, info, config: { signal }};
-        console.log('accessToken', accessToken)
         if (accessToken!=null) opts.accessToken = accessToken;
         const res = doReq ? await getList(opts) : { content: [] };
 
