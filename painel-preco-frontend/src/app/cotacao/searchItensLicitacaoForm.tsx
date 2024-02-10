@@ -222,7 +222,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
       async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: getListObjetosCompras, accessToken: token }),
       attrVal: "nome"
     }},
-  };
+  }
   
   function isFieldSelect(obj: FieldFormTypes | undefined): obj is FieldFormSelect {
     return !!obj && obj.type === 'select';
@@ -297,7 +297,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
         }
       }     
     }
-  }, [_initialFormDataLocalStorage, searchParams, getValues, setValue, fields]);
+  }, [_initialFormDataLocalStorage, searchParams, getValues, setValue]);
 
   const mountFieldForm = (name: keyof FormDataCotacao, attr: FieldFormTypes | undefined) => {
     if (isFieldSelect(attr)) {

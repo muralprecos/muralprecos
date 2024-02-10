@@ -1,23 +1,11 @@
 'use client' // Error components must be Client Components
 
 import { Button, Divider } from '@nextui-org/react'
-import { useEffect } from 'react'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
-export default function Unauthorized({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string }
-  reset: () => void
-}) {
+export default function Unauthorized() {
 
   const router = useRouter();
-
-  useEffect(() => {
-    // Log the error to an error reporting service
-    console.error('error.tsx', error)
-  }, [error]);
 
   const tryAgain = () => {
     router.push("/");
