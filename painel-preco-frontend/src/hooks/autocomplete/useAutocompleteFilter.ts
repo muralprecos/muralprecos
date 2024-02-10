@@ -9,6 +9,7 @@ export interface IAutocompleteListHook<T extends ISimpleObjetoAPI> {
   params?: string[]
   infos?: IAPISearchInfo[] | undefined
   getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T>|null>
+  accessToken?: string|null
 }
 
 export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
@@ -18,7 +19,8 @@ export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
   size = 20,
   params = ['nome'],
   infos,
-  getList
+  getList,
+  accessToken
 } : IAutocompleteListHook<T>) {
 
   const list = useAsyncList<T>({
@@ -44,7 +46,10 @@ export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
           }
         }
         
-        const res = doReq ? await getList({size, info, config: { signal }}) : { content: [] };
+        const opts:IAPISearchProps = {size, info, config: { signal }};
+        console.log('accessToken', accessToken)
+        if (accessToken!=null) opts.accessToken = accessToken;
+        const res = doReq ? await getList(opts) : { content: [] };
 
         return {
           items: res != null ? res.content : []

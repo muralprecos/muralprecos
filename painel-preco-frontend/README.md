@@ -72,11 +72,35 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 ok - Período de Compra; (obrigatório)
 
+- Apresentar mensagem de erro após retorno problemático de request;
+
+- Configurar o deploy para utilizar o arquivo de environment correto;
+
+- Gestão de erro ao realizar login errado;
+
+- Verificar TODO
+
+- Linkar com autenticação:
+    Refreshtoken;
+    Plugar o NextAuth ao formulário interno;
+    Remover Interfaces de Autenticação anterior;
+
+    Criar Middleware de autenticação
+        Serverside:
+            https://nextjs.org/docs/app/building-your-application/authentication#authorization-using-server-components
+    Autenticar:
+        Parâmetro docker: client_secret e client_id
+        Tratar erros de login errado
+    Verificar informações do JWT;
+
+
+
 - Botão de limpar autocomplete não está retirando as informações do formulário (Unidade Gestora, por exemplo)
 
 - Autocomplete com carregamento do municipio via request/localstorage
 
 - Apresentar filtros buscados;
+
 
 
 - middleware de autenticação;

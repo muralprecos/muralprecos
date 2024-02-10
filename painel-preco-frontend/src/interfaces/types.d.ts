@@ -117,6 +117,20 @@ export interface IItemSelect {
   label: string
 }
 
+export interface IAPISimpleSearchPropsLogged extends IAPISimpleSearchProps {
+  accessToken: string
+}
+
+export interface IAPISimpleSearchProps { 
+  page?: number
+  size?: number
+  accessToken?: string
+}
+
+export interface IAPISearchPropsLogged extends IAPISearchProps {
+  accessToken: string
+}
+
 export interface IAPISearchProps {
   host?: string
   path?: string
@@ -128,6 +142,7 @@ export interface IAPISearchProps {
   bodydata?: BodyInit
   contentType?: string
   acceptType?: string
+  accessToken?: string
 }
 
 export interface IAPISearchInfo {
@@ -191,6 +206,54 @@ export interface ILicitacao {
   valor: number
   anoCompra: number
   periodoCompra: string
+}
+
+export interface IOrganizacao {
+  uuid: string
+  nome: string
+  unidade: {
+    uuid: string
+    nome: string
+  }
+}
+
+export interface IUserInfo {
+  name: string
+  given_name: string
+  family_name: string
+  email: string
+  email_verified: boolean
+  organizacao: IOrganizacao
+  preferred_username: string
+  realm_access: {
+    roles: string[] | null
+  }
+}
+
+export interface IUserAuth {
+  username: string
+  password: string
+}
+
+export interface IUserRequest {
+  userInfo: IUserInfo | null
+  userToken: IUserKeyCloak | null
+}
+
+export interface IUserKeyCloak {
+  access_token: string,
+  expires_in: number,
+  refresh_expires_in: number,
+  refresh_token: number,
+  token_type: "Bearer",
+  session_state: string,
+  scope: string
+}
+
+export interface IUser {
+  isAuth: boolean
+  error: string | null
+  user: IUserRequest | null
 }
 
 

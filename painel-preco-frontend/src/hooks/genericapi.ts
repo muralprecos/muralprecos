@@ -22,12 +22,13 @@ export type ResponseError = {
 }
 
 const doReq = async (
-  { path, page, size, info, filterFields, config, contentType = 'application/json', acceptType = 'application/json' } : IAPISearchProps) : Promise<ResponseReq> => {
+  { path, page, size, info, filterFields, config, contentType = 'application/json', acceptType = 'application/json', accessToken } : IAPISearchProps) : Promise<ResponseReq> => {
     try {
       const HEADERS : HeadersInit = {}
       //'Authorization': `Bearer ${token}`
-      if (contentType) { HEADERS['Content-Type'] = contentType; }
-      if (acceptType) { HEADERS['Accept'] = acceptType; }
+      if (!!contentType) { HEADERS['Content-Type'] = contentType; }
+      if (!!acceptType) { HEADERS['Accept'] = acceptType; }
+      if (!!accessToken) { HEADERS['Authorization'] = `Bearer ${accessToken}`; }
 
       const reqOpts = { 
         //TODO: aprimorar cache de requisições e adicionar body
@@ -79,30 +80,30 @@ const doReq = async (
 
 
 export const getGenericObject =  async <T>(
-  { path, page = 0, size = 50, info, filterFields, config } : IAPISearchProps
+  { page = 0, size = 50, ...rest } : IAPISearchProps
   ) : Promise<T|null> => {
-    const res = await doReq({ path, page, size, info, filterFields, config });
+    const res = await doReq({ page, size, ...rest });
     return res.data?.json();
 }
 export const getGenericListPageable =  async <T>(
-    { path, page, size, info, filterFields, config } : IAPISearchProps
+    otps : IAPISearchProps
   ) : Promise<IReturnRequestAPI<T>|null> => {
-  return getGenericObject({ path, page, size, info, filterFields, config });
+  return getGenericObject(otps);
 }
 
 export const postGeneric =  async <T>(
-  { path, bodydata, acceptType } : IAPISearchProps
+  { path, bodydata, acceptType, contentType } : IAPISearchProps
   ) : Promise<ResponseReq> => {
     const res = await doReq({ path, config: {
       method: 'POST',
       body: bodydata
-    }, acceptType });
+    }, acceptType, contentType });
     return res;
 }
 export const postGenericJson =  async <T>(
-  { path, bodydata, acceptType } : IAPISearchProps
+  { path, bodydata, acceptType, contentType } : IAPISearchProps
   ) : Promise<T|null> => {
-    const res = await postGeneric({ path, bodydata, acceptType });
+    const res = await postGeneric({ path, bodydata, acceptType, contentType });
     return res.data?.json();
 }
 export const postGenericBlob =  async (

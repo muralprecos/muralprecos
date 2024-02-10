@@ -14,6 +14,8 @@ import { getItemLicitacao } from "@/hooks/api";
 import { addSnackError } from "@/utils/snackbarUtils";
 import { useSnackbar } from "notistack";
 import LoadingItem from "@/components/molecules/LoadingItem";
+import { useSession } from "next-auth/react";
+import { getAccessTokenClient } from "@/utils/sessionTokenAccessor";
 
 export interface IPropsViewItensLicitacao {
   params: { item: string }
@@ -31,25 +33,43 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
 }) => {
 
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const [token, setToken] = useState<string|null>(null);
+
+  useEffect(() => {
+    async function getToken() {
+      const accessToken = await getAccessTokenClient(session);
+      setToken(accessToken);
+    }
+    getToken();
+  }, [session]);
+
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(true);
   const [itemLicitacao, setItemLicitacao] = useState<IItemLicitacao|null>();
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (isClientNextjs()) {
-        setIsLoading ? setIsLoading(true) : null;
-        const req: IItemLicitacao | null = await getItemLicitacao({ info: [{ val: params.item, param: 'uuid' }] });
-        setIsLoading ? setIsLoading(false) : null;
-        if (req) {
-          setItemLicitacao(req);
-        } else {
-          addSnackError(enqueueSnackbar, 'Problema ao carregar item, tente novamente!');
+    if (status == "unauthenticated") {
+      router.push("/unauthorized");
+      router.refresh();
+    } else if (status == 'loading') {
+      setIsLoading(true);
+    }else if (status == 'authenticated' && !!token) {
+      const fetchData = async () => {
+        if (isClientNextjs()) {
+          setIsLoading ? setIsLoading(true) : null;
+          const req: IItemLicitacao | null = await getItemLicitacao({ info: [{ val: params.item, param: 'uuid' }], accessToken: token });
+          setIsLoading ? setIsLoading(false) : null;
+          if (req) {
+            setItemLicitacao(req);
+          } else {
+            addSnackError(enqueueSnackbar, 'Problema ao carregar item, tente novamente!');
+          }
         }
       }
+      fetchData().catch(console.error);
     }
-    fetchData().catch(console.error);
-  }, [params, setItemLicitacao, enqueueSnackbar, router]);
+  }, [params, token, status, setItemLicitacao, enqueueSnackbar, router]);
 
   const showTitle = () => {
     return itemLicitacao != null ? itemLicitacao.descricao : isLoading ? 'Carregando Item...' : 'Item não encontrado';
@@ -153,7 +173,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           <Spacer y={3} />
                           <FormRow>
                             <InfoText label="Unidade" orientarion="row">
-                              {itemLicitacao?.unidadeFornecimento.nome}
+                              {itemLicitacao?.unidadeFornecimento?.nome}
                             </InfoText>
                             <InfoText label="Quantidade" orientarion="row">
                               {itemLicitacao?.quantidade}
@@ -177,7 +197,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Material">
-                              (CatMat: {itemLicitacao?.material.codigo}) - {itemLicitacao?.material.nome}
+                              (CatMat: {itemLicitacao?.material?.codigo}) - {itemLicitacao?.material?.nome}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
@@ -186,7 +206,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                               {itemLicitacao?.fornecedor.nome}
                             </InfoText>
                             <InfoText label="Porte">
-                              {itemLicitacao?.fornecedor.porte.nome}
+                              {itemLicitacao?.fornecedor.porte?.nome}
                             </InfoText>
                             <InfoText label="Documento">
                               {itemLicitacao?.fornecedor.documento}
