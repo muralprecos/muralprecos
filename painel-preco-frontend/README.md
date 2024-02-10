@@ -78,6 +78,8 @@ ok - Período de Compra; (obrigatório)
 
 - Gestão de erro ao realizar login errado;
 
+- Verificar TODO
+
 - Linkar com autenticação:
     Refreshtoken;
     Plugar o NextAuth ao formulário interno;

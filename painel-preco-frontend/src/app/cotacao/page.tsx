@@ -53,7 +53,7 @@ export default async function CotacaoHome() {
 
   return (
     <>
-      <SetDynamicRoute/>
+      {/* <SetDynamicRoute/> */}
       <PageClient
         empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores, 'nome', 'uuid')}
         esferas={reqDataListToSelect<IEsfera>(esferas, 'nome', 'uuid')}
