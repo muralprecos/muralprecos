@@ -2,16 +2,20 @@
 
 import KeyIcon from "@/components/atoms/icons/KeyIcon";
 import MailIcon from "@/components/atoms/icons/MailIcon";
-import { Button, Card, CardBody, CardFooter, CardHeader, Checkbox, Divider, Link } from "@nextui-org/react";
-import { useEffect, useState } from "react";
-import { redirect, useSearchParams } from 'next/navigation'
+import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Link } from "@nextui-org/react";
+import { useSearchParams } from 'next/navigation'
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
-import { useSession, signIn } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 
 import * as yup from "yup";
 import yupStrings from "@/utils/yupStrings";
 import { yupResolver } from "@hookform/resolvers/yup";
 import InputForm from "@/components/molecules/InputForm";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { hasString } from "@/utils/validateUtils";
+import { useAuthLogout } from "@/hooks/useAuthLogout";
+import LoadingPage from "@/components/molecules/LoadingPage";
+import SimpleInformationPage from "@/components/molecules/SimpleInformationPage";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -28,10 +32,10 @@ const LoginPage: React.FC = ({
   ...opts
 }) => {
 
-  const searchParams = useSearchParams()
-  const [isLogged, setIsLogged] = useState<boolean>(false);
-
-  const { data: session, status } = useSession();
+  const { status, token } = useAuthCheck();
+  const { logout } = useAuthLogout({redirect: false});
+  
+  const searchParams = useSearchParams();
 
   const {
     control,
@@ -42,27 +46,31 @@ const LoginPage: React.FC = ({
     defaultValues: initialForm
   });
 
-  useEffect(() => {
-    const lgd = status == 'authenticated';
-    setIsLogged(lgd);
-    if (lgd) {
-      redirect('/');
-    }
-  }, [status]);
-
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log(data)
-    signIn('credentials', {
+  const onSubmit: SubmitHandler<FormData> = async (data, e) => {
+    e?.preventDefault();
+    const obj = {
       username: data.login,
       password: data.password,
       redirect: true,
       callbackUrl: searchParams.get('callbackUrl') ?? '/'
-    })
+    };
+
+    if (hasString(token)) {
+      logout().then(() => {
+        console.log('login has logout');
+        signIn('credentials', obj);
+      })
+    } else {
+      console.log('login without logout');
+      signIn('credentials', obj);
+    }
+    
   }
 
   const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data);
 
-  if (isLogged) return <div>Redirecionando...</div>
+  if (status == "authenticated") return <SimpleInformationPage title="Redirecionando..." />
+  if (status == "loading") return <LoadingPage/>
 
   return (
     <section className='flex items-center justify-center flex-col w-full flex-1 -mt-8'>
