@@ -102,7 +102,7 @@ export const getListDescricao = async (
 }
 
 export const getItemLicitacao = async (
-  opts : IAPISearchProps) => {
+  opts : IAPISearchPropsLogged) => {
   const uuid = getValParamSearch(opts.info, 'uuid');
   opts.info = extractParamSearch(opts.info, 'uuid');
   return getGenericObject<IItemLicitacao>({ path: `/api/v1/itens-licitacao/${uuid}` , ...opts });
@@ -129,7 +129,7 @@ export const postDownloadItensCotacoes = async (
 }
 
 export const postLogin = async (
-  userAuth: IUserAuth) : Promise<JWT|null> => {
+  userAuth: IUserAuth) => {
     const URL = `${process.env.GET_TOKEN_URL}`;
     const b = new URLSearchParams();
     b.append('client_id', `${process.env.KEYCLOAK_ID}`);
@@ -138,12 +138,9 @@ export const postLogin = async (
     b.append('scope', 'openid');
     b.append('username', userAuth.username);
     b.append('password', userAuth.password);
-    const resp = await fetch(URL, { 
+    return fetch(URL, { 
       method: "POST",
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: b
-    }).then((res) => {
-      return res.json();
-    })
-    return resp;
+    });
 }

@@ -3,15 +3,17 @@ import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
 import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
 import { redirect } from "next/navigation";
-import { getAccessToken } from "@/utils/sessionTokenAccessor";
+import { CheckRolesStrategy, checkAccessRoles, getAccessToken } from "@/utils/sessionTokenAccessor";
 import { SetDynamicRoute } from "@/utils/setDynamicRoute";
 
 export default async function CotacaoHome() {
 
-  const accessToken = await getAccessToken();
-  
-  //session.roles?.includes("viewer")
+  const accessToken = await getAccessToken() || '';
+  const hasAuthorization = await checkAccessRoles([], CheckRolesStrategy.INCLUDES_ALL);
+
   if (!accessToken) {
+    redirect("/login");
+  } else if (!hasAuthorization) {
     redirect("/unauthorized");
   }
 

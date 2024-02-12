@@ -1,4 +1,5 @@
-import { NextAuthOptions } from "next-auth";
+import { AuthOptions } from "next-auth";
+
 import { JWT } from "next-auth/jwt";
 import KeycloakProvider from "next-auth/providers/keycloak";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -34,7 +35,7 @@ async function refreshAccessToken(token: JWT) {
   };
 }
 
-export const options: NextAuthOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     KeycloakProvider({
       clientId: `${process.env.KEYCLOAK_ID}`,
@@ -58,41 +59,41 @@ export const options: NextAuthOptions = {
         if (!credentials?.username || !credentials?.password) return null;
         try {
           const res = await postLogin(credentials);
-          return {
-            id: res?.session_state+'',
-            token: res
-          };
+          const usr = await res.json();
+          // If no error and we have user data, return it
+          if (res.ok && usr) {
+            return usr;
+          }
+          // Return null if user data could not be retrieved
+          return null;
         } catch (e) {
-          console.error(e);
           return null;
         }
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
+      
+      // apenas na primeira chamada de login
+      if (user) {
+        token.decoded = jwtDecode<IUserInfo>(`${user.access_token}`);
+        token.access_token = user.access_token;
+        token.id_token = user.id_token;
+        token.expires_at = user.expires_at;
+        token.refresh_token = user.refresh_token;
+        token.error = user.error;
+        return token;
+      }
+      
+      // nas demais chamadas
       const nowTimeStamp = Math.floor(Date.now() / 1000);
       const tokenExpires : number = token.expires_at != null ? +token.expires_at : nowTimeStamp;
-      if (user && account?.provider === 'credentials') {
-        token.decoded = jwtDecode<IUserInfo>(`${user.token?.access_token}`);
-        token.access_token = user.token?.access_token;
-        token.id_token = user.token?.id_token;
-        token.expires_at = user.token?.expires_at;
-        token.refresh_token = user.token?.refresh_token;
-        return token;
-      } else if (account) {
-        // apenas na primeira chamada de login
-        token.decoded = jwtDecode<IUserInfo>(`${account.access_token}`);
-        token.access_token = account.access_token;
-        token.id_token = account.id_token;
-        token.expires_at = account.expires_at;
-        token.refresh_token = account.refresh_token;
-        return token;
-      } else if (nowTimeStamp < tokenExpires) {
+      if (nowTimeStamp < tokenExpires) {
         // token ainda nao expirou
         return token;
       } else {
-        // token expirou
+        // token expirou ou não existe
         console.log("Token has expired. Will refresh...")
         try {
           const refreshedToken = await refreshAccessToken(token);

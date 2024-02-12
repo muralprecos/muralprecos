@@ -2,16 +2,22 @@
 
 import KeyIcon from "@/components/atoms/icons/KeyIcon";
 import MailIcon from "@/components/atoms/icons/MailIcon";
-import { Button, Card, CardBody, CardFooter, CardHeader, Checkbox, Divider, Link } from "@nextui-org/react";
-import { useEffect, useState } from "react";
-import { redirect, useSearchParams } from 'next/navigation'
+import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Link } from "@nextui-org/react";
+import { useRouter, useSearchParams } from 'next/navigation'
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
-import { useSession, signIn } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 
 import * as yup from "yup";
 import yupStrings from "@/utils/yupStrings";
 import { yupResolver } from "@hookform/resolvers/yup";
 import InputForm from "@/components/molecules/InputForm";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
+import LoadingPage from "@/components/molecules/LoadingPage";
+import SimpleInformationPage from "@/components/molecules/SimpleInformationPage";
+import { useSnackbar } from "notistack";
+import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
+import { messages } from "@/utils/messages";
+import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -28,10 +34,11 @@ const LoginPage: React.FC = ({
   ...opts
 }) => {
 
-  const searchParams = useSearchParams()
-  const [isLogged, setIsLogged] = useState<boolean>(false);
-
-  const { data: session, status } = useSession();
+  const router = useRouter();
+  const { status, token } = useAuthCheck();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  
+  const searchParams = useSearchParams();
 
   const {
     control,
@@ -42,26 +49,37 @@ const LoginPage: React.FC = ({
     defaultValues: initialForm
   });
 
-  useEffect(() => {
-    const lgd = status == 'authenticated';
-    setIsLogged(lgd);
-    if (lgd) {
-      redirect('/');
+  const onSubmit: SubmitHandler<FormData> = async (data, e) => {
+    e?.preventDefault();
+    try {
+      signIn('credentials', {
+        username: data.login,
+        password: data.password,
+        redirect: false
+      }).then((ret)=>{
+        if (!ret || !ret.ok) {
+          addSnackError(enqueueSnackbar, messages.LOGIN_WRONG);
+        } else {
+          addSnackSuccess(enqueueSnackbar, messages.LOGIN_SUCCESS);
+          router.push(searchParams.get('callbackUrl') ?? '/')
+        }
+      }).catch((e) => {
+        addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
+      })
+    } catch(e) {
+      addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
     }
-  }, [status]);
-
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    signIn('credentials', {
-      username: data.login,
-      password: data.password,
-      redirect: true,
-      callbackUrl: searchParams.get('callbackUrl') ?? '/'
-    })
   }
 
-  const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data);
+  const onSubmitError: SubmitErrorHandler<FormData> = (data) => {
+    addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
+  }
 
-  if (isLogged) return <div>Redirecionando...</div>
+  if (status == "authenticated") {
+    router.push(INITIAL_PAGE_LOGGED);
+    return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
+  }
+  if (status == "loading") return <LoadingPage/>
 
   return (
     <section className='flex items-center justify-center flex-col w-full flex-1 -mt-8'>

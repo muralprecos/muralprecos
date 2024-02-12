@@ -4,14 +4,14 @@ import { EnqueueSnackbar } from "notistack";
 export function addSnackError(enqueueSnackbar: EnqueueSnackbar, title: string) {
   enqueueSnackbar(title, { 
     variant: 'error',
-    preventDuplicate: false
+    preventDuplicate: true
   })
 }
 
 export function addSnackSuccess(enqueueSnackbar: EnqueueSnackbar, title: string) {
   enqueueSnackbar(title, { 
     variant: 'success',
-    preventDuplicate: false
+    preventDuplicate: true
   })
 }
 
@@ -19,7 +19,7 @@ export function addSnackIfSelectEmpty(enqueueSnackbar: EnqueueSnackbar, title: s
   if(list == null || list.length < 1) {
     enqueueSnackbar(`Lista de ${title} não foi carregada.`, { 
       variant: 'error',
-      preventDuplicate: false
+      preventDuplicate: true
     })
   }
 }

@@ -6,7 +6,6 @@ import * as yup from "yup";
 import yupStrings from '@/utils/yupStrings';
 import { Button } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
-import { useSession } from "next-auth/react";
 
 import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, ISimpleObjetoAPI, IUnidadeGestora } from "@/interfaces/types";
 import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, FIELDS_COTACOES_LIST, getFornecedorDesc, getOrgaoDesc, getNomeMaterialDesc, getUASGDesc, getUnidadeFornecimentoDesc } from "@/hooks/api";
@@ -23,7 +22,7 @@ import { isClientNextjs } from '@/utils/validateUtils';
 import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
 import { mountUrl } from '@/utils/requestUtils';
 import { AsyncListData } from '@react-stately/data';
-import { getAccessTokenClient } from '@/utils/sessionTokenAccessor';
+import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export interface IPropsSearchItensLicitacaoForm {
   searchParams?: ReadonlyURLSearchParams
@@ -100,24 +99,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 }) => {
 
   const router = useRouter();
-  const { data: session, status } = useSession();
-  const [token, setToken] = useState<string|null>(null);
-
-  useEffect(() => {
-    async function getToken() {
-      const accessToken = await getAccessTokenClient(session);
-      setToken(accessToken);
-    }
-    getToken();
-  }, [session])
-
-  useEffect(() => {
-    // || (status == "authenticated" && !session.roles?.includes("admin"))
-    if (status == "unauthenticated") {
-      router.push("/unauthorized");
-      router.refresh();
-    }
-  }, [session, status, router]);
+  const { status, token } = useAuthCheck();
 
   const dispatch = useDispatch();
   const _initialFormDataLocalStorage: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
@@ -249,16 +231,18 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   //inicializar a lista de municipios ao alterar a unidade federativa
   useEffect(() => {
-    setLastUF(ufId);
-    const fieldMunicipio = fields.municipioId;
-    if (ufId != lastUF && fieldMunicipio != undefined && isFieldAutocompleteAsync(fieldMunicipio)) {
-      if (ufId != null) {
-        fieldMunicipio.auto.async.reload();
+    if (!!token) {
+      setLastUF(ufId);
+      const fieldMunicipio = fields.municipioId;
+      if (ufId != lastUF && fieldMunicipio != undefined && isFieldAutocompleteAsync(fieldMunicipio)) {
+        if (ufId != null) {
+          fieldMunicipio.auto.async.reload();
+        }
+        fieldMunicipio.auto.async.setFilterText('')
+        resetField('municipioId')
       }
-      fieldMunicipio.auto.async.setFilterText('')
-      resetField('municipioId')
     }
-  }, [ufId, lastUF, resetField, fields.municipioId])
+  }, [token, ufId, lastUF, fields.municipioId, resetField])
 
   useEffect(() => {
     const changeVal = async (attr: keyof FormDataCotacao, val: string) => {

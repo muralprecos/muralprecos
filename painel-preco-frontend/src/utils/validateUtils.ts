@@ -1,5 +1,5 @@
 
-export function hasString(str: string): boolean {
+export function hasString(str: string|null): boolean {
   return str != null && str.trim() != ''
 }
 

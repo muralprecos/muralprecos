@@ -8,7 +8,8 @@ import TTIcon from "../atoms/icons/TTIcon";
 import { useAppSelector } from "@/redux/store";
 import HeaderUserInfo from "../molecules/HeaderUserInfo";
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from "next-auth/react";
+import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { useAuthLogout } from "@/hooks/useAuthLogout";
 
 export interface ILink {
   description: string
@@ -44,11 +45,13 @@ const Header: React.FC<FormTitleProps> = ({
   const pathname = usePathname();
   const _cartList = useAppSelector((state) => state.cartReducer.value);
 
-  const { data: session, status } = useSession();
   const [username, setUsername] = React.useState<string>('');
   const [cartsize, setCartsize] = React.useState<number>(0);
   const [isMenuLoaded, setIsMenuLoaded] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  const { status, session } = useAuthCheck();
+  const { logout } = useAuthLogout({});
 
   useEffect(() => {
     if (status != 'loading') {
@@ -57,15 +60,6 @@ const Header: React.FC<FormTitleProps> = ({
       setIsMenuLoaded(true);
     }
   }, [session, status, _cartList])
-
-  // useEffect(() => {
-  //   if (
-  //     status != "loading" &&
-  //     session && session?.error === "RefreshAccessTokenError"
-  //   ) {
-  //     signOut({ callbackUrl: "/" });
-  //   }
-  // }, [session, status]);
 
   const activeLink = (url: string, pathname: string) => {
     return pathname === url
@@ -77,19 +71,7 @@ const Header: React.FC<FormTitleProps> = ({
 
   const onClickLogout = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    keycloakSessionLogOut()
-      .then((ok: boolean) => {
-        if (ok) {
-          signOut({ callbackUrl: "/" })
-          router.push('/login');
-        } else {
-          //TODO: adicionar snack com erro de login
-          console.log('ocorreu um problema, tente novamente')
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    logout();
   };
 
   return (
