@@ -13,6 +13,7 @@ services:
     #   dockerfile: Dockerfile
     volumes:
       - ./logs:/appserverlogs
+      - ./front/.env.local:/app/.env.local
     #     - /app/node_modules
     #     - /app/.next
     ports:
