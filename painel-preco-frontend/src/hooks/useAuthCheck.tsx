@@ -3,6 +3,8 @@ import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuthLogout } from "./useAuthLogout";
+import { hasString } from "@/utils/validateUtils";
 
 type IStatusAuth = "authenticated" | "loading" | "unauthenticated" | "unauthorized";
 
@@ -25,6 +27,8 @@ export const useAuthCheck = () : IAuthHookReturn => {
   const [token, setToken] = useState<string|null>(null);
   const [authStatus, setAuthStatus] = useState<IStatusAuth>(status);
 
+  const { logout } = useAuthLogout({redirect: false, forceLogout: true});
+
   useEffect(() => {
     async function getToken() {
       const accessToken = await getAccessTokenClient(session);
@@ -34,23 +38,22 @@ export const useAuthCheck = () : IAuthHookReturn => {
   }, [session]);
 
   useEffect(() => {
-    if (status == "unauthenticated" || (status != "loading" && !!session && session.error === "RefreshAccessTokenError")) {
-      console.log('1 - unauthenticated')
+    const sesErr = session?.error || '';
+    //TODO: implementar regra de check de permissões
+    if (status == "unauthenticated") {
       setAuthStatus("unauthenticated");
-      if (currentPathname != URL.LOGIN) {
+      if (hasString(token) || hasString(sesErr)) {
+        console.log('REDIRECT: unauthenticated com token')
+        logout();
+      } else if (currentPathname != URL.LOGIN) {
+        console.log('REDIRECT: unauthenticated fora do login')
         router.push(URL.LOGIN);
         router.refresh();
       }
-    } else if (status == "authenticated" && !session.roles?.includes("admin")) {
-      console.log('2 - unauthorized')
-      setAuthStatus("unauthorized");
-      router.push(URL.UNAUTHORIZED);
-      router.refresh();
     } else {
-      console.log('3 - ', status)
       setAuthStatus(status);
     }
-  }, [session, status, router, URL.LOGIN, URL.UNAUTHORIZED, currentPathname]);
+  }, [session, status, router, URL.LOGIN, URL.UNAUTHORIZED, currentPathname, logout, token]);
 
   return {
     token,

@@ -3,7 +3,7 @@
 import KeyIcon from "@/components/atoms/icons/KeyIcon";
 import MailIcon from "@/components/atoms/icons/MailIcon";
 import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Link } from "@nextui-org/react";
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { signIn } from 'next-auth/react';
 
@@ -12,10 +12,12 @@ import yupStrings from "@/utils/yupStrings";
 import { yupResolver } from "@hookform/resolvers/yup";
 import InputForm from "@/components/molecules/InputForm";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
-import { hasString } from "@/utils/validateUtils";
-import { useAuthLogout } from "@/hooks/useAuthLogout";
 import LoadingPage from "@/components/molecules/LoadingPage";
 import SimpleInformationPage from "@/components/molecules/SimpleInformationPage";
+import { useSnackbar } from "notistack";
+import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
+import { messages } from "@/utils/messages";
+import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -32,8 +34,9 @@ const LoginPage: React.FC = ({
   ...opts
 }) => {
 
+  const router = useRouter();
   const { status, token } = useAuthCheck();
-  const { logout } = useAuthLogout({redirect: false});
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   
   const searchParams = useSearchParams();
 
@@ -48,28 +51,35 @@ const LoginPage: React.FC = ({
 
   const onSubmit: SubmitHandler<FormData> = async (data, e) => {
     e?.preventDefault();
-    const obj = {
-      username: data.login,
-      password: data.password,
-      redirect: true,
-      callbackUrl: searchParams.get('callbackUrl') ?? '/'
-    };
-
-    if (hasString(token)) {
-      logout().then(() => {
-        console.log('login has logout');
-        signIn('credentials', obj);
+    try {
+      signIn('credentials', {
+        username: data.login,
+        password: data.password,
+        redirect: false
+      }).then((ret)=>{
+        if (!ret || !ret.ok) {
+          addSnackError(enqueueSnackbar, messages.LOGIN_WRONG);
+        } else {
+          addSnackSuccess(enqueueSnackbar, messages.LOGIN_SUCCESS);
+          router.push(searchParams.get('callbackUrl') ?? '/')
+        }
+      }).catch((e) => {
+        addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
       })
-    } else {
-      console.log('login without logout');
-      signIn('credentials', obj);
+    } catch(e) {
+      addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
     }
     
   }
 
-  const onSubmitError: SubmitErrorHandler<FormData> = (data) => console.log(data);
+  const onSubmitError: SubmitErrorHandler<FormData> = (data) => {
+    addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
+  }
 
-  if (status == "authenticated") return <SimpleInformationPage title="Redirecionando..." />
+  if (status == "authenticated") {
+    router.push(INITIAL_PAGE_LOGGED);
+    return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
+  }
   if (status == "loading") return <LoadingPage/>
 
   return (

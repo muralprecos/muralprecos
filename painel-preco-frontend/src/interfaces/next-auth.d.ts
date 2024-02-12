@@ -7,20 +7,18 @@ declare module 'next-auth' {
   interface Session {
     access_token?: string
     id_token?: string
-    error?: string
     userInfo?: IUserInfo
     roles?: string[]
+    error?: string
   }
 
   interface User {
-    token?: {
-      decoded?: IUserInfo
-      access_token?: string
-      id_token?: string
-      expires_at?: number
-      refresh_token?: string
-      error?: string
-    } | null
+    decoded?: IUserInfo
+    access_token?: string
+    id_token?: string
+    expires_at?: number
+    refresh_token?: string
+    error?: string
   }
 }
 
