@@ -8,6 +8,8 @@ import { jwtDecode } from "jwt-decode";
 import { encrypt } from "@/utils/encryption";
 import { IUserInfo } from "@/interfaces/types";
 import { postLogin } from "@/hooks/api";
+import logger from "../../../../../services/logger";
+import { hasString } from "@/utils/validateUtils";
 
 // this will refresh an expired access token, when needed
 async function refreshAccessToken(token: JWT) {
@@ -74,6 +76,8 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+
+      logger.info(`recebeu jwt - ${token != null} - ${user != null} -`);
       
       // apenas na primeira chamada de login
       if (user) {
@@ -83,6 +87,7 @@ export const authOptions: AuthOptions = {
         token.expires_at = user.expires_at;
         token.refresh_token = user.refresh_token;
         token.error = user.error;
+        logger.info(`end jwt - 1 - inicializando`);
         return token;
       }
       
@@ -91,6 +96,7 @@ export const authOptions: AuthOptions = {
       const tokenExpires : number = token.expires_at != null ? +token.expires_at : nowTimeStamp;
       if (nowTimeStamp < tokenExpires) {
         // token ainda nao expirou
+        logger.info(`end jwt - 2 - tokan nao expirou`);
         return token;
       } else {
         // token expirou ou não existe
@@ -98,23 +104,37 @@ export const authOptions: AuthOptions = {
         try {
           const refreshedToken = await refreshAccessToken(token);
           console.log("Token is refreshed.")
+          logger.info(`end jwt - 3 - token atualizado`);
           return refreshedToken;
         } catch (error) {
           console.error("Error refreshing access token", error);
+          logger.info(`end jwt - 4 - problema durante refresh token`);
+          logger.error(error);
           return { ...token, error: "RefreshAccessTokenError" };
         }
       }
       
     },
     async session({ session, token }) {
+
+      logger.info(`recebeu session - ${session != null} - ${token != null} -`);
+
       //properties to the client without encrypt
       session.access_token = encrypt(`${token.access_token}`); // see utils/sessionTokenAccessor.js
       session.id_token = encrypt(`${token.id_token}`);  // see utils/sessionTokenAccessor.js
       session.userInfo = token.decoded;
       session.roles = token.decoded.realm_access.roles;
       session.error = token.error;
+      logger.info(`end session - 1`);
       return session;
     },
+    async redirect({ baseUrl, url }) {
+
+      logger.info(`recebeu redirect - ${baseUrl} - ${url} -`);
+
+      console.log('redirect', baseUrl, url);
+      return url
+    }
   },
   pages: {
     signIn: '/login'

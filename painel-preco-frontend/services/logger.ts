@@ -2,54 +2,50 @@ import { createLogger, format, transports } from 'winston';
 import 'winston-daily-rotate-file';
 
 const LAST_LOG = {
-  date: null,
+  timestamp: null,
   message: null,
-  stack: null
+  label: null
 };
 
 const getLogger = (fileName = 'painel-preco-front-server') => {
 
   const isSSR = typeof window === 'undefined';
-  
-  const consoleTransport = new transports.Console({
-    level: process.env.LOG_LEVEL,
-    // json: true,
-    // colorize: true
-  });
+
+  const logFormat = format.printf(info => `${info.timestamp} ${info.level} [${info.label}]: ${info.message}`);
 
   const ignoreEquals = format((info) => {
-    if (info.timestamp == LAST_LOG.date && info.message == LAST_LOG.message && info.stack == LAST_LOG.stack) {
+    if (info.timestamp == LAST_LOG.timestamp && JSON.stringify(info.message) == JSON.stringify(LAST_LOG.message) && info.label == LAST_LOG.label) {
       return false;
     }
-    LAST_LOG.date = info.timestamp;
+    LAST_LOG.timestamp = info.timestamp;
     LAST_LOG.message =  info.message;
-    LAST_LOG.stack = info.stack;
+    LAST_LOG.label = info.label;
     return info;
   });
 
   const logger = createLogger({
-    level: 'info',
-    exitOnError: false,
+    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
     format: format.combine(
-      format.timestamp({
-        format: 'YYYY-MM-DD HH:mm:ss',
-      }),
-      ignoreEquals(),
-      format.printf(
-        (info) => {
-          const { level, label = process.env.NODE_ENV, timestamp } = info;
-          const res = level === 'error' ? `\n  Message: ${info.message};\n  Cause: ${info.cause}\n  Stack: ${info.stack}` : info.message;
-          return `${timestamp} [${label}] ${level}: ${res}.`
-        }
-          
-      )
+      format.label({ label: __filename }),
+      format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+      // Format the metadata object
+      format.metadata({ fillExcept: ['message', 'level', 'timestamp', 'label'] })
     ),
-    transports: [consoleTransport]
-  });
+    transports: [
+      new transports.Console({
+        format: format.combine(
+          format.colorize(),
+          logFormat
+        )
+      })
+    ],
+    exitOnError: false
+  })
 
   if (isSSR) {
+    console.log('isSSR')
     //const path = process.env.NODE_ENV === 'development' ? 'logs' : '/appserverlogs';
-    const path = process.env.NODE_ENV === 'development' ? 'logs' : '/Users/matheuscampanha/Pessoal/Trabalho/Projetos/Licitacoes/workspace/appserverlogs';
+    const path = 'logs'; //process.env.NODE_ENV === 'development' ? 'logs' : '/Users/matheuscampanha/Pessoal/Trabalho/Projetos/Licitacoes/workspace/appserverlogs';
     // 
     logger.add(new transports.DailyRotateFile({
       filename: `${path}/${fileName}-%DATE%.log`,
@@ -58,6 +54,21 @@ const getLogger = (fileName = 'painel-preco-front-server') => {
       maxFiles: '30d',
       handleExceptions: true, /* set this option to true */
       handleRejections: true, /* set this option to true */
+      format: format.combine(
+        // Render in one line in your log file.
+        // If you use prettyPrint() here it will be really
+        // difficult to exploit your logs files afterwards.
+        format.json(),
+        ignoreEquals()
+        // format.printf(
+        //   (info) => {
+        //     const { level, label = process.env.NODE_ENV, timestamp } = info;
+        //     const res = level === 'error' ? `\n  Message: ${info.message};\n  Cause: ${info.cause}\n  Stack: ${info.stack}` : info.message;
+        //     return `${timestamp} [${label}] ${level}: ${res}.`
+        //   }
+            
+        // )
+      )
     }));
   }
 
