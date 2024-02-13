@@ -45,7 +45,7 @@ const getLogger = (fileName = 'painel-preco-front-server') => {
   if (isSSR) {
     console.log('isSSR')
     //const path = process.env.NODE_ENV === 'development' ? 'logs' : '/appserverlogs';
-    const path = 'logs'; //process.env.NODE_ENV === 'development' ? 'logs' : '/Users/matheuscampanha/Pessoal/Trabalho/Projetos/Licitacoes/workspace/appserverlogs';
+    const path = process.env.NODE_ENV === 'production' ? '/appserverlogs' : 'logs';
     // 
     logger.add(new transports.DailyRotateFile({
       filename: `${path}/${fileName}-%DATE%.log`,
