@@ -8,7 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { encrypt } from "@/utils/encryption";
 import { IUserInfo } from "@/interfaces/types";
 import { postLogin } from "@/hooks/api";
-import logger from "../../../../../services/logger";
+import getGogger from "../../../../../services/logger";
 import { hasString } from "@/utils/validateUtils";
 
 // this will refresh an expired access token, when needed
@@ -36,6 +36,8 @@ async function refreshAccessToken(token: JWT) {
     refresh_token: refreshToken.refresh_token,
   };
 }
+
+const logger = getGogger();
 
 export const authOptions: AuthOptions = {
   providers: [

@@ -1,5 +1,7 @@
-import { createLogger, format, transports } from 'winston';
-import 'winston-daily-rotate-file';
+const { createLogger, transports, format } = require('winston');
+require('winston-daily-rotate-file');
+// import { createLogger, format, transports } from 'winston';
+// import 'winston-daily-rotate-file';
 
 const LAST_LOG = {
   timestamp: null,
@@ -75,4 +77,5 @@ const getLogger = (fileName = 'painel-preco-front-server') => {
   return logger;
 };
 
-export default getLogger();
+module.exports = getLogger;
+// export default getLogger();
