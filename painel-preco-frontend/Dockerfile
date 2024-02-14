@@ -18,7 +18,7 @@ RUN mkdir -p /appserverlogs
 RUN chown nextjs:nodejs /appserverlogs
 COPY --from=build --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=build /app/public ./public
-COPY --from=build /app/services/logger.js ./services/logger.js
+COPY --from=build /app/services ./services
 COPY --from=build /app/next.config.js ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./package.json
