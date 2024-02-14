@@ -1,9 +1,10 @@
-import logger from "../../services/logger";
+import getLogger from "../../services/logger";
 import { mountUrl } from "@/utils/requestUtils";
 import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
+import winston from "winston";
 
+const logger : winston.Logger = getLogger('painel-preco-front-server', process.env.NODE_ENV);
 const host = 'https://muraldeprecos.com';
-
 export const revalidate = 3600; // revalida os dados a cada hora
 
 export type ResponseReq = {

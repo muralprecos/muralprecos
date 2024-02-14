@@ -9,7 +9,6 @@ import { encrypt } from "@/utils/encryption";
 import { IUserInfo } from "@/interfaces/types";
 import { postLogin } from "@/hooks/api";
 import getLogger from "../../../../../services/logger";
-import { hasString } from "@/utils/validateUtils";
 import winston from "winston";
 
 // this will refresh an expired access token, when needed
