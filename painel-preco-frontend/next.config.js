@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // output: 'standalone',
   //output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
   // experimental: {
   //   serverActions: true,
