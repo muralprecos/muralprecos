@@ -8,8 +8,9 @@ import { jwtDecode } from "jwt-decode";
 import { encrypt } from "@/utils/encryption";
 import { IUserInfo } from "@/interfaces/types";
 import { postLogin } from "@/hooks/api";
-import getGogger from "../../../../../services/logger";
+import getLogger from "../../../../../services/logger";
 import { hasString } from "@/utils/validateUtils";
+import winston from "winston";
 
 // this will refresh an expired access token, when needed
 async function refreshAccessToken(token: JWT) {
@@ -37,7 +38,7 @@ async function refreshAccessToken(token: JWT) {
   };
 }
 
-const logger = getGogger();
+const logger : winston.Logger = getLogger('painel-preco-front-server', process.env.NODE_ENV);
 
 export const authOptions: AuthOptions = {
   providers: [
