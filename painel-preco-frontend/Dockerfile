@@ -1,6 +1,7 @@
 FROM --platform=linux/amd64 node:18-alpine AS build
 WORKDIR /app
 COPY package*.json ./
+RUN npm install -g npm@10.4.0
 RUN npm ci
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
@@ -9,6 +10,7 @@ RUN npm run build --debug
 FROM --platform=linux/amd64 node:18-alpine AS runtime
 WORKDIR /app
 COPY package*.json ./
+RUN npm install -g npm@10.4.0
 RUN npm ci
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
