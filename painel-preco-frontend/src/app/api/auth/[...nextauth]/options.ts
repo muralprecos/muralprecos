@@ -12,28 +12,39 @@ import logger from "../../../../../services/logger";
 
 // this will refresh an expired access token, when needed
 async function refreshAccessToken(token: JWT) {
-  const body = new URLSearchParams();
-  body.append('client_id', `${process.env.KEYCLOAK_ID}`);
-  body.append('client_secret', `${process.env.KEYCLOAK_SECRET}`);
-  body.append('grant_type', "refresh_token");
-  body.append('refresh_token', token.refresh_token+'');
+  try{
+    const body = new URLSearchParams();
+    body.append('client_id', `${process.env.KEYCLOAK_ID}`);
+    body.append('client_secret', `${process.env.KEYCLOAK_SECRET}`);
+    body.append('grant_type', "refresh_token");
+    body.append('refresh_token', token.refresh_token+'');
 
-  const resp = await fetch(`${process.env.REFRESH_TOKEN_URL}`, {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams(body),
-    method: "POST",
-  });
-  const refreshToken = await resp.json();
-  if (!resp.ok) throw refreshToken;
+    const resp = await fetch(`${process.env.REFRESH_TOKEN_URL}`, {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(body),
+      method: "POST",
+    });
+    const refreshToken = await resp.json();
+    if (!resp.ok) throw refreshToken;
 
-  return {
-    ...token,
-    access_token: refreshToken.access_token,
-    decoded: jwtDecode(refreshToken.access_token),
-    id_token: refreshToken.id_token,
-    expires_at: Math.floor(Date.now() / 1000) + refreshToken.expires_in,
-    refresh_token: refreshToken.refresh_token,
-  };
+    logger.info("Token refreshed!");
+    return {
+      ...token,
+      access_token: refreshToken.access_token,
+      decoded: jwtDecode(refreshToken.access_token),
+      id_token: refreshToken.id_token,
+      expires_at: Math.floor(Date.now() / 1000) + refreshToken.expires_in,
+      refresh_token: refreshToken.refresh_token,
+    };
+  } catch (error) {
+    logger.error("Token refresh error...")
+    logger.error(error)
+
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    }
+  }
 }
 
 export const authOptions: AuthOptions = {
@@ -60,10 +71,7 @@ export const authOptions: AuthOptions = {
         if (!credentials?.username || !credentials?.password) return null;
         try {
           const res = await postLogin(credentials);
-          logger.info(res);
-          //logger
           const usr = await res.json();
-          logger.info(usr);
           // If no error and we have user data, return it
           if (res.ok && usr) {
             return usr;
@@ -79,8 +87,6 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
 
-      logger.info(`recebeu jwt - ${token != null} - ${user != null} -`);
-      
       // apenas na primeira chamada de login
       if (user) {
         token.decoded = jwtDecode<IUserInfo>(`${user.access_token}`);
@@ -89,7 +95,7 @@ export const authOptions: AuthOptions = {
         token.expires_at = user.expires_at;
         token.refresh_token = user.refresh_token;
         token.error = user.error;
-        logger.info(`end jwt - 1 - inicializando`);
+        logger.info("Token registred...");
         return token;
       }
       
@@ -97,45 +103,25 @@ export const authOptions: AuthOptions = {
       const nowTimeStamp = Math.floor(Date.now() / 1000);
       const tokenExpires : number = token.expires_at != null ? +token.expires_at : nowTimeStamp;
       if (nowTimeStamp < tokenExpires) {
-        // token ainda nao expirou
-        logger.info(`end jwt - 2 - tokan nao expirou`);
         return token;
-      } else {
-        // token expirou ou não existe
-        logger.info("Token has expired. Will refresh...")
-        try {
-          const refreshedToken = await refreshAccessToken(token);
-          logger.info("Token is refreshed.")
-          logger.info(`end jwt - 3 - token atualizado`);
-          return refreshedToken;
-        } catch (error) {
-          logger.error("Error refreshing access token");
-          logger.info(`end jwt - 4 - problema durante refresh token`);
-          logger.error(error);
-          return { ...token, error: "RefreshAccessTokenError" };
-        }
       }
+    
+      // token expirou ou não existe
+      logger.info("Token has expired. Will refresh...");
+      return refreshAccessToken(token);
       
     },
     async session({ session, token }) {
 
-      logger.info(`recebeu session - ${session != null} - ${token != null} -`);
-
       //properties to the client without encrypt
-      session.access_token = encrypt(`${token.access_token}`); // see utils/sessionTokenAccessor.js
-      session.id_token = encrypt(`${token.id_token}`);  // see utils/sessionTokenAccessor.js
-      session.userInfo = token.decoded;
-      session.roles = token.decoded.realm_access.roles;
-      session.error = token.error;
-      logger.info(`end session - 1`);
+      if (token) {
+        session.access_token = encrypt(`${token.access_token}`); // see utils/sessionTokenAccessor.js
+        session.id_token = encrypt(`${token.id_token}`);  // see utils/sessionTokenAccessor.js
+        session.userInfo = token.decoded;
+        session.roles = token.decoded.realm_access.roles;
+        session.error = token.error;
+      }
       return session;
-    },
-    async redirect({ baseUrl, url }) {
-
-      logger.info(`recebeu redirect - ${baseUrl} - ${url} -`);
-
-      console.log('redirect', baseUrl, url);
-      return url
     }
   },
   pages: {

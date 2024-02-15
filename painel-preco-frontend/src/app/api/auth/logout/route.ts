@@ -29,6 +29,7 @@ export async function GET() {
         return new Response(null, { status: 500 });
       }
     } catch (err) {
+      logger.error('Logout error');
       logger.error(err);
       return new Response(null, { status: 500 });
     }

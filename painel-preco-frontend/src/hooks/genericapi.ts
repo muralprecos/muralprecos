@@ -72,6 +72,7 @@ const doReq = async (
         });
         return res;
     } catch (error) {
+      logger.error(`Throw error when are doing request:`);
       logger.error(error);
       throw(error)
     }

@@ -3,7 +3,7 @@
 import KeyIcon from "@/components/atoms/icons/KeyIcon";
 import MailIcon from "@/components/atoms/icons/MailIcon";
 import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Link } from "@nextui-org/react";
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { signIn } from 'next-auth/react';
 
@@ -19,6 +19,7 @@ import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { messages } from "@/utils/messages";
 import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
 import { useEffect } from "react";
+import { useAuthLogout } from "@/hooks/useAuthLogout";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -36,11 +37,10 @@ const LoginPage: React.FC = ({
 }) => {
 
   const router = useRouter();
-  const { status, token } = useAuthCheck();
+  const { status, token, session } = useAuthCheck();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { logout } = useAuthLogout({forceLogout: true});
   
-  const searchParams = useSearchParams();
-
   const {
     control,
     handleSubmit,
@@ -62,7 +62,7 @@ const LoginPage: React.FC = ({
           addSnackError(enqueueSnackbar, messages.LOGIN_WRONG);
         } else {
           addSnackSuccess(enqueueSnackbar, messages.LOGIN_SUCCESS);
-          router.push(searchParams.get('callbackUrl') ?? '/')
+          router.push('/');
         }
       }).catch((e) => {
         addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
@@ -78,9 +78,14 @@ const LoginPage: React.FC = ({
 
   useEffect(() => {
     if (status == "authenticated") {
-      router.push(INITIAL_PAGE_LOGGED);
+      if (session?.error) {
+        logout();
+      }
+      setTimeout(() => {
+        router.push(INITIAL_PAGE_LOGGED);
+      }, 2000);
     }
-  }, [router, status]);
+  }, [router, status, session, logout]);
 
   if (status == "authenticated") {
     return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
