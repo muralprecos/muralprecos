@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types"
 import { Button, Card, CardBody } from "@nextui-org/react";

@@ -1,3 +1,5 @@
+"use client";
+
 import { IRetornoPesquisaItensLicitacao, IReturnRequestAPI } from "@/interfaces/types";
 import { Divider, ScrollShadow } from "@nextui-org/react";
 import { useEffect, useState } from "react";
@@ -5,18 +7,15 @@ import ItemListLicitacao from "./ItemListLicitacao";
 import PaginationFooter from "../molecules/PaginationFooter";
 import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/navigation";
 import LoadingList from "../molecules/LoadingList";
-import { IStatusAuth } from "@/hooks/useAuthCheck";
 import { isClientNextjs } from "@/utils/validateUtils";
 import { getPesquisarCotacoes } from "@/hooks/api";
 import { searchParamsToInfo } from "@/utils/requestUtils";
 
 interface IProps {
-  status: IStatusAuth
   token: string | null
 }
 
 const ListItemLicitacao: React.FC<IProps> = ({
-  status,
   token
 }) => {
   
@@ -28,10 +27,7 @@ const ListItemLicitacao: React.FC<IProps> = ({
   const [paginationInfo, setPaginationInfo] = useState<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null>(null);
 
   useEffect(() => {
-    if (status == "unauthenticated") {
-      router.push("/unauthorized");
-      router.refresh();
-    } else if (status == 'authenticated' && !!token) {
+    if (!!token) {
       const fetchData = async () => {
         if (isClientNextjs()) {
           setIsLoading ? setIsLoading(true) : null;
@@ -46,7 +42,7 @@ const ListItemLicitacao: React.FC<IProps> = ({
       }
       fetchData().catch(console.error);
     }
-  }, [status, searchParams, router, token, setItensLicitacao]);
+  }, [searchParams, router, token, setItensLicitacao]);
 
   const hastItens = () => {
     return itensLicitacao != null && itensLicitacao.length > 0;

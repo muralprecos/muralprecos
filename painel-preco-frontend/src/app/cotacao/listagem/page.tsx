@@ -1,35 +1,23 @@
-"use client";
-
 import { Button, Card, CardBody, Divider } from "@nextui-org/react";
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 import LoadingList from "@/components/molecules/LoadingList";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { getAccessTokenClient } from "@/utils/sessionTokenAccessor";
+import { redirect,  } from "next/navigation";
+import { CheckRolesStrategy, checkAccessRoles, getAccessToken } from "@/utils/sessionTokenAccessor";
 import ListItemLicitacao from "@/components/organisms/ListItemLicitacao";
+import Link from "next/link";
 
-interface IPropsPageCotacaoListagem {}
 
-const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
-  ...opts
-}) => {
+export default async function PageCotacaoListagem() {
 
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const [token, setToken] = useState<string|null>(null);
+  const accessToken = await getAccessToken() || '';
+  const hasAuthorization = await checkAccessRoles([], CheckRolesStrategy.INCLUDES_ALL);
 
-  useEffect(() => {
-    async function getToken() {
-      const accessToken = await getAccessTokenClient(session);
-      setToken(accessToken);
-    }
-    getToken();
-  }, [session])
-
-  const goSearchTab = () => {
-    router.push('/cotacao');
+  if (!accessToken) {
+    redirect("/login");
+  } else if (!hasAuthorization) {
+    redirect("/unauthorized");
   }
 
   return (
@@ -43,14 +31,14 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
               <div className="flex-auto">
                 Resultado da Cotação
               </div>
-              <Button color="secondary" type="button" onClick={goSearchTab}>
+              <Button color="secondary" type="button" as={Link} href="/cotacao">
                 Voltar
               </Button>
             </FormTitle>
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
               <Suspense fallback={<LoadingList/>}>
-                <ListItemLicitacao status={status} token={token} />
+                <ListItemLicitacao token={accessToken} />
               </Suspense>
             </FormRow>
           </section>
@@ -61,5 +49,3 @@ const PageCotacaoListagem: React.FC<IPropsPageCotacaoListagem> = ({
     </section>
   );
 }
-
-export default PageCotacaoListagem;
