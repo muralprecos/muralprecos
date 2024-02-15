@@ -2,6 +2,7 @@
 import { authOptions } from "../[...nextauth]/options";
 import { getServerSession } from "next-auth"
 import { getIdToken } from "@/utils/sessionTokenAccessor";
+import logger from "../../../../../services/logger";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -28,7 +29,7 @@ export async function GET() {
         return new Response(null, { status: 500 });
       }
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       return new Response(null, { status: 500 });
     }
   }

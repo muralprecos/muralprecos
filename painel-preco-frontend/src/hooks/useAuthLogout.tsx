@@ -1,7 +1,6 @@
 
 import { addSnackError } from "@/utils/snackbarUtils";
 import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { EnqueueSnackbar } from "notistack";
 
 async function keycloakSessionLogOut(): Promise<boolean> {
@@ -31,7 +30,6 @@ export const useAuthLogout = ({
   enqueueSnackbar,
   forceLogout = false
 } : IAuthLogout) => {
-  const router = useRouter();
 
   const logout = () => {
     return keycloakSessionLogOut()

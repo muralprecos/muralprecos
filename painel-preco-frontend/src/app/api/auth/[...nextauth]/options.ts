@@ -60,7 +60,10 @@ export const authOptions: AuthOptions = {
         if (!credentials?.username || !credentials?.password) return null;
         try {
           const res = await postLogin(credentials);
+          logger.info(res);
+          //logger
           const usr = await res.json();
+          logger.info(usr);
           // If no error and we have user data, return it
           if (res.ok && usr) {
             return usr;
@@ -99,14 +102,14 @@ export const authOptions: AuthOptions = {
         return token;
       } else {
         // token expirou ou não existe
-        console.log("Token has expired. Will refresh...")
+        logger.info("Token has expired. Will refresh...")
         try {
           const refreshedToken = await refreshAccessToken(token);
-          console.log("Token is refreshed.")
+          logger.info("Token is refreshed.")
           logger.info(`end jwt - 3 - token atualizado`);
           return refreshedToken;
         } catch (error) {
-          console.error("Error refreshing access token", error);
+          logger.error("Error refreshing access token");
           logger.info(`end jwt - 4 - problema durante refresh token`);
           logger.error(error);
           return { ...token, error: "RefreshAccessTokenError" };

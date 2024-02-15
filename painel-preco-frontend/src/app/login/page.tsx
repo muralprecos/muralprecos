@@ -18,6 +18,7 @@ import { useSnackbar } from "notistack";
 import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { messages } from "@/utils/messages";
 import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
+import { useEffect } from "react";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -75,8 +76,13 @@ const LoginPage: React.FC = ({
     addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
   }
 
+  useEffect(() => {
+    if (status == "authenticated") {
+      router.push(INITIAL_PAGE_LOGGED);
+    }
+  }, [router, status]);
+
   if (status == "authenticated") {
-    router.push(INITIAL_PAGE_LOGGED);
     return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
   }
   if (status == "loading") return <LoadingPage/>
