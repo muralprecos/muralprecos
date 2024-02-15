@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:18.18-alpine AS build
+FROM --platform=linux/amd64 node:18.19-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -6,7 +6,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build --debug
 
-FROM --platform=linux/amd64 node:18.18-alpine AS runtime
+FROM --platform=linux/amd64 node:18.19-alpine AS runtime
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
