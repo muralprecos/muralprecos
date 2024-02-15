@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuthLogout } from "./useAuthLogout";
 import { hasString } from "@/utils/validateUtils";
 
-type IStatusAuth = "authenticated" | "loading" | "unauthenticated" | "unauthorized";
+export type IStatusAuth = "authenticated" | "loading" | "unauthenticated" | "unauthorized";
 
 export interface IAuthHookReturn {
   token: string|null
