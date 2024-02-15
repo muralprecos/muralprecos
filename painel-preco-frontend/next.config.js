@@ -9,7 +9,7 @@ const nextConfig = {
   //   serverActions: true,
   // },
   generateBuildId: async () => {
-    return process.env.VERSION || Date.now() + Math.round(Math.random() * 2441139);
+    return process.env.VERSION;
   },
   env: {
     // pulls from .env file
