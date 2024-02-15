@@ -2,12 +2,15 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output : "standalone",
+  // output : "standalone",
   // output: 'standalone',
   //output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
   // experimental: {
   //   serverActions: true,
   // },
+  generateBuildId: async () => {
+    return process.env.VERSION || Date.now() + Math.round(Math.random() * 2441139);
+  },
   env: {
     // pulls from .env file
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
