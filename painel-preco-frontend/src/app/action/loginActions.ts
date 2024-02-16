@@ -8,12 +8,11 @@ import logger from "../../../services/logger";
 export async function loginAction(formData: Partial<Record<"username" | "password" | "redirect", unknown>>) {
   try {
     logger.info("...loginAction...");
-    await signIn('credentials', {
+    return signIn('credentials', {
       username: formData.username,
       password: formData.password,
       redirectTo: '/'
-    })
-    logger.info("loginAction has credentials");
+    });
   } catch (error) {
     logger.info("loginAction error");
     if (error instanceof AuthError) {

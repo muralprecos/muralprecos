@@ -70,7 +70,7 @@ const config = {
       // nas demais chamadas
       const nowTimeStamp = Math.floor(Date.now() / 1000);
       const tokenExpires : number = token.expires_at != null ? +token.expires_at : nowTimeStamp;
-      if (nowTimeStamp < tokenExpires) {
+      if (nowTimeStamp <= tokenExpires) {
         logger.info("jwt ativo");
         return token;
       }

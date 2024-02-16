@@ -55,17 +55,23 @@ const Login = (props: Props) => {
 
   const onSubmit: SubmitHandler<FormData> = async (data, e) => {
     e?.preventDefault();
-    const res = await loginAction({
-      username: data.login,
-      password: data.password,
-      redirect: props.callbackUrl
-    });
-
-    if (res?.error) {
-      addSnackError(enqueueSnackbar,res?.error);
-    } else {
-      addSnackSuccess(enqueueSnackbar,messages.LOGIN_SUCCESS);
-      router.push(INITIAL_PAGE_LOGGED);
+    try {
+      console.log('login onSubmit')
+      const res = await loginAction({
+        username: data.login,
+        password: data.password,
+        redirect: props.callbackUrl
+      });
+      console.log('login res', res)
+      if (res?.error) {
+        addSnackError(enqueueSnackbar,res?.error);
+      } else {
+        addSnackSuccess(enqueueSnackbar,messages.LOGIN_SUCCESS);
+        router.push(INITIAL_PAGE_LOGGED);
+      }
+    } catch (e) {
+      console.log('login catch', e)
+      addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
     }
   }
 
