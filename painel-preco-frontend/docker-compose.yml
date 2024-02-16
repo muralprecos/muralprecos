@@ -4,18 +4,20 @@ volumes:
   frontend-data:
 
 services:
-  app:
+  app-front:
     image: painelpreco-frontend-test:latest
     # image: ghcr.io/ttsolutionspi/painel-precos-frontend:latest
-    # build:
-    #   context: ./
-    #   # target: dev
-    #   target: production
-    #   dockerfile: Dockerfile
+    container_name: painel_precos_app_front
+    #build:
+      #context: ./
+      # target: dev
+      #target: production
+      #dockerfile: Dockerfile
     volumes:
-      - ./logs:/appserverlogs
-      - ./.env.local:/app/.env.local
-    #     - /app/node_modules
-    #     - /app/.next
+        - /app/public
+        - /app/node_modules
+        - /app/.next
+        - ./logs:/appserverlogs
+        - ./.env.local:/app/.env.local
     ports:
       - "3000:3000"
