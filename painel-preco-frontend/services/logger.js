@@ -45,19 +45,19 @@ const getLogger = (fileName = 'painel-preco-front-server') => {
 
   if (isSSR) {
     //const path = process.env.NODE_ENV === 'development' ? 'logs' : '/appserverlogs';
-    const path = process.env.NODE_ENV === 'production' ? '/appserverlogs' : 'logs';
-    logger.add(new transports.DailyRotateFile({
-      filename: `${path}/${fileName}-%DATE%.log`,
-      zippedArchive: true,
-      maxSize: '20m',
-      maxFiles: '7d',
-      handleExceptions: true, /* set this option to true */
-      handleRejections: true, /* set this option to true */
-      format: format.combine(
-        // format.json(),
-        logFormat
-      )
-    }));
+    // const path = process.env.NODE_ENV === 'production' ? '/appserverlogs' : 'logs';
+    // logger.add(new transports.DailyRotateFile({
+    //   filename: `${path}/${fileName}-%DATE%.log`,
+    //   zippedArchive: true,
+    //   maxSize: '20m',
+    //   maxFiles: '7d',
+    //   handleExceptions: true, /* set this option to true */
+    //   handleRejections: true, /* set this option to true */
+    //   format: format.combine(
+    //     // format.json(),
+    //     logFormat
+    //   )
+    // }));
   }
 
   return logger;
