@@ -7,7 +7,7 @@ import { redirect,  } from "next/navigation";
 import { CheckRolesStrategy, checkAccessRoles, getAccessToken } from "@/utils/sessionTokenAccessor";
 import ListItemLicitacao from "@/components/organisms/ListItemLicitacao";
 import Link from "next/link";
-
+import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 
 export default async function PageCotacaoListagem() {
 
@@ -15,7 +15,7 @@ export default async function PageCotacaoListagem() {
   const hasAuthorization = await checkAccessRoles([], CheckRolesStrategy.INCLUDES_ALL);
 
   if (!accessToken) {
-    redirect("/login");
+    redirect(INITIAL_PAGE_LOGIN);
   } else if (!hasAuthorization) {
     redirect("/unauthorized");
   }

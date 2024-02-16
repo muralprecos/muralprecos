@@ -5,21 +5,21 @@ import MailIcon from "@/components/atoms/icons/MailIcon";
 import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Link } from "@nextui-org/react";
 import { useRouter } from 'next/navigation'
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
-import { signIn } from 'next-auth/react';
 
 import * as yup from "yup";
 import yupStrings from "@/utils/yupStrings";
 import { yupResolver } from "@hookform/resolvers/yup";
 import InputForm from "@/components/molecules/InputForm";
-import { useAuthCheck } from "@/hooks/useAuthCheck";
 import LoadingPage from "@/components/molecules/LoadingPage";
 import SimpleInformationPage from "@/components/molecules/SimpleInformationPage";
 import { useSnackbar } from "notistack";
-import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
+import { addSnackError } from "@/utils/snackbarUtils";
 import { messages } from "@/utils/messages";
 import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
 import { useEffect } from "react";
-import { useAuthLogout } from "@/hooks/useAuthLogout";
+
+import { loginAction } from "@/app/action/loginActions";
+import { useSession } from "next-auth/react";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -32,14 +32,17 @@ const initialForm: FormData = {
   password: ''
 }
 
-const LoginPage: React.FC = ({
-  ...opts
-}) => {
+type Props = {
+  className?: string;
+  callbackUrl?: string;
+  error?: string;
+};
+
+const Login = (props: Props) => {
 
   const router = useRouter();
-  const { status, token, session } = useAuthCheck();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const { logout } = useAuthLogout({forceLogout: true});
+  const { data: session, status } = useSession();
   
   const {
     control,
@@ -52,23 +55,14 @@ const LoginPage: React.FC = ({
 
   const onSubmit: SubmitHandler<FormData> = async (data, e) => {
     e?.preventDefault();
-    try {
-      signIn('credentials', {
-        username: data.login,
-        password: data.password,
-        redirect: false
-      }).then((ret)=>{
-        if (!ret || !ret.ok) {
-          addSnackError(enqueueSnackbar, messages.LOGIN_WRONG);
-        } else {
-          addSnackSuccess(enqueueSnackbar, messages.LOGIN_SUCCESS);
-          router.push('/');
-        }
-      }).catch((e) => {
-        addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
-      })
-    } catch(e) {
-      addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
+    const res = await loginAction({
+      username: data.login,
+      password: data.password,
+      redirect: props.callbackUrl
+    });
+
+    if (res?.error) {
+      addSnackError(enqueueSnackbar,res?.error);
     }
   }
 
@@ -78,14 +72,16 @@ const LoginPage: React.FC = ({
 
   useEffect(() => {
     if (status == "authenticated") {
-      if (session?.error) {
-        logout();
-      }
-      setTimeout(() => {
-        router.push(INITIAL_PAGE_LOGGED);
-      }, 2000);
+      router.push(INITIAL_PAGE_LOGGED);
     }
-  }, [router, status, session, logout]);
+  }, [router, status, session]);
+
+  useEffect(() => {
+    if (!!props.error) {
+      addSnackError(enqueueSnackbar, props.error);
+    }
+  }, [props.error, enqueueSnackbar]);
+
 
   if (status == "authenticated") {
     return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
@@ -162,4 +158,4 @@ const LoginPage: React.FC = ({
   );
 }
 
-export default LoginPage;
+export default Login;

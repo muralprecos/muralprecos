@@ -5,6 +5,7 @@ import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IPeriodoCompra, I
 import { redirect } from "next/navigation";
 import { CheckRolesStrategy, checkAccessRoles, getAccessToken } from "@/utils/sessionTokenAccessor";
 import { SetDynamicRoute } from "@/utils/setDynamicRoute";
+import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 
 export default async function CotacaoHome() {
 
@@ -12,7 +13,7 @@ export default async function CotacaoHome() {
   const hasAuthorization = await checkAccessRoles([], CheckRolesStrategy.INCLUDES_ALL);
 
   if (!accessToken) {
-    redirect("/login");
+    redirect(INITIAL_PAGE_LOGIN);
   } else if (!hasAuthorization) {
     redirect("/unauthorized");
   }

@@ -144,3 +144,15 @@ export const postLogin = async (
       body: b
     });
 }
+
+export const postLogout = async (idToken: string) => {
+    const URL = `${process.env.END_SESSION_URL}`;
+    const b = new URLSearchParams();
+    b.append('client_id', `${process.env.KEYCLOAK_ID}`);
+    b.append('id_token_hint', idToken);
+    return fetch(URL, { 
+      method: "POST",
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: b
+    });
+}

@@ -22,7 +22,9 @@ import { isClientNextjs } from '@/utils/validateUtils';
 import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
 import { mountUrl } from '@/utils/requestUtils';
 import { AsyncListData } from '@react-stately/data';
-import { useAuthCheck } from '@/hooks/useAuthCheck';
+import { useSession } from 'next-auth/react';
+import { getAccessTokenClient } from '@/utils/sessionTokenAccessor';
+
 
 export interface IPropsSearchItensLicitacaoForm {
   searchParams?: ReadonlyURLSearchParams
@@ -99,7 +101,16 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 }) => {
 
   const router = useRouter();
-  const { status, token } = useAuthCheck();
+  const { data: session, status } = useSession();
+  const [token, setToken] = useState<string|null>(null);
+
+  useEffect(() => {
+    async function getToken() {
+      const accessToken = await getAccessTokenClient(session);
+      setToken(accessToken);
+    }
+    getToken();
+  }, [session]);
 
   const dispatch = useDispatch();
   const _initialFormDataLocalStorage: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
