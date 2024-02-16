@@ -18,6 +18,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 RUN mkdir -p /appserverlogs
 RUN chown nextjs:nodejs /appserverlogs
+RUN chmod 755 /appserverlogs
 COPY --from=build --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=build /app/public ./public
 COPY --from=build /app/next.config.js ./

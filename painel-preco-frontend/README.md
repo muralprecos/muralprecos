@@ -63,6 +63,12 @@ Customizing tailwind-css with react:
 
 ### TODO Work:
 
+https://www.youtube.com/watch?v=fcUMBjBEDr0&ab_channel=DevJuniorAlves
+https://nextjs.org/docs/pages/building-your-application/configuring/debugging
+https://blog.logrocket.com/common-next-js-errors/
+https://authjs.dev/reference/nextjs#in-server-components
+https://blog.stackademic.com/authentication-in-next-js-with-auth-js-nextauth-5-b74e3ae18ab8
+
 https://michaelangelo-io.medium.com/better-logging-with-nextjs-app-directory-60a07c96d146
 https://github.com/pinojs/pino
 https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
