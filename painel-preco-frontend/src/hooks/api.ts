@@ -6,48 +6,48 @@ import { JWT } from "next-auth/jwt";
 
 export const getListPorteFornecedor = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged): Promise<IPorteFornecedor[]|null> => {
-  return getGenericObject<IPorteFornecedor[]>({ path: '/api/v1/portes-fornecedor' , accessToken, ...opts });
+  return getGenericObject<IPorteFornecedor[]>({ path: '/serverapi/v1/portes-fornecedor' , accessToken, ...opts });
 }
 export const getListEsferas = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IEsfera[]>({ path: '/api/v1/esferas', accessToken, ...opts });
+  return getGenericObject<IEsfera[]>({ path: '/serverapi/v1/esferas', accessToken, ...opts });
 }
 export const getFormasCompra = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IFormaCompra[]>({ path: '/api/v1/formas-compra' , accessToken, ...opts });
+  return getGenericObject<IFormaCompra[]>({ path: '/serverapi/v1/formas-compra' , accessToken, ...opts });
 }
 export const getListModalidadesCompra = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IModalidadeCompra[]>({ path: '/api/v1/modalidades-compra' , accessToken, ...opts });
+  return getGenericObject<IModalidadeCompra[]>({ path: '/serverapi/v1/modalidades-compra' , accessToken, ...opts });
 }
 export const getListPeriodosCompra = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IPeriodoCompra[]>({ path: '/api/v1/periodos-compra' , accessToken, ...opts });
+  return getGenericObject<IPeriodoCompra[]>({ path: '/serverapi/v1/periodos-compra' , accessToken, ...opts });
 }
 export const getListSituacoesLicitacao = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<ISituacaoLicitacao[]>({ path: '/api/v1/situacoes-licitacao' , accessToken, ...opts });
+  return getGenericObject<ISituacaoLicitacao[]>({ path: '/serverapi/v1/situacoes-licitacao' , accessToken, ...opts });
 }
 export const getListEstados = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IUnidadeFederativa[]>({ path: '/api/v1/unidades-federativas' , accessToken, ...opts });
+  return getGenericObject<IUnidadeFederativa[]>({ path: '/serverapi/v1/unidades-federativas' , accessToken, ...opts });
 }
 export const getListAnos = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericListPageable<IAnoCompra>({ path: '/api/v1/anos-compra' , accessToken, ...opts });
+  return getGenericListPageable<IAnoCompra>({ path: '/serverapi/v1/anos-compra' , accessToken, ...opts });
 }
 
 export const getListMunicipios = async (
   opts : IAPISearchProps) => {
   const uuiduf = getValParamSearch(opts.info, 'uuiduf');
   opts.info = extractParamSearch(opts.info, 'uuiduf');
-  opts.path = `/api/v1/unidades-federativas/${uuiduf}/municipios`;
+  opts.path = `/serverapi/v1/unidades-federativas/${uuiduf}/municipios`;
   return getGenericListPageable<IMunicipio>(opts);
 }
 
 export const getListFornecedores = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<IFornecedor>({ path: '/api/v1/fornecedores' , ...opts });
+  return getGenericListPageable<IFornecedor>({ path: '/serverapi/v1/fornecedores' , ...opts });
 }
 export const getFornecedorDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListFornecedores);
@@ -55,12 +55,12 @@ export const getFornecedorDesc = async (uuid: string) : Promise<string | null> =
 
 export const getListOrgaos = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<IOrgao>({ path: '/api/v1/orgaos' , ...opts });
+  return getGenericListPageable<IOrgao>({ path: '/serverapi/v1/orgaos' , ...opts });
 }
 export const getListOrgaosSuperiores = async (
   opts : IAPISearchProps) => {
   opts.info = forceParamSearch(opts.info, 'ehSuperior', 'true');
-  return getGenericListPageable<IOrgao>({ path: '/api/v1/orgaos' , ...opts });
+  return getGenericListPageable<IOrgao>({ path: '/serverapi/v1/orgaos' , ...opts });
 }
 export const getOrgaoDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListOrgaos);
@@ -68,7 +68,7 @@ export const getOrgaoDesc = async (uuid: string) : Promise<string | null> => {
 
 export const getListUASG = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<IUnidadeGestora>({ path: '/api/v1/unidades-gestoras' , ...opts });
+  return getGenericListPageable<IUnidadeGestora>({ path: '/serverapi/v1/unidades-gestoras' , ...opts });
 }
 export const getUASGDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListUASG);
@@ -76,7 +76,7 @@ export const getUASGDesc = async (uuid: string) : Promise<string | null> => {
 
 export const getListUnidadesFornecimento = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<IObjetoAPI>({ path: '/api/v1/unidades-fornecimento' , ...opts });
+  return getGenericListPageable<IObjetoAPI>({ path: '/serverapi/v1/unidades-fornecimento' , ...opts });
 }
 export const getUnidadeFornecimentoDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListUnidadesFornecimento);
@@ -84,7 +84,7 @@ export const getUnidadeFornecimentoDesc = async (uuid: string) : Promise<string 
 
 export const getListNomeMaterial = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<INomeMaterial>({ path: '/api/v1/materiais' , ...opts });
+  return getGenericListPageable<INomeMaterial>({ path: '/serverapi/v1/materiais' , ...opts });
 }
 export const getNomeMaterialDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListNomeMaterial);
@@ -93,19 +93,19 @@ export const getNomeMaterialDesc = async (uuid: string) : Promise<string | null>
 export const getListObjetosCompras = async (
   opts : IAPISearchProps) => {
   opts.info = forceParamSearch(opts.info, 'only', 'true');
-  return getGenericListPageable<IObjetoCompra>({ path: '/api/v1/licitacoes' , ...opts });
+  return getGenericListPageable<IObjetoCompra>({ path: '/serverapi/v1/licitacoes' , ...opts });
 }
 export const getListDescricao = async (
   opts : IAPISearchProps) => {
   opts.info = forceParamSearch(opts.info, 'only', 'true');
-  return getGenericListPageable<IItemDescricao>({ path: '/api/v1/itens-licitacao' , ...opts });
+  return getGenericListPageable<IItemDescricao>({ path: '/serverapi/v1/itens-licitacao' , ...opts });
 }
 
 export const getItemLicitacao = async (
   opts : IAPISearchPropsLogged) => {
   const uuid = getValParamSearch(opts.info, 'uuid');
   opts.info = extractParamSearch(opts.info, 'uuid');
-  return getGenericObject<IItemLicitacao>({ path: `/api/v1/itens-licitacao/${uuid}` , ...opts });
+  return getGenericObject<IItemLicitacao>({ path: `/serverapi/v1/itens-licitacao/${uuid}` , ...opts });
 }
 
 
@@ -114,13 +114,13 @@ export const getPesquisarCotacoes = async (
   { info, config, accessToken } : IAPISearchPropsLogged) => {
     const pageinfo = getNumberOrUndefined(getValParamSearch(info, 'page'));
     const sizeinfo = getNumberOrUndefined(getValParamSearch(info, 'size'));
-    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo, accessToken: accessToken ?? undefined });
+    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/serverapi/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo, accessToken: accessToken ?? undefined });
 }
 
 export const postDownloadItensCotacoes = async (
   itens: IRetornoPesquisaItensLicitacao[]) : Promise<Blob|ResponseError|null> => {
     return postGenericBlob({
-      path: '/api/v1/cotacoes',
+      path: '/serverapi/v1/cotacoes',
       bodydata: JSON.stringify({
         "itens": itens.map( i => i.uuid )
       }),
