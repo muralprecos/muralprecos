@@ -6,6 +6,7 @@ volumes:
 services:
   app:
     image: painelpreco-frontend-test:latest
+    # image: ghcr.io/ttsolutionspi/painel-precos-frontend:latest
     # build:
     #   context: ./
     #   # target: dev
@@ -13,7 +14,7 @@ services:
     #   dockerfile: Dockerfile
     volumes:
       - ./logs:/appserverlogs
-      - ./front/.env.local:/app/.env.local
+      - ./.env.local:/app/.env.local
     #     - /app/node_modules
     #     - /app/.next
     ports:

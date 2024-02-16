@@ -13,9 +13,7 @@ const nextConfig = {
   },
   env: {
     // pulls from .env file
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-    NEXTAUTH_URL_INTERNAL: process.env.NEXTAUTH_URL_INTERNAL,
     KEYCLOAK_ID: process.env.KEYCLOAK_ID,
     KEYCLOAK_ISSUER: process.env.KEYCLOAK_ISSUER,
     GET_TOKEN_URL: process.env.GET_TOKEN_URL,

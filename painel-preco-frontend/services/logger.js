@@ -45,7 +45,7 @@ const getLogger = (fileName = 'painel-preco-front-server') => {
 
   if (isSSR) {
     //const path = process.env.NODE_ENV === 'development' ? 'logs' : '/appserverlogs';
-    const path = process.env.NODE_ENV === 'production' ? 'logs' : 'logs';
+    const path = process.env.NODE_ENV === 'production' ? '/appserverlogs' : 'logs';
     logger.add(new transports.DailyRotateFile({
       filename: `${path}/${fileName}-%DATE%.log`,
       zippedArchive: true,
