@@ -7,6 +7,7 @@ import logger from "./services/logger";
 import { jwtDecode } from "jwt-decode";
 import { IUserInfo } from "@/interfaces/types";
 import { loginRefreshToken } from "@/app/action/loginRefreshTokenActions";
+import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 
 const credentialsConfig = CredentialsProvider({
   name: "credentials",
@@ -20,15 +21,20 @@ const credentialsConfig = CredentialsProvider({
     },
   },
   async authorize(credentials) {
+    logger.info("...authorize...");
     if (!credentials?.username || !credentials?.password) return null;
     try {
+      logger.info("has credentials");
       const res = await postLogin({
         username: `${credentials?.username}`,
         password: `${credentials?.password}`
       });
+      logger.info("credentials has res");
       const usr = await res.json();
+      logger.info("credentials has usr");
       // If no error and we have user data, return it
       if (res.ok && usr) {
+        logger.info("credentials ok!");
         return usr;
       }
       // Return null if user data could not be retrieved
@@ -50,6 +56,7 @@ const config = {
     async jwt({ token, user }) {
       // apenas na primeira chamada de login
       // console.log('jwt:', { token, user })
+      logger.info("...jwt...");
       if (user) {
         token.decoded = jwtDecode<IUserInfo>(`${user.access_token}`);
         token.access_token = user.access_token;
@@ -64,15 +71,18 @@ const config = {
       const nowTimeStamp = Math.floor(Date.now() / 1000);
       const tokenExpires : number = token.expires_at != null ? +token.expires_at : nowTimeStamp;
       if (nowTimeStamp < tokenExpires) {
+        logger.info("jwt ativo");
         return token;
       }
       // token expirou ou não existe
-      logger.info("Token has expired. Will refresh...");
+      logger.info(`Token has expired. Will refresh... ${nowTimeStamp} < ${tokenExpires}`);
       return loginRefreshToken(token);
     },
     async session({ session, token }) {
       //properties to the client without encrypt
+      logger.info("...session...");
       if (token) {
+        logger.info("session com token");
         session.access_token = encrypt(`${token.access_token}`); // see utils/sessionTokenAccessor.js
         session.id_token = encrypt(`${token.id_token}`);  // see utils/sessionTokenAccessor.js
         session.userInfo = token.decoded;
@@ -88,7 +98,7 @@ const config = {
   },
   secret: process.env.AUTH_SECRET,
   pages: {
-    signIn: '/signIn'
+    signIn: INITIAL_PAGE_LOGIN
   }
 } satisfies NextAuthConfig;
 

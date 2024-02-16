@@ -3,16 +3,21 @@
 import { messages } from "@/utils/messages";
 import { signIn } from "auth";
 import { AuthError } from "next-auth";
+import logger from "../../../services/logger";
 
 export async function loginAction(formData: Partial<Record<"username" | "password" | "redirect", unknown>>) {
   try {
+    logger.info("...loginAction...");
     await signIn('credentials', {
       username: formData.username,
       password: formData.password,
       redirectTo: '/'
     })
+    logger.info("loginAction has credentials");
   } catch (error) {
+    logger.info("loginAction error");
     if (error instanceof AuthError) {
+      logger.info("loginAction AuthError");
       console.error(error.type, error.message)
       switch (error.type) {
         case 'CredentialsSignin':

@@ -5,7 +5,7 @@ type Props = {
   searchParams?: Record<"callbackUrl" | "error", string>;
 };
 
-const SignInPage = (props: Props) => {
+const LoginPage = (props: Props) => {
   return (
     <Login
       error={props.searchParams?.error}
@@ -14,4 +14,4 @@ const SignInPage = (props: Props) => {
   );
 };
 
-export default SignInPage;
+export default LoginPage;

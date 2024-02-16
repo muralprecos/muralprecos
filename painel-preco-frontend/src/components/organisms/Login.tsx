@@ -13,7 +13,7 @@ import InputForm from "@/components/molecules/InputForm";
 import LoadingPage from "@/components/molecules/LoadingPage";
 import SimpleInformationPage from "@/components/molecules/SimpleInformationPage";
 import { useSnackbar } from "notistack";
-import { addSnackError } from "@/utils/snackbarUtils";
+import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { messages } from "@/utils/messages";
 import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
 import { useEffect } from "react";
@@ -63,6 +63,9 @@ const Login = (props: Props) => {
 
     if (res?.error) {
       addSnackError(enqueueSnackbar,res?.error);
+    } else {
+      addSnackSuccess(enqueueSnackbar,messages.LOGIN_SUCCESS);
+      router.push(INITIAL_PAGE_LOGGED);
     }
   }
 
