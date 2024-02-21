@@ -1,9 +1,11 @@
 package br.com.tt.painelpreco.api.dto;
 
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import br.com.tt.painelpreco.domain.model.vo.Link;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +23,7 @@ public class ItemLicitacaoDTO {
 	private MaterialDTO material;
 	private FornecedorDTO fornecedor;
 	private LicitacaoDTO licitacao;
+	private List<Link> links;
 	
 	public String getValor() {
 		Locale localBrasil = new Locale("pt", "BR");

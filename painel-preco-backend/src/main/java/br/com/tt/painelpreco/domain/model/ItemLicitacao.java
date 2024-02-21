@@ -1,5 +1,7 @@
 package br.com.tt.painelpreco.domain.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -10,7 +12,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import br.com.tt.painelpreco.domain.model.vo.Link;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -57,12 +61,25 @@ public class ItemLicitacao {
 	@JoinColumn(name = "fornecedor_id")
 	private Fornecedor fornecedor;
 
+	@Transient
+	private List<Link> links = new ArrayList<>(); 
+
 	public Integer getCatMat() {
 		try {
 			return this.getMaterial().getCodigo();
 		} catch (NullPointerException e) {
 			return null;
 		}
+	}
+	
+	public List<Link> getLinks() {
+		Integer uasg = licitacao.getUnidadeGestora().getCodigo();
+		Integer numLicitacao = licitacao.getNumero();
+		Integer codModalidade = licitacao.getModalidadeCompra().getCodigo();
+		String url = "http://comprasnet.gov.br/livre/pregao/ata2.asp?co_no_uasg=" + uasg + "&numprp=" + numLicitacao + "&codigoModalidade=" + codModalidade + "&f_lstSrp=T&f_Uf=&f_numPrp=0&f_codUasg=" + uasg + "&f_codMod=" + codModalidade + "&f_tpPregao=E&f_lstICMS=T&f_dtAberturaIni=&f_dtAberturaFim=";
+		links.add(new Link(licitacao.getNumeroFormatado(), url));
+		
+		return links;
 	}
 
 }

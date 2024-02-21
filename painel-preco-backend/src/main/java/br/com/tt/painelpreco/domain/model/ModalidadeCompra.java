@@ -29,5 +29,12 @@ public class ModalidadeCompra {
 	private Integer codigo;
 	
 	private String nome;
+	
+	public Integer getCodigo() {
+		if (codigo.equals(-97)) return 3;
+		if (codigo.equals(-98)) return 4;
+		if (codigo.equals(-99)) return 5;
+		return codigo;
+	}
 
 }

@@ -2,6 +2,6 @@ package br.com.tt.painelpreco.util;
 
 public class ApiVersion {
 	
-	public static final String LATEST = "/api/v1";
+	public static final String LATEST = "/serverapi/v1";
 
 }

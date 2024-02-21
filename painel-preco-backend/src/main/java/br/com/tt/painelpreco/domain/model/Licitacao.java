@@ -105,5 +105,13 @@ public class Licitacao {
 	public PeriodoCompra getPeriodoCompra() {
 		return new PeriodoCompra(dataResultadoCompra);
 	}
+	
+	public String getNumeroFormatado() {
+		String numStr = String.valueOf(numero);
+		String num = numStr.substring(0, 1);
+		String ano = numStr.substring(2);
+		
+		return modalidadeCompra.getNome() + " N.º " + num + "/" + ano;
+	}
 
 }
