@@ -43,6 +43,16 @@ public class ItemLicitacaoController {
 		return ResponseEntity.ok(itemDTO);
 	}
 	
+	@GetMapping("unauth/{uuid}")
+	public ResponseEntity<ItemLicitacaoDTO> exibirUnauth(@PathVariable UUID uuid) {
+		ItemLicitacao item = itemLicitacaoService.findByUuid(uuid);
+		if (item == null)
+			return ResponseEntity.notFound().build();
+		
+		ItemLicitacaoDTO itemDTO = converter.toDTO(item, ItemLicitacaoDTO.class);
+		return ResponseEntity.ok(itemDTO);
+	}
+	
 	@GetMapping
 	public Page<?> pesquisar(Pageable pageable, ItemLicitacaoFilter filter) {
 		Page<ItemLicitacao> itens = itemLicitacaoService.listaByFilter(ItemLicitacaoSpecs.filtroGeral(filter), pageable);
