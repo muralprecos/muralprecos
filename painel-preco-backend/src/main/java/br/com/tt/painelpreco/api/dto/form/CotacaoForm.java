@@ -10,5 +10,6 @@ import lombok.Setter;
 public class CotacaoForm {
 	
 	private UUID[] itens;
+	private String stringBusca;
 
 }

@@ -2,9 +2,12 @@ package br.com.tt.painelpreco.arch.api.controller;
 
 import java.lang.reflect.Field;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -13,8 +16,10 @@ import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -23,14 +28,36 @@ import br.com.tt.painelpreco.arch.exception.ArchException;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.util.ReflectionUtil;
 import br.com.tt.painelpreco.util.ReportUtil;
+import net.sf.jasperreports.engine.JasperReport;
 
 public abstract class AbstractController {
+	
+	private static final List<String> POSSIBLE_IP_HEADERS = List.of(
+			"X-Real-IP",
+			"X-Forwarded-For",
+			"HTTP_FORWARDED",
+			"HTTP_FORWARDED_FOR",
+			"HTTP_X_FORWARDED",
+			"HTTP_X_FORWARDED_FOR",
+			"HTTP_CLIENT_IP",
+			"HTTP_VIA",
+			"HTTP_X_CLUSTER_CLIENT_IP",
+			"Proxy-Client-IP",
+			"WL-Proxy-Client-IP",
+			"REMOTE_ADDR"
+		  );
 	
 	@Autowired
 	private ApplicationContext context;
 	
 	@Autowired
+	HttpServletRequest request;
+	
+	@Autowired
 	private ReportUtil reportUtil;
+	
+	@Value("${app.domain}")
+	private String appDomain;
 	
 	public Map<String, Object> dtoToMap(DTO dto) {
 		Map<String, Object> parameters = new HashMap<>();
@@ -108,8 +135,51 @@ public abstract class AbstractController {
 		}
 	}
 	
+	public String getRemoteAddress() {
+		return getIpAddressFromHeader(request);
+	}
+	
+	private String getIpAddressFromHeader(HttpServletRequest request) {
+	    for (String ipHeader : POSSIBLE_IP_HEADERS) {
+	      String headerValue = Collections.list(request.getHeaders(ipHeader)).stream()
+	          .filter(StringUtils::hasLength)
+	          .findFirst()
+	          .orElse(null);
+	 
+	      if (headerValue != null) {
+	        return headerValue;
+	      }
+	    }
+	 
+	    return request.getRemoteAddr();
+	}
+	
+	public JasperReport getReport(String fileName) {
+		return reportUtil.getReport(fileName);
+	}
+	
+	public String getReportRelativePath(String fileName) {
+		return reportUtil.getReportRelativePath(fileName);
+	}
+	
+	public String getDefaultLogoPath() {
+		return reportUtil.getDefaultLogoPath();
+	}
+	
 	public void reportExportPDF(String reportFileName, Map<String, Object> params, HttpServletResponse response, String fileNamePDF) {
 		reportUtil.downloadReportWithPDF(reportFileName, params, response, fileNamePDF);
+	}
+	
+	public byte[] reportExportPDF(String reportFileName, Map<String, Object> params) {
+		return reportUtil.downloadReportWithPDF(reportFileName, params);
+	}
+	
+	public void downloadPDF(byte[] report, HttpServletResponse response, String fileNamePDF ) {
+		reportUtil.downloadPDF(report, response, fileNamePDF);
+	}
+	
+	public String getAppDomain() {
+		return appDomain;
 	}
 
 }
