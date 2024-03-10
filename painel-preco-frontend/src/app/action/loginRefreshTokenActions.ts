@@ -1,8 +1,5 @@
 "use server";
 
-import { messages } from "@/utils/messages";
-import { signIn } from "auth";
-import { AuthError } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import logger from "../../../services/logger";
 import { jwtDecode } from "jwt-decode";
@@ -30,7 +27,7 @@ async function refreshAccessToken(token: JWT) {
       access_token: refreshToken.access_token,
       decoded: jwtDecode(refreshToken.access_token),
       id_token: refreshToken.id_token,
-      expires_at: Math.floor(Date.now() / 1000) + refreshToken.expires_in,
+      exp: Math.floor(Date.now() / 1000) + refreshToken.exp,
       refresh_token: refreshToken.refresh_token,
     };
   } catch (error) {

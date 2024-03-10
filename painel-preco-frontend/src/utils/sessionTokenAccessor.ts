@@ -63,3 +63,7 @@ export async function getAccessTokenClient(session: Session|null) {
   }
   return null;
 }
+
+export function isAuthenticatedFail(session: Session|null, status: string) {
+  return status == `authenticated` && (session == null || session.userInfo == null || session.access_token == null || session.error != null || (new Date()).getTime() > session.userInfo.exp);
+}

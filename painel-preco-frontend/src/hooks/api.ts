@@ -1,7 +1,6 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IUserKeyCloak, IAPISearchPropsLogged } from "@/interfaces/types";
-import { ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob, postGenericJson } from "./genericapi";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IAPISearchPropsLogged } from "@/interfaces/types";
+import { ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
-import { JWT } from "next-auth/jwt";
 
 
 export const getListPorteFornecedor = async (
@@ -118,13 +117,16 @@ export const getPesquisarCotacoes = async (
 }
 
 export const postDownloadItensCotacoes = async (
-  itens: IRetornoPesquisaItensLicitacao[]) : Promise<Blob|ResponseError|null> => {
+  itens: IRetornoPesquisaItensLicitacao[],
+  accessToken: string
+  ) : Promise<Blob|ResponseError|null> => {
     return postGenericBlob({
       path: '/serverapi/v1/cotacoes',
       bodydata: JSON.stringify({
         "itens": itens.map( i => i.uuid )
       }),
-      acceptType: ''
+      acceptType: '',
+      accessToken
     });
 }
 

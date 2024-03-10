@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, CardBody, Divider, Listbox, ListboxItem, Selection, Spacer } from "@nextui-org/react";
+import { Button, Card, CardBody, Divider, Link, Listbox, ListboxItem, Selection, Spacer } from "@nextui-org/react";
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
 import { IItemLicitacao } from "@/interfaces/types";
@@ -16,6 +16,7 @@ import { useSnackbar } from "notistack";
 import LoadingItem from "@/components/molecules/LoadingItem";
 import { useSession } from "next-auth/react";
 import { getAccessTokenClient } from "@/utils/sessionTokenAccessor";
+import { strIfNotNull } from "@/utils/convertData";
 
 export interface IPropsViewItensLicitacao {
   params: { item: string }
@@ -50,8 +51,10 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
 
   useEffect(() => {
     if (status == "unauthenticated") {
-      router.push("/unauthorized");
-      router.refresh();
+      // TODO: verificar uma forma de utilizar um middleware único para redirecionamento em caso de não autenticação
+      // router.push("/unauthorized");
+      // router.refresh();
+      setIsLoading(false);
     } else if (status == 'loading') {
       setIsLoading(true);
     }else if (status == 'authenticated' && !!token) {
@@ -173,43 +176,43 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           <Spacer y={3} />
                           <FormRow>
                             <InfoText label="Unidade" orientarion="row">
-                              {itemLicitacao?.unidadeFornecimento?.nome}
+                              {strIfNotNull(itemLicitacao?.unidadeFornecimento?.nome)}
                             </InfoText>
                             <InfoText label="Quantidade" orientarion="row">
-                              {itemLicitacao?.quantidade}
+                              {strIfNotNull(itemLicitacao?.quantidade)}
                             </InfoText>
                             <InfoText label="Valor" orientarion="row">
-                              {itemLicitacao?.valor}
+                              {strIfNotNull(itemLicitacao?.valor)}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Descrição">
-                              {itemLicitacao?.descricao}
+                              {strIfNotNull(itemLicitacao?.descricao)}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Descrição Complementar">
-                              {itemLicitacao?.descricaoComplementar}
+                              {strIfNotNull(itemLicitacao?.descricaoComplementar)}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Material">
-                              (CatMat: {itemLicitacao?.material?.codigo}) - {itemLicitacao?.material?.nome}
+                              (CatMat: {strIfNotNull(itemLicitacao?.material?.codigo)}) - {itemLicitacao?.material?.nome}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Fornecedor">
-                              {itemLicitacao?.fornecedor.nome}
+                              {strIfNotNull(itemLicitacao?.fornecedor.nome)}
                             </InfoText>
                             <InfoText label="Porte">
-                              {itemLicitacao?.fornecedor.porte?.nome}
+                              {strIfNotNull(itemLicitacao?.fornecedor.porte?.nome)}
                             </InfoText>
                             <InfoText label="Documento">
-                              {itemLicitacao?.fornecedor.documento}
+                              {strIfNotNull(itemLicitacao?.fornecedor.documento)}
                             </InfoText>
                           </FormRow>
                         </section>
@@ -221,64 +224,64 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           <Spacer y={3} />
                           <FormRow>
                             <InfoText label="Ano Compra" orientarion="row">
-                              {itemLicitacao?.licitacao.anoCompra}
+                              {strIfNotNull(itemLicitacao?.licitacao.anoCompra)}
                             </InfoText>
                             <InfoText label="Data Abertura" orientarion="row">
-                              {itemLicitacao?.licitacao.dataAbertura}
+                              {strIfNotNull(itemLicitacao?.licitacao.dataAbertura)}
                             </InfoText>
                             <InfoText label="Data Resultado" orientarion="row">
-                              {itemLicitacao?.licitacao.dataResultadoCompra}
+                              {strIfNotNull(itemLicitacao?.licitacao.dataResultadoCompra)}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Processo" orientarion="row">
-                              {itemLicitacao?.licitacao.numeroProcesso}
+                              {strIfNotNull(itemLicitacao?.licitacao.numeroProcesso)}
                             </InfoText>
                             <InfoText label="Situacao" orientarion="row">
-                              {itemLicitacao?.licitacao.situacao.nome}
+                              {strIfNotNull(itemLicitacao?.licitacao.situacao.nome)}
                             </InfoText>
                             <InfoText label="Valor" orientarion="row">
-                              {itemLicitacao?.licitacao.valor}
+                              {strIfNotNull(itemLicitacao?.licitacao.valor)}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Esfera" orientarion="row">
-                              {itemLicitacao?.licitacao.esfera.nome}
+                              {strIfNotNull(itemLicitacao?.licitacao.esfera.nome)}
                             </InfoText>
                             <InfoText label="Estado" orientarion="row">
-                              {itemLicitacao?.licitacao.municipio.uf.nome} ({itemLicitacao?.licitacao.municipio.uf.sigla})
+                              {strIfNotNull(itemLicitacao?.licitacao.municipio.uf.nome)} ({strIfNotNull(itemLicitacao?.licitacao.municipio.uf.sigla)})
                             </InfoText>
                             <InfoText label="Municipio" orientarion="row">
-                              {itemLicitacao?.licitacao.municipio.nome}
+                              {strIfNotNull(itemLicitacao?.licitacao.municipio.nome)}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow py={2}>
                             <InfoText label="Objeto da Licitação">
-                              {itemLicitacao?.licitacao.objeto}
+                              {strIfNotNull(itemLicitacao?.licitacao.objeto)}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Forma Compra">
-                              {itemLicitacao?.licitacao.formaCompra.nome} ({itemLicitacao?.licitacao.formaCompra.sigla})
+                              {strIfNotNull(itemLicitacao?.licitacao.formaCompra.nome)} ({strIfNotNull(itemLicitacao?.licitacao.formaCompra.sigla)})
                             </InfoText>
                             <InfoText label="Modalidade Compra">
-                              {itemLicitacao?.licitacao.modalidadeCompra.nome} ({itemLicitacao?.licitacao.modalidadeCompra.codigo})
+                              {strIfNotNull(itemLicitacao?.licitacao.modalidadeCompra.nome)} ({strIfNotNull(itemLicitacao?.licitacao.modalidadeCompra.codigo)})
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Unidade Gestora">
-                              {itemLicitacao?.licitacao.unidadeGestora.nome} ({itemLicitacao?.licitacao.unidadeGestora.codigo})
+                              {strIfNotNull(itemLicitacao?.licitacao.unidadeGestora.nome)} ({strIfNotNull(itemLicitacao?.licitacao.unidadeGestora.codigo)})
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Órgão">
-                              {itemLicitacao?.licitacao.orgao.nome} ({itemLicitacao?.licitacao.orgao.codigo})
+                              {strIfNotNull(itemLicitacao?.licitacao.orgao.nome)} ({strIfNotNull(itemLicitacao?.licitacao.orgao.codigo)})
                             </InfoText>
                           </FormRow>
                           
@@ -287,14 +290,28 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                               <Divider orientation="horizontal" />
                               <FormRow>
                                 <InfoText label="Órgão Superior">
-                                  {itemLicitacao?.licitacao.orgaoSuperior.nome} ({itemLicitacao?.licitacao.orgaoSuperior.codigo})
+                                  {strIfNotNull(itemLicitacao?.licitacao.orgaoSuperior.nome)} ({strIfNotNull(itemLicitacao?.licitacao.orgaoSuperior.codigo)})
                                 </InfoText>
                               </FormRow>
                             </div>
                           }
                         </section>
                       }
-                      
+
+                      { itemLicitacao?.links != undefined && itemLicitacao?.links.length > 0 &&
+                        <section className='flex-1 w-full gap-4 pb-6'>
+                          <InfoTitle>Links</InfoTitle>
+                          <Divider orientation="horizontal" />
+                          <Spacer y={3} />
+                          <FormRow defwrap={false} className="flex-wrap">
+                          { itemLicitacao.links.map(i => 
+                            <Button className="" key={i.nome} color="primary" variant="ghost" href={i.url} target="_blank" as={Link}>
+                              {i.nome}
+                            </Button>
+                          )}
+                          </FormRow>
+                        </section>
+                      }
                     </div>
                   </div>
                 }

@@ -20,9 +20,11 @@ import { DATE_PATTERN, convertTZptBR, datePattern } from "@/utils/dateUtils";
 import { downloadFile, mountUrl } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
 import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { getAccessTokenClient } from "@/utils/sessionTokenAccessor";
+import { getAccessTokenClient, isAuthenticatedFail } from "@/utils/sessionTokenAccessor";
+import { logoutAction } from "../action/logoutActions";
+import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 
 export interface IPropsCartPge {
 }
@@ -47,11 +49,16 @@ const CartPage: React.FC<IPropsCartPge> = ({
   }, [session]);
 
   useEffect(() => {
-    if (status == "unauthenticated") {
-      router.push("/unauthorized");
-      router.refresh();
+    console.log('pageClient useEffect', status, session)
+    if (status == 'unauthenticated') {
+      redirect(INITIAL_PAGE_LOGIN);
+    } else if (isAuthenticatedFail(session, status)) {
+      setIsLoading(true);
+      logoutAction();
+    } else {
+      setIsLoading(false);
     }
-  }, [session, status, router]);
+  }, [status, session]);
 
 
   const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();
@@ -86,18 +93,27 @@ const CartPage: React.FC<IPropsCartPge> = ({
   }
 
   const generatePDF = async () => {
-    const now = convertTZptBR(new Date());
-    const res = await postDownloadItensCotacoes(_cartList)
-    if (res != null) {
-      if (res instanceof Blob) {
-        downloadFile(res, `cotacao-${datePattern(now, DATE_PATTERN.FULL)}.pdf`);
-        addSnackSuccess(enqueueSnackbar, 'Iniciando download da cotação!');
-      } else if (res.error) {
-        addSnackError(enqueueSnackbar, res.error);
-      }
-    } else {
-      addSnackError(enqueueSnackbar, 'Nenhum arquivo retornado!');
+    if (token == null) {
+      addSnackError(enqueueSnackbar, 'Realize o Login novamente e repita a operação.');
+      return;
     }
+    try {
+      const now = convertTZptBR(new Date());
+      const res = await postDownloadItensCotacoes(_cartList, token);
+      if (res != null) {
+        if (res instanceof Blob) {
+          downloadFile(res, `cotacao-${datePattern(now, DATE_PATTERN.FULL)}.pdf`);
+          addSnackSuccess(enqueueSnackbar, 'Iniciando download da cotação!');
+        } else if (res.error) {
+          addSnackError(enqueueSnackbar, res.error);
+        }
+      } else {
+        addSnackError(enqueueSnackbar, 'Nenhum arquivo retornado!');
+      }
+    } catch (e: Error | any) {
+      addSnackError(enqueueSnackbar, (e instanceof Error ? e.message: e));
+    }
+    
     
   }
 

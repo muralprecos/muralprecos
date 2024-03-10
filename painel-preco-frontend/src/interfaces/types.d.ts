@@ -186,6 +186,10 @@ export interface IItemLicitacao {
   material: INomeMaterial
   fornecedor: IFornecedor
   licitacao: ILicitacao
+  links?: [{
+    nome: string
+    url: string
+  }]
 }
 
 export interface ILicitacao {

@@ -1,6 +1,7 @@
 import logger from "../../services/logger";
 import { mountUrl } from "@/utils/requestUtils";
 import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
+import { logoutAction } from "@/app/action/logoutActions";
 
 const host = 'https://muraldeprecos.com';
 export const revalidate = 3600; // revalida os dados a cada hora
@@ -10,7 +11,7 @@ export type ResponseReq = {
   statusCode: number | null,
   statusText: string | null,
   statusDetails: string | null,
-  data: Response | null
+  data?: Response | null
 };
 
 export type ResponseError = {
@@ -56,23 +57,24 @@ const doReq = async (
                     statusDetails: null,
                     data: resp,
                 }
-                logger.error(`Bad response from server. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${resp.status}.`);
-                return new Promise<ResponseReq>((resolve) => { resolve(result) });
+                logger.error(`Retorno de erro durante request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${result.statusCode}. Error Name: ${result.statusText}.`);
+                throw result;
             }
-        }).catch((error) => {
+        }).catch((error: Error | ResponseReq) => {
+          const isTypeError = error instanceof Error;
             const result: ResponseReq = {
-                status: false,
-                statusCode: 503,
-                statusText: error,
-                statusDetails: error,
-                data: null,
+                status: isTypeError ? false : error.status,
+                statusCode: isTypeError ? 599 : error.statusCode,
+                statusText: isTypeError ? error.name : error.statusText,
+                statusDetails: isTypeError ? error.message : error.statusDetails,
+                data: isTypeError ? null : error.data
             }
-            logger.error(`Throw error when are doing request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${error}.`);
-            return new Promise<ResponseReq>((resolve) => { resolve(result) });
+            logger.error(`Throw error durante request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${result.statusCode}. Error Name: ${result.statusText}.`);
+            throw result;
         });
         return res;
     } catch (error) {
-      logger.error(`Throw error when are doing request:`);
+      logger.error(`Throw error antes do fetch da request:`);
       logger.error(error);
       throw(error)
     }
@@ -92,25 +94,30 @@ export const getGenericListPageable =  async <T>(
 }
 
 export const postGeneric =  async <T>(
-  { path, bodydata, acceptType, contentType } : IAPISearchProps
+  { path, bodydata, acceptType, contentType, accessToken } : IAPISearchProps
   ) : Promise<ResponseReq> => {
     const res = await doReq({ path, config: {
       method: 'POST',
       body: bodydata
-    }, acceptType, contentType });
+    }, acceptType, contentType, accessToken });
     return res;
 }
 export const postGenericJson =  async <T>(
-  { path, bodydata, acceptType, contentType } : IAPISearchProps
+  { path, bodydata, acceptType, contentType, accessToken } : IAPISearchProps
   ) : Promise<T|null> => {
-    const res = await postGeneric({ path, bodydata, acceptType, contentType });
+    const res = await postGeneric({ path, bodydata, acceptType, contentType, accessToken });
     return res.data?.json();
 }
 export const postGenericBlob =  async (
-  { path, bodydata, acceptType } : IAPISearchProps
+  { path, bodydata, acceptType, accessToken } : IAPISearchProps
   ) : Promise<Blob|ResponseError|null> => {
-    const res = await postGeneric<Blob>({ path, bodydata, acceptType });
-    return res.status ? res.data?.blob() : res.data?.json();
+    try {
+      const res = await postGeneric<Blob>({ path, bodydata, acceptType, accessToken });
+      return res.status ? res.data?.blob() : res.data?.json();
+    } catch (e) {
+      throw new Error('Ocorreu um problema na requisição para o servidor.');
+    }
+    return null;
 }
 
 export const getObjectDesc = async <T extends ISimpleObjetoAPI>(props: IAPISearchProps, getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T> | null>) : Promise<string | null> => {

@@ -41,10 +41,15 @@ const Header: React.FC<FormTitleProps> = ({
   useEffect(() => {
     if (status != 'loading') {
       setUsername(status ==  'authenticated' ? session?.userInfo?.name || '' : '');
-      setCartsize(_cartList.length);
       setIsMenuLoaded(true);
     }
-  }, [session, status, _cartList])
+  }, [session, status])
+
+  useEffect(() => {
+    if (status != 'loading') {
+      setCartsize(_cartList.length);
+    }
+  }, [status, _cartList])
 
   const activeLink = (url: string, pathname: string) => {
     return pathname === url
@@ -104,22 +109,26 @@ const Header: React.FC<FormTitleProps> = ({
               </NavbarContent>
 
               <ul className="flex-1">
-                { isMenuLoaded &&
-                  <ul className="flex-1">
-                    { !isLogged() ?
-                      <NavbarContent className="flex gap-3" justify="end">
-                        <ThemeSwitcher className="sm:flex hidden" />
-                        <NavbarItem className="hidden lg:flex">
-                          <Link href={INITIAL_PAGE_LOGIN}>Acessar Conta</Link>
-                        </NavbarItem>
-                      </NavbarContent>
-                    :
-                      <NavbarContent className="flex gap-3" justify="end">
-                        <HeaderUserInfo cartsize={cartsize} username={username} logout={onClickLogout} />
-                      </NavbarContent>
-                    }
-                  </ul>
-                }
+                <NavbarContent className="flex gap-3" justify="end">
+                  { isMenuLoaded ?
+                    <>
+                      { !isLogged() ?
+                        <>
+                          <ThemeSwitcher className="sm:flex hidden" />
+                          <NavbarItem className="hidden lg:flex">
+                            <Link href={INITIAL_PAGE_LOGIN}>Acessar Conta</Link>
+                          </NavbarItem>
+                        </>
+                      :
+                          <HeaderUserInfo cartsize={cartsize} username={username} logout={onClickLogout} />
+                      }
+                    </>
+                  : 
+                    <>
+                      ...
+                    </>
+                  }
+                </NavbarContent>
               </ul>
               
             </div>

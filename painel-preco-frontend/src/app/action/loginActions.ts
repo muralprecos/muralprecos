@@ -17,7 +17,7 @@ export async function loginAction(formData: Partial<Record<"username" | "passwor
     logger.info("loginAction error");
     if (error instanceof AuthError) {
       logger.info("loginAction AuthError");
-      console.error(error.type, error.message)
+      logger.error(error.type, error.message)
       switch (error.type) {
         case 'CredentialsSignin':
           return {error: messages.LOGIN_WRONG}
