@@ -22,5 +22,8 @@ public interface CotacaoRepository extends JpaRepository<Cotacao, Integer>, JpaS
 
 	@Transactional
 	Cotacao findByUuid(UUID uuid);
+
+	@Query(value = "SELECT ARRAY_AGG(il.descricao) AS stringBusca FROM mural.item_licitacao il WHERE il.uuid IN (:itens)", nativeQuery = true)
+	String findStringBuscaByItens(UUID[] itens);
 	
 }

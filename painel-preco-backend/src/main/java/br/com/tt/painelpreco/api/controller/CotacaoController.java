@@ -48,9 +48,10 @@ public class CotacaoController extends AbstractController {
 	
 	@PostMapping
 	public ResponseEntity<?> imprimir(@RequestBody CotacaoForm cotacaoForm, HttpServletResponse response) {
+		UUID[] itens = cotacaoForm.getItens();
 		String usuario = super.getUsuario().getLogin();
 		String ip = super.getRemoteAddress();
-		String stringBusca = cotacaoForm.getStringBusca();
+		String stringBusca = cotacaoService.findStringBuscaByItens(itens);
 		Date agora = new Date();
 		String agoraStr = DateUtil.format(agora, "dd/MM/yyyy");
 		String nome = usuario + " - " + stringBusca + " - " + agoraStr;
@@ -69,12 +70,10 @@ public class CotacaoController extends AbstractController {
 		cotacao.setHashValidacao(hashValidacao);
 		
 		Map<String, Object> params = new HashMap<>();
-		params.put("itens", cotacaoForm.getItens());
-		params.put("queryString", stringBusca);
-		params.put("itens", cotacaoForm.getItens());
+		params.put("itens", itens);
 		params.put("queryString", stringBusca);
 		params.put("nome", nome);
-		params.put("logo", super.getDefaultLogoPath());
+		params.put("logo", super.getDefaultLogo());
 		params.put("cabecalho", "TT Soluções & Consultoria - Unidade de Compras e Licitações");
 		params.put("dataPesquisa", agoraStr);
 		params.put("dataGeracao", agoraStr);

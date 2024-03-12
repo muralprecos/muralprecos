@@ -10,6 +10,8 @@
 	<property name="background.image.x" value="309"/>
 	<property name="background.image.alpha" value="0.1"/>
 	<property name="background.image.keep_ratio" value="true"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="199"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="793"/>
 	<parameter name="itens" class="java.util.Collection" nestedType="java.util.UUID">
 		<defaultValueExpression><![CDATA[new ArrayList(Arrays.asList(new UUID[]{UUID.fromString("4b50f108-b993-11ee-ab7e-0242ac110002"), UUID.fromString("0cd2aaa0-b99a-11ee-ab7e-0242ac110002"), UUID.fromString("6ee9c862-b99b-11ee-ab7e-0242ac110002")}))]]></defaultValueExpression>
 	</parameter>
@@ -35,7 +37,7 @@
 		<defaultValueExpression><![CDATA["https://muraldeprecos.com"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="subreportCotacaoDetalhe" class="net.sf.jasperreports.engine.JasperReport"/>
-	<parameter name="logo" class="java.lang.String">
+	<parameter name="logo" class="java.lang.Object">
 		<defaultValueExpression><![CDATA["/home/euclydes/workspaces/sts/tt/painel-preco/src/main/resources/static/img/logo.png"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="nome" class="java.lang.String" isForPrompting="false">
@@ -48,10 +50,10 @@
 		<![CDATA[select row_number() over (order by 1, 4, 2, 3, 5) as id, i.*
 from (
 	select $P{queryString} as material,
-		o.nome as orgao, mc.nome || ' n.º ' || l.numero || '/' || extract(year from l.data_resultado_compra) as identificacao,
+		ug.nome as orgao, mc.nome || ' n.º ' || l.numero || '/' || extract(year from l.data_resultado_compra) as identificacao,
 		to_char(l.data_resultado_compra, 'dd/MM/yyyy') as data_licitacao, (il.valor / il.quantidade) as preco
 	from mural.licitacao l join mural.item_licitacao il on il.licitacao_id = l.id_licitacao
-		join mural.orgao o on o.id_orgao = l.orgao_id
+		join mural.unidade_gestora ug on ug.id_unidade_gestora = l.unidade_gestora_id
 		join mural.modalidade_compra mc on mc.id_modalidade_compra = l.modalidade_compra_id
 where $X{IN, il.uuid, itens}
 order by 1, 5, 4, 2, 3
@@ -68,7 +70,7 @@ order by 1, 5, 4, 2, 3
 	<field name="orgao" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="orgao"/>
 		<property name="com.jaspersoft.studio.field.label" value="orgao"/>
-		<property name="com.jaspersoft.studio.field.tree.path" value="orgao"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="unidade_gestora"/>
 	</field>
 	<field name="identificacao" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="identificacao"/>
@@ -112,7 +114,7 @@ order by 1, 5, 4, 2, 3
 		<groupHeader>
 			<band height="65">
 				<staticText>
-					<reportElement mode="Opaque" x="0" y="-1" width="40" height="32" forecolor="#FFFFFF" backcolor="#6600CC" uuid="3ea79402-373c-4ae6-8b4b-254abf1f3f3e">
+					<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="-1" width="40" height="32" forecolor="#FFFFFF" backcolor="#6600CC" uuid="3ea79402-373c-4ae6-8b4b-254abf1f3f3e">
 						<property name="com.jaspersoft.studio.unit.firstLineIndent" value="px"/>
 					</reportElement>
 					<textElement textAlignment="Left" verticalAlignment="Middle">
@@ -167,7 +169,7 @@ order by 1, 5, 4, 2, 3
 					<text><![CDATA[Preço (R$)]]></text>
 				</staticText>
 				<textField>
-					<reportElement mode="Opaque" x="40" y="-1" width="515" height="32" forecolor="#FFFFFF" backcolor="#6600CC" uuid="c43d1aea-00e1-43ad-8503-e0f9bd6ad80b">
+					<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="40" y="-1" width="515" height="32" forecolor="#FFFFFF" backcolor="#6600CC" uuid="c43d1aea-00e1-43ad-8503-e0f9bd6ad80b">
 						<property name="com.jaspersoft.studio.unit.firstLineIndent" value="px"/>
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					</reportElement>

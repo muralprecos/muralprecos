@@ -11,10 +11,12 @@ import org.springframework.stereotype.Service;
 
 import br.com.tt.painelpreco.domain.model.Cotacao;
 import br.com.tt.painelpreco.domain.repository.CotacaoRepository;
+import br.com.tt.painelpreco.util.StringUtil;
 
 @Service
 public class CotacaoService {
 	
+	private static final int MAX_CHAR_STRING_BUSCA = 60;
 	@Autowired
 	private CotacaoRepository cotacaoRepository;
 	
@@ -34,6 +36,20 @@ public class CotacaoService {
 
 	public Cotacao findByUuid(UUID uuid) {
 		return cotacaoRepository.findByUuid(uuid);
+	}
+	
+	public String findStringBuscaByItens(UUID[] itens) {
+		String stringBusca = cotacaoRepository.findStringBuscaByItens(itens);
+		if (!StringUtil.isEmpty(stringBusca) && stringBusca.length() > 10) {
+			int length = stringBusca.length();
+			int max = length < MAX_CHAR_STRING_BUSCA ? length : MAX_CHAR_STRING_BUSCA;
+			
+			String epilogo = max >= MAX_CHAR_STRING_BUSCA ? "..." : "";
+			
+			stringBusca = stringBusca.substring(0, max) + epilogo;
+		}
+		
+		return stringBusca;
 	}
 
 }
