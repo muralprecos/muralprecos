@@ -1,6 +1,6 @@
 package br.com.tt.painelpreco.arch.api.controller;
 
-import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.security.Principal;
 import java.util.Collections;
@@ -167,7 +167,7 @@ public abstract class AbstractController {
 		return reportUtil.getDefaultLogoPath();
 	}
 	
-	public BufferedImage getDefaultLogo() {
+	public InputStream getDefaultLogo() {
 		return reportUtil.getDefaultLogo();
 	}
 	

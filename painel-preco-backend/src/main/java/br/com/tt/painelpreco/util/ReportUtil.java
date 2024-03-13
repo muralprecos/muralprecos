@@ -1,6 +1,5 @@
 package br.com.tt.painelpreco.util;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +7,6 @@ import java.io.OutputStream;
 import java.sql.Connection;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
@@ -80,19 +78,12 @@ public class ReportUtil {
 		return DEFAULT_LOGO_PATH;
 	}
 	
-	public BufferedImage getDefaultLogo() {
+	public InputStream getDefaultLogo() {
 		return getImageDefaultPath("logo.png");
 	}
 	
-	public BufferedImage getImageDefaultPath(String imageName) {
-		BufferedImage image = null;
-		try {
-			image =  ImageIO.read(getClass().getResource("/static/img/" + imageName));
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new ArchException("Ocorreu um erro ao carregar imagem " + imageName + ". Causa: " + e.getMessage());
-		}
-		return image;
+	public InputStream getImageDefaultPath(String imageName) {
+		return  new BufferedInputStream(getClass().getResourceAsStream("/static/img/" + imageName));
 	}
 	
 	public void downloadPDF(byte[] report, HttpServletResponse response, String fileNamePDF) {
