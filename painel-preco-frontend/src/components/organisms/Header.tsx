@@ -7,10 +7,9 @@ import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
 import TTIcon from "../atoms/icons/TTIcon";
 import { useAppSelector } from "@/redux/store";
 import HeaderUserInfo from "../molecules/HeaderUserInfo";
-import { useRouter } from 'next/navigation';
-import { useSession } from "next-auth/react";
 import { logoutAction } from "@/app/action/logoutActions";
 import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
+import { Session } from "next-auth";
 
 export interface ILink {
   description: string
@@ -18,45 +17,41 @@ export interface ILink {
 }
 
 type FormTitleProps = {
+  session: Session | null
   links?: ILink[]
   children?: React.ReactNode
 } & React.AllHTMLAttributes<HTMLElement>
 
 const Header: React.FC<FormTitleProps> = ({
   children,
+  session,
   links = [],
   ...opts
 }) => {
 
-  const { data: session, status } = useSession();
-  const router = useRouter();
   const pathname = usePathname();
   const _cartList = useAppSelector((state) => state.cartReducer.value);
 
   const [username, setUsername] = React.useState<string>('');
   const [cartsize, setCartsize] = React.useState<number>(0);
-  const [isMenuLoaded, setIsMenuLoaded] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   useEffect(() => {
-    if (status != 'loading') {
-      setUsername(status ==  'authenticated' ? session?.userInfo?.name || '' : '');
-      setIsMenuLoaded(true);
+    if (session?.userInfo?.name) {
+      setUsername(session?.userInfo?.name);
     }
-  }, [session, status])
+  }, [session])
 
   useEffect(() => {
-    if (status != 'loading') {
-      setCartsize(_cartList.length);
-    }
-  }, [status, _cartList])
+    setCartsize(_cartList.length);
+  }, [_cartList])
 
   const activeLink = (url: string, pathname: string) => {
     return pathname === url
   };
 
   const isLogged = () : boolean => {
-    return status == 'authenticated';
+    return session?.userInfo?.name != null && session?.userInfo?.name != '';
   }
 
   const onClickLogout = (event: React.MouseEvent<HTMLElement>) => {
@@ -109,25 +104,19 @@ const Header: React.FC<FormTitleProps> = ({
               </NavbarContent>
 
               <ul className="flex-1">
-                <NavbarContent className="flex gap-3" justify="end">
-                  { isMenuLoaded ?
+                <NavbarContent className="gap-3 sm:flex hidden" justify="end">
+                  { !session?.userInfo ? (
                     <>
-                      { !isLogged() ?
-                        <>
-                          <ThemeSwitcher className="sm:flex hidden" />
-                          <NavbarItem className="hidden lg:flex">
-                            <Link href={INITIAL_PAGE_LOGIN}>Acessar Conta</Link>
-                          </NavbarItem>
-                        </>
-                      :
-                          <HeaderUserInfo cartsize={cartsize} username={username} logout={onClickLogout} />
-                      }
+                      <ThemeSwitcher />
+                      <NavbarItem>
+                        <Link href={INITIAL_PAGE_LOGIN}>Acessar Conta</Link>
+                      </NavbarItem>
                     </>
-                  : 
+                  ) : (
                     <>
-                      ...
+                      <HeaderUserInfo cartsize={cartsize} username={username} logout={onClickLogout} />
                     </>
-                  }
+                  )}
                 </NavbarContent>
               </ul>
               
@@ -155,7 +144,6 @@ const Header: React.FC<FormTitleProps> = ({
                     <ThemeSwitcher isCompact={false} variant="light"/>
                   </Link>
                 </NavbarMenuItem>
-                { isMenuLoaded &&
                 <>
                   { !isLogged() ?
                     <NavbarMenuItem>
@@ -170,7 +158,7 @@ const Header: React.FC<FormTitleProps> = ({
                       </Button>
                     </NavbarMenuItem>
                   }
-                </> }
+                </>
               </div>
             </NavbarMenu>
           </div>

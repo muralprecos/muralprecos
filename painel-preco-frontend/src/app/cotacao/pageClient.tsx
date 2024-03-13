@@ -47,17 +47,17 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    console.log('pageClient useEffect', status, session)
-    if (status == 'unauthenticated') {
-      redirect(INITIAL_PAGE_LOGIN);
-    } else if (isAuthenticatedFail(session, status)) {
-      setIsLoading(true);
-      logoutAction();
-    } else {
-      setIsLoading(false);
-    }
-  }, [status, session]);
+  // useEffect(() => {
+  //   console.log('pageClient useEffect', status, session)
+  //   if (status == 'unauthenticated') {
+  //     redirect(INITIAL_PAGE_LOGIN);
+  //   } else if (isAuthenticatedFail(session, status)) {
+  //     setIsLoading(true);
+  //     logoutAction();
+  //   } else {
+  //     setIsLoading(false);
+  //   }
+  // }, [status, session]);
 
   useEffect(() => {
     if (!isLoading) {

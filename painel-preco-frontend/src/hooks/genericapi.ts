@@ -1,7 +1,6 @@
 import logger from "../../services/logger";
 import { mountUrl } from "@/utils/requestUtils";
 import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
-import { logoutAction } from "@/app/action/logoutActions";
 
 const host = 'https://muraldeprecos.com';
 export const revalidate = 3600; // revalida os dados a cada hora

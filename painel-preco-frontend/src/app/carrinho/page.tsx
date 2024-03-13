@@ -23,7 +23,6 @@ import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { redirect, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getAccessTokenClient, isAuthenticatedFail } from "@/utils/sessionTokenAccessor";
-import { logoutAction } from "../action/logoutActions";
 import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 
 export interface IPropsCartPge {
@@ -48,17 +47,17 @@ const CartPage: React.FC<IPropsCartPge> = ({
     getToken();
   }, [session]);
 
-  useEffect(() => {
-    console.log('pageClient useEffect', status, session)
-    if (status == 'unauthenticated') {
-      redirect(INITIAL_PAGE_LOGIN);
-    } else if (isAuthenticatedFail(session, status)) {
-      setIsLoading(true);
-      logoutAction();
-    } else {
-      setIsLoading(false);
-    }
-  }, [status, session]);
+  // useEffect(() => {
+  //   console.log('pageClient useEffect', status, session)
+  //   if (status == 'unauthenticated') {
+  //     redirect(INITIAL_PAGE_LOGIN);
+  //   } else if (isAuthenticatedFail(session, status)) {
+  //     setIsLoading(true);
+  //     logoutAction();
+  //   } else {
+  //     setIsLoading(false);
+  //   }
+  // }, [status, session]);
 
 
   const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();

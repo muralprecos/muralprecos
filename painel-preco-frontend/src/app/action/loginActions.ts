@@ -4,6 +4,7 @@ import { messages } from "@/utils/messages";
 import { signIn } from "auth";
 import { AuthError } from "next-auth";
 import logger from "../../../services/logger";
+import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
 
 export async function loginAction(formData: Partial<Record<"username" | "password" | "redirect", unknown>>) {
   try {
@@ -11,8 +12,8 @@ export async function loginAction(formData: Partial<Record<"username" | "passwor
     return signIn('credentials', {
       username: formData.username,
       password: formData.password,
-      redirectTo: '/'
-    });
+      redirectTo: INITIAL_PAGE_LOGGED
+    })
   } catch (error) {
     logger.info("loginAction error");
     if (error instanceof AuthError) {

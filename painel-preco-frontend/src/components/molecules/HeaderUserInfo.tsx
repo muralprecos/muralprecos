@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 
 import { Button } from '@nextui-org/button'
-import { Badge, Link, NavbarItem, Popover, PopoverContent, PopoverTrigger, User } from '@nextui-org/react'
+import { Avatar, Badge, Link, NavbarItem, Popover, PopoverContent, PopoverTrigger, User } from '@nextui-org/react'
 import CartIcon from '../atoms/icons/CartIcon';
 import HeaderUserPopover from './HeaderUserPopover';
 
@@ -38,12 +38,11 @@ const HeaderUserInfo: React.FC<HeaderUserInfoProps> = ({
               classNamesArrPath={['stroke-primary']}/>
           </Badge>
         </Button>
-        <Popover showArrow placement="bottom">
+        <Popover showArrow placement="bottom" className='sm:flex hidden'>
           <PopoverTrigger>
-            <User   
-              as="button"
+            <Avatar   
               name={username}
-              className="transition-transform"
+              className="transition-transform sm:flex hidden"
               // avatarProps={{
               //   src: "https://i.pravatar.cc/150?u=a04258114e29026702d"
               // }}
