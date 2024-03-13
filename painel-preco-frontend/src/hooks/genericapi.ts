@@ -2,10 +2,10 @@ import logger from "../../services/logger";
 import { mountUrl } from "@/utils/requestUtils";
 import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
 
-const host = 'https://muraldeprecos.com';
+const host = `${process.env.API_URL}`;
 export const revalidate = 3600; // revalida os dados a cada hora
 
-export type ResponseReq = {
+export interface ResponseReq {
   status: boolean,
   statusCode: number | null,
   statusText: string | null,
@@ -20,11 +20,15 @@ export type ResponseError = {
   timestamp: string
 }
 
+export function isResponseReq(object: any): object is ResponseReq {
+  return 'statusCode' in object;
+}
+
 const doReq = async (
   { path, page, size, info, filterFields, config, contentType = 'application/json', acceptType = 'application/json', accessToken } : IAPISearchProps) : Promise<ResponseReq> => {
     try {
       const HEADERS : HeadersInit = {}
-      //'Authorization': `Bearer ${token}`
+
       if (!!contentType) { HEADERS['Content-Type'] = contentType; }
       if (!!acceptType) { HEADERS['Accept'] = acceptType; }
       if (!!accessToken) { HEADERS['Authorization'] = `Bearer ${accessToken}`; }
@@ -32,7 +36,7 @@ const doReq = async (
       const reqOpts = { 
         //TODO: aprimorar cache de requisições e adicionar body
         // cache: 'force-cache',
-        next: {  },
+        next: { revalidate },
         headers: new Headers(HEADERS),
         ...config
       }
@@ -56,7 +60,7 @@ const doReq = async (
                     statusDetails: null,
                     data: resp,
                 }
-                logger.error(`Retorno de erro durante request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${result.statusCode}. Error Name: ${result.statusText}.`);
+                //logger.error(`Retorno de erro durante request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${result.statusCode}. Error Name: ${result.statusText}.`);
                 throw result;
             }
         }).catch((error: Error | ResponseReq) => {
@@ -68,13 +72,13 @@ const doReq = async (
                 statusDetails: isTypeError ? error.message : error.statusDetails,
                 data: isTypeError ? null : error.data
             }
-            logger.error(`Throw error durante request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${result.statusCode}. Error Name: ${result.statusText}.`);
+            // logger.error(`Throw error durante request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${result.statusCode}. Error Name: ${result.statusText}.`);
             throw result;
         });
         return res;
     } catch (error) {
-      logger.error(`Throw error antes do fetch da request:`);
-      logger.error(error);
+      // logger.error(`Throw error antes do fetch da request:`);
+      // logger.error(error);
       throw(error)
     }
 }

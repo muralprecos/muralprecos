@@ -11,6 +11,7 @@ import CartButton from "@/components/molecules/CartButton";
 import { useRouter } from "next/navigation";
 import { isClientNextjs } from "@/utils/validateUtils";
 import { getItemLicitacao } from "@/hooks/api";
+import { isResponseReq } from "@/hooks/genericapi";
 import { addSnackError } from "@/utils/snackbarUtils";
 import { useSnackbar } from "notistack";
 import LoadingItem from "@/components/molecules/LoadingItem";
@@ -25,7 +26,8 @@ export interface IPropsViewItensLicitacao {
 const INFO_TYPE = {
   TODOS: "all",
   ITEM: "item",
-  LICITACAO: "licitacao"
+  LICITACAO: "licitacao",
+  LINKS: "links"
 }
 
 const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
@@ -70,7 +72,17 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
           }
         }
       }
-      fetchData().catch(console.error);
+      fetchData().catch(
+        e => {
+          if (isResponseReq(e)) {
+            if (e.statusCode == 401) {
+              addSnackError(enqueueSnackbar, 'Usuário desautenticado!');
+              return;
+            }
+          }
+          addSnackError(enqueueSnackbar, 'Problema ao carregar item, tente novamente!');
+        }
+      );
     }
   }, [params, token, status, setItemLicitacao, enqueueSnackbar, router]);
 
@@ -99,6 +111,10 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
       key: INFO_TYPE.ITEM,
       label: "Informações Gerais do Item",
     },
+    {
+      key: INFO_TYPE.LINKS,
+      label: "Links Úteis",
+    }
   ];
   const [selectedKeys, setSelectedKeys] = useState<Iterable<string|number>>(new Set([INFO_TYPE.TODOS]));
   const selectValue = (keys:Selection):any => {
@@ -168,7 +184,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                       
                     </div>
 
-                    <div className='flex flex-col items-start justify-start basis-3/4'>
+                    <div className='flex flex-col items-start justify-start basis-3/4 w-full'>
                       { hasSelectedValue([INFO_TYPE.TODOS, INFO_TYPE.ITEM]) &&
                         <section className='flex-1 w-full gap-4 pb-6'>
                           <InfoTitle>Informações Gerais do Item</InfoTitle>
@@ -298,9 +314,9 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                         </section>
                       }
 
-                      { itemLicitacao?.links != undefined && itemLicitacao?.links.length > 0 &&
+                      { hasSelectedValue([INFO_TYPE.TODOS, INFO_TYPE.LINKS]) && itemLicitacao?.links != undefined && itemLicitacao?.links.length > 0 &&
                         <section className='flex-1 w-full gap-4 pb-6'>
-                          <InfoTitle>Links</InfoTitle>
+                          <InfoTitle>Links Úteis</InfoTitle>
                           <Divider orientation="horizontal" />
                           <Spacer y={3} />
                           <FormRow defwrap={false} className="flex-wrap">

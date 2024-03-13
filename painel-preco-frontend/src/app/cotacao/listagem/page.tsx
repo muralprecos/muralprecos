@@ -4,20 +4,18 @@ import FormRow from "@/components/atoms/FormRow";
 import { Suspense } from "react";
 import LoadingList from "@/components/molecules/LoadingList";
 import { redirect,  } from "next/navigation";
-import { CheckRolesStrategy, checkAccessRoles, getAccessToken } from "@/utils/sessionTokenAccessor";
+import { CheckRolesStrategy } from "@/utils/sessionTokenAccessor";
 import ListItemLicitacao from "@/components/organisms/ListItemLicitacao";
 import Link from "next/link";
-import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
+import { auth } from "auth";
+import { checkSession } from "@/utils/sessionCheckerServerUtils";
 
 export default async function PageCotacaoListagem() {
 
-  const accessToken = await getAccessToken() || '';
-  const hasAuthorization = await checkAccessRoles([], CheckRolesStrategy.INCLUDES_ALL);
-
-  if (!accessToken) {
-    redirect(INITIAL_PAGE_LOGIN);
-  } else if (!hasAuthorization) {
-    redirect("/unauthorized");
+  const session = await auth();
+  const { redirectUrl, accessToken, hasAuthorization } = await checkSession(session, [], CheckRolesStrategy.INCLUDES_ALL);
+  if (!hasAuthorization || !accessToken) {
+    redirect(redirectUrl ?? '/');
   }
 
   return (

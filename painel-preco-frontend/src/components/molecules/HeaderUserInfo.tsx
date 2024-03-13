@@ -40,9 +40,9 @@ const HeaderUserInfo: React.FC<HeaderUserInfoProps> = ({
         </Button>
         <Popover showArrow placement="bottom" className='sm:flex hidden'>
           <PopoverTrigger>
-            <Avatar   
+            <Avatar
               name={username}
-              className="transition-transform sm:flex hidden"
+              className="transition-transform sm:flex hidden cursor-pointer"
               // avatarProps={{
               //   src: "https://i.pravatar.cc/150?u=a04258114e29026702d"
               // }}

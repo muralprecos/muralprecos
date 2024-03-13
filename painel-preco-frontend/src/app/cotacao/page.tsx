@@ -3,29 +3,16 @@ import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
 import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
 import { redirect } from "next/navigation";
-import { CheckRolesStrategy, checkAccessRoles, getAccessToken } from "@/utils/sessionTokenAccessor";
-import { SetDynamicRoute } from "@/utils/setDynamicRoute";
-import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
+import { CheckRolesStrategy } from "@/utils/sessionTokenAccessor";
 import { auth } from "auth";
-import logger from "../../../services/logger";
+import { checkSession } from "@/utils/sessionCheckerServerUtils";
 
 export default async function CotacaoHome() {
 
   const session = await auth();
-  if (!session || !session.userInfo) {
-    console.log('AAAA 1')
-    //redirect(INITIAL_PAGE_LOGIN);
-  }
-
-
-  const accessToken = await getAccessToken() || '';
-  const hasAuthorization = await checkAccessRoles([], CheckRolesStrategy.INCLUDES_ALL);
-
-  if (!accessToken) {
-    console.log('AAAA 2')
-    //redirect(INITIAL_PAGE_LOGIN);
-  } else if (!hasAuthorization) {
-    redirect("/unauthorized");
+  const { redirectUrl, accessToken, hasAuthorization } = await checkSession(session, [], CheckRolesStrategy.INCLUDES_ALL);
+  if (!hasAuthorization || !accessToken) {
+    redirect(redirectUrl ?? '/');
   }
 
   const dataPorteFornecedores = getListPorteFornecedor({accessToken});

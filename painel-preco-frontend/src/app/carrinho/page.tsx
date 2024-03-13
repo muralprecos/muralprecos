@@ -22,8 +22,10 @@ import { useSnackbar } from "notistack";
 import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { redirect, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { getAccessTokenClient, isAuthenticatedFail } from "@/utils/sessionTokenAccessor";
+import { CheckRolesStrategy, checkAccessRoles, getAccessTokenClient, isAuthenticatedFail } from "@/utils/sessionTokenAccessor";
 import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
+import { logoutAction } from "../action/logoutActions";
+import { messages } from "@/utils/messages";
 
 export interface IPropsCartPge {
 }
@@ -34,10 +36,12 @@ const CartPage: React.FC<IPropsCartPge> = ({
 
   const router = useRouter();
   const dispatch = useDispatch();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const { data: session, status } = useSession();
   const [token, setToken] = useState<string|null>(null);
+  const hasAuthorization = checkAccessRoles(session, [], CheckRolesStrategy.INCLUDES_ALL);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function getToken() {
@@ -47,22 +51,24 @@ const CartPage: React.FC<IPropsCartPge> = ({
     getToken();
   }, [session]);
 
-  // useEffect(() => {
-  //   console.log('pageClient useEffect', status, session)
-  //   if (status == 'unauthenticated') {
-  //     redirect(INITIAL_PAGE_LOGIN);
-  //   } else if (isAuthenticatedFail(session, status)) {
-  //     setIsLoading(true);
-  //     logoutAction();
-  //   } else {
-  //     setIsLoading(false);
-  //   }
-  // }, [status, session]);
+  useEffect(() => {
+    if (status == 'unauthenticated') {
+      addSnackError(enqueueSnackbar, messages.AUTH_ERROR_UNAUTH);
+      redirect(INITIAL_PAGE_LOGIN);
+    } else if (isAuthenticatedFail(session, status)) {
+      addSnackError(enqueueSnackbar, messages.AUTH_ERROR_UNKOWN);
+      logoutAction();
+    } else if (!hasAuthorization) {
+      addSnackError(enqueueSnackbar, messages.AUTH_ERROR_UNAUTHORIZED);
+      logoutAction();
+    } else {
+      setIsLoading(false);
+    }
+  }, [status, session, hasAuthorization, enqueueSnackbar]);
 
 
   const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();
   const { theme, setTheme } = useTheme();
-  const [isLoading, setIsLoading] = useState(true);
   const _cartList = useAppSelector((state) => state.cartReducer.value);
   const [cart, setCart] = useState<IRetornoPesquisaItensLicitacao[]>([]);
 

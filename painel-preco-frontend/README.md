@@ -77,10 +77,15 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 ======================================
 
+- Refresh Token (estudar estratégia - server e client);
+
+- Replicar lógica de usuário não autenticado após request para outros trechos do app;
+
+
+
+
+
 - PROBLEMA DE AUTENTICAÇ˜AO: TOKEN INVALIDO (ERRO 401 e ROUTE DO NEXTAUTH NAO CORRIJE)
-
-
-
 
 - Gerar botões de links ao visualizar item;q
 
