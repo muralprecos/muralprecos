@@ -158,10 +158,6 @@ public abstract class AbstractController {
 		return reportUtil.getReport(fileName);
 	}
 	
-	public String getReportRelativePath(String fileName) {
-		return reportUtil.getReportRelativePath(fileName);
-	}
-	
 	public void reportExportPDF(String reportFileName, Map<String, Object> params, HttpServletResponse response, String fileNamePDF) {
 		reportUtil.downloadReportWithPDF(reportFileName, params, response, fileNamePDF);
 	}
