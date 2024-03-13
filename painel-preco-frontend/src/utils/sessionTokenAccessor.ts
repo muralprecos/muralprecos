@@ -21,8 +21,7 @@ export async function getIdToken() {
   return null;
 }
 
-export async function getAccessRoles() {
-  const session = await auth();
+function getAccessRoles(session: Session | null) {
   if (!!session && !!session.id_token && session.error == null){    
     return session.roles;
   }
@@ -35,8 +34,8 @@ export const enum CheckRolesStrategy {
   EXCLUDES_ALL = 4
 }
 
-export async function checkAccessRoles(rolesToCkeck: string[], strategy: CheckRolesStrategy = CheckRolesStrategy.INCLUDES_AT_LEAST_ONE) : Promise<boolean> {
-  const roles = await getAccessRoles();
+export function checkAccessRoles(session: Session | null, rolesToCkeck: string[], strategy: CheckRolesStrategy = CheckRolesStrategy.INCLUDES_AT_LEAST_ONE) : boolean {
+  const roles = getAccessRoles(session);
   let count = 0;
   rolesToCkeck.forEach(rc => {
     count = roles?.indexOf(rc) != -1 ? ++count : count;
@@ -62,4 +61,8 @@ export async function getAccessTokenClient(session: Session|null) {
     return accessTokenDecrypted;
   }
   return null;
+}
+
+export function isAuthenticatedFail(session: Session|null, status: string) {
+  return status == `authenticated` && (session == null || session.userInfo == null || session.access_token == null || session.error != null);
 }

@@ -3,7 +3,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { postLogin } from "@/hooks/api";
 import { encrypt } from "@/utils/encryption";
-import logger from "./services/logger";
+import logger from "../services/logger";
 import { jwtDecode } from "jwt-decode";
 import { IUserInfo } from "@/interfaces/types";
 import { loginRefreshToken } from "@/app/action/loginRefreshTokenActions";
@@ -50,6 +50,7 @@ const config = {
   callbacks: {
     async authorized({ request, auth }) {
       const { pathname } = request.nextUrl;
+      logger.info("...authorized... " + pathname);
       if (pathname === "/middlewareProtected") return !!auth;
       return true;
     },
@@ -61,7 +62,7 @@ const config = {
         token.decoded = jwtDecode<IUserInfo>(`${user.access_token}`);
         token.access_token = user.access_token;
         token.id_token = user.id_token;
-        token.expires_at = user.expires_at;
+        token.exp = user.exp;
         token.refresh_token = user.refresh_token;
         token.error = user.error;
         logger.info("Token registred...");
@@ -69,9 +70,9 @@ const config = {
       }
       // nas demais chamadas
       const nowTimeStamp = Math.floor(Date.now() / 1000);
-      const tokenExpires : number = token.expires_at != null ? +token.expires_at : nowTimeStamp;
+      const tokenExpires : number = token.exp != null ? +token.exp : nowTimeStamp;
       if (nowTimeStamp <= tokenExpires) {
-        logger.info("jwt ativo");
+        logger.info(`jwt ativo ${nowTimeStamp} ${tokenExpires}`);
         return token;
       }
       // token expirou ou não existe

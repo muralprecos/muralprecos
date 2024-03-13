@@ -12,7 +12,6 @@ export async function logoutAction() {
     if (error instanceof AuthError) {
       switch (error.type) {
         default:
-          console.error(error)
           return {error: 'Ocorreu um problema ao deslogar!'}
       }
     }

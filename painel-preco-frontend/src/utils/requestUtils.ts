@@ -40,16 +40,21 @@ export function mountUrl ({ host, path, page, size, info, filterFields } : IAPIS
 }
 
 export function downloadFile(blob: Blob, filename: string) {
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.style.display = 'none';
-  a.href = url;
-  // the filename you want
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  window.URL.revokeObjectURL(url);
+  try {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    // the filename you want
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  } catch (e) {
+    throw new Error('Não foi possível realizar o download do arquivo.');
+  }
+  
 }
 
 export function showFileInOtherTab(blob: Blob) {

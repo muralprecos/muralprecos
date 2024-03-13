@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 
 import Providers from './providers'
 import Header from '@/components/organisms/Header'
+import { auth } from 'auth'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,12 +20,14 @@ export const viewport: Viewport = {
   userScalable: false 
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
 
+  const session = await auth();
+  
   const linksHeader = [
     {description: 'Início', link: '/'},
     {description: 'Cotação', link: '/cotacao'},
@@ -35,7 +38,7 @@ export default function RootLayout({
     <html lang="pt-br" suppressHydrationWarning>
       <body className={`${inter.className} min-h-svh flex flex-col`}>
         <Providers>
-          <Header links={linksHeader}/>
+          <Header session={session} links={linksHeader}/>
           <main className='flex-1 flex flex-col'>{children}</main>
           <footer></footer>
         </Providers>

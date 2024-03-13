@@ -5,14 +5,13 @@ import { auth } from 'auth';
 export default async function Home() {
 
   const session = await auth();
-  
-  if (!session || !session.user) {
+  if (!session || !session.userInfo) {
     redirect(INITIAL_PAGE_LOGIN);
   } else {
     redirect(INITIAL_PAGE_LOGGED);
   }
 
   return (
-    <div></div>
+    <div>Pagina Inicial</div>
   )
 }

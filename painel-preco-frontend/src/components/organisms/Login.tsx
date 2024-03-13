@@ -67,11 +67,13 @@ const Login = (props: Props) => {
         addSnackError(enqueueSnackbar,res?.error);
       } else {
         addSnackSuccess(enqueueSnackbar,messages.LOGIN_SUCCESS);
-        router.push(INITIAL_PAGE_LOGGED);
       }
     } catch (e) {
-      console.log('login catch', e)
-      addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
+      if (e instanceof Error && e.stack?.indexOf('CredentialsSignin') != -1) {
+        addSnackError(enqueueSnackbar, messages.LOGIN_WRONG);
+      } else {
+        addSnackError(enqueueSnackbar, messages.LOGIN_ERROR);
+      }
     }
   }
 

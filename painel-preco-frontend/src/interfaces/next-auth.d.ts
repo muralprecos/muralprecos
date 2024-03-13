@@ -16,7 +16,7 @@ declare module 'next-auth' {
     decoded?: IUserInfo
     access_token?: string
     id_token?: string
-    expires_at?: number
+    exp?: number
     refresh_token?: string
     error?: string
   }
@@ -27,7 +27,7 @@ declare module 'next-auth/jwt' {
     decoded?: IUserInfo
     access_token?: string
     id_token?: string
-    expires_at?: number
+    exp?: number
     refresh_token?: string
     error?: string
   }

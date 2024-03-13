@@ -1,8 +1,9 @@
 // authActions.js
+//DEPRECATED
+
 import { postLogin } from '@/hooks/api'
 import { IUserAuth, IUserRequest } from '@/interfaces/types'
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { decodeToken, isExpired, useJwt } from 'react-jwt';
 
 export const registerUser = createAsyncThunk(
   'auth/register',

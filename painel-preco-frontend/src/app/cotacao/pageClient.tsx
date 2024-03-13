@@ -2,13 +2,19 @@
 
 import { Card, CardBody, Divider, Listbox, ListboxItem } from "@nextui-org/react";
 import SearchItensLicitacaoForm, { IPropsSearchItensLicitacaoForm } from "./searchItensLicitacaoForm";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
-import { addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
+import { addSnackError, addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
 import FormRow from "@/components/atoms/FormRow";
 import FormTitle from "@/components/atoms/FormTitle";
 import Link from "next/link";
-import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
+import { ReadonlyURLSearchParams, redirect, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { logoutAction } from "../action/logoutActions";
+import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
+import LoadingList from "@/components/molecules/LoadingList";
+import { CheckRolesStrategy, checkAccessRoles, isAuthenticatedFail } from "@/utils/sessionTokenAccessor";
+import { messages } from "@/utils/messages";
 
 export const TABS_COTACAO = {
   SEARCH: {
@@ -36,19 +42,41 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   unidadesFederativas,
   ...opts
 }) => {
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
   const searchParams : ReadonlyURLSearchParams = useSearchParams();
 
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { data: session, status } = useSession();
+  const [isLoading, setIsLoading] = useState(true);
+  const hasAuthorization = checkAccessRoles(session, [], CheckRolesStrategy.INCLUDES_ALL);
+
   useEffect(() => {
-    addSnackIfSelectEmpty(enqueueSnackbar, "Anos da Compra", anosCompras);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Portes das Empresas", empresaPorte);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Esferas", esferas);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Formas de Compra", compraFormas);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Modalidades de Compra", compraModalidades);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Períodos de Compra", compraPeriodos);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Situações das Licitações", situacoesLicitacoes);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Unidades Federativas", unidadesFederativas);
-  }, [enqueueSnackbar, anosCompras, compraFormas, compraModalidades, compraPeriodos, empresaPorte, esferas, situacoesLicitacoes, unidadesFederativas])
+    if (status == 'unauthenticated') {
+      addSnackError(enqueueSnackbar, messages.AUTH_ERROR_UNAUTH);
+      redirect(INITIAL_PAGE_LOGIN);
+    } else if (isAuthenticatedFail(session, status)) {
+      addSnackError(enqueueSnackbar, messages.AUTH_ERROR_UNKOWN);
+      logoutAction();
+    } else if (!hasAuthorization) {
+      addSnackError(enqueueSnackbar, messages.AUTH_ERROR_UNAUTHORIZED);
+      logoutAction();
+    } else {
+      setIsLoading(false);
+    }
+  }, [status, session, hasAuthorization, enqueueSnackbar]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      addSnackIfSelectEmpty(enqueueSnackbar, "Anos da Compra", anosCompras);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Portes das Empresas", empresaPorte);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Esferas", esferas);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Formas de Compra", compraFormas);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Modalidades de Compra", compraModalidades);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Períodos de Compra", compraPeriodos);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Situações das Licitações", situacoesLicitacoes);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Unidades Federativas", unidadesFederativas);
+    }
+  }, [enqueueSnackbar, isLoading, anosCompras, compraFormas, compraModalidades, compraPeriodos, empresaPorte, esferas, situacoesLicitacoes, unidadesFederativas])
 
   const items = [
     {
@@ -71,6 +99,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   return (
     <section className='py-4 flex items-center justify-center flex-col w-full'>
       <div className='container'>
+        { isLoading ? <LoadingList /> :
         <Card>
           <CardBody>
             <section className='container flex flex-col items-start justify-start'>
@@ -123,6 +152,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
             </section>
           </CardBody>
         </Card>
+        }
       </div>
     </section>
   );

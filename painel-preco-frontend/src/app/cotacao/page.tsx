@@ -3,19 +3,16 @@ import { reqDataListToSelect } from "@/utils/convertData";
 import PageClient from "./pageClient";
 import { IAnoCompra, IEsfera, IFormaCompra, IModalidadeCompra, IPeriodoCompra, IPorteFornecedor, IReturnRequestAPI, ISituacaoLicitacao, IUnidadeFederativa } from "@/interfaces/types";
 import { redirect } from "next/navigation";
-import { CheckRolesStrategy, checkAccessRoles, getAccessToken } from "@/utils/sessionTokenAccessor";
-import { SetDynamicRoute } from "@/utils/setDynamicRoute";
-import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
+import { CheckRolesStrategy } from "@/utils/sessionTokenAccessor";
+import { auth } from "auth";
+import { checkSession } from "@/utils/sessionCheckerServerUtils";
 
 export default async function CotacaoHome() {
 
-  const accessToken = await getAccessToken() || '';
-  const hasAuthorization = await checkAccessRoles([], CheckRolesStrategy.INCLUDES_ALL);
-
-  if (!accessToken) {
-    redirect(INITIAL_PAGE_LOGIN);
-  } else if (!hasAuthorization) {
-    redirect("/unauthorized");
+  const session = await auth();
+  const { redirectUrl, accessToken, hasAuthorization } = await checkSession(session, [], CheckRolesStrategy.INCLUDES_ALL);
+  if (!hasAuthorization || !accessToken) {
+    redirect(redirectUrl ?? '/');
   }
 
   const dataPorteFornecedores = getListPorteFornecedor({accessToken});
@@ -31,14 +28,18 @@ export default async function CotacaoHome() {
   const [settledPorteFornecedores, settledEsferas, settledFormasCompra, settledModalidadesCompra, settledPeriodosCompra, settledSituacoesLicitacao, settledUnidadesFederativas, settledAnosCompras] = resReq;
 
   function getSettledValue<T>(req: PromiseSettledResult<T[] | null>) {
-    if (req.status === "rejected" || (req.status === "fulfilled" && req.value == undefined) ) {
+    if (req.status === "fulfilled" && req.value == undefined) {
+      return [];
+    } else if (req.status === "rejected") {
       return [];
     }
     return req.status === "fulfilled" ? req.value : []
   }
 
   function getSettledValuePageable<T>(req: PromiseSettledResult<IReturnRequestAPI<T> | null>) {
-    if (req.status === "rejected" || (req.status === "fulfilled" && req.value == undefined) ) {
+    if (req.status === "fulfilled" && req.value == undefined) {
+      return [];
+    } else if (req.status === "rejected") {
       return [];
     }
     return req.status === "fulfilled" ? req.value ? req.value.content : [] : null
