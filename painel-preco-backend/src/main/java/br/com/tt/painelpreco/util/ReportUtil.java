@@ -55,22 +55,25 @@ public class ReportUtil {
 		}
 	}
 	
-	private static void fillDefaultsParameters(Map<String, Object> parameters) {
-		for (String param : DEFAULTS_PARAMETERS.keySet()) {
-			if (!parameters.containsKey(param))
-				parameters.put(param, DEFAULTS_PARAMETERS.get(param));
-		}
-	}
-	
 	public byte[] downloadReportWithPDF(String reportFileName, Map<String, Object> parameters) {
 		try {
 			Connection con = localDataSource.getConnection();
 			InputStream report = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format(REPORT_NAME_TEMPLATE, reportFileName));
+			
+			ReportUtil.fillDefaultsParameters(parameters);
+			
 			JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, con);
 			return JasperExportManager.exportReportToPdf(jasperPrint);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ArchException("Ocorreu um erro ao gerar o relatório. Causa: " + e.getMessage());
+		}
+	}
+	
+	private static void fillDefaultsParameters(Map<String, Object> parameters) {
+		for (String param : DEFAULTS_PARAMETERS.keySet()) {
+			if (!parameters.containsKey(param))
+				parameters.put(param, DEFAULTS_PARAMETERS.get(param));
 		}
 	}
 	
