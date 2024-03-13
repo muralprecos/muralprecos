@@ -22,11 +22,12 @@ import { isClientNextjs } from '@/utils/validateUtils';
 import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
 import { mountUrl } from '@/utils/requestUtils';
 import { AsyncListData } from '@react-stately/data';
-import { useSession } from 'next-auth/react';
-import { getAccessTokenClient } from '@/utils/sessionTokenAccessor';
+import { Session } from 'next-auth';
 
 
 export interface IPropsSearchItensLicitacaoForm {
+  session: Session | null
+  accessToken: string | null
   searchParams?: ReadonlyURLSearchParams
   anosCompras: IItemSelect[]
   empresaPorte: IItemSelect[]
@@ -88,6 +89,8 @@ type FieldsForms = {
 }
 
 const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
+  session,
+  accessToken,
   searchParams,
   anosCompras,
   empresaPorte,
@@ -101,19 +104,9 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 }) => {
 
   const router = useRouter();
-  const { data: session, status } = useSession();
-  const [token, setToken] = useState<string|null>(null);
-
-  useEffect(() => {
-    async function getToken() {
-      const accessToken = await getAccessTokenClient(session);
-      setToken(accessToken);
-    }
-    getToken();
-  }, [session]);
-
   const dispatch = useDispatch();
   const _initialFormDataLocalStorage: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
+  const [doingRequest, setDoingRequest] = useState<boolean>(false);
 
   const [lastUF, setLastUF] = useState<string|null>();
   const {
@@ -135,21 +128,29 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   }, [ufId]);
 
   const onSubmit: SubmitHandler<FormDataCotacao> = async (data) => {
-    //armazenar dados da busca no redux
-    dispatch(doSearch(data));
-    const info = objToParamSearch(data);
-    router.push(mountUrl({
-      host: '',
-      path: '/cotacao/listagem',
-      page: 0,
-      size: 20,
-      info,
-      filterFields: FIELDS_COTACOES_LIST
-    }));
+    if (!doingRequest) {
+      try {
+        setDoingRequest(true);
+        //armazenar dados da busca no redux
+        dispatch(doSearch(data));
+        const info = objToParamSearch(data);
+        router.push(mountUrl({
+          host: '',
+          path: '/cotacao/listagem',
+          page: 0,
+          size: 20,
+          info,
+          filterFields: FIELDS_COTACOES_LIST
+        }));
+      } catch (e) {
+        setDoingRequest(false);
+      }
+    }
   }
   const onSubmitError: SubmitErrorHandler<FormDataCotacao> = (data) => {
     //TODO: lançar erro ao dar problema na requisição
     //console.log(data)
+    setDoingRequest(false);
   }
 
   const fields : FieldsForms = {
@@ -168,51 +169,51 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
         minCharactersLoad: 0,
         getList: getListMunicipios,
         infos: ufId ? [{ val: ufId, param: 'uuiduf' }] : [],
-        accessToken: token
+        accessToken
       }),
       attrVal: "uuid",
       isDisabled: !hasUF()
     }},
     orgaoSuperiorId: { type: 'autocompleteAsync', label: 'Orgão Superior', auto: {
-      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaosSuperiores, accessToken: token }),
+      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaosSuperiores, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getOrgaoDesc
     }},
     orgaoId: { type: 'autocompleteAsync', label: 'Orgão', auto: {
-      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaos, accessToken: token }),
+      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaos, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getOrgaoDesc
     }},
     fornecedorId: { type: 'autocompleteAsync', label: 'Fornecedor', auto: {
-      async: useAutocompleteFilter<IFornecedor>({ params: ['nome'], getList: getListFornecedores, accessToken: token }),
+      async: useAutocompleteFilter<IFornecedor>({ params: ['nome'], getList: getListFornecedores, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getFornecedorDesc
     }},
     materialId: { type: 'autocompleteAsync', label: 'Nome/Código Material', auto: {
-      async: useAutocompleteFilter<INomeMaterial>({ getList: getListNomeMaterial, accessToken: token }),
+      async: useAutocompleteFilter<INomeMaterial>({ getList: getListNomeMaterial, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getNomeMaterialDesc
     }},
     ugId: { type: 'autocompleteAsync', label: 'Unidade Gestora', auto: {
-      async: useAutocompleteFilter<IUnidadeGestora>({ getList: getListUASG, accessToken: token }),
+      async: useAutocompleteFilter<IUnidadeGestora>({ getList: getListUASG, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getUASGDesc
     }},
     unidade_fornecimento: { type: 'autocompleteAsync', label: 'Unidade de Fornecimento', auto: {
-      async: useAutocompleteFilter<IObjetoAPI>({ getList: getListUnidadesFornecimento, accessToken: token }),
+      async: useAutocompleteFilter<IObjetoAPI>({ getList: getListUnidadesFornecimento, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getUnidadeFornecimentoDesc
     }},
     descricao: { type: 'autocompleteAsync', label: 'Descrição', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricao'], getList: getListDescricao, accessToken: token }),
+      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricao'], getList: getListDescricao, accessToken }),
       attrVal: "nome"
     }},
     descricaoComplementar: { type: 'autocompleteAsync', label: 'Descrição Complementar', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: getListDescricao, accessToken: token }),
+      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: getListDescricao, accessToken }),
       attrVal: "nome"
     }},
     objeto: { type: 'autocompleteAsync', label: 'Objeto da Comprar', auto: {
-      async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: getListObjetosCompras, accessToken: token }),
+      async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: getListObjetosCompras, accessToken }),
       attrVal: "nome"
     }},
   }
@@ -242,19 +243,18 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   //inicializar a lista de municipios ao alterar a unidade federativa
   useEffect(() => {
-    if (!!token) {
-      setLastUF(ufId);
-      const fieldMunicipio = fields.municipioId;
-      if (ufId != lastUF && fieldMunicipio != undefined && isFieldAutocompleteAsync(fieldMunicipio)) {
-        if (ufId != null) {
-          fieldMunicipio.auto.async.reload();
-        }
-        fieldMunicipio.auto.async.setFilterText('')
-        resetField('municipioId')
+    setLastUF(ufId);
+    const fieldMunicipio = fields.municipioId;
+    if (ufId != lastUF && fieldMunicipio != undefined && isFieldAutocompleteAsync(fieldMunicipio)) {
+      if (ufId != null) {
+        fieldMunicipio.auto.async.reload();
       }
+      fieldMunicipio.auto.async.setFilterText('')
+      resetField('municipioId')
     }
-  }, [token, ufId, lastUF, fields.municipioId, resetField])
+  }, [ufId, lastUF, fields.municipioId, resetField])
 
+  //TODO: refatorar, criando um useCallback para o changeVal
   useEffect(() => {
     const changeVal = async (attr: keyof FormDataCotacao, val: string) => {
       const f = fields[attr];
@@ -311,12 +311,6 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   }
 
   const classname_rowmobile = "flex-col md:flex-row";
-
-  if (status == "loading") {
-    return (
-      <>Carregando informações do formulário de cotação...</>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onSubmitError)} className='container flex flex-col items-start justify-start'>
@@ -406,7 +400,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           <Button color="default" onClick={(e) => clearForm(e)}>
             Limpar
           </Button>
-          <Button color="primary" type="submit">
+          <Button color="primary" type="submit" isDisabled={doingRequest}>
             Pesquisar
           </Button>
         </FormRow>
