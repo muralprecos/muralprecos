@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { CheckRolesStrategy } from "@/utils/sessionTokenAccessor";
 import { auth } from "auth";
 import { checkSession } from "@/utils/sessionCheckerServerUtils";
+import { Suspense } from "react";
+import Loading from "../loading";
 
 export default async function CotacaoHome() {
 
@@ -58,16 +60,20 @@ export default async function CotacaoHome() {
   return (
     <>
       {/* <SetDynamicRoute/> */}
-      <PageClient
-        empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores, 'nome', 'uuid')}
-        esferas={reqDataListToSelect<IEsfera>(esferas, 'nome', 'uuid')}
-        compraFormas={reqDataListToSelect<IFormaCompra>(formasCompra, 'nome', 'uuid')}
-        compraModalidades={reqDataListToSelect<IModalidadeCompra>(modalidadesCompra, 'nome', 'uuid')}
-        compraPeriodos={reqDataListToSelect<IPeriodoCompra>(periodosCompra, 'nome', 'uuid')}
-        situacoesLicitacoes={reqDataListToSelect<ISituacaoLicitacao>(situacoesLicitacao, 'nome', 'uuid')}
-        unidadesFederativas={reqDataListToSelect<IUnidadeFederativa>(unidadesFederativas, 'nome', 'uuid')}
-        anosCompras={reqDataListToSelect<IAnoCompra>(anosCompras, 'nome', 'nome')}
-      />
+      <Suspense fallback={<Loading/>}>
+        <PageClient
+          session={session}
+          accessToken={accessToken}
+          empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores, 'nome', 'uuid')}
+          esferas={reqDataListToSelect<IEsfera>(esferas, 'nome', 'uuid')}
+          compraFormas={reqDataListToSelect<IFormaCompra>(formasCompra, 'nome', 'uuid')}
+          compraModalidades={reqDataListToSelect<IModalidadeCompra>(modalidadesCompra, 'nome', 'uuid')}
+          compraPeriodos={reqDataListToSelect<IPeriodoCompra>(periodosCompra, 'nome', 'uuid')}
+          situacoesLicitacoes={reqDataListToSelect<ISituacaoLicitacao>(situacoesLicitacao, 'nome', 'uuid')}
+          unidadesFederativas={reqDataListToSelect<IUnidadeFederativa>(unidadesFederativas, 'nome', 'uuid')}
+          anosCompras={reqDataListToSelect<IAnoCompra>(anosCompras, 'nome', 'nome')}
+        />
+      </Suspense>
     </>
   )
 }

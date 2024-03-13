@@ -41,6 +41,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(true);
+  const [doingRequest, setDoingRequest] = useState<boolean>(false);
 
   const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();
   const { theme, setTheme } = useTheme();
@@ -78,8 +79,10 @@ const CartPage: React.FC<IPropsCartPge> = ({
       return;
     }
     try {
+      setDoingRequest(true);
       const now = convertTZptBR(new Date());
       const res = await postDownloadItensCotacoes(_cartList, accessToken);
+      setDoingRequest(false);
       if (res != null) {
         if (res instanceof Blob) {
           downloadFile(res, `cotacao-${datePattern(now, DATE_PATTERN.FULL)}.pdf`);
@@ -93,7 +96,6 @@ const CartPage: React.FC<IPropsCartPge> = ({
     } catch (e: Error | any) {
       addSnackError(enqueueSnackbar, (e instanceof Error ? e.message: e));
     }
-    
     
   }
 
@@ -184,7 +186,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
                     <Button color="default" as={Link} href="/cotacao">
                       Nova Cotação
                     </Button>
-                    <Button color="danger" onPress={onModalOpen} isDisabled={!(hastItens() && !isLoading)}>
+                    <Button color="danger" onPress={onModalOpen} isDisabled={!hastItens() || isLoading}>
                       Limpar
                     </Button>
                     <ModalConfirm 
@@ -196,8 +198,8 @@ const CartPage: React.FC<IPropsCartPge> = ({
                       onOpenChange={onModalOpenChange}
                       actionYes={() => {clearCart()}}
                       />
-                    <Button color="primary" isDisabled={!(hastItens() && !isLoading)} onPress={generatePDF}>
-                      Gerar PDF
+                    <Button color="primary" isDisabled={doingRequest || !hastItens() || isLoading} onPress={generatePDF}>
+                      { !doingRequest ? 'Gerar PDF' : 'Gerando PDF...'}
                     </Button>
                   </div>
                 </FormRow>

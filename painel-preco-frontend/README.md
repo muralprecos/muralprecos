@@ -63,6 +63,7 @@ Customizing tailwind-css with react:
 
 ### TODO Work:
 
+https://www.youtube.com/watch?v=Lzml9L3f4IM&ab_channel=NetNinja
 https://www.youtube.com/watch?v=fcUMBjBEDr0&ab_channel=DevJuniorAlves
 https://nextjs.org/docs/pages/building-your-application/configuring/debugging
 https://blog.logrocket.com/common-next-js-errors/
@@ -80,6 +81,8 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 - Refresh Token (estudar estratégia - server e client);
 
 - Replicar lógica de usuário não autenticado após request para outros trechos do app;
+
+
 
 
 
