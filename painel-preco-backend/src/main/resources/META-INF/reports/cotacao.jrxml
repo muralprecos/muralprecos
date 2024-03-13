@@ -37,8 +37,8 @@
 		<defaultValueExpression><![CDATA["https://muraldeprecos.com"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="subreportCotacaoDetalhe" class="net.sf.jasperreports.engine.JasperReport"/>
-	<parameter name="logo" class="java.lang.Object">
-		<defaultValueExpression><![CDATA["/home/euclydes/workspaces/sts/tt/painel-preco/src/main/resources/static/img/logo.png"]]></defaultValueExpression>
+	<parameter name="logo" class="java.lang.String">
+		<defaultValueExpression><![CDATA["/home/euclydes/workspaces/sts/tt/painel-preco/src/main/resources/static/images/logo.png"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="nome" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["Padrão"]]></defaultValueExpression>

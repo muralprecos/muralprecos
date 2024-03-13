@@ -4,7 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.sql.Connection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +31,12 @@ public class ReportUtil {
 	private static final String HEADER_ATTACHMENT_FILENAME = "attachment; filename=";
 	private static final String HEADER_CONTENT_TYPE_DOWNLOAD = "application/pdf";
 	public static final String DEFAULT_REPORT_PATH = "/META-INF/reports/";
-	public static final String DEFAULT_LOGO_PATH = "/static/img/logo.png";
+	
+	private static Map<String, Serializable> DEFAULTS_PARAMETERS = new HashMap<>();
+	
+	static {
+		DEFAULTS_PARAMETERS.put("logo", FileUtil.getPathImage("logo.png"));
+	}
 	
 	@Autowired
 	protected DataSource localDataSource;
@@ -38,11 +45,21 @@ public class ReportUtil {
 		try {
 			Connection con = localDataSource.getConnection();
 			InputStream report = Thread.currentThread().getContextClassLoader().getResourceAsStream(String.format("META-INF/reports/%s.jasper", reportFileName));
+			
+			ReportUtil.fillDefaultsParameters(parameters);
+			
 			JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, con);
 			JasperExportManager.exportReportToPdfStream(jasperPrint, getOsForDownload(response, String.format("%s.pdf", fileNamePDF)));
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ArchException("Ocorreu um erro ao gerar o relatório. Causa: " + e.getMessage());
+		}
+	}
+	
+	private static void fillDefaultsParameters(Map<String, Object> parameters) {
+		for (String param : DEFAULTS_PARAMETERS.keySet()) {
+			if (!parameters.containsKey(param))
+				parameters.put(param, DEFAULTS_PARAMETERS.get(param));
 		}
 	}
 	
@@ -72,18 +89,6 @@ public class ReportUtil {
 	
 	public String getReportRelativePath(String fileName) {
 		return ReportUtil.DEFAULT_REPORT_PATH + fileName + DEFAULT_EXTENSION_REPORT;
-	}
-	
-	public String getDefaultLogoPath() {
-		return DEFAULT_LOGO_PATH;
-	}
-	
-	public InputStream getDefaultLogo() {
-		return getImageDefaultPath("logo.png");
-	}
-	
-	public InputStream getImageDefaultPath(String imageName) {
-		return  new BufferedInputStream(getClass().getResourceAsStream("/static/img/" + imageName));
 	}
 	
 	public void downloadPDF(byte[] report, HttpServletResponse response, String fileNamePDF) {

@@ -73,7 +73,6 @@ public class CotacaoController extends AbstractController {
 		params.put("itens", itens);
 		params.put("queryString", stringBusca);
 		params.put("nome", nome);
-		params.put("logo", super.getDefaultLogo());
 		params.put("cabecalho", "TT Soluções & Consultoria - Unidade de Compras e Licitações");
 		params.put("dataPesquisa", agoraStr);
 		params.put("dataGeracao", agoraStr);
