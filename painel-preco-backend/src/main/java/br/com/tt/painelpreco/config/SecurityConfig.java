@@ -115,7 +115,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 		CorsConfiguration configuration = new CorsConfiguration();
 		
 		// Permite qualquer origin, pois a restrição é feita pelos Web Origins cadastrados no client no Keycloak
-		configuration.setAllowedOrigins(Arrays.asList("*"));
+		configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
