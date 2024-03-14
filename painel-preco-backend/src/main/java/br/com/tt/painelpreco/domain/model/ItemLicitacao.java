@@ -62,8 +62,15 @@ public class ItemLicitacao {
 	private Fornecedor fornecedor;
 
 	@Transient
-	private List<Link> links = new ArrayList<>(); 
-
+	private List<Link> links = new ArrayList<>();
+	
+	public ItemLicitacao(String descricao) {
+		this.descricao = descricao;
+		this.descricaoComplementar = descricao;
+	}
+	
+	public ItemLicitacao() {}
+	
 	public Integer getCatMat() {
 		try {
 			return this.getMaterial().getCodigo();

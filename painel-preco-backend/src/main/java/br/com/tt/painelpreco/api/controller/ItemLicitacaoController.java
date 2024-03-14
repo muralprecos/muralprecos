@@ -57,23 +57,29 @@ public class ItemLicitacaoController {
 	
 	@GetMapping
 	public Page<?> pesquisar(Pageable pageable, ItemLicitacaoFilter filter) {
-		Page<ItemLicitacao> itens = itemLicitacaoService.listaByFilter(ItemLicitacaoSpecs.filtroGeral(filter), pageable);
+		Page<ItemLicitacao> itens = null;
+		if (filter.isOnly()) {
+			if (filter.isDescricaoOnly())
+				itens = itemLicitacaoService.listaByDescricao(filter.getDescricao(), pageable);
+			if (filter.isDescricaoComplmentarOnly())
+				itens = itemLicitacaoService.listaByDescricaoComplementar(filter.getDescricaoComplementar(), pageable);
+		} else {			
+			itens = itemLicitacaoService.listaByFilter(ItemLicitacaoSpecs.filtroGeral(filter), pageable);
+		}
 		
 		return new PageImpl<>(getCollectionDTO(itens, filter), pageable, itens.getTotalElements());
 	}
 
 	private List<?> getCollectionDTO(Page<ItemLicitacao> itens, ItemLicitacaoFilter filter) {
-		List<ItemLicitacaoDTO> result = converter.toDTOCollection(itens.getContent(), ItemLicitacaoDTO.class);
-		if (!filter.isOnly())
-			return result;
+		if (filter.isOnly()) {
+			if (filter.isDescricaoOnly())
+				return converter.toDTOCollection(itens.getContent(), DescricaoItemLicitacaoDTO.class);
+			
+			if (filter.isDescricaoComplmentarOnly())
+				return converter.toDTOCollection(itens.getContent(), DescricaoComplementarItemLicitacaoDTO.class);
+		}
 		
-		if (filter.isDescricaoOnly())
-			return converter.toDTOCollection(itens.getContent(), DescricaoItemLicitacaoDTO.class);
-		
-		if (filter.isDescricaoComplmentarOnly())
-			return converter.toDTOCollection(itens.getContent(), DescricaoComplementarItemLicitacaoDTO.class);
-		
-		return result;
+		return converter.toDTOCollection(itens.getContent(), ItemLicitacaoDTO.class);
 	}
 
 }

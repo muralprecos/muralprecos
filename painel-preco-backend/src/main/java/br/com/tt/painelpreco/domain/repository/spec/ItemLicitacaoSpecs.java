@@ -21,12 +21,6 @@ public class ItemLicitacaoSpecs {
 			if (filtro.getUuid() != null)
 				predicates.add(builder.equal(root.get("uuid"), filtro.getUuid()));
 			
-			if (!StringUtil.isEmpty(filtro.getDescricao()))
-				predicates.add(builder.like(builder.upper(root.get("descricao")), JPAUtil.likeExpression(filtro.getDescricao())));
-			
-			if (!StringUtil.isEmpty(filtro.getDescricaoComplementar()))
-				predicates.add(builder.like(builder.upper(root.get("descricaoComplementar")), JPAUtil.likeExpression(filtro.getDescricaoComplementar())));
-			
 			/** ====================================================== LICITACAO ====================================================== **/
 			if (filtro.getAno() != null)
 				predicates.add(builder.between(root.join("licitacao").get("dataResultadoCompra"), DateUtil.getDateFirtDayYear(filtro.getAno()), DateUtil.getDateLastDayYear(filtro.getAno())));

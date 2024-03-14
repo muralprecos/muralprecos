@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 import br.com.tt.painelpreco.domain.repository.ItemLicitacaoRepository;
+import br.com.tt.painelpreco.util.JPAUtil;
 
 @Service
 public class ItemLicitacaoService {
@@ -28,6 +29,14 @@ public class ItemLicitacaoService {
 	
 	public Page<ItemLicitacao> listaByFilter(Specification<ItemLicitacao> filtro, Pageable pageable) {
 		return itemLicitacaomaterialRepository.findAll(filtro, pageable);
+	}
+
+	public Page<ItemLicitacao> listaByDescricao(String descricao, Pageable pageable) {
+		return itemLicitacaomaterialRepository.findAllByDescricao(JPAUtil.likeExpression(descricao), pageable);
+	}
+	
+	public Page<ItemLicitacao> listaByDescricaoComplementar(String descricaoComplementar, Pageable pageable) {
+		return itemLicitacaomaterialRepository.findAllByDescricaoComplementar(JPAUtil.likeExpression(descricaoComplementar), pageable);
 	}
 
 }
