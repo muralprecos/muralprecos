@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +24,7 @@ import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.ModelConverter;
 
 @RestController
-@CacheConfig(cacheNames = "item_licitacao", keyGenerator = "cacheCustomKeyGenerator")
+//@CacheConfig(cacheNames = "item_licitacao", keyGenerator = "cacheCustomKeyGenerator")
 @RequestMapping(ApiVersion.LATEST + "/itens-licitacao")
 public class ItemLicitacaoController {
 	
