@@ -1,7 +1,6 @@
 "use client";
 
 import KeyIcon from "@/components/atoms/icons/KeyIcon";
-import MailIcon from "@/components/atoms/icons/MailIcon";
 import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Link } from "@nextui-org/react";
 import { useRouter } from 'next/navigation'
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
@@ -16,10 +15,11 @@ import { useSnackbar } from "notistack";
 import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { messages } from "@/utils/messages";
 import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { loginAction } from "@/app/action/loginActions";
 import { useSession } from "next-auth/react";
+import UserIdIcon from "../atoms/icons/UserIdIcon";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -43,6 +43,7 @@ const Login = (props: Props) => {
   const router = useRouter();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const { data: session, status } = useSession();
+  const [doingRequest, setDoingRequest] = useState<boolean>(false);
   
   const {
     control,
@@ -56,6 +57,7 @@ const Login = (props: Props) => {
   const onSubmit: SubmitHandler<FormData> = async (data, e) => {
     e?.preventDefault();
     try {
+      setDoingRequest(true);
       console.log('login onSubmit')
       const res = await loginAction({
         username: data.login,
@@ -64,11 +66,13 @@ const Login = (props: Props) => {
       });
       console.log('login res', res)
       if (res?.error) {
+        setDoingRequest(false);
         addSnackError(enqueueSnackbar,res?.error);
       } else {
         addSnackSuccess(enqueueSnackbar,messages.LOGIN_SUCCESS);
       }
     } catch (e) {
+      setDoingRequest(false);
       if (e instanceof Error && e.stack?.indexOf('CredentialsSignin') != -1) {
         addSnackError(enqueueSnackbar, messages.LOGIN_WRONG);
       } else {
@@ -113,10 +117,10 @@ const Login = (props: Props) => {
               <CardBody className="gap-2">
                 <InputForm
                   name="login"
-                  label="E-mail"
+                  label="Usuário"
                   autoFocus
                   endContent={
-                    <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    <UserIdIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                   }
                   variant="bordered"
                   control={control}
@@ -156,8 +160,8 @@ const Login = (props: Props) => {
                   <Button color="default" variant="flat">
                     Criar Conta
                   </Button>
-                  <Button color="primary" type="submit">
-                    Acessar Conta
+                  <Button color="primary" type="submit" isDisabled={doingRequest}>
+                    { doingRequest ? 'Acessando Conta...' : 'Acessar Conta' }
                   </Button>
                 </div>
               </CardFooter>

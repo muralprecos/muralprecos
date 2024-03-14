@@ -16,7 +16,7 @@ function InputForm<P extends FieldValues>({
   className="w-full",
   ...opts
 } : IProps<P>) {
-  
+
   const err: FieldError| Merge<FieldError, FieldErrorsImpl<any>> | undefined = errors ? errors[name] : undefined;
   const isValid = err == null;
   const errMsg = !isValid ? label + ' ' + err.message : '';
@@ -33,6 +33,7 @@ function InputForm<P extends FieldValues>({
             errorMessage={isValid ? "" : errMsg}
             isInvalid={isValid ? false : true}
             selectedKeys={field.value ? [field.value] : []}
+            className={className}
             {...opts}
           />
       }}

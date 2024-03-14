@@ -17,6 +17,7 @@ import { useSnackbar } from "notistack";
 import LoadingItem from "@/components/molecules/LoadingItem";
 import { strIfNotNull } from "@/utils/convertData";
 import { Session } from "next-auth";
+import { catchErrorFromFetch } from "@/utils/requestUtils";
 
 export interface IPropsViewItensLicitacao {
   params: { item: string }
@@ -58,17 +59,9 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
           }
         }
       }
-      fetchData().catch(
-        e => {
-          if (isResponseReq(e)) {
-            if (e.statusCode == 401) {
-              addSnackError(enqueueSnackbar, 'Usuário desautenticado!');
-              return;
-            }
-          }
-          addSnackError(enqueueSnackbar, 'Problema ao carregar item, tente novamente!');
-        }
-      );
+      fetchData().catch(e => {
+        catchErrorFromFetch(e, enqueueSnackbar, 'carregar item');
+      });
     }
   }, [params, accessToken, session, setItemLicitacao, enqueueSnackbar, router]);
 

@@ -26,7 +26,7 @@ export default function Error({
   return (
     <div className='flex flex-1 justify-center items-center pb-10'>
       <div className="flex sm:h-8 sm:flex-row flex-col items-center space-x-4 space-y-2 text-small">
-        <h2 className='text-lg'><b className='text-xl'>Ops!</b> Ocorreu um problema</h2>
+        <h2 className='text-lg'><b className='text-xl'>Ops,</b> Ocorreu um problema!</h2>
         <Divider orientation="vertical" />
         <Button
           variant='light'
