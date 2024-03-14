@@ -63,6 +63,14 @@ Customizing tailwind-css with react:
 
 ### TODO Work:
 
+https://www.youtube.com/watch?v=Lzml9L3f4IM&ab_channel=NetNinja
+https://www.youtube.com/watch?v=fcUMBjBEDr0&ab_channel=DevJuniorAlves
+https://nextjs.org/docs/pages/building-your-application/configuring/debugging
+https://blog.logrocket.com/common-next-js-errors/
+https://authjs.dev/reference/nextjs#in-server-components
+https://blog.stackademic.com/authentication-in-next-js-with-auth-js-nextauth-5-b74e3ae18ab8
+https://github.com/nextauthjs/next-auth-v5-example
+
 https://michaelangelo-io.medium.com/better-logging-with-nextjs-app-directory-60a07c96d146
 https://github.com/pinojs/pino
 https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
@@ -70,14 +78,59 @@ https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
 
 ======================================
 
+- Refresh Token (estudar estratégia - server e client);
+
+- Replicar lógica de usuário não autenticado após request para outros trechos do app;
+
+
+
+
+
+
+
+- PROBLEMA DE AUTENTICAÇ˜AO: TOKEN INVALIDO (ERRO 401 e ROUTE DO NEXTAUTH NAO CORRIJE)
+
+- Gerar botões de links ao visualizar item;q
+
 ok - Período de Compra; (obrigatório)
+
+https://fatfish.medium.com/4-custom-react-hooks-every-developer-should-know-c61f644bbc3e
+
+- Middleware protected pages:
+    https://next-auth.js.org/tutorials/securing-pages-and-api-routes#server-side
+    https://github.com/nextauthjs/next-auth-v5-example
+    https://acubeddu87.medium.com/nextjs-14-app-router-and-unit-testing-f0ba74b5436b
+
+- Apresentar mensagem de erro após retorno problemático de request;
+
+- Configurar o deploy para utilizar o arquivo de environment correto;
+
+- Gestão de erro ao realizar login errado;
+
+- Verificar TODO
+
+- Linkar com autenticação:
+    Refreshtoken;
+    Plugar o NextAuth ao formulário interno;
+    Remover Interfaces de Autenticação anterior;
+
+    Criar Middleware de autenticação
+        Serverside:
+            https://nextjs.org/docs/app/building-your-application/authentication#authorization-using-server-components
+    Autenticar:
+        Parâmetro docker: client_secret e client_id
+        Tratar erros de login errado
+    Verificar informações do JWT;
+
+
+
+- Botão de limpar autocomplete não está retirando as informações do formulário (Unidade Gestora, por exemplo)
 
 - Autocomplete com carregamento do municipio via request/localstorage
 
-- Integrar com REDUX:
-	ok - Manter campos de busca ao realizar cotação;
-	ok - Realizar paginação necessita dos parâmetros buscados também;
-	- Apresentar filtros buscados;
+- Apresentar filtros buscados;
+
+
 
 - middleware de autenticação;
 
@@ -122,6 +175,11 @@ Geração do relatório de cotação:
 =======================================
 
 
+https://medium.com/@raphox/rails-and-next-js-the-perfect-combination-for-modern-web-development-final-part-a88af492a00
+https://levelup.gitconnected.com/authentication-in-two-lines-of-code-auth-js-next-js-14-653b252abfd3
+https://www.youtube.com/watch?v=SO8lBVWF2Y8&t=68s&ab_channel=WebDevSimplified
+https://redux-toolkit.js.org/api/createAsyncThunk
+https://orizens.com/blog/integrating-react-hook-form-and-redux-toolkit-rtk/
 
 
 

@@ -1,17 +1,16 @@
 import logger from "../../services/logger";
 import { mountUrl } from "@/utils/requestUtils";
-import { IAPISearchInfo, IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
+import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
 
-const host = 'http://muraldeprecos.com';//'http://localhost:8080';
-
+const host = `${process.env.API_URL}`;
 export const revalidate = 3600; // revalida os dados a cada hora
 
-export type ResponseReq = {
+export interface ResponseReq {
   status: boolean,
   statusCode: number | null,
   statusText: string | null,
   statusDetails: string | null,
-  data: Response | null
+  data?: Response | null
 };
 
 export type ResponseError = {
@@ -21,18 +20,23 @@ export type ResponseError = {
   timestamp: string
 }
 
+export function isResponseReq(object: any): object is ResponseReq {
+  return 'statusCode' in object;
+}
+
 const doReq = async (
-  { path, page, size, info, filterFields, config, contentType = 'application/json', acceptType = 'application/json' } : IAPISearchProps) : Promise<ResponseReq> => {
+  { path, page, size, info, filterFields, config, contentType = 'application/json', acceptType = 'application/json', accessToken } : IAPISearchProps) : Promise<ResponseReq> => {
     try {
       const HEADERS : HeadersInit = {}
-      //'Authorization': `Bearer ${token}`
-      if (contentType) { HEADERS['Content-Type'] = contentType; }
-      if (acceptType) { HEADERS['Accept'] = acceptType; }
+
+      if (!!contentType) { HEADERS['Content-Type'] = contentType; }
+      if (!!acceptType) { HEADERS['Accept'] = acceptType; }
+      if (!!accessToken) { HEADERS['Authorization'] = `Bearer ${accessToken}`; }
 
       const reqOpts = { 
         //TODO: aprimorar cache de requisições e adicionar body
         // cache: 'force-cache',
-        next: {  },
+        next: { revalidate },
         headers: new Headers(HEADERS),
         ...config
       }
@@ -56,60 +60,67 @@ const doReq = async (
                     statusDetails: null,
                     data: resp,
                 }
-                logger.error(`Bad response from server. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${resp.status}.`);
-                return new Promise<ResponseReq>((resolve) => { resolve(result) });
+                //logger.error(`Retorno de erro durante request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${result.statusCode}. Error Name: ${result.statusText}.`);
+                throw result;
             }
-        }).catch((error) => {
+        }).catch((error: Error | ResponseReq) => {
+          const isTypeError = error instanceof Error;
             const result: ResponseReq = {
-                status: false,
-                statusCode: 503,
-                statusText: error,
-                statusDetails: error,
-                data: null,
+                status: isTypeError ? false : error.status,
+                statusCode: isTypeError ? 599 : error.statusCode,
+                statusText: isTypeError ? error.name : error.statusText,
+                statusDetails: isTypeError ? error.message : error.statusDetails,
+                data: isTypeError ? null : error.data
             }
-            logger.error(`Throw error when are doing request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${error}.`);
-            return new Promise<ResponseReq>((resolve) => { resolve(result) });
+            // logger.error(`Throw error durante request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${result.statusCode}. Error Name: ${result.statusText}.`);
+            throw result;
         });
         return res;
     } catch (error) {
-      logger.error(error);
+      // logger.error(`Throw error antes do fetch da request:`);
+      // logger.error(error);
       throw(error)
     }
 }
 
 
 export const getGenericObject =  async <T>(
-  { path, page = 0, size = 50, info, filterFields, config } : IAPISearchProps
+  { page = 0, size = 50, ...rest } : IAPISearchProps
   ) : Promise<T|null> => {
-    const res = await doReq({ path, page, size, info, filterFields, config });
+    const res = await doReq({ page, size, ...rest });
     return res.data?.json();
 }
 export const getGenericListPageable =  async <T>(
-    { path, page, size, info, filterFields, config } : IAPISearchProps
+    otps : IAPISearchProps
   ) : Promise<IReturnRequestAPI<T>|null> => {
-  return getGenericObject({ path, page, size, info, filterFields, config });
+  return getGenericObject(otps);
 }
 
 export const postGeneric =  async <T>(
-  { path, bodydata, acceptType } : IAPISearchProps
+  { path, bodydata, acceptType, contentType, accessToken } : IAPISearchProps
   ) : Promise<ResponseReq> => {
     const res = await doReq({ path, config: {
       method: 'POST',
       body: bodydata
-    }, acceptType });
+    }, acceptType, contentType, accessToken });
     return res;
 }
 export const postGenericJson =  async <T>(
-  { path, bodydata, acceptType } : IAPISearchProps
+  { path, bodydata, acceptType, contentType, accessToken } : IAPISearchProps
   ) : Promise<T|null> => {
-    const res = await postGeneric({ path, bodydata, acceptType });
+    const res = await postGeneric({ path, bodydata, acceptType, contentType, accessToken });
     return res.data?.json();
 }
 export const postGenericBlob =  async (
-  { path, bodydata, acceptType } : IAPISearchProps
+  { path, bodydata, acceptType, accessToken } : IAPISearchProps
   ) : Promise<Blob|ResponseError|null> => {
-    const res = await postGeneric<Blob>({ path, bodydata, acceptType });
-    return res.status ? res.data?.blob() : res.data?.json();
+    try {
+      const res = await postGeneric<Blob>({ path, bodydata, acceptType, accessToken });
+      return res.status ? res.data?.blob() : res.data?.json();
+    } catch (e) {
+      throw new Error('Ocorreu um problema na requisição para o servidor.');
+    }
+    return null;
 }
 
 export const getObjectDesc = async <T extends ISimpleObjetoAPI>(props: IAPISearchProps, getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T> | null>) : Promise<string | null> => {

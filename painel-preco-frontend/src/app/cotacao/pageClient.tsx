@@ -2,13 +2,16 @@
 
 import { Card, CardBody, Divider, Listbox, ListboxItem } from "@nextui-org/react";
 import SearchItensLicitacaoForm, { IPropsSearchItensLicitacaoForm } from "./searchItensLicitacaoForm";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useSnackbar } from "notistack";
-import { addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
+import { addSnackError, addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
 import FormRow from "@/components/atoms/FormRow";
 import FormTitle from "@/components/atoms/FormTitle";
-import Link from "next/link";
 import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
+import { logoutAction } from "../action/logoutActions";
+import { CheckRolesStrategy, checkAccessRoles } from "@/utils/sessionTokenAccessor";
+import { messages } from "@/utils/messages";
+import Loading from "../loading";
 
 export const TABS_COTACAO = {
   SEARCH: {
@@ -26,6 +29,8 @@ export const TABS_COTACAO = {
 }
 
 const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
+  session,
+  accessToken,
   anosCompras,
   empresaPorte,
   esferas,
@@ -36,19 +41,26 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   unidadesFederativas,
   ...opts
 }) => {
+
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const searchParams : ReadonlyURLSearchParams = useSearchParams();
+  const hasAuthorization = checkAccessRoles(session, [], CheckRolesStrategy.INCLUDES_ALL);
 
   useEffect(() => {
-    addSnackIfSelectEmpty(enqueueSnackbar, "Anos da Compra", anosCompras);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Portes das Empresas", empresaPorte);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Esferas", esferas);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Formas de Compra", compraFormas);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Modalidades de Compra", compraModalidades);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Períodos de Compra", compraPeriodos);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Situações das Licitações", situacoesLicitacoes);
-    addSnackIfSelectEmpty(enqueueSnackbar, "Unidades Federativas", unidadesFederativas);
-  }, [enqueueSnackbar, anosCompras, compraFormas, compraModalidades, compraPeriodos, empresaPorte, esferas, situacoesLicitacoes, unidadesFederativas])
+    if (!hasAuthorization) {
+      addSnackError(enqueueSnackbar, messages.AUTH_ERROR_UNAUTHORIZED);
+      logoutAction();
+    } else {
+      addSnackIfSelectEmpty(enqueueSnackbar, "Anos da Compra", anosCompras);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Portes das Empresas", empresaPorte);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Esferas", esferas);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Formas de Compra", compraFormas);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Modalidades de Compra", compraModalidades);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Períodos de Compra", compraPeriodos);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Situações das Licitações", situacoesLicitacoes);
+      addSnackIfSelectEmpty(enqueueSnackbar, "Unidades Federativas", unidadesFederativas);
+    }
+  }, [enqueueSnackbar, session, hasAuthorization, anosCompras, compraFormas, compraModalidades, compraPeriodos, empresaPorte, esferas, situacoesLicitacoes, unidadesFederativas])
 
   const items = [
     {
@@ -71,10 +83,11 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   return (
     <section className='py-4 flex items-center justify-center flex-col w-full'>
       <div className='container'>
+        
         <Card>
           <CardBody>
-            <div className='container flex flex-col items-start justify-start'>
-              <FormTitle className='text-lg font-bold uppercase text-primary'>Realizar Cotação</FormTitle>
+            <section className='container flex flex-col items-start justify-start'>
+              <FormTitle className="py-2">Realizar Cotação</FormTitle>
               <Divider className="my-4" />
               <FormRow className="flex lg:flex-row flex-col w-full items-start justify-start gap-4">
                 <div className='flex flex-col items-start justify-start basis-1/4 gap-2 w-full mt-3'>
@@ -108,6 +121,8 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                 </div>
                 <div className="flex flex-col items-start justify-start basis-3/4 w-full">
                   <SearchItensLicitacaoForm
+                    session={session}
+                    accessToken={accessToken}
                     searchParams={searchParams}
                     empresaPorte={empresaPorte}
                     esferas={esferas}
@@ -120,9 +135,10 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                     />
                 </div>
               </FormRow>
-            </div>
+            </section>
           </CardBody>
         </Card>
+        
       </div>
     </section>
   );

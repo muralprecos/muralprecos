@@ -54,7 +54,7 @@ const CartButton: React.FC<CartButtonProps> = ({
     <div className="flex-1">
       { !isOnCar(itemRetornoLicitacao) ? 
         <Button
-          className="text-default-900/60 w-full"
+          className="text-default-900/90 w-full"
           color="secondary"
           variant="solid"
           radius={isCompact ? 'full' : 'sm'}
@@ -68,7 +68,7 @@ const CartButton: React.FC<CartButtonProps> = ({
         </Button>
       : 
         <Button
-          className="text-default-900/60  w-full"
+          className="text-default-900/90  w-full"
           color="danger"
           variant="solid"
           radius={isCompact ? 'full' : 'sm'}

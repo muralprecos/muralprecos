@@ -1,126 +1,160 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI } from "@/interfaces/types";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IAPISearchPropsLogged } from "@/interfaces/types";
 import { ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
 
+
 export const getListPorteFornecedor = async (
-  { page, size } : { page?: number; size?: number }): Promise<IPorteFornecedor[]|null> => {
-  return getGenericObject<IPorteFornecedor[]>({ path: '/api/v1/portes-fornecedor' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged): Promise<IPorteFornecedor[]|null> => {
+  return getGenericObject<IPorteFornecedor[]>({ path: '/serverapi/v1/portes-fornecedor' , accessToken, ...opts });
 }
 export const getListEsferas = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<IEsfera[]>({ path: '/api/v1/esferas' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IEsfera[]>({ path: '/serverapi/v1/esferas', accessToken, ...opts });
 }
 export const getFormasCompra = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<IFormaCompra[]>({ path: '/api/v1/formas-compra' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IFormaCompra[]>({ path: '/serverapi/v1/formas-compra' , accessToken, ...opts });
 }
 export const getListModalidadesCompra = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<IModalidadeCompra[]>({ path: '/api/v1/modalidades-compra' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IModalidadeCompra[]>({ path: '/serverapi/v1/modalidades-compra' , accessToken, ...opts });
 }
 export const getListPeriodosCompra = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<IPeriodoCompra[]>({ path: '/api/v1/periodos-compra' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IPeriodoCompra[]>({ path: '/serverapi/v1/periodos-compra' , accessToken, ...opts });
 }
 export const getListSituacoesLicitacao = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericObject<ISituacaoLicitacao[]>({ path: '/api/v1/situacoes-licitacao' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<ISituacaoLicitacao[]>({ path: '/serverapi/v1/situacoes-licitacao' , accessToken, ...opts });
 }
 export const getListEstados = async (
-  { page, size } : IAPISearchProps) => {
-  return getGenericObject<IUnidadeFederativa[]>({ path: '/api/v1/unidades-federativas' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericObject<IUnidadeFederativa[]>({ path: '/serverapi/v1/unidades-federativas' , accessToken, ...opts });
 }
 export const getListAnos = async (
-  { page, size } : { page?: number; size?: number }) => {
-  return getGenericListPageable<IAnoCompra>({ path: '/api/v1/anos-compra' , page, size });
+  { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
+  return getGenericListPageable<IAnoCompra>({ path: '/serverapi/v1/anos-compra' , accessToken, ...opts });
 }
 
 export const getListMunicipios = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  const uuiduf = getValParamSearch(info, 'uuiduf');
-  info = extractParamSearch(info, 'uuiduf');
-  return getGenericListPageable<IMunicipio>({ path: `/api/v1/unidades-federativas/${uuiduf}/municipios` , page, size, info, config });
+  opts : IAPISearchProps) => {
+  const uuiduf = getValParamSearch(opts.info, 'uuiduf');
+  opts.info = extractParamSearch(opts.info, 'uuiduf');
+  opts.path = `/serverapi/v1/unidades-federativas/${uuiduf}/municipios`;
+  return getGenericListPageable<IMunicipio>(opts);
 }
 
 export const getListFornecedores = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  return getGenericListPageable<IFornecedor>({ path: '/api/v1/fornecedores' , page, size, info, config });
+  opts : IAPISearchProps) => {
+  return getGenericListPageable<IFornecedor>({ path: '/serverapi/v1/fornecedores' , ...opts });
 }
 export const getFornecedorDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListFornecedores);
 }
 
 export const getListOrgaos = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  return getGenericListPageable<IOrgao>({ path: '/api/v1/orgaos' , page, size, info, config });
+  opts : IAPISearchProps) => {
+  return getGenericListPageable<IOrgao>({ path: '/serverapi/v1/orgaos' , ...opts });
 }
 export const getListOrgaosSuperiores = async (
-  { page, size, info, config } : IAPISearchProps) => {
-    info = forceParamSearch(info, 'ehSuperior', 'true');
-  return getGenericListPageable<IOrgao>({ path: '/api/v1/orgaos' , page, size, info, config });
+  opts : IAPISearchProps) => {
+  opts.info = forceParamSearch(opts.info, 'ehSuperior', 'true');
+  return getGenericListPageable<IOrgao>({ path: '/serverapi/v1/orgaos' , ...opts });
 }
 export const getOrgaoDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListOrgaos);
 }
 
 export const getListUASG = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  return getGenericListPageable<IUnidadeGestora>({ path: '/api/v1/unidades-gestoras' , page, size, info, config });
+  opts : IAPISearchProps) => {
+  return getGenericListPageable<IUnidadeGestora>({ path: '/serverapi/v1/unidades-gestoras' , ...opts });
 }
 export const getUASGDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListUASG);
 }
 
 export const getListUnidadesFornecimento = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  return getGenericListPageable<IObjetoAPI>({ path: '/api/v1/unidades-fornecimento' , page, size, info, config });
+  opts : IAPISearchProps) => {
+  return getGenericListPageable<IObjetoAPI>({ path: '/serverapi/v1/unidades-fornecimento' , ...opts });
 }
 export const getUnidadeFornecimentoDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListUnidadesFornecimento);
 }
 
 export const getListNomeMaterial = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  return getGenericListPageable<INomeMaterial>({ path: '/api/v1/materiais' , page, size, info, config });
+  opts : IAPISearchProps) => {
+  return getGenericListPageable<INomeMaterial>({ path: '/serverapi/v1/materiais' , ...opts });
 }
 export const getNomeMaterialDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListNomeMaterial);
 }
 
 export const getListObjetosCompras = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  info = forceParamSearch(info, 'only', 'true');
-  return getGenericListPageable<IObjetoCompra>({ path: '/api/v1/licitacoes' , page, size, info, config });
+  opts : IAPISearchProps) => {
+  opts.info = forceParamSearch(opts.info, 'only', 'true');
+  return getGenericListPageable<IObjetoCompra>({ path: '/serverapi/v1/licitacoes' , ...opts });
 }
 export const getListDescricao = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  info = forceParamSearch(info, 'only', 'true');
-  return getGenericListPageable<IItemDescricao>({ path: '/api/v1/itens-licitacao' , page, size, info, config });
+  opts : IAPISearchProps) => {
+  opts.info = forceParamSearch(opts.info, 'only', 'true');
+  return getGenericListPageable<IItemDescricao>({ path: '/serverapi/v1/itens-licitacao' , ...opts });
 }
 
 export const getItemLicitacao = async (
-  { page, size, info, config } : IAPISearchProps) => {
-  const uuid = getValParamSearch(info, 'uuid');
-  info = extractParamSearch(info, 'uuid');
-  return getGenericObject<IItemLicitacao>({ path: `/api/v1/itens-licitacao/${uuid}` , page, size, info, config });
+  opts : IAPISearchPropsLogged) => {
+  const uuid = getValParamSearch(opts.info, 'uuid');
+  opts.info = extractParamSearch(opts.info, 'uuid');
+  return getGenericObject<IItemLicitacao>({ path: `/serverapi/v1/itens-licitacao/${uuid}` , ...opts });
 }
 
 
 export const FIELDS_COTACOES_LIST = 'content[uuid,descricao,quantidade,valor,licitacao.municipio.nome,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra,unidadeFornecimento.nome],pageable,last,totalElements,totalPages,size,number,sort,first,numberOfElements,empty';
 export const getPesquisarCotacoes = async (
-  { info, config } : IAPISearchProps) => {
+  { info, config, accessToken } : IAPISearchPropsLogged) => {
     const pageinfo = getNumberOrUndefined(getValParamSearch(info, 'page'));
     const sizeinfo = getNumberOrUndefined(getValParamSearch(info, 'size'));
-    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/api/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo });
+    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/serverapi/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo, accessToken: accessToken ?? undefined });
 }
 
 export const postDownloadItensCotacoes = async (
-  itens: IRetornoPesquisaItensLicitacao[]) : Promise<Blob|ResponseError|null> => {
+  itens: IRetornoPesquisaItensLicitacao[],
+  accessToken: string
+  ) : Promise<Blob|ResponseError|null> => {
     return postGenericBlob({
-      path: '/api/v1/cotacoes',
+      path: '/serverapi/v1/cotacoes',
       bodydata: JSON.stringify({
         "itens": itens.map( i => i.uuid )
       }),
-      acceptType: ''
+      acceptType: '',
+      accessToken
+    });
+}
+
+export const postLogin = async (
+  userAuth: IUserAuth) => {
+    const URL = `${process.env.GET_TOKEN_URL}`;
+    const b = new URLSearchParams();
+    b.append('client_id', `${process.env.KEYCLOAK_ID}`);
+    b.append('client_secret', `${process.env.KEYCLOAK_SECRET}`);
+    b.append('grant_type', 'password');
+    b.append('scope', 'openid');
+    b.append('username', userAuth.username);
+    b.append('password', userAuth.password);
+    return fetch(URL, { 
+      method: "POST",
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: b
+    });
+}
+
+export const postLogout = async (idToken: string) => {
+    const URL = `${process.env.END_SESSION_URL}`;
+    const b = new URLSearchParams();
+    b.append('client_id', `${process.env.KEYCLOAK_ID}`);
+    b.append('id_token_hint', idToken);
+    return fetch(URL, { 
+      method: "POST",
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: b
     });
 }

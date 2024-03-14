@@ -5,12 +5,11 @@ import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenu
 import { usePathname } from 'next/navigation';
 import ThemeSwitcher from "@/components/molecules/ThemeSwitcher";
 import TTIcon from "../atoms/icons/TTIcon";
-import { AppDispatch, useAppSelector } from "@/redux/store";
-import { hasString } from "@/utils/validateUtils";
+import { useAppSelector } from "@/redux/store";
 import HeaderUserInfo from "../molecules/HeaderUserInfo";
-import { useDispatch } from "react-redux";
-import { logOut } from "@/redux/features/auth-slice";
-import { useRouter } from 'next/navigation';
+import { logoutAction } from "@/app/action/logoutActions";
+import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
+import { Session } from "next-auth";
 
 export interface ILink {
   description: string
@@ -18,46 +17,46 @@ export interface ILink {
 }
 
 type FormTitleProps = {
+  session: Session | null
   links?: ILink[]
   children?: React.ReactNode
 } & React.AllHTMLAttributes<HTMLElement>
 
 const Header: React.FC<FormTitleProps> = ({
   children,
+  session,
   links = [],
   ...opts
 }) => {
 
-  const { push } = useRouter();
   const pathname = usePathname();
-
-  const _uname = useAppSelector((state) => state.authReducer.value.username);
   const _cartList = useAppSelector((state) => state.cartReducer.value);
 
-  const _className = opts.className;
-  delete opts.className;
-
-  const [isMenuLoaded, setIsMenuLoaded] = React.useState(false);
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [username, setUsername] = React.useState<string>('');
   const [cartsize, setCartsize] = React.useState<number>(0);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   useEffect(() => {
-    setUsername(_uname);
+    if (session?.userInfo?.name) {
+      setUsername(session?.userInfo?.name);
+    }
+  }, [session])
+
+  useEffect(() => {
     setCartsize(_cartList.length);
-    setIsMenuLoaded(true);
-  }, [_uname, _cartList]);
+  }, [_cartList])
 
   const activeLink = (url: string, pathname: string) => {
     return pathname === url
   };
 
-  const dispatch = useDispatch<AppDispatch>();
+  const isLogged = () : boolean => {
+    return session?.userInfo?.name != null && session?.userInfo?.name != '';
+  }
 
   const onClickLogout = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    dispatch(logOut());
-    push('/login');
+    logoutAction();
   };
 
   return (
@@ -105,22 +104,20 @@ const Header: React.FC<FormTitleProps> = ({
               </NavbarContent>
 
               <ul className="flex-1">
-                { isMenuLoaded &&
-                  <ul className="flex-1">
-                    { !hasString(username) ?
-                      <NavbarContent className="flex gap-3" justify="end">
-                        <ThemeSwitcher className="sm:flex hidden" />
-                        <NavbarItem className="hidden lg:flex">
-                          <Link href="/login">Acessar Conta</Link>
-                        </NavbarItem>
-                      </NavbarContent>
-                    :
-                      <NavbarContent className="flex gap-3" justify="end">
-                        <HeaderUserInfo cartsize={cartsize} username={username} logout={onClickLogout} />
-                      </NavbarContent>
-                    }
-                  </ul>
-                }
+                <NavbarContent className="gap-3 sm:flex hidden" justify="end">
+                  { !session?.userInfo ? (
+                    <>
+                      <ThemeSwitcher />
+                      <NavbarItem>
+                        <Link href={INITIAL_PAGE_LOGIN}>Acessar Conta</Link>
+                      </NavbarItem>
+                    </>
+                  ) : (
+                    <>
+                      <HeaderUserInfo cartsize={cartsize} username={username} logout={onClickLogout} />
+                    </>
+                  )}
+                </NavbarContent>
               </ul>
               
             </div>
@@ -147,19 +144,21 @@ const Header: React.FC<FormTitleProps> = ({
                     <ThemeSwitcher isCompact={false} variant="light"/>
                   </Link>
                 </NavbarMenuItem>
-                { !hasString(username) ?
-                  <NavbarMenuItem>
-                    <Button as={Link} className="w-full" size="lg" color="primary" href={'/login'}>
-                      Acessar Conta
-                    </Button>
-                  </NavbarMenuItem>
-                :
-                  <NavbarMenuItem>
-                    <Button as={Link} className="w-full" size="lg" color="danger" onClick={onClickLogout}>
-                      Sair da Conta
-                    </Button>
-                  </NavbarMenuItem>
-                }
+                <>
+                  { !isLogged() ?
+                    <NavbarMenuItem>
+                      <Button as={Link} className="w-full" size="lg" color="primary" href={'/login'}>
+                        Acessar Conta
+                      </Button>
+                    </NavbarMenuItem>
+                  :
+                    <NavbarMenuItem>
+                      <Button as={Link} className="w-full" size="lg" color="danger" onClick={onClickLogout}>
+                        Sair da Conta
+                      </Button>
+                    </NavbarMenuItem>
+                  }
+                </>
               </div>
             </NavbarMenu>
           </div>

@@ -1,23 +1,17 @@
-"use client";
+import { redirect } from 'next/navigation';
+import { INITIAL_PAGE_LOGGED, INITIAL_PAGE_LOGIN } from '@/utils/routesUtils';
+import { auth } from 'auth';
 
-import { useAppSelector } from '@/redux/store';
-import { redirect } from 'next/navigation'
-import { useEffect } from 'react';
+export default async function Home() {
 
-export default function Home() {
-  const isLogged = useAppSelector((state) => state.authReducer.value.isAuth);
-
-  useEffect(() => {
-    if (!isLogged) {
-      redirect('/login')
-    } else {
-      redirect('/cotacao')
-    }
-  }, [isLogged]);
+  const session = await auth();
+  if (!session || !session.userInfo) {
+    redirect(INITIAL_PAGE_LOGIN);
+  } else {
+    redirect(INITIAL_PAGE_LOGGED);
+  }
 
   return (
-    <section className='py-4'>
-      <div className='container flex items-center justify-center'></div>
-    </section>
+    <div>Pagina Inicial</div>
   )
 }
