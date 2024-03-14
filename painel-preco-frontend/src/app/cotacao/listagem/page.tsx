@@ -8,6 +8,7 @@ import { CheckRolesStrategy } from "@/utils/sessionTokenAccessor";
 import ListItemLicitacao from "@/components/organisms/ListItemLicitacao";
 import { auth } from "auth";
 import { checkSession } from "@/utils/sessionCheckerServerUtils";
+import Link from "next/link";
 
 export default async function PageCotacaoListagem() {
 
@@ -28,7 +29,7 @@ export default async function PageCotacaoListagem() {
               <div className="flex-auto">
                 Resultado da Cotação
               </div>
-              <Button color="secondary" type="button" href="/cotacao">
+              <Button color="secondary" style={{textTransform: 'none'}} type="button" as={Link} href="/cotacao">
                 Voltar
               </Button>
             </FormTitle>

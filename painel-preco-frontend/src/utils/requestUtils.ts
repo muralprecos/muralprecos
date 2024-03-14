@@ -1,5 +1,8 @@
+import { isResponseReq } from "@/hooks/genericapi";
 import { IAPISearchInfo, IAPISearchProps } from "@/interfaces/types";
 import { ReadonlyURLSearchParams } from "next/navigation";
+import { addSnackError } from "./snackbarUtils";
+import { EnqueueSnackbar } from "notistack";
 
 const addParam = (url: string, hasAttr: boolean, complement: string) : string => {
   return `${url}${hasAttr ? '&' : '?'}${complement}`
@@ -60,4 +63,14 @@ export function downloadFile(blob: Blob, filename: string) {
 export function showFileInOtherTab(blob: Blob) {
   const url = window.URL.createObjectURL(blob);
   window.open(url);
+}
+
+export function catchErrorFromFetch(e: any, enqueueSnackbar: EnqueueSnackbar, strErroGeral: string) {
+  if (isResponseReq(e)) {
+    if (e.statusCode == 401) {
+      addSnackError(enqueueSnackbar, 'Usuário sem permissão. Caso persista, efetue o login novamente.');
+      return;
+    }
+  }
+  addSnackError(enqueueSnackbar, `Problema ao ${strErroGeral}, tente novamente!`);
 }

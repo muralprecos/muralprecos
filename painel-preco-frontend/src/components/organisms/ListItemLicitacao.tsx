@@ -9,7 +9,8 @@ import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/naviga
 import LoadingList from "../molecules/LoadingList";
 import { isClientNextjs } from "@/utils/validateUtils";
 import { getPesquisarCotacoes } from "@/hooks/api";
-import { searchParamsToInfo } from "@/utils/requestUtils";
+import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
+import { useSnackbar } from "notistack";
 
 interface IProps {
   token: string | null
@@ -21,6 +22,7 @@ const ListItemLicitacao: React.FC<IProps> = ({
   
   const router = useRouter();
   const searchParams : ReadonlyURLSearchParams = useSearchParams();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const [isLoading, setIsLoading] = useState(true);
   const [itensLicitacao, setItensLicitacao] = useState<IRetornoPesquisaItensLicitacao[]>([]);
@@ -40,7 +42,9 @@ const ListItemLicitacao: React.FC<IProps> = ({
           }
         }
       }
-      fetchData().catch(console.error);
+      fetchData().catch(e => {
+        catchErrorFromFetch(e, enqueueSnackbar, 'carregar item');
+      });
     }
   }, [searchParams, router, token, setItensLicitacao]);
 

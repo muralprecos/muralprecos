@@ -2,7 +2,7 @@
 
 import { Card, CardBody, Divider, Listbox, ListboxItem } from "@nextui-org/react";
 import SearchItensLicitacaoForm, { IPropsSearchItensLicitacaoForm } from "./searchItensLicitacaoForm";
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import { useSnackbar } from "notistack";
 import { addSnackError, addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
 import FormRow from "@/components/atoms/FormRow";
@@ -11,7 +11,6 @@ import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import { logoutAction } from "../action/logoutActions";
 import { CheckRolesStrategy, checkAccessRoles } from "@/utils/sessionTokenAccessor";
 import { messages } from "@/utils/messages";
-import Loading from "../loading";
 
 export const TABS_COTACAO = {
   SEARCH: {
@@ -68,16 +67,16 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
       href: '/cotacao',
       label: "Última Cotação Realizada",
     },
-    {
-      key: '2',
-      href: '/cotacao?ano=2014&periodoCompraId=181',
-      label: "Cotações de 2014 (Há mais de 180 dias)",
-    },
-    {
-      key: '3',
-      href: '/cotacao?ano=2015&periodoCompraId=181&ufId=e1b49932-4f86-11ee-8095-0242ac120003',
-      label: "Cotações no Piauí em 2015",
-    },
+    // {
+    //   key: '2',
+    //   href: '/cotacao?ano=2014&periodoCompraId=181',
+    //   label: "Cotações de 2014 (Há mais de 180 dias)",
+    // },
+    // {
+    //   key: '3',
+    //   href: '/cotacao?ano=2015&periodoCompraId=181&ufId=e1b49932-4f86-11ee-8095-0242ac120003',
+    //   label: "Cotações no Piauí em 2015",
+    // },
   ];
 
   return (
@@ -110,14 +109,14 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                       ))}
                     </Listbox>
                   </div>
-                  <div className="flex flex-1  flex-col border-small rounded-small border-default-200 dark:border-default-100 w-full">
+                  {/* <div className="flex flex-1  flex-col border-small rounded-small border-default-200 dark:border-default-100 w-full">
                     <h3 className={`text-sm font-bold uppercase text-primary-600 w-full bg-opacity-5 bg-primary-300 p-4 text-center`}>
                       Cotações Favoritas da Equipe
                     </h3>
                     <div className="w-full flex-1 p-4 text-center text-small text-gray-400 cursor-default">
                         Sem Cotações Salvas
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex flex-col items-start justify-start basis-3/4 w-full">
                   <SearchItensLicitacaoForm

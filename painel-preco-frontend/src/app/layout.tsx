@@ -29,8 +29,8 @@ export default async function RootLayout({
   const session = await auth();
   
   const linksHeader = [
-    {description: 'Início', link: '/'},
     {description: 'Cotação', link: '/cotacao'},
+    // {description: 'Histórico', link: '/historico'},
     {description: 'Carrinho', link: '/carrinho'}
   ]
 
