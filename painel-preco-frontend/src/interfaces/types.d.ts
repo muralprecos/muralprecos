@@ -70,6 +70,14 @@ export interface IItemDescricaoComplementar extends ISimpleObjetoAPI {}
 
 export interface IUnidadeFornecimento extends IObjetoAPI {}
 
+export interface IHistoricoCotacao extends IObjetoAPI {
+  nomeArquivo: string
+  stringBusca: string
+  hashValidacao: string
+  arquivo: string
+  criadoEm: string
+}
+
 
 
 type NameValue<T extends IObjetoAPI> = {

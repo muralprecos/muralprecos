@@ -46,7 +46,7 @@ const ListItemLicitacao: React.FC<IProps> = ({
         catchErrorFromFetch(e, enqueueSnackbar, 'carregar item');
       });
     }
-  }, [searchParams, router, token, setItensLicitacao]);
+  }, [searchParams, router, token, setItensLicitacao, enqueueSnackbar]);
 
   const hastItens = () => {
     return itensLicitacao != null && itensLicitacao.length > 0;

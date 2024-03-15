@@ -40,8 +40,8 @@ const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
           <ListboxItem key="edit" href="/cotacao">Realizar Cotação</ListboxItem>
           {/* <ListboxItem key="edit" href="/">Editar Perfil</ListboxItem> */}
           <ListboxItem key="cart" href="/carrinho" endContent={cartsize > 0 ? <Chip size="sm" radius="sm" color="primary">{cartsize}</Chip> : ''
-          }>Carrinho</ListboxItem>
-          {/* <ListboxItem key="history" href="/">Histórico de Cotações</ListboxItem> */}
+          }>Ver Carrinho</ListboxItem>
+          <ListboxItem key="history" href="/cotacao/historico">Histórico de Cotações</ListboxItem>
           <ListboxItem key="logout" className="text-danger" color="danger" onClick={(e) => {logout(e)}}>Sair da Conta</ListboxItem>
         </Listbox>
       </CardBody>

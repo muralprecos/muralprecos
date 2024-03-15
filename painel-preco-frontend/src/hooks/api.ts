@@ -1,4 +1,4 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IAPISearchPropsLogged } from "@/interfaces/types";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IAPISearchPropsLogged, IHistoricoCotacao } from "@/interfaces/types";
 import { ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
 
@@ -105,6 +105,17 @@ export const getItemLicitacao = async (
   const uuid = getValParamSearch(opts.info, 'uuid');
   opts.info = extractParamSearch(opts.info, 'uuid');
   return getGenericObject<IItemLicitacao>({ path: `/serverapi/v1/itens-licitacao/${uuid}` , ...opts });
+}
+
+export const getListHistoricoCotacoes = async (
+  opts : IAPISearchPropsLogged) => {
+  return getGenericListPageable<IHistoricoCotacao>({ path: '/serverapi/v1/cotacoes' , ...opts });
+}
+export const getHistoricoCotacao = async (
+  opts : IAPISearchPropsLogged) => {
+  const uuid = getValParamSearch(opts.info, 'uuid');
+  opts.info = extractParamSearch(opts.info, 'uuid');
+  return getGenericObject<IHistoricoCotacao>({ path: `/serverapi/v1/cotacoes/${uuid}` , ...opts });
 }
 
 
