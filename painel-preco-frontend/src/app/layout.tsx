@@ -30,7 +30,7 @@ export default async function RootLayout({
   
   const linksHeader = [
     {description: 'Cotação', link: '/cotacao'},
-    // {description: 'Histórico', link: '/historico'},
+    {description: 'Histórico', link: '/cotacao/historico'},
     {description: 'Carrinho', link: '/carrinho'}
   ]
 
