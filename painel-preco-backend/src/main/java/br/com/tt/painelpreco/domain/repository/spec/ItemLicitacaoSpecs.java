@@ -1,6 +1,7 @@
 package br.com.tt.painelpreco.domain.repository.spec;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import javax.persistence.criteria.Predicate;
 
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
+import br.com.tt.painelpreco.domain.model.UnidadeFederativa;
 import br.com.tt.painelpreco.util.DateUtil;
 import br.com.tt.painelpreco.util.JPAUtil;
 import br.com.tt.painelpreco.util.StringUtil;
@@ -57,8 +59,14 @@ public class ItemLicitacaoSpecs {
 			if (filtro.getMunicipioId() != null)
 				predicates.add(builder.equal(root.join("licitacao").get("municipio").get("uuid"), filtro.getMunicipioId()));
 			
-			if (filtro.getUfId() != null)
-				predicates.add(builder.equal(root.join("licitacao").get("municipio").get("uf").get("uuid"), filtro.getUfId()));
+			if (filtro.getUfId() != null) {
+				Integer[] idsUFsRegiao = UnidadeFederativa.getUFsRegiao(filtro.getUfId());
+				
+				if (idsUFsRegiao != null && idsUFsRegiao.length > 0)
+					predicates.add(root.join("licitacao").get("municipio").get("uf").get("id").in(idsUFsRegiao));
+				else
+					predicates.add(builder.equal(root.join("licitacao").get("municipio").get("uf").get("uuid"), filtro.getUfId()));
+			}
 			/** ====================================================== LICITACAO ====================================================== **/
 			
 			if (!StringUtil.isEmpty(filtro.getDescricao()))

@@ -19,6 +19,8 @@ import br.com.tt.painelpreco.api.dto.ItemLicitacaoDTO;
 import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 import br.com.tt.painelpreco.domain.repository.spec.ItemLicitacaoSpecs;
+import br.com.tt.painelpreco.domain.service.ItemLicitacaoDescCompService;
+import br.com.tt.painelpreco.domain.service.ItemLicitacaoDescService;
 import br.com.tt.painelpreco.domain.service.ItemLicitacaoService;
 import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.ModelConverter;
@@ -30,6 +32,12 @@ public class ItemLicitacaoController {
 	
 	@Autowired
 	private ItemLicitacaoService itemLicitacaoService;
+	
+	@Autowired
+	private ItemLicitacaoDescService itemLicitacaoDescService;
+	
+	@Autowired
+	private ItemLicitacaoDescCompService itemLicitacaoDescCompService;
 	
 	@Autowired
 	private ModelConverter converter;
@@ -59,9 +67,9 @@ public class ItemLicitacaoController {
 		Page<ItemLicitacao> itens = null;
 		if (filter.isOnly()) {
 			if (filter.isDescricaoOnly())
-				itens = itemLicitacaoService.listaByDescricao(filter.getDescricao(), pageable);
+				itens = itemLicitacaoDescService.listaByDescricao(filter.getDescricao(), pageable);
 			if (filter.isDescricaoComplmentarOnly())
-				itens = itemLicitacaoService.listaByDescricaoComplementar(filter.getDescricaoComplementar(), pageable);
+				itens = itemLicitacaoDescCompService.listaByDescricaoComplementar(filter.getDescricaoComplementar(), pageable);
 		} else {			
 			itens = itemLicitacaoService.listaByFilter(ItemLicitacaoSpecs.filtroGeral(filter), pageable);
 		}

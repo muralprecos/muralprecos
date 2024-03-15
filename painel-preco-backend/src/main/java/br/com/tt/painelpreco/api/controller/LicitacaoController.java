@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.tt.painelpreco.api.dto.LicitacaoDTO;
 import br.com.tt.painelpreco.api.dto.ObjetoLicitacaoDTO;
 import br.com.tt.painelpreco.api.dto.form.filter.LicitacaoFilter;
-import br.com.tt.painelpreco.domain.model.Licitacao;
 import br.com.tt.painelpreco.domain.repository.spec.LicitacaoSpecs;
+import br.com.tt.painelpreco.domain.service.LicitacaoObjService;
 import br.com.tt.painelpreco.domain.service.LicitacaoService;
 import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.ModelConverter;
@@ -27,16 +27,25 @@ public class LicitacaoController {
 	private LicitacaoService licitacoesService;
 	
 	@Autowired
+	private LicitacaoObjService licitacoesObjService;
+	
+	@Autowired
 	private ModelConverter converter;
 	
 	@GetMapping
 	public Page<?> pesquisar(Pageable pageable, LicitacaoFilter filter) {
-		Page<Licitacao> licitacoes = licitacoesService.listaByFilter(LicitacaoSpecs.filtroGeral(filter), pageable);
+		Page<?> licitacoes = null;
+		if (filter.isOnly()) {
+			if (filter.isObjetoOnly())
+				licitacoes = licitacoesObjService.listaByObjeto(filter.getObjeto(), pageable);
+		} else {			
+			licitacoes = licitacoesService.listaByFilter(LicitacaoSpecs.filtroGeral(filter), pageable);
+		}
 		
 		return new PageImpl<>(getCollectionDTO(licitacoes, filter), pageable, licitacoes.getTotalElements());
 	}
 
-	private List<?> getCollectionDTO(Page<Licitacao> licitacoes, LicitacaoFilter filter) {
+	private List<?> getCollectionDTO(Page<?> licitacoes, LicitacaoFilter filter) {
 		List<LicitacaoDTO> result = converter.toDTOCollection(licitacoes.getContent(), LicitacaoDTO.class);
 		if (!filter.isOnly())
 			return result;
