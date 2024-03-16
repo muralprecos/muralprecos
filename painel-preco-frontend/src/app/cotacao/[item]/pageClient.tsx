@@ -8,16 +8,15 @@ import { useEffect, useState } from "react";
 import InfoText from "@/components/atoms/InfoText";
 import InfoTitle from "@/components/atoms/InfoTitle";
 import CartButton from "@/components/molecules/CartButton";
-import { useRouter } from "next/navigation";
 import { isClientNextjs } from "@/utils/validateUtils";
 import { getItemLicitacao } from "@/hooks/api";
-import { isResponseReq } from "@/hooks/genericapi";
 import { addSnackError } from "@/utils/snackbarUtils";
 import { useSnackbar } from "notistack";
 import LoadingItem from "@/components/molecules/LoadingItem";
 import { strIfNotNull } from "@/utils/convertData";
 import { Session } from "next-auth";
 import { catchErrorFromFetch } from "@/utils/requestUtils";
+import BackButton from "@/components/atoms/BackButton";
 
 export interface IPropsViewItensLicitacao {
   params: { item: string }
@@ -39,8 +38,6 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
   ...opts
 }) => {
 
-  const router = useRouter();
-  
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(true);
   const [itemLicitacao, setItemLicitacao] = useState<IItemLicitacao|null>();
@@ -63,7 +60,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
         catchErrorFromFetch(e, enqueueSnackbar, 'carregar item');
       });
     }
-  }, [params, accessToken, session, setItemLicitacao, enqueueSnackbar, router]);
+  }, [params, accessToken, session, setItemLicitacao, enqueueSnackbar]);
 
   const showTitle = () => {
     return itemLicitacao != null ? itemLicitacao.descricao : isLoading ? 'Carregando Item...' : 'Item não encontrado';
@@ -71,10 +68,6 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
 
   const hastItens = () => {
     return itemLicitacao != null;
-  }
-
-  const goListTab = () => {
-    router.back();
   }
 
   const items = [
@@ -119,9 +112,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                 <div className="flex-auto">
                   {showTitle()}
                 </div>
-                <Button color="secondary" type="button" onClick={goListTab}>
-                  Voltar
-                </Button>
+                <BackButton/>
               </FormTitle>
               <Divider className="my-4" />
               <FormRow className='flex flex-col items-start justify-start'>

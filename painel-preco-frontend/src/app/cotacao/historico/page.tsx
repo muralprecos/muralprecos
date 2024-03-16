@@ -5,10 +5,10 @@ import { Suspense } from "react";
 import LoadingList from "@/components/molecules/LoadingList";
 import { redirect,  } from "next/navigation";
 import { CheckRolesStrategy } from "@/utils/sessionTokenAccessor";
-import ListItemLicitacao from "@/components/organisms/ListItemLicitacao";
 import { auth } from "auth";
 import { checkSession } from "@/utils/sessionCheckerServerUtils";
 import ViewHistoricoCotacao from "./pageClient";
+import BackButton from "@/components/atoms/BackButton";
 
 export default async function PageHistoricoCotacao() {
 
@@ -29,6 +29,7 @@ export default async function PageHistoricoCotacao() {
               <div className="flex-auto">
                 Histórico de Cotações
               </div>
+              <BackButton/>
             </FormTitle>
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
