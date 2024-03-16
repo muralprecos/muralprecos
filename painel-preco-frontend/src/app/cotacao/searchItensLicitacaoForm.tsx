@@ -40,11 +40,11 @@ export interface IPropsSearchItensLicitacaoForm {
 }
 
 const schema = yup.object({
-  ano: yup.string(),
-  porteFornecedor: yup.string(),
-  esferaId: yup.string(),
-  formaCompraId: yup.string(),
-  modalidadeCompraId: yup.string(),
+  ano: yup.string().nullable(),
+  porteFornecedor: yup.string().nullable(),
+  esferaId: yup.string().nullable(),
+  formaCompraId: yup.string().nullable(),
+  modalidadeCompraId: yup.string().nullable(),
   periodoCompraId: yup.string().required(yupStrings.required),
 
   ufId: yup.string().nullable(),
@@ -401,7 +401,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
             Limpar
           </Button>
           <Button color="primary" type="submit" isDisabled={doingRequest}>
-            Pesquisar
+            { !doingRequest ? 'Pesquisar' : 'Pesquisando...'}
           </Button>
         </FormRow>
       </form>
