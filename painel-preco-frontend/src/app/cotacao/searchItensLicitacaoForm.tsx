@@ -154,12 +154,12 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   }
 
   const fields : FieldsForms = {
-    ano: { type: 'select', label: 'Ano da Compra', items: anosCompras },
-    porteFornecedor: { type: 'select', label: 'Porte da Empresa', items: empresaPorte },
-    esferaId: { type: 'select', label: 'Esfera', items: esferas },
-    formaCompraId: { type: 'select', label: 'Forma da Compra', items: compraFormas },
-    modalidadeCompraId: { type: 'select', label: 'Modalidade Compra', items: compraModalidades },
-    periodoCompraId: { type: 'select', label: 'Período da Compra', items: compraPeriodos },
+    ano: { type: 'autocompletStatic', label: 'Ano da Compra', items: anosCompras },
+    porteFornecedor: { type: 'autocompletStatic', label: 'Porte da Empresa', items: empresaPorte },
+    esferaId: { type: 'autocompletStatic', label: 'Esfera', items: esferas },
+    formaCompraId: { type: 'autocompletStatic', label: 'Forma da Compra', items: compraFormas },
+    modalidadeCompraId: { type: 'autocompletStatic', label: 'Modalidade Compra', items: compraModalidades },
+    periodoCompraId: { type: 'autocompletStatic', label: 'Período da Compra', items: compraPeriodos },
 
     situacao_licitacao: { type: 'autocompletStatic', label: 'Situação da Licitação', items: situacoesLicitacoes },
     ufId: { type: 'autocompletStatic', label: 'Unidade Federativa', items: unidadesFederativas },

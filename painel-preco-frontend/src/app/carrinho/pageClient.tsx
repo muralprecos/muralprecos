@@ -20,12 +20,8 @@ import { DATE_PATTERN, convertTZptBR, datePattern } from "@/utils/dateUtils";
 import { downloadFile, mountUrl } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
 import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
-import { redirect, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { CheckRolesStrategy, checkAccessRoles, getAccessTokenClient, isAuthenticatedFail } from "@/utils/sessionTokenAccessor";
-import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
-import { logoutAction } from "../action/logoutActions";
-import { messages } from "@/utils/messages";
+import { useRouter } from "next/navigation";
+import BackButton from "@/components/atoms/BackButton";
 
 export interface IPropsCartPge {
   accessToken: string | null
@@ -96,7 +92,6 @@ const CartPage: React.FC<IPropsCartPge> = ({
     } catch (e: Error | any) {
       addSnackError(enqueueSnackbar, (e instanceof Error ? e.message: e));
     }
-    
   }
 
   return (
@@ -105,7 +100,12 @@ const CartPage: React.FC<IPropsCartPge> = ({
         <Card>
           <CardBody>
           <div className='container flex flex-col items-start justify-start'>
-            <FormTitle className="py-2">Carrinho de Cotações</FormTitle>
+            <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full'>
+                <div className="flex-auto">
+                  Carrinho de Cotações
+                </div>
+                <BackButton/>
+              </FormTitle>
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
               { isLoading && 

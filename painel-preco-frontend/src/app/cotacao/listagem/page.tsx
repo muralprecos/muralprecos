@@ -8,7 +8,7 @@ import { CheckRolesStrategy } from "@/utils/sessionTokenAccessor";
 import ListItemLicitacao from "@/components/organisms/ListItemLicitacao";
 import { auth } from "auth";
 import { checkSession } from "@/utils/sessionCheckerServerUtils";
-import Link from "next/link";
+import BackButton from "@/components/atoms/BackButton";
 
 export default async function PageCotacaoListagem() {
 
@@ -29,9 +29,7 @@ export default async function PageCotacaoListagem() {
               <div className="flex-auto">
                 Resultado da Cotação
               </div>
-              <Button color="secondary" style={{textTransform: 'none'}} type="button" as={Link} href="/cotacao">
-                Voltar
-              </Button>
+              <BackButton/>
             </FormTitle>
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>

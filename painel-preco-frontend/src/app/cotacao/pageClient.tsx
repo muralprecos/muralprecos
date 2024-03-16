@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardBody, Divider, Listbox, ListboxItem } from "@nextui-org/react";
+import { Button, Card, CardBody, Divider, Listbox, ListboxItem } from "@nextui-org/react";
 import SearchItensLicitacaoForm, { IPropsSearchItensLicitacaoForm } from "./searchItensLicitacaoForm";
 import { useEffect } from "react";
 import { useSnackbar } from "notistack";
@@ -11,6 +11,9 @@ import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import { logoutAction } from "../action/logoutActions";
 import { CheckRolesStrategy, checkAccessRoles } from "@/utils/sessionTokenAccessor";
 import { messages } from "@/utils/messages";
+import { useAppSelector } from "@/redux/store";
+import Link from "next/link";
+import NoSSR from "@/components/atoms/NoSSR";
 
 export const TABS_COTACAO = {
   SEARCH: {
@@ -41,6 +44,8 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   ...opts
 }) => {
 
+  const _cartList = useAppSelector((state) => state.cartReducer.value);
+  
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const searchParams : ReadonlyURLSearchParams = useSearchParams();
   const hasAuthorization = checkAccessRoles(session, [], CheckRolesStrategy.INCLUDES_ALL);
@@ -86,7 +91,17 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
         <Card>
           <CardBody>
             <section className='container flex flex-col items-start justify-start'>
-              <FormTitle className="py-2">Realizar Cotação</FormTitle>
+              <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full'>
+                <div className="flex-auto">
+                  Realizar Cotação
+                </div>
+                <NoSSR>
+                  <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/carrinho" isDisabled={_cartList.length < 1}>
+                    Ir para o Carrinho
+                  </Button>
+                </NoSSR>
+              </FormTitle>
+
               <Divider className="my-4" />
               <FormRow className="flex lg:flex-row flex-col w-full items-start justify-start gap-4">
                 <div className='flex flex-col items-start justify-start basis-1/4 gap-2 w-full mt-3'>
