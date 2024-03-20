@@ -38,7 +38,7 @@ const ViewHistoricoCotacao: React.FC<IPropsView> = ({
           const req: IReturnRequestAPI<IHistoricoCotacao>|null = await getListHistoricoCotacoes({  size: 5, info: searchParamsToInfo(searchParams), accessToken });
           setIsLoading ? setIsLoading(false) : null;
           if (req?.content) {
-            console.log(req)
+            // console.log(req)
             setPaginationInfo(req);
             setCotacoes(req?.content)
           }
@@ -74,7 +74,7 @@ const ViewHistoricoCotacao: React.FC<IPropsView> = ({
             )}
           </ScrollShadow>
           <Divider className="my-4" />
-          <PaginationFooter paginationInfo={paginationInfo} searchParams={searchParams} />
+          <PaginationFooter setIsLoading={setIsLoading} paginationInfo={paginationInfo} searchParams={searchParams} />
         </div>
       }
     </>

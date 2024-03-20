@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { loginAction } from "@/app/action/loginActions";
 import { useSession } from "next-auth/react";
 import UserIdIcon from "../atoms/icons/UserIdIcon";
+import LoadingCircleIcon from "../atoms/icons/LoadingCircleIcon";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -105,7 +106,7 @@ const Login = (props: Props) => {
   if (status == "loading" || loginSuccessWaitingNewPage) return <LoadingPage/>
 
   return (
-    <section className='flex items-center justify-center flex-col w-full flex-1 -mt-8'>
+    <section className='flex items-center justify-center flex-col flex-1 -mt-8 mx-2' style={{ width: 'calc(100% - 1em)'}}>
 
           <Card className="max-w-[600px] container">
             <CardHeader className="flex gap-3">
@@ -162,7 +163,7 @@ const Login = (props: Props) => {
                     Criar Conta
                   </Button>
                   <Button color="primary" type="submit" isDisabled={doingRequest}>
-                    { doingRequest ? 'Acessando Conta...' : 'Acessar Conta' }
+                    { doingRequest ? <><LoadingCircleIcon />Acessando Conta...</> : 'Acessar Conta' }
                   </Button>
                 </div>
               </CardFooter>

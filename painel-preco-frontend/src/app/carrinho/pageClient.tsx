@@ -22,6 +22,7 @@ import { useSnackbar } from "notistack";
 import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { useRouter } from "next/navigation";
 import BackButton from "@/components/atoms/BackButton";
+import LoadingCircleIcon from "@/components/atoms/icons/LoadingCircleIcon";
 
 export interface IPropsCartPge {
   accessToken: string | null
@@ -40,6 +41,11 @@ const CartPage: React.FC<IPropsCartPge> = ({
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
 
   const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalConfirmText, setModalConfirmText] = useState('');
+  const [modalConfirmFn, setModalConfirmFn] = useState<()=>void>(()=>()=>{});
+
+
   const { theme, setTheme } = useTheme();
   const _cartList = useAppSelector((state) => state.cartReducer.value);
   const [cart, setCart] = useState<IRetornoPesquisaItensLicitacao[]>([]);
@@ -94,16 +100,27 @@ const CartPage: React.FC<IPropsCartPge> = ({
     }
   }
 
+  const openModalLimpar = () => {
+    setModalTitle("Limpar Carrinho");
+    setModalConfirmText("Você deseja limpar o carrinho de itens de licitações?");
+    setModalConfirmFn(() => () => {clearCart()});
+    onModalOpen();
+  }
+
+  const openModalRemoveItem = (item: IRetornoPesquisaItensLicitacao) => {
+    setModalTitle("Remover Item do Carrinho");
+    setModalConfirmText(`Você deseja remover o item ${item.descricao} do carrinho de itens de licitações?`);
+    setModalConfirmFn(() => () => {onClickRemoveCart(item)});
+    onModalOpen();
+  }
+
   return (
     <section className='py-4 flex items-center justify-center flex-col w-full'>
       <div className='container'>
-        <Card>
+        <Card className="mx-1">
           <CardBody>
           <div className='container flex flex-col items-start justify-start'>
-            <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full gap-3'>
-                <div className="flex-auto">
-                  Carrinho de Cotações
-                </div>
+            <FormTitle title="Carrinho de Cotações">
                 <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/cotacao" >
                   Nova Cotação
                 </Button>
@@ -157,7 +174,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
                               radius="full"
                               color="danger"
                               variant="solid"
-                              onPress={() => onClickRemoveCart(i) }
+                              onPress={() => openModalRemoveItem(i) }
                             >
                               <CartRemoveIcon classNamesArrPath={['stroke-white fill-white']}></CartRemoveIcon>
                             </Button>
@@ -186,20 +203,20 @@ const CartPage: React.FC<IPropsCartPge> = ({
                     <p className="text-small text-default-500">Itens no Carrinho: {cart?.length}</p>
                   </div>
                   <div className="flex gap-4">
-                    <Button color="danger" onPress={onModalOpen} isDisabled={!hastItens() || isLoading}>
+                    <Button color="danger" onPress={openModalLimpar} isDisabled={!hastItens() || isLoading}>
                       Limpar
                     </Button>
                     <ModalConfirm 
-                      title="Limpar Carrinho" 
-                      description="Você deseja limpar o carrinho de itens de licitações?" 
+                      title={modalTitle}
+                      description={modalConfirmText}
                       backdrop="blur"
                       placement="center"
                       isOpen={isModalOpen} 
                       onOpenChange={onModalOpenChange}
-                      actionYes={() => {clearCart()}}
+                      actionYes={modalConfirmFn}
                       />
                     <Button color="primary" isDisabled={doingRequest || !hastItens() || isLoading} onPress={generatePDF}>
-                      { !doingRequest ? 'Gerar PDF' : 'Gerando PDF...'}
+                      { !doingRequest ? 'Gerar PDF' : <><LoadingCircleIcon/>Gerando PDF...</>}
                     </Button>
                   </div>
                 </FormRow>

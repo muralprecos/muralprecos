@@ -22,14 +22,11 @@ export default async function PageCotacaoListagem() {
   return (
     <section className='py-4 flex items-center justify-center flex-col w-full'>
       <div className='container'>
-        <Card>
+        <Card className="mx-1">
           <CardBody>
             
           <section className='container flex flex-col items-start justify-start'>
-            <FormTitle className="gap-3">
-              <div className="flex-auto">
-                Resultado da Cotação
-              </div>
+            <FormTitle title="Resultado da Cotação">
               <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/cotacao" >
                 Nova Cotação
               </Button>

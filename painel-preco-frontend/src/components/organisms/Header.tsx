@@ -132,18 +132,20 @@ const Header: React.FC<FormTitleProps> = ({
 
             <NavbarMenu className="justify-between pb-16" >
               <div className="flex flex-col gap-3">
-                {links.map((item, index) => (
-                  <NavbarMenuItem key={`${item.description}-${index}`}>
-                    <Link
-                      className="w-full"
-                      color="foreground"
-                      href={item.link}
-                      size="lg"
-                    >
-                      {item.description}
-                    </Link>
-                  </NavbarMenuItem>
-                ))}
+                {links.map((item, index) => {
+                  if (showLink(item)) {
+                    return <NavbarMenuItem key={`${item.description}-${index}`}>
+                              <Link
+                                  className="w-full"
+                                  color="foreground"
+                                  href={item.link}
+                                  size="lg"
+                                >
+                                  {item.description}
+                                </Link>
+                              </NavbarMenuItem>
+                  }
+                })}
               </div>
               <div className="flex flex-col gap-3 py-3 pb-20">
                 <NavbarMenuItem>
