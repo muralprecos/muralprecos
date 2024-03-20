@@ -44,6 +44,8 @@ const Login = (props: Props) => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const { data: session, status } = useSession();
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
+  const [loginSuccessWaitingNewPage, setLoginSuccess] = useState<boolean>(false);
+
   
   const {
     control,
@@ -67,6 +69,7 @@ const Login = (props: Props) => {
         setDoingRequest(false);
         addSnackError(enqueueSnackbar,res?.error);
       } else {
+        setLoginSuccess(true);
         addSnackSuccess(enqueueSnackbar,messages.LOGIN_SUCCESS);
       }
     } catch (e) {
@@ -99,7 +102,7 @@ const Login = (props: Props) => {
   if (status == "authenticated") {
     return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
   }
-  if (status == "loading") return <LoadingPage/>
+  if (status == "loading" || loginSuccessWaitingNewPage) return <LoadingPage/>
 
   return (
     <section className='flex items-center justify-center flex-col w-full flex-1 -mt-8'>
