@@ -100,10 +100,13 @@ const CartPage: React.FC<IPropsCartPge> = ({
         <Card>
           <CardBody>
           <div className='container flex flex-col items-start justify-start'>
-            <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full'>
+            <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full gap-3'>
                 <div className="flex-auto">
                   Carrinho de Cotações
                 </div>
+                <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/cotacao" >
+                  Nova Cotação
+                </Button>
                 <BackButton/>
               </FormTitle>
             <Divider className="my-4" />
@@ -183,9 +186,6 @@ const CartPage: React.FC<IPropsCartPge> = ({
                     <p className="text-small text-default-500">Itens no Carrinho: {cart?.length}</p>
                   </div>
                   <div className="flex gap-4">
-                    <Button color="default" as={Link} href="/cotacao">
-                      Nova Cotação
-                    </Button>
                     <Button color="danger" onPress={onModalOpen} isDisabled={!hastItens() || isLoading}>
                       Limpar
                     </Button>

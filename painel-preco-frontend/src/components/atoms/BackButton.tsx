@@ -4,9 +4,11 @@ import { Button } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 
 type FormTitleProps = {
+  label?: string
 } & React.AllHTMLAttributes<HTMLElement>
 
 const BackButton: React.FC<FormTitleProps> = ({
+  label,
   ...opts
 }) => {
 
@@ -18,7 +20,8 @@ const BackButton: React.FC<FormTitleProps> = ({
 
   return (
     <Button color="secondary" type="button" onClick={goBack}>
-      Voltar
+      <span className="block md:hidden">Voltar</span>
+      <span className="hidden md:block">{ label != null ? `Voltar para ${label}` : 'Voltar' }</span>
     </Button>
   );
 };

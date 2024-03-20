@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 
 import Providers from './providers'
-import Header from '@/components/organisms/Header'
+import Header, { ILink } from '@/components/organisms/Header'
 import { auth } from 'auth'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -28,10 +28,10 @@ export default async function RootLayout({
 
   const session = await auth();
   
-  const linksHeader = [
-    {description: 'Cotação', link: '/cotacao'},
-    {description: 'Histórico', link: '/cotacao/historico'},
-    {description: 'Carrinho', link: '/carrinho'}
+  const linksHeader : ILink[] = [
+    {description: 'Realizar Cotação', link: '/cotacao', isPublic: false },
+    {description: 'Histórico', link: '/cotacao/historico', isPublic: false },
+    {description: 'Carrinho', link: '/carrinho', isPublic: false }
   ]
 
   return (

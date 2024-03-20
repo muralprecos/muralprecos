@@ -1,4 +1,4 @@
-import { Card, CardBody, Divider } from "@nextui-org/react";
+import { Button, Card, CardBody, Divider } from "@nextui-org/react";
 import FormTitle from "@/components/atoms/FormTitle";
 import FormRow from "@/components/atoms/FormRow";
 import { Suspense } from "react";
@@ -9,6 +9,7 @@ import { auth } from "auth";
 import { checkSession } from "@/utils/sessionCheckerServerUtils";
 import ViewHistoricoCotacao from "./pageClient";
 import BackButton from "@/components/atoms/BackButton";
+import Link from "next/link";
 
 export default async function PageHistoricoCotacao() {
 
@@ -25,10 +26,13 @@ export default async function PageHistoricoCotacao() {
           <CardBody>
             
           <section className='container flex flex-col items-start justify-start'>
-            <FormTitle>
+            <FormTitle className="gap-3">
               <div className="flex-auto">
                 Histórico de Cotações
               </div>
+              <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/cotacao" >
+                Nova Cotação
+              </Button>
               <BackButton/>
             </FormTitle>
             <Divider className="my-4" />

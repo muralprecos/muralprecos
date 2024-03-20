@@ -108,11 +108,14 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
         <Card>
           <CardBody>
             <section className='container flex flex-col items-start justify-start'>
-              <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full'>
+              <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full gap-3'>
                 <div className="flex-auto">
                   {showTitle()}
                 </div>
-                <BackButton/>
+                <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/cotacao" >
+                  Nova Cotação
+                </Button>
+                <BackButton />
               </FormTitle>
               <Divider className="my-4" />
               <FormRow className='flex flex-col items-start justify-start'>
@@ -267,11 +270,13 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           <Divider orientation="horizontal" />
                           <FormRow>
                             <InfoText label="Órgão">
-                              {strIfNotNull(itemLicitacao?.licitacao.orgao.nome)} ({strIfNotNull(itemLicitacao?.licitacao.orgao.codigo)})
+                              { itemLicitacao?.licitacao.orgao != null ? <>
+                                {strIfNotNull(itemLicitacao?.licitacao.orgao.nome)} ({strIfNotNull(itemLicitacao?.licitacao.orgao.codigo)})
+                              </> : '-' }
                             </InfoText>
                           </FormRow>
                           
-                          { !itemLicitacao?.licitacao.orgao.ehsuperior &&
+                          { (itemLicitacao?.licitacao.orgao != null && !itemLicitacao?.licitacao.orgao.ehsuperior) &&
                             <div>
                               <Divider orientation="horizontal" />
                               <FormRow>

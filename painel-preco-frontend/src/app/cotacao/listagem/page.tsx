@@ -9,6 +9,7 @@ import ListItemLicitacao from "@/components/organisms/ListItemLicitacao";
 import { auth } from "auth";
 import { checkSession } from "@/utils/sessionCheckerServerUtils";
 import BackButton from "@/components/atoms/BackButton";
+import Link from "next/link";
 
 export default async function PageCotacaoListagem() {
 
@@ -25,11 +26,14 @@ export default async function PageCotacaoListagem() {
           <CardBody>
             
           <section className='container flex flex-col items-start justify-start'>
-            <FormTitle>
+            <FormTitle className="gap-3">
               <div className="flex-auto">
                 Resultado da Cotação
               </div>
-              <BackButton/>
+              <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/cotacao" >
+                Nova Cotação
+              </Button>
+              <BackButton />
             </FormTitle>
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
