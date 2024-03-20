@@ -58,13 +58,11 @@ const Login = (props: Props) => {
     e?.preventDefault();
     try {
       setDoingRequest(true);
-      console.log('login onSubmit')
       const res = await loginAction({
         username: data.login,
         password: data.password,
-        redirect: props.callbackUrl
+        redirect: props.callbackUrl || INITIAL_PAGE_LOGGED
       });
-      console.log('login res', res)
       if (res?.error) {
         setDoingRequest(false);
         addSnackError(enqueueSnackbar,res?.error);

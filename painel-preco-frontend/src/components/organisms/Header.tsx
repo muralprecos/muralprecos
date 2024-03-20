@@ -14,6 +14,7 @@ import { Session } from "next-auth";
 export interface ILink {
   description: string
   link: string
+  isPublic: boolean
 }
 
 type FormTitleProps = {
@@ -54,6 +55,10 @@ const Header: React.FC<FormTitleProps> = ({
     return session?.userInfo?.name != null && session?.userInfo?.name != '';
   }
 
+  const showLink = (item : ILink) : boolean => {
+    return item.isPublic || (!item.isPublic && isLogged());
+  }
+
   const onClickLogout = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     logoutAction();
@@ -89,23 +94,25 @@ const Header: React.FC<FormTitleProps> = ({
                     <p className="ml-2 font-bold text-inherit">Mural de Preço</p>
                   </Link>
                 </NavbarBrand>
-                {links.map((item, index) => (
-                  <NavbarItem key={`${item.description}-${index}`} isActive={activeLink(item.link, pathname)}>
-                    <Link
-                      className="w-full"
-                      color="foreground"
-                      href={item.link}
-                    >
-                      {item.description}
-                    </Link>
-                  </NavbarItem>
-                ))}
+                {links.map((item, index) => {
+                  if (showLink(item)) {
+                    return  <NavbarItem key={`${item.description}-${index}`} isActive={activeLink(item.link, pathname)}>
+                      <Link
+                        className="w-full"
+                        color="foreground"
+                        href={item.link}
+                      >
+                        {item.description}
+                      </Link>
+                    </NavbarItem>
+                  }
+                })}
                 
               </NavbarContent>
 
               <ul className="flex-1">
                 <NavbarContent className="gap-3 sm:flex hidden" justify="end">
-                  { !session?.userInfo ? (
+                  { !isLogged() ? (
                     <>
                       <ThemeSwitcher />
                       <NavbarItem>

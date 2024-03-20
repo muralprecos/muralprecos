@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import yupStrings from '@/utils/yupStrings';
-import { Button } from '@nextui-org/react'
+import { Button, Divider } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 
 import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, ISimpleObjetoAPI, IUnidadeGestora } from "@/interfaces/types";
@@ -212,7 +212,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
       async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: getListDescricao, accessToken }),
       attrVal: "nome"
     }},
-    objeto: { type: 'autocompleteAsync', label: 'Objeto da Comprar', auto: {
+    objeto: { type: 'autocompleteAsync', label: 'Objeto da Compra', auto: {
       async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: getListObjetosCompras, accessToken }),
       attrVal: "nome"
     }},
@@ -315,6 +315,23 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit, onSubmitError)} className='container flex flex-col items-start justify-start'>
         <FormRow className={classname_rowmobile}>
+          <div className="basis-1/2">
+            { mountFieldForm("descricao", fields.descricao) }
+          </div>
+          <div className="basis-1/2">
+            { mountFieldForm("descricaoComplementar", fields.descricaoComplementar) }
+          </div>
+        </FormRow>
+
+        <FormRow className={classname_rowmobile}>
+          <div className="basis-full">
+            { mountFieldForm("objeto", fields.objeto) }
+          </div>
+        </FormRow>
+
+        <Divider />
+
+        <FormRow className={classname_rowmobile}>
           <div className="basis-1/4">
             { mountFieldForm("ano", fields.ano) }
           </div> 
@@ -377,21 +394,6 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
           </div>
           <div className="basis-1/2">
             { mountFieldForm("unidade_fornecimento", fields.unidade_fornecimento) }
-          </div>
-        </FormRow>
-
-        <FormRow className={classname_rowmobile}>
-          <div className="basis-1/2">
-            { mountFieldForm("descricao", fields.descricao) }
-          </div>
-          <div className="basis-1/2">
-            { mountFieldForm("descricaoComplementar", fields.descricaoComplementar) }
-          </div>
-        </FormRow>
-
-        <FormRow className={classname_rowmobile}>
-          <div className="basis-full">
-            { mountFieldForm("objeto", fields.objeto) }
           </div>
         </FormRow>
         

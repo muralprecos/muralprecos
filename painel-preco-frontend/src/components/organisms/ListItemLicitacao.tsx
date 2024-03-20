@@ -36,7 +36,7 @@ const ListItemLicitacao: React.FC<IProps> = ({
           const req: IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ info: searchParamsToInfo(searchParams), accessToken: token });
           setIsLoading ? setIsLoading(false) : null;
           if (req?.content) {
-            console.log(req)
+            // console.log(req)
             setPaginationInfo(req);
             setItensLicitacao(req?.content)
           }
