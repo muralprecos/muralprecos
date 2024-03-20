@@ -12,6 +12,7 @@ export type IconProps = {
   className?: string
   classNamesArrSvg?: string[]
   classNamesArrPath?: string[]
+  classNamesArrCircle?: string[]
   isCursorPointer?: boolean
   width?: number
   height?: number
@@ -25,12 +26,14 @@ const Icon: React.FC<IconProps> = ({
   height = 24,
   classNamesArrSvg,
   classNamesArrPath,
+  classNamesArrCircle,
   wrapper = 'div',
   isCursorPointer = true
 }) => {
 
   const strClassNameSvg = classNamesArrSvg?.length ? classNamesArrSvg.join(' ') : '';
   const strClassNamePaths = classNamesArrPath?.length ? classNamesArrPath.join(' ') : '';
+  const strClassNameCircle = classNamesArrCircle?.length ? classNamesArrCircle.join(' ') : '';
 
   const content = (
     <Fragment>
@@ -45,16 +48,19 @@ const Icon: React.FC<IconProps> = ({
           }
 
           if (strClassNamePaths != '') {
-            const paths = svg.querySelectorAll('path');
-            const circles = svg.querySelectorAll('circle');
-            strClassNamePaths.split(' ').forEach((s) => {
-              paths.forEach(path => {
+            svg.querySelectorAll('path').forEach(path => {
+              strClassNamePaths.split(' ').forEach((s) => {
                 path.classList.add(s);
-              })
-              circles.forEach(path => {
-                path.classList.add(s);
-              })
-            })
+              });
+            });
+          }
+
+          if (strClassNameCircle != '') {
+            svg.querySelectorAll('circle').forEach(circ => {
+              strClassNameCircle.split(' ').forEach((s) => {
+                circ.classList.add(s);
+              });
+            });
           }
         }} />
     </Fragment>

@@ -6,15 +6,18 @@ import { IAPISearchInfo, IReturnRequestAPI } from "@/interfaces/types";
 import { ReadonlyURLSearchParams, usePathname, useRouter } from 'next/navigation';
 import { mountUrl, searchParamsToInfo } from "@/utils/requestUtils";
 import { forceParamSearch } from "@/utils/searchParamUtils";
+import { Dispatch, SetStateAction } from "react";
 
 interface IPropsPageCotacaoListagem<T> {
   paginationInfo: IReturnRequestAPI<T>|null|undefined,
   searchParams: ReadonlyURLSearchParams
+  setIsLoading: Dispatch<SetStateAction<boolean>>
 }
 
 function PaginationFooter<T extends any>({
   paginationInfo,
   searchParams,
+  setIsLoading,
   ...opts
 } : IPropsPageCotacaoListagem<T>) {
 
@@ -52,6 +55,7 @@ function PaginationFooter<T extends any>({
   }
 
   const changeToPage = (newpage : number) => {
+    setIsLoading(true);
     let info : IAPISearchInfo[] = searchParamsToInfo(searchParams);
     info = forceParamSearch(info, 'page', newpage+'');
     router.push(mountUrl({

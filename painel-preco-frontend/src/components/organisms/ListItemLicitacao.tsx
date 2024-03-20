@@ -72,7 +72,7 @@ const ListItemLicitacao: React.FC<IProps> = ({
             )}
           </ScrollShadow>
           <Divider className="my-4" />
-          <PaginationFooter paginationInfo={paginationInfo} searchParams={searchParams} />
+          <PaginationFooter setIsLoading={setIsLoading} paginationInfo={paginationInfo} searchParams={searchParams} />
         </div>
       }
     </>

@@ -22,14 +22,11 @@ export default async function PageHistoricoCotacao() {
   return (
     <section className='py-4 flex items-center justify-center flex-col w-full'>
       <div className='container'>
-        <Card>
+        <Card className="mx-1">
           <CardBody>
             
           <section className='container flex flex-col items-start justify-start'>
-            <FormTitle className="gap-3">
-              <div className="flex-auto">
-                Histórico de Cotações
-              </div>
+            <FormTitle title="Histórico de Cotações">
               <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/cotacao" >
                 Nova Cotação
               </Button>

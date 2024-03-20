@@ -88,18 +88,13 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
     <section className='py-4 flex items-center justify-center flex-col w-full'>
       <div className='container'>
         
-        <Card>
+        <Card className="mx-1">
           <CardBody>
             <section className='container flex flex-col items-start justify-start'>
-              <FormTitle className='text-lg font-bold uppercase text-primary flex flex-row items-center justify-between w-full'>
-                <div className="flex-auto">
-                  Realizar Cotação
-                </div>
-                <NoSSR>
-                  <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/carrinho" isDisabled={_cartList.length < 1}>
-                    Ir para o Carrinho
-                  </Button>
-                </NoSSR>
+              <FormTitle title="Realizar Cotação" isNoSSR={true}>
+                <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/carrinho" isDisabled={_cartList.length < 1}>
+                  Ir para o Carrinho
+                </Button>
               </FormTitle>
 
               <Divider className="my-4" />

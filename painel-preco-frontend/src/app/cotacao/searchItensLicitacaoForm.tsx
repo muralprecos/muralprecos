@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import yupStrings from '@/utils/yupStrings';
-import { Button, Divider } from '@nextui-org/react'
+import { Button, Divider, useDisclosure } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 
 import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, ISimpleObjetoAPI, IUnidadeGestora } from "@/interfaces/types";
@@ -23,6 +23,8 @@ import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
 import { mountUrl } from '@/utils/requestUtils';
 import { AsyncListData } from '@react-stately/data';
 import { Session } from 'next-auth';
+import LoadingCircleIcon from '@/components/atoms/icons/LoadingCircleIcon';
+import ModalConfirm from '@/components/molecules/ModalConfirm';
 
 
 export interface IPropsSearchItensLicitacaoForm {
@@ -107,6 +109,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   const dispatch = useDispatch();
   const _initialFormDataLocalStorage: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
+  const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();
 
   const [lastUF, setLastUF] = useState<string|null>();
   const {
@@ -228,8 +231,8 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     return !!obj && obj.type === 'autocompleteAsync';
   }
 
-  const clearForm = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
+  const clearForm = (e?: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    if (e!=null) { e.preventDefault(); }
     reset();
     Object.keys(fields).forEach(k => {
       const key = k as keyof FormDataCotacao;
@@ -399,11 +402,20 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
         
         <FormRow className="justify-end">
         
-          <Button color="default" onClick={(e) => clearForm(e)}>
+          <Button color="default" onClick={onModalOpen}>
             Limpar
           </Button>
+          <ModalConfirm
+            title="Limpar Filtros da Nova Cotação"
+            description="Você deseja limpar os filtros da Cotação?"
+            backdrop="blur"
+            placement="center"
+            isOpen={isModalOpen} 
+            onOpenChange={onModalOpenChange}
+            actionYes={() => { clearForm() }}
+            />
           <Button color="primary" type="submit" isDisabled={doingRequest}>
-            { !doingRequest ? 'Pesquisar' : 'Pesquisando...'}
+            { !doingRequest ? 'Pesquisar' : <><LoadingCircleIcon />Pesquisando...</>}
           </Button>
         </FormRow>
       </form>
