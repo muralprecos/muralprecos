@@ -22,6 +22,7 @@ import UserIdIcon from "../atoms/icons/UserIdIcon";
 import LoadingCircleIcon from "../atoms/icons/LoadingCircleIcon";
 import EyeIcon from "../atoms/icons/EyeIcon";
 import EyeClosedIcon from "../atoms/icons/EyeClosedIcon";
+import IconTheme from "../atoms/IconTheme";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -127,7 +128,13 @@ const Login = (props: Props) => {
                   label="Usuário"
                   autoFocus
                   endContent={
-                    <UserIdIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    <Button className="p-0" disabled={true} variant="light" isIconOnly={true}>
+                      <IconTheme IconElement={UserIdIcon}/>
+                      {/* <UserIdIcon 
+                        classNamesArrCircle={theme == 'light' ? ['stroke-gray-500'] : ['stroke-gray-400']}
+                        classNamesArrPath={theme == 'light' ? ['stroke-gray-500'] : ['stroke-gray-400']}
+                        /> */}
+                    </Button>
                   }
                   variant="bordered"
                   control={control}
@@ -140,9 +147,13 @@ const Login = (props: Props) => {
                   placeholder="Digite sua senha"
                   type={showPass ? "text" : "password"}
                   endContent={
-                    showPass ?
-                      <EyeClosedIcon className="text-2xl text-default-400 flex-shrink-0" isCursorPointer={true} onClick={handleShowPass} /> :
-                      <EyeIcon className="text-2xl text-default-400 flex-shrink-0" isCursorPointer={true} onClick={handleShowPass} />
+                    <Button className="p-0" variant="light" isIconOnly={true} onPressEnd={handleShowPass}>
+                      {
+                        showPass ?
+                        <IconTheme IconElement={EyeClosedIcon} isCursorPointer={true}/> :
+                        <IconTheme IconElement={EyeIcon} isCursorPointer={true}/>
+                      }
+                    </Button>                    
                   }
                   variant="bordered"
                   control={control}

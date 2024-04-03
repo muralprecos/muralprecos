@@ -18,6 +18,8 @@ export type IconProps = {
   height?: number
 } & React.AllHTMLAttributes<HTMLElement>
 
+export type IconPropsChild = Omit<IconProps, "file"|"color">;
+
 const Icon: React.FC<IconProps> = ({
   file,
   color,

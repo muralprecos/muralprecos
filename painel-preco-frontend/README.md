@@ -99,12 +99,12 @@ Só Back:
 Só Front:
 	- Limpar carrinho após emissão do relatório;
 		- Apresentar mensagem informando que a cotação foi salva no histórico;
-    - Performance dos ícones SVG;
     - Permitir parametrizar quantidade de itens por página nas listagens;
     - Responsive na altura da listagem ;
     - Criar interface para validar cotacao (cod validacao via GET);
 		Endpoint: http://{{HOST_ADDRESS}}/serverapi/v1/cotacoes/validacao
 			Body: {"hash": "1bdba88ef7645089f2b8f863093d88b0"}
+    OK - Performance dos ícones SVG;
 	OK - Aba: Documentos;
 		https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos
 	OK - Aba: Certidões;

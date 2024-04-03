@@ -37,6 +37,7 @@ const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
   const sunIcon = <Icon file="icons/sun-svgrepo-com.svg" 
                         classNamesArrSvg={['fill-gray-200', 'stroke-gray-400']}
                         classNamesArrPath={['stroke-gray-400']}
+                        classNamesArrCircle={['stroke-gray-400']}
                         isCursorPointer />;
 
   if (!mounted) return null;

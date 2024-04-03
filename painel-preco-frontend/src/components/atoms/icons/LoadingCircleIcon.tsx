@@ -1,6 +1,6 @@
-import Icon, { IconProps } from "../Icon"
+import Icon, { IconPropsChild } from "../Icon"
 
-const LoadingCircleIcon: React.FC<Omit<IconProps, "file"|"color"> & { color?: 'string' }> = ({
+const LoadingCircleIcon: React.FC<IconPropsChild & { color?: 'string' }> = ({
   color = 'purple',
   isCursorPointer = false,
   ...opts
