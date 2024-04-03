@@ -35,7 +35,9 @@ To run project localhost and don't get CORS error, execute this command on termi
 open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
 
 
-## List of Icons
+Executar Chrome com CORS:
+Mac: open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
+Linux: google-chrome --disable-web-security --user-data-dir="/tmp/"
 
 - https://www.svgrepo.com/collection/solar-linear-icons/
 - https://www.svgrepo.com/collection/solar-bold-icons/
@@ -74,6 +76,45 @@ https://github.com/nextauthjs/next-auth-v5-example
 https://michaelangelo-io.medium.com/better-logging-with-nextjs-app-directory-60a07c96d146
 https://github.com/pinojs/pino
 https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
+
+
+======================================
+
+Front e Back:
+	- Histórico:
+		- Ordenar por data de realização;
+		- Filtrar:
+			- Data (intervalo);
+			- Descrição;
+			- Código de Validação;
+		- Adicionar informações dos filtros ao salvar histórico de cotação;
+			- Apresentar na listagem informações dos filtros aplicados;
+
+Só Back:
+	- ASCII nos autocompletes de descrição/objeto;
+	- Quadro resumo das cotações (concatenação de cotações anteriores);
+	- Armazenar a organização ao realizar cotação (histórico);
+		- Filtrar pela organização e pelo usário logado;
+
+Só Front:
+	- Limpar carrinho após emissão do relatório;
+		- Apresentar mensagem informando que a cotação foi salva no histórico;
+    - Performance dos ícones SVG;
+    - Permitir parametrizar quantidade de itens por página nas listagens;
+    - Responsive na altura da listagem ;
+    - Criar interface para validar cotacao (cod validacao via GET);
+		Endpoint: http://{{HOST_ADDRESS}}/serverapi/v1/cotacoes/validacao
+			Body: {"hash": "1bdba88ef7645089f2b8f863093d88b0"}
+	OK - Aba: Documentos;
+		https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos
+	OK - Aba: Certidões;
+		https://certidoes-apf.apps.tcu.gov.br/
+	OK - Traduzir autocomplete: "No results found";
+    OK - Permitir visualizar senha ao clicar no olho do login;
+    X - Ao não selecionar no autocomplete, permitir que o conteúdo continue;
+        OBS: Caso não apareça no autocomplete, faz sentido de fato continuar com a busca mesmo assim?
+
+
 
 
 ======================================

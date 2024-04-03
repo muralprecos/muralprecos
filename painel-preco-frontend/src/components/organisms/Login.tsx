@@ -1,6 +1,5 @@
 "use client";
 
-import KeyIcon from "@/components/atoms/icons/KeyIcon";
 import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Link } from "@nextui-org/react";
 import { useRouter } from 'next/navigation'
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
@@ -21,6 +20,8 @@ import { loginAction } from "@/app/action/loginActions";
 import { useSession } from "next-auth/react";
 import UserIdIcon from "../atoms/icons/UserIdIcon";
 import LoadingCircleIcon from "../atoms/icons/LoadingCircleIcon";
+import EyeIcon from "../atoms/icons/EyeIcon";
+import EyeClosedIcon from "../atoms/icons/EyeClosedIcon";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -44,6 +45,7 @@ const Login = (props: Props) => {
   const router = useRouter();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const { data: session, status } = useSession();
+  const [showPass, setShowPass] = useState<boolean>(false);
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
   
   const {
@@ -96,6 +98,12 @@ const Login = (props: Props) => {
     }
   }, [props.error, enqueueSnackbar]);
 
+  const handleShowPass = () => {
+    setShowPass((prev) => {
+      return !prev;
+    })
+  }
+
 
   if (status == "authenticated") {
     return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
@@ -130,9 +138,11 @@ const Login = (props: Props) => {
                   name="password"
                   label="Senha"
                   placeholder="Digite sua senha"
-                  type="password"
+                  type={showPass ? "text" : "password"}
                   endContent={
-                    <KeyIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    showPass ?
+                      <EyeClosedIcon className="text-2xl text-default-400 flex-shrink-0" isCursorPointer={true} onClick={handleShowPass} /> :
+                      <EyeIcon className="text-2xl text-default-400 flex-shrink-0" isCursorPointer={true} onClick={handleShowPass} />
                   }
                   variant="bordered"
                   control={control}

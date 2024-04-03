@@ -28,7 +28,8 @@ const Icon: React.FC<IconProps> = ({
   classNamesArrPath,
   classNamesArrCircle,
   wrapper = 'div',
-  isCursorPointer = true
+  isCursorPointer = true,
+  ...opts
 }) => {
 
   const strClassNameSvg = classNamesArrSvg?.length ? classNamesArrSvg.join(' ') : '';
@@ -62,19 +63,20 @@ const Icon: React.FC<IconProps> = ({
               });
             });
           }
-        }} />
+        }}
+        useRequestCache={true} />
     </Fragment>
   );
 
   return  wrapper == 'span' ? 
             <span className={classNames({
                 'cursor-pointer': isCursorPointer
-              })}>
+              })} {...opts}>
               { content }
             </span> :
             <div className={classNames({
                 'cursor-pointer': isCursorPointer
-              })}>
+              })} {...opts}>
               { content }
             </div>
 }

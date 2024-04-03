@@ -6,5 +6,7 @@ export const messages = {
 
   AUTH_ERROR_UNAUTH : 'É necessário realizar login.',
   AUTH_ERROR_UNKOWN : 'Realize o login novamente para prosseguir.',
-  AUTH_ERROR_UNAUTHORIZED : 'Usuário não possui permissão para esta ação.'
+  AUTH_ERROR_UNAUTHORIZED : 'Usuário não possui permissão para esta ação.',
+
+  FORM_AUTOCOMPLETE_EMPTY : 'Sem resultados encontrados.'
 }
