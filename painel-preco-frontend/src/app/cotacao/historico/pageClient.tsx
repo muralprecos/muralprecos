@@ -12,6 +12,7 @@ import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
 import LoadingList from "@/components/molecules/LoadingList";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
 import ItemHistoricoCotacao from "@/components/organisms/ItemHistoricoCotacao";
+import EmptyListText from "@/components/atoms/EmptyListText";
 
 interface IPropsView {
   session: Session | null
@@ -61,9 +62,9 @@ const ViewHistoricoCotacao: React.FC<IPropsView> = ({
           { isLoading ? 
             <LoadingList/>
           : 
-            <div className='flex flex-col w-full items-start justify-start'>
-              <p>Sem resultados de buscas... Realize uma cotação rápida.</p>
-            </div>
+            <EmptyListText>
+                Sem cotações no Histórico... Realize uma cotação rápida.
+            </EmptyListText>
           }
         </>
       :

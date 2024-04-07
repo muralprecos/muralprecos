@@ -11,6 +11,7 @@ import { isClientNextjs } from "@/utils/validateUtils";
 import { getPesquisarCotacoes } from "@/hooks/api";
 import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
+import EmptyListText from "../atoms/EmptyListText";
 
 interface IProps {
   token: string | null
@@ -59,9 +60,9 @@ const ListItemLicitacao: React.FC<IProps> = ({
           { isLoading ? 
             <LoadingList/>
           : 
-            <div className='flex flex-col w-full items-start justify-start'>
-              <p>Sem resultados de buscas... Realize uma cotação rápida.</p>
-            </div>
+            <EmptyListText>
+              Sem resultados de buscas... Realize uma cotação rápida
+            </EmptyListText>
           }
         </>
       :

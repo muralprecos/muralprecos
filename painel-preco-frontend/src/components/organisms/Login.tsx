@@ -149,7 +149,7 @@ const Login = (props: Props) => {
                   endContent={
                     <Button className="p-0" variant="light" isIconOnly={true} onPressEnd={handleShowPass}>
                       {
-                        showPass ?
+                        !showPass ?
                         <IconTheme IconElement={EyeClosedIcon} isCursorPointer={true}/> :
                         <IconTheme IconElement={EyeIcon} isCursorPointer={true}/>
                       }

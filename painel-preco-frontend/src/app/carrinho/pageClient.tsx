@@ -23,6 +23,9 @@ import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { useRouter } from "next/navigation";
 import BackButton from "@/components/atoms/BackButton";
 import LoadingCircleIcon from "@/components/atoms/icons/LoadingCircleIcon";
+import Alert, { IAlertMessage } from "@/components/molecules/Alert";
+import EmptyListText from "@/components/atoms/EmptyListText";
+
 
 export interface IPropsCartPge {
   accessToken: string | null
@@ -45,7 +48,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
   const [modalConfirmText, setModalConfirmText] = useState('');
   const [modalConfirmFn, setModalConfirmFn] = useState<()=>void>(()=>()=>{});
 
-
+  const [alertMsg, setAlertMsg] = useState<IAlertMessage|null>(null);
   const { theme, setTheme } = useTheme();
   const _cartList = useAppSelector((state) => state.cartReducer.value);
   const [cart, setCart] = useState<IRetornoPesquisaItensLicitacao[]>([]);
@@ -53,6 +56,10 @@ const CartPage: React.FC<IPropsCartPge> = ({
   useEffect(() => {
     setCart(_cartList);
     setIsLoading(false);
+    setAlertMsg({
+      message: 'Cotação gerada com sucesso e salva no seu Histórico. Baixe-a novamente a qualquer momento.',
+      type: "success"
+    });
   }, [_cartList]);
 
   const hastItens = () => {
@@ -88,7 +95,12 @@ const CartPage: React.FC<IPropsCartPge> = ({
       if (res != null) {
         if (res instanceof Blob) {
           downloadFile(res, `cotacao-${datePattern(now, DATE_PATTERN.FULL)}.pdf`);
+          setAlertMsg({
+            message: 'Cotação gerada com sucesso e salva no seu Histórico. Baixe-a novamente a qualquer momento.',
+            type: "success"
+          });
           addSnackSuccess(enqueueSnackbar, 'Iniciando download da cotação!');
+          clearCart();
         } else if (res.error) {
           addSnackError(enqueueSnackbar, res.error);
         }
@@ -128,13 +140,16 @@ const CartPage: React.FC<IPropsCartPge> = ({
               </FormTitle>
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
+              { alertMsg != null && 
+                <Alert type={alertMsg.type} message={alertMsg.message} />
+              }
               { isLoading && 
                 <LoadingList/>
               }
               { !hastItens() && !isLoading && 
-                <div className='flex flex-col w-full items-start justify-start'>
-                  <p>Sem itens no carrinho... Realize cotações para adicionar itens.</p>
-                </div>
+                <EmptyListText>
+                  Sem itens no carrinho... Realize cotações para adicionar itens.
+                </EmptyListText>
               }
               { hastItens() && !isLoading && 
                 <div className='flex flex-col w-full items-start justify-start'>

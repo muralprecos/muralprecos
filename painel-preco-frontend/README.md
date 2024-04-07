@@ -43,6 +43,11 @@ Linux: google-chrome --disable-web-security --user-data-dir="/tmp/"
 - https://www.svgrepo.com/collection/solar-bold-icons/
 - https://www.svgrepo.com/collection/solar-outline-icons/
 
+## Dev performance checks:
+
+```bash
+npx depcheck
+```
 
 ## Important DOCs:
 
@@ -97,9 +102,7 @@ Só Back:
 		- Filtrar pela organização e pelo usário logado;
 
 Só Front:
-	- Limpar carrinho após emissão do relatório;
-		- Apresentar mensagem informando que a cotação foi salva no histórico;
-    - Permitir parametrizar quantidade de itens por página nas listagens;
+	Doing - Permitir parametrizar quantidade de itens por página nas listagens;
     - Responsive na altura da listagem ;
     - Criar interface para validar cotacao (cod validacao via GET);
 		Endpoint: http://{{HOST_ADDRESS}}/serverapi/v1/cotacoes/validacao
@@ -111,10 +114,14 @@ Só Front:
 		https://certidoes-apf.apps.tcu.gov.br/
 	OK - Traduzir autocomplete: "No results found";
     OK - Permitir visualizar senha ao clicar no olho do login;
+    Ok - Limpar carrinho após emissão do relatório;
+		- Apresentar mensagem informando que a cotação foi salva no histórico;
     X - Ao não selecionar no autocomplete, permitir que o conteúdo continue;
         OBS: Caso não apareça no autocomplete, faz sentido de fato continuar com a busca mesmo assim?
 
-
+-> Add no backlog:
+    Verificar se os nomes são iguais, se sim, não concatená-los. Ex:
+        matheusmmcs - MANUTENCAO GERADOR ELETRICO,MANUTENCAO GERADOR ELETRICO,MANU... - 07/04/2024
 
 
 ======================================
