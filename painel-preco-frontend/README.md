@@ -102,7 +102,6 @@ Só Back:
 		- Filtrar pela organização e pelo usário logado;
 
 Só Front:
-    - Responsive na altura da listagem ;
     - Criar interface para validar cotacao (cod validacao via GET);
 		Endpoint: http://{{HOST_ADDRESS}}/serverapi/v1/cotacoes/validacao
 			Body: {"hash": "1bdba88ef7645089f2b8f863093d88b0"}
@@ -117,6 +116,7 @@ Só Front:
 		- Apresentar mensagem informando que a cotação foi salva no histórico;
     OK - Correcão de svg loading;
     OK - Permitir parametrizar quantidade de itens por página nas listagens;
+    OK - Responsive na altura da listagem ;
     X - Ao não selecionar no autocomplete, permitir que o conteúdo continue;
         OBS: Caso não apareça no autocomplete, faz sentido de fato continuar com a busca mesmo assim?
 
