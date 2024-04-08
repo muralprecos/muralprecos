@@ -72,6 +72,15 @@ module.exports = {
             },
             danger: {
               DEFAULT: '#ff5252',
+              oreground: '#fff'
+            },
+            warning: {
+              DEFAULT: '#ffcf82',
+              foreground: '#9e670f'
+            },
+            success: {
+              DEFAULT: '#b7f15f',
+              foreground: '#376b00'
             },
             focus: '#a866ff'
           } // light theme colors

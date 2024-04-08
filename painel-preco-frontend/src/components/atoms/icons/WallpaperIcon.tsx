@@ -1,14 +1,12 @@
 
-import Icon, { IconProps } from "../Icon"
+import Icon, { IconPropsChild } from "../Icon"
 
-const WallpaperIcon: React.FC<Omit<IconProps, "file"|"color">> = ({
-  classNamesArrSvg,
-  classNamesArrPath,
+const WallpaperIcon: React.FC<IconPropsChild> = ({
   isCursorPointer = false,
   ...opts
 }) => {
   return (
-    <Icon file="icons/wallpaper-svgrepo-com.svg" isCursorPointer={isCursorPointer} classNamesArrSvg={classNamesArrSvg} classNamesArrPath={classNamesArrPath} {...opts} />
+    <Icon file="icons/wallpaper-svgrepo-com.svg" isCursorPointer={isCursorPointer} {...opts} />
   )
 }
 export default WallpaperIcon

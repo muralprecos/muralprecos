@@ -4,6 +4,7 @@ import { Autocomplete, AutocompleteItem, AutocompleteProps } from '@nextui-org/r
 import { ISimpleObjetoAPI } from '@/interfaces/types'
 import { AsyncListData } from '@react-stately/data'
 import { Controller, FieldError, FieldErrors, FieldErrorsImpl, FieldValues, Merge, UseControllerProps } from 'react-hook-form'
+import { messages } from '@/utils/messages'
 
 type KeyOfType<T, V> = keyof {
   [P in keyof T as T[P] extends V? P: never]: any
@@ -49,6 +50,9 @@ function AutocompleteAsyncForm<T extends ISimpleObjetoAPI, P extends FieldValues
           onSelectionChange={field.onChange}
           errorMessage={isValid ? "" : errMsg}
           isInvalid={isValid ? false : true}
+          listboxProps={{
+            emptyContent: messages.FORM_AUTOCOMPLETE_EMPTY
+          }}
           {...field}
           {...opts}
         >

@@ -1,4 +1,5 @@
-import { Divider } from "@nextui-org/divider";
+
+import { Divider } from "@nextui-org/react";
 import NoSSR from "./NoSSR";
 
 type FormTitleProps = {

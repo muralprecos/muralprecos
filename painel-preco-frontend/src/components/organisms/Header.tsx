@@ -15,6 +15,7 @@ export interface ILink {
   description: string
   link: string
   isPublic: boolean
+  isExternal?: boolean
 }
 
 type FormTitleProps = {
@@ -74,11 +75,11 @@ const Header: React.FC<FormTitleProps> = ({
       >
           <div className="justify-center flex flex-1">
             <div className="container flex justify-center">
-              <NavbarContent className="sm:hidden" justify="start">
+              <NavbarContent className="md:hidden" justify="start">
                 <NavbarMenuToggle className="outline-none" aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
               </NavbarContent>
 
-              <NavbarContent className="sm:hidden pr-3" justify="center">
+              <NavbarContent className="md:hidden pr-3" justify="center">
                 <NavbarBrand >
                   <Link href={'/'} className="text-inherit">
                     <TTIcon />
@@ -87,7 +88,7 @@ const Header: React.FC<FormTitleProps> = ({
                 </NavbarBrand>
               </NavbarContent>
 
-              <NavbarContent className="hidden sm:flex gap-4" justify="center">
+              <NavbarContent className="hidden md:flex gap-4" justify="center">
                 <NavbarBrand className="mr-4">
                   <Link href={'/'} className="text-inherit">
                     <TTIcon />
@@ -101,6 +102,7 @@ const Header: React.FC<FormTitleProps> = ({
                         className="w-full"
                         color="foreground"
                         href={item.link}
+                        target={item.isExternal ? "_blank" : "_self"}
                       >
                         {item.description}
                       </Link>
@@ -111,7 +113,7 @@ const Header: React.FC<FormTitleProps> = ({
               </NavbarContent>
 
               <ul className="flex-1">
-                <NavbarContent className="gap-3 sm:flex hidden" justify="end">
+                <NavbarContent className="gap-3 md:flex hidden" justify="end">
                   { !isLogged() ? (
                     <>
                       <ThemeSwitcher />
@@ -140,6 +142,7 @@ const Header: React.FC<FormTitleProps> = ({
                                   color="foreground"
                                   href={item.link}
                                   size="lg"
+                                  target={item.isExternal ? "_blank" : "_self"}
                                 >
                                   {item.description}
                                 </Link>

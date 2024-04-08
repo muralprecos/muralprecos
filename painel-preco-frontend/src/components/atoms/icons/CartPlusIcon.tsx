@@ -1,14 +1,12 @@
 
-import Icon, { IconProps } from "../Icon"
+import Icon, { IconPropsChild } from "../Icon"
 
-const CartPlusIcon: React.FC<Omit<IconProps, "file"|"color">> = ({
-  classNamesArrSvg,
-  classNamesArrPath,
+const CartPlusIcon: React.FC<IconPropsChild> = ({
   isCursorPointer = false,
   ...opts
 }) => {
   return (
-    <Icon file="icons/cart-plus-svgrepo-com.svg" isCursorPointer={isCursorPointer} classNamesArrSvg={classNamesArrSvg} classNamesArrPath={classNamesArrPath} {...opts} />
+    <Icon file="icons/cart-plus-svgrepo-com.svg" isCursorPointer={isCursorPointer} {...opts} />
   )
 }
 export default CartPlusIcon

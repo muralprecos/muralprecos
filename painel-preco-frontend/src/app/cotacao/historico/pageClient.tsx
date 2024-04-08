@@ -1,6 +1,6 @@
 "use client";
 
-import { Divider, ScrollShadow } from "@nextui-org/react";
+import { Divider } from "@nextui-org/react";
 import { IHistoricoCotacao, IReturnRequestAPI } from "@/interfaces/types";
 import { useEffect, useState } from "react";
 import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/navigation";
@@ -12,6 +12,8 @@ import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
 import LoadingList from "@/components/molecules/LoadingList";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
 import ItemHistoricoCotacao from "@/components/organisms/ItemHistoricoCotacao";
+import EmptyListText from "@/components/atoms/EmptyListText";
+import ResizebleScroll from "@/components/molecules/ResizebleScroll";
 
 interface IPropsView {
   session: Session | null
@@ -61,20 +63,20 @@ const ViewHistoricoCotacao: React.FC<IPropsView> = ({
           { isLoading ? 
             <LoadingList/>
           : 
-            <div className='flex flex-col w-full items-start justify-start'>
-              <p>Sem resultados de buscas... Realize uma cotação rápida.</p>
-            </div>
+            <EmptyListText>
+                Sem cotações no Histórico... Realize uma cotação rápida.
+            </EmptyListText>
           }
         </>
       :
         <div className='flex flex-col w-full items-start justify-start'>
-          <ScrollShadow className={`h-[400px] w-full ${isLoading ? 'opacity-30': ''}`}>
+          <ResizebleScroll isLoading={isLoading}>
             { cotacoes.map(i =>
               <ItemHistoricoCotacao key={i.uuid} item={i} accessToken={accessToken} />
             )}
-          </ScrollShadow>
+          </ResizebleScroll>
           <Divider className="my-4" />
-          <PaginationFooter setIsLoading={setIsLoading} paginationInfo={paginationInfo} searchParams={searchParams} />
+          <PaginationFooter setIsLoading={setIsLoading} isLoading={isLoading} paginationInfo={paginationInfo} searchParams={searchParams} />
         </div>
       }
     </>

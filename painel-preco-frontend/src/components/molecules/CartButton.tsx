@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useTheme } from 'next-themes'
 
-import { Button } from '@nextui-org/button'
+import { Button } from '@nextui-org/react'
 import { useAppSelector, useDispatch } from '@/redux/store'
 import { IRetornoPesquisaItensLicitacao } from '@/interfaces/types'
 import { add, remove } from '@/redux/features/cart-slice'

@@ -1,6 +1,5 @@
 "use client";
 
-import KeyIcon from "@/components/atoms/icons/KeyIcon";
 import { Button, Card, CardBody, CardFooter, CardHeader, Divider, Link } from "@nextui-org/react";
 import { useRouter } from 'next/navigation'
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
@@ -21,6 +20,9 @@ import { loginAction } from "@/app/action/loginActions";
 import { useSession } from "next-auth/react";
 import UserIdIcon from "../atoms/icons/UserIdIcon";
 import LoadingCircleIcon from "../atoms/icons/LoadingCircleIcon";
+import EyeIcon from "../atoms/icons/EyeIcon";
+import EyeClosedIcon from "../atoms/icons/EyeClosedIcon";
+import IconTheme from "../atoms/IconTheme";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -44,6 +46,7 @@ const Login = (props: Props) => {
   const router = useRouter();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const { data: session, status } = useSession();
+  const [showPass, setShowPass] = useState<boolean>(false);
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
   const [loginSuccessWaitingNewPage, setLoginSuccess] = useState<boolean>(false);
 
@@ -99,6 +102,12 @@ const Login = (props: Props) => {
     }
   }, [props.error, enqueueSnackbar]);
 
+  const handleShowPass = () => {
+    setShowPass((prev) => {
+      return !prev;
+    })
+  }
+
 
   if (status == "authenticated") {
     return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
@@ -122,7 +131,13 @@ const Login = (props: Props) => {
                   label="Usuário"
                   autoFocus
                   endContent={
-                    <UserIdIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    <Button className="p-0" disabled={true} variant="light" isIconOnly={true}>
+                      <IconTheme IconElement={UserIdIcon}/>
+                      {/* <UserIdIcon 
+                        classNamesArrCircle={theme == 'light' ? ['stroke-gray-500'] : ['stroke-gray-400']}
+                        classNamesArrPath={theme == 'light' ? ['stroke-gray-500'] : ['stroke-gray-400']}
+                        /> */}
+                    </Button>
                   }
                   variant="bordered"
                   control={control}
@@ -133,9 +148,15 @@ const Login = (props: Props) => {
                   name="password"
                   label="Senha"
                   placeholder="Digite sua senha"
-                  type="password"
+                  type={showPass ? "text" : "password"}
                   endContent={
-                    <KeyIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    <Button className="p-0" variant="light" isIconOnly={true} onPressEnd={handleShowPass}>
+                      {
+                        !showPass ?
+                        <IconTheme IconElement={EyeClosedIcon} isCursorPointer={true}/> :
+                        <IconTheme IconElement={EyeIcon} isCursorPointer={true}/>
+                      }
+                    </Button>                    
                   }
                   variant="bordered"
                   control={control}
