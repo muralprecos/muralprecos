@@ -75,7 +75,7 @@ const ViewHistoricoCotacao: React.FC<IPropsView> = ({
             )}
           </ScrollShadow>
           <Divider className="my-4" />
-          <PaginationFooter setIsLoading={setIsLoading} paginationInfo={paginationInfo} searchParams={searchParams} />
+          <PaginationFooter setIsLoading={setIsLoading} isLoading={isLoading} paginationInfo={paginationInfo} searchParams={searchParams} />
         </div>
       }
     </>

@@ -56,10 +56,6 @@ const CartPage: React.FC<IPropsCartPge> = ({
   useEffect(() => {
     setCart(_cartList);
     setIsLoading(false);
-    setAlertMsg({
-      message: 'Cotação gerada com sucesso e salva no seu Histórico. Baixe-a novamente a qualquer momento.',
-      type: "success"
-    });
   }, [_cartList]);
 
   const hastItens = () => {
