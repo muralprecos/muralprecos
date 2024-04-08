@@ -1,7 +1,7 @@
 // app/tabs/page.tsx
 "use client";
 
-import { Button, Card, CardBody, Divider, ScrollShadow, useDisclosure } from "@nextui-org/react";
+import { Button, Card, CardBody, Divider, useDisclosure } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
 import FormTitle from "@/components/atoms/FormTitle";
@@ -25,6 +25,7 @@ import BackButton from "@/components/atoms/BackButton";
 import LoadingCircleIcon from "@/components/atoms/icons/LoadingCircleIcon";
 import Alert, { IAlertMessage } from "@/components/molecules/Alert";
 import EmptyListText from "@/components/atoms/EmptyListText";
+import ResizebleScroll from "@/components/molecules/ResizebleScroll";
 
 
 export interface IPropsCartPge {
@@ -149,7 +150,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
               }
               { hastItens() && !isLoading && 
                 <div className='flex flex-col w-full items-start justify-start'>
-                  <ScrollShadow className="h-[400px] w-full">
+                  <ResizebleScroll isLoading={isLoading||doingRequest}>
                   { cart?.map(i =>
                     <div key={i.uuid} className="flex-1 w-full flex-wrap md:flex-nowrap gap-4 py-2">
                       <Card className="bg-default-100/50 flex flex-row mx-4" shadow="sm">
@@ -205,7 +206,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
                       </Card>
                     </div>
                   )}
-                  </ScrollShadow>
+                  </ResizebleScroll>
                 </div>
               }
               <Divider className="my-4" />

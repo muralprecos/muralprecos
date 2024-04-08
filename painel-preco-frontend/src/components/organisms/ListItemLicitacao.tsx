@@ -1,7 +1,7 @@
 "use client";
 
 import { IRetornoPesquisaItensLicitacao, IReturnRequestAPI } from "@/interfaces/types";
-import { Divider, ScrollShadow } from "@nextui-org/react";
+import { Divider } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import ItemListLicitacao from "./ItemListLicitacao";
 import PaginationFooter from "../molecules/PaginationFooter";
@@ -12,6 +12,7 @@ import { getPesquisarCotacoes } from "@/hooks/api";
 import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
 import EmptyListText from "../atoms/EmptyListText";
+import ResizebleScroll from "../molecules/ResizebleScroll";
 
 interface IProps {
   token: string | null
@@ -67,11 +68,11 @@ const ListItemLicitacao: React.FC<IProps> = ({
         </>
       :
         <div className='flex flex-col w-full items-start justify-start'>
-          <ScrollShadow className={`h-[400px] w-full ${isLoading ? 'opacity-30': ''}`}>
+          <ResizebleScroll isLoading={isLoading}>
             { itensLicitacao.map(i =>
               <ItemListLicitacao key={i.uuid} item={i} setIsLoading={setIsLoading} />
             )}
-          </ScrollShadow>
+          </ResizebleScroll>
           <Divider className="my-4" />
           <PaginationFooter setIsLoading={setIsLoading} isLoading={isLoading} paginationInfo={paginationInfo} searchParams={searchParams} />
         </div>

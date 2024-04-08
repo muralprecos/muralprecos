@@ -1,6 +1,6 @@
 "use client";
 
-import { Divider, ScrollShadow } from "@nextui-org/react";
+import { Divider } from "@nextui-org/react";
 import { IHistoricoCotacao, IReturnRequestAPI } from "@/interfaces/types";
 import { useEffect, useState } from "react";
 import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/navigation";
@@ -13,6 +13,7 @@ import LoadingList from "@/components/molecules/LoadingList";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
 import ItemHistoricoCotacao from "@/components/organisms/ItemHistoricoCotacao";
 import EmptyListText from "@/components/atoms/EmptyListText";
+import ResizebleScroll from "@/components/molecules/ResizebleScroll";
 
 interface IPropsView {
   session: Session | null
@@ -69,13 +70,11 @@ const ViewHistoricoCotacao: React.FC<IPropsView> = ({
         </>
       :
         <div className='flex flex-col w-full items-start justify-start'>
-          <ScrollShadow className={`w-full h-full sm:w-3/4 ${isLoading ? 'opacity-30': ''}`} 
-            //style={{height: '55vh'}}
-            >
+          <ResizebleScroll isLoading={isLoading}>
             { cotacoes.map(i =>
               <ItemHistoricoCotacao key={i.uuid} item={i} accessToken={accessToken} />
             )}
-          </ScrollShadow>
+          </ResizebleScroll>
           <Divider className="my-4" />
           <PaginationFooter setIsLoading={setIsLoading} isLoading={isLoading} paginationInfo={paginationInfo} searchParams={searchParams} />
         </div>

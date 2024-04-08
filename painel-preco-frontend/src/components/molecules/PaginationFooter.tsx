@@ -61,18 +61,24 @@ function PaginationFooter<T extends any>({
   }
 
   const changeToPage = (newpage : number) => {
-    changeSearchParam('page', (newpage < 0 ? 0 : newpage) +'');
+    changeSearchParams([{param: 'page', val: (newpage < 0 ? 0 : newpage) +''}]);
     setPageSelected(`${newpage+1}`);
   };
 
   const changeSize = (newsize : string) => {
-    changeSearchParam('size', newsize);
+    setPageSelected('1');
+    changeSearchParams([
+      {param: 'page', val: '0'},
+      {param: 'size', val: newsize}
+    ]);
   };
 
-  const changeSearchParam = (attr: string, val: string) => {
+  const changeSearchParams = (newParams: IAPISearchInfo[]) => {
     setIsLoading(true);
     let info : IAPISearchInfo[] = searchParamsToInfo(searchParams);
-    info = forceParamSearch(info, attr, val);
+    newParams.forEach((np) => {
+      info = forceParamSearch(info, np.param, np.val);
+    });
     router.push(mountUrl({
       host: '',
       path: pathname,
@@ -115,7 +121,7 @@ function PaginationFooter<T extends any>({
         <Divider className="h-10" orientation="vertical" />
 
         <Select 
-          label="Itens / Página" 
+          label="Itens por Página" 
           placeholder="Selecione um valor"
           className="text-small text-default-500 min-w-32 w-auto"
           fullWidth={false}
