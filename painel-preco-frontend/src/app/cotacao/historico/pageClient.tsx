@@ -69,7 +69,9 @@ const ViewHistoricoCotacao: React.FC<IPropsView> = ({
         </>
       :
         <div className='flex flex-col w-full items-start justify-start'>
-          <ScrollShadow className={`h-[400px] w-full ${isLoading ? 'opacity-30': ''}`}>
+          <ScrollShadow className={`w-full h-full sm:w-3/4 ${isLoading ? 'opacity-30': ''}`} 
+            //style={{height: '55vh'}}
+            >
             { cotacoes.map(i =>
               <ItemHistoricoCotacao key={i.uuid} item={i} accessToken={accessToken} />
             )}
