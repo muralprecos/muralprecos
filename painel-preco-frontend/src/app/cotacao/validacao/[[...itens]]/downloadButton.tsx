@@ -1,38 +1,24 @@
 "use client";
 
 import { Button, ButtonProps } from "@nextui-org/react";
-import { downloadBlob } from "@/utils/fileUtils";
-import { getValidateCotacao } from "@/hooks/api";
-import { useSnackbar } from "notistack";
-import { addSnackError } from "@/utils/snackbarUtils";
-import { useTheme } from "next-themes";
+import { downloadPDF } from "@/utils/fileUtils";
+import React from "react";
 
 type IDownloadButton = {
-  text?: string
-  item: string
-  accessToken: string
+  children: React.ReactNode
+  filename: string
+  file: string
 } & ButtonProps;
 
-const DownloadButton: React.FC<IDownloadButton> = ({text = 'Baixar', item, accessToken, ...opts}) => {
+const DownloadButton: React.FC<IDownloadButton> = ({children, filename, file, ...opts}) => {
 
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  
-  const download = async (item: string) => {
-    try {
-      const validateCotacao = await getValidateCotacao(item, accessToken);
-      if (validateCotacao != null && validateCotacao instanceof Blob) {
-        downloadBlob(validateCotacao, `${item}.pdf`);
-      } else {
-        addSnackError(enqueueSnackbar, `Problema ao baixar a cotação ${item}, tente novamente!`);
-      }
-    } catch (error) {
-      addSnackError(enqueueSnackbar, `Problema ao baixar a cotação ${item}, tente novamente!`);
-    }
+  const download = async () => {
+    downloadPDF(filename, file);
   }
 
   return (
-    <Button type="button" color='primary' onClick={() => { download(item) }} {...opts}>
-      {text}
+    <Button type="button" color='primary' onClick={() => { download() }} {...opts}>
+      {children}
     </Button>
   )
 }

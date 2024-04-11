@@ -183,6 +183,23 @@ export interface IRetornoPesquisaItensLicitacao extends Pick<IItemLicitacao, "uu
   // }
 // }
 
+export type IValidaCotacao = {
+  uuid: string
+  nome: string
+  nomeArquivo: string
+  stringBusca: string
+  hashValidacao: string
+  arquivo: string
+  criadoEm: string
+}
+
+export type IResValidacaoCotacao = {
+  uuid: string
+  isok: boolean
+  message: string
+  validacao?: IValidaCotacao
+}
+
 export interface IItemLicitacao {
   uuid: string
   codigo: number

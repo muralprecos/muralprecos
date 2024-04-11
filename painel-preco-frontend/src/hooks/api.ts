@@ -1,5 +1,5 @@
-import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IAPISearchPropsLogged, IHistoricoCotacao } from "@/interfaces/types";
-import { ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob } from "./genericapi";
+import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IAPISearchPropsLogged, IHistoricoCotacao, IValidaCotacao } from "@/interfaces/types";
+import { ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob, postGenericJson } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
 
 
@@ -119,16 +119,14 @@ export const getHistoricoCotacao = async (
 }
 
 export const getValidateCotacao = async (
-  hash: string,
-  accessToken: string
-  ) : Promise<Blob|ResponseError|null> => {
-    return postGenericBlob({
+  hash: string
+  ) : Promise<IValidaCotacao|ResponseError|null> => {
+    return postGenericJson({
       path: '/serverapi/v1/cotacoes/validacao',
       bodydata: JSON.stringify({
         "hash": hash
       }),
-      acceptType: '',
-      accessToken
+      acceptType: ''
     });
 }
 

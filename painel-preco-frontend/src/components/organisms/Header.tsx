@@ -15,7 +15,7 @@ const { version } = require('@/../package.json');
 export interface ILink {
   description: string
   link: string
-  isPublic: boolean
+  access: 'private' | 'public' | 'all'
   isExternal?: boolean
 }
 
@@ -58,7 +58,7 @@ const Header: React.FC<FormTitleProps> = ({
   }
 
   const showLink = (item : ILink) : boolean => {
-    return item.isPublic || (!item.isPublic && isLogged());
+    return item.access === 'all' || (item.access === 'private' && isLogged()) || (item.access === 'public' && !isLogged());
   }
 
   const onClickLogout = (event: React.MouseEvent<HTMLElement>) => {
