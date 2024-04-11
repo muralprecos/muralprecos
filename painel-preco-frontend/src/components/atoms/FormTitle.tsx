@@ -19,7 +19,7 @@ const FormTitle: React.FC<FormTitleProps> = ({
 
   const _className = opts.className;
   delete opts.className;
-  const defaultClassName = `text-lg font-bold uppercase text-primary flex sm:flex-row sm:items-center sm:justify-between flex-col justify-start items-start w-full px-2 gap-${gap}`;
+  const defaultClassName = `text-lg font-bold uppercase text-primary-title flex sm:flex-row sm:items-center sm:justify-between flex-col justify-start items-start w-full px-2 gap-${gap}`;
 
   const buttonArea = <>
     <Divider className="my-1 sm:hidden" />

@@ -120,7 +120,7 @@ const Login = (props: Props) => {
           <Card className="max-w-[600px] container">
             <CardHeader className="flex gap-3">
               <div className="flex flex-col">
-                <p className="text-md text-primary font-semibold">Acessar Conta - Mural de Preço</p>
+                <p className="text-md text-primary-title font-semibold">Acessar Conta - Mural de Preço</p>
               </div>
             </CardHeader>
             <Divider/>

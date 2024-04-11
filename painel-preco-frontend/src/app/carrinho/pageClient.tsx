@@ -195,11 +195,11 @@ const CartPage: React.FC<IPropsCartPge> = ({
                               isIconOnly
                               className="text-default-900/60"
                               radius="full"
-                              color="primary"
+                              color="secondary"
                               variant="solid"
                               onPress={() => selectItem(i.uuid) }
                             >
-                              <ClipboardIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}></ClipboardIcon>
+                              <ClipboardIcon></ClipboardIcon>
                             </Button>
                           </div>
                         </CardBody>
@@ -228,7 +228,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
                       actionYes={modalConfirmFn}
                       />
                     <Button color="primary" isDisabled={doingRequest || !hastItens() || isLoading} onPress={generatePDF}>
-                      { !doingRequest ? 'Gerar PDF' : <><LoadingCircleIcon/>Gerando PDF...</>}
+                      { !doingRequest ? 'Gerar PDF da Cotação' : <><LoadingCircleIcon/>Gerando PDF...</>}
                     </Button>
                   </div>
                 </FormRow>

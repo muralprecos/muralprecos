@@ -36,7 +36,6 @@ export default async function ValidaItens({ itens, accessToken }: { itens: strin
           return naoValidado(item);
         }
       } catch (error) {
-        console.error(error)
         return naoValidado(item);
       }
     })
@@ -51,19 +50,23 @@ export default async function ValidaItens({ itens, accessToken }: { itens: strin
       {validacoes.map((val) => (
         <Card
           isBlurred
-          className={`flex-1 bg-gradient-to-r opacity-80 hover:opacity-100 transition-all force-transition-all max-w-[600px] ${getClassname(val)}`}
+          className={`flex-1 bg-gradient-to-r opacity-85 hover:opacity-100 transition-all force-transition-all max-w-[600px] ${getClassname(val)}`}
           shadow="sm"
           key={val.uuid}
         >
-          <CardBody className="flex-row justify-around">
-            <div className="flex items-center justify-end">
-              <ShieldIcon isOk={val.isok} className=""/>
-            </div>
-            <div className="flex flex-col items-center justify-center gap-2 text-black">
+          <CardBody className="flex-col justify-around">
+            <FormRow className="flex flex-col items-center justify-center" gap={1}>
               <span>Código de Validação:</span>
-              <span>{val.uuid}</span>
-              { val.file ? <DownloadButton item={val.uuid} accessToken={accessToken} text={`Baixar - ${val.message}`} variant="shadow" /> : <span className="font-bold">{val.message}</span>  }
-            </div>
+              <span className="font-bold">{val.uuid}</span>
+            </FormRow>
+            <FormRow className="flex flex-col justify-center">
+              <div className="flex items-center justify-center">
+                <ShieldIcon isOk={val.isok} className=""/>
+              </div>
+              <div className="flex flex-row items-center justify-center gap-2 text-black">
+                { val.file ? <DownloadButton item={val.uuid} accessToken={accessToken} text={`Baixar - ${val.message}`} variant="shadow" /> : <span className="font-bold">{val.message}</span>  }
+              </div>
+            </FormRow>
           </CardBody>
         </Card>
       ))}

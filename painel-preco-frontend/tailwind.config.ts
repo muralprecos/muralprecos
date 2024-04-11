@@ -64,11 +64,13 @@ module.exports = {
               800: '#e8d6ff',
               900: '#f5edff',
               DEFAULT: '#6d0bd8',
-              foreground: '#ffffff'
+              foreground: '#ffffff',
+              title: COLORS.purple
             },
             secondary: {
               DEFAULT: '#bef781',
-              foreground: COLORS.purpleDark
+              foreground: COLORS.purpleDark,
+              btnback: '#bef781'
             },
             danger: {
               DEFAULT: '#ff5252',
@@ -96,7 +98,7 @@ module.exports = {
             'bg-gradiente-final': '#1b0747',
             background: '#150636',
             foreground: '#ffffff',
-            secondary: {
+            primary: {
               50: '#1e1259',//250°, 80%, 35%
               100: '#2f1982',//253°, 83%, 44%
               200: '#341387',//257°, 86%, 53%
@@ -108,14 +110,16 @@ module.exports = {
               800: '#e8d6ff',
               900: '#f5edff',
               DEFAULT: '#6d0bd8',
-              foreground: '#ffffff'
+              foreground: '#ffffff',
+              title: COLORS.green
             },
-            primary: {
-              300: '#bef781',
-              500: COLORS.green,
+            secondary: {
+              300: '#d0fe9f',
+              500: '#ade96c',
               600: '#47960b',
-              DEFAULT: COLORS.green,
-              foreground: COLORS.purpleDark
+              DEFAULT: '#ade96c',
+              foreground: COLORS.purpleDark,
+              btnback: '#bef781'
             },
             danger: {
               DEFAULT: '#bf3b3b',

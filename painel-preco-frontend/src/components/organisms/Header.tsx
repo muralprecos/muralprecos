@@ -119,7 +119,7 @@ const Header: React.FC<FormTitleProps> = ({
                     <>
                       <ThemeSwitcher />
                       <NavbarItem>
-                        <Link href={INITIAL_PAGE_LOGIN}>Acessar Conta</Link>
+                        <Link href={INITIAL_PAGE_LOGIN} className="text-primary-title">Acessar Conta</Link>
                       </NavbarItem>
                     </>
                   ) : (

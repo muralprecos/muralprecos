@@ -102,12 +102,14 @@ Só Back:
 		- Filtrar pela organização e pelo usário logado;
 
 Só Front:
+    - Garantir no localstorage que seja carregado os dados do usuário;
+    - Atenticação por permissão ao carregar server component;
+
+    Ok - Revisão das cores de botões;
     Ok - Criar interface para validar cotacao (cod validacao via GET);
 		Endpoint: http://{{HOST_ADDRESS}}/serverapi/v1/cotacoes/validacao
 			Body: {"hash": "1bdba88ef7645089f2b8f863093d88b0"}
-    Ok - Adicionar versão em área deslogada também;
-    - Alteração na paginação demorando para refletir no isLoading;
-    - Garantir no localstorage que seja carregado os dados do usuário;
+    Ok - Adicionar versão em área deslogada;
     X - Ao não selecionar no autocomplete, permitir que o conteúdo continue;
         OBS: Caso não apareça no autocomplete, faz sentido de fato continuar com a busca mesmo assim?
 

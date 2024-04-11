@@ -13,7 +13,7 @@ const InfoTitle: React.FC<FormTitleProps> = ({
   delete opts.className;
 
   return (
-    <h3 className={`text-md font-bold uppercase text-primary-300 flex flex-row items-center justify-between w-full bg-opacity-5 bg-primary-300 p-4 ${_className}`} { ...opts}>
+    <h3 className={`text-md font-bold uppercase text-primary-title flex flex-row items-center justify-between w-full bg-opacity-5 bg-primary-title p-4 ${_className}`} { ...opts}>
       { children }
     </h3>
   );
