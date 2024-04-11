@@ -42,6 +42,7 @@ const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
           <ListboxItem key="cart" href="/carrinho" endContent={cartsize > 0 ? <Chip size="sm" radius="sm" color="primary">{cartsize}</Chip> : ''
           }>Ver Carrinho</ListboxItem>
           <ListboxItem key="history" href="/cotacao/historico">Histórico de Cotações</ListboxItem>
+          <ListboxItem key="validacao" href="/cotacao/validacao">Validar Cotação</ListboxItem>
           <ListboxItem key="logout" className="text-danger" color="danger" onClick={(e) => {logout(e)}}>Sair da Conta</ListboxItem>
         </Listbox>
       </CardBody>

@@ -118,6 +118,20 @@ export const getHistoricoCotacao = async (
   return getGenericObject<IHistoricoCotacao>({ path: `/serverapi/v1/cotacoes/${uuid}` , ...opts });
 }
 
+export const getValidateCotacao = async (
+  hash: string,
+  accessToken: string
+  ) : Promise<Blob|ResponseError|null> => {
+    return postGenericBlob({
+      path: '/serverapi/v1/cotacoes/validacao',
+      bodydata: JSON.stringify({
+        "hash": hash
+      }),
+      acceptType: '',
+      accessToken
+    });
+}
+
 
 export const FIELDS_COTACOES_LIST = 'content[uuid,descricao,quantidade,valor,licitacao.municipio.nome,licitacao.municipio.uf.nome,licitacao.dataResultadoCompra,unidadeFornecimento.nome],pageable,last,totalElements,totalPages,size,number,sort,first,numberOfElements,empty';
 export const getPesquisarCotacoes = async (

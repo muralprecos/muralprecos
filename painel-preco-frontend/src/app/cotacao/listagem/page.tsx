@@ -27,7 +27,7 @@ export default async function PageCotacaoListagem() {
             
           <section className='container flex flex-col items-start justify-start'>
             <FormTitle title="Resultado da Cotação">
-              <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/cotacao" >
+              <Button className="force-text-transform-none" color="secondary" type="button" as={Link} href="/cotacao" >
                 Nova Cotação
               </Button>
               <BackButton />

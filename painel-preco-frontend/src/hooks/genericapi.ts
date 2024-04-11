@@ -96,11 +96,11 @@ export const getGenericListPageable =  async <T>(
   return getGenericObject(otps);
 }
 
-export const postGeneric =  async <T>(
-  { path, bodydata, acceptType, contentType, accessToken } : IAPISearchProps
+const reqBodyGeneric =  async <T>(
+  { path, bodydata, acceptType, contentType, accessToken, method } : IAPISearchProps & { method: 'PUT' | 'POST' }
   ) : Promise<ResponseReq> => {
     const res = await doReq({ path, config: {
-      method: 'POST',
+      method,
       body: bodydata
     }, acceptType, contentType, accessToken });
     return res;
@@ -108,14 +108,15 @@ export const postGeneric =  async <T>(
 export const postGenericJson =  async <T>(
   { path, bodydata, acceptType, contentType, accessToken } : IAPISearchProps
   ) : Promise<T|null> => {
-    const res = await postGeneric({ path, bodydata, acceptType, contentType, accessToken });
+    const res = await reqBodyGeneric({ path, bodydata, acceptType, contentType, accessToken, method: 'POST' });
     return res.data?.json();
 }
+
 export const postGenericBlob =  async (
   { path, bodydata, acceptType, accessToken } : IAPISearchProps
   ) : Promise<Blob|ResponseError|null> => {
     try {
-      const res = await postGeneric<Blob>({ path, bodydata, acceptType, accessToken });
+      const res = await reqBodyGeneric<Blob>({ path, bodydata, acceptType, accessToken, method: 'POST' });
       return res.status ? res.data?.blob() : res.data?.json();
     } catch (e) {
       throw new Error('Ocorreu um problema na requisição para o servidor.');

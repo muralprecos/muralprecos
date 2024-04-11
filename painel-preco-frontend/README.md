@@ -102,21 +102,12 @@ Só Back:
 		- Filtrar pela organização e pelo usário logado;
 
 Só Front:
-    - Criar interface para validar cotacao (cod validacao via GET);
+    Ok - Criar interface para validar cotacao (cod validacao via GET);
 		Endpoint: http://{{HOST_ADDRESS}}/serverapi/v1/cotacoes/validacao
 			Body: {"hash": "1bdba88ef7645089f2b8f863093d88b0"}
-    OK - Performance dos ícones SVG;
-	OK - Aba: Documentos;
-		https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos
-	OK - Aba: Certidões;
-		https://certidoes-apf.apps.tcu.gov.br/
-	OK - Traduzir autocomplete: "No results found";
-    OK - Permitir visualizar senha ao clicar no olho do login;
-    Ok - Limpar carrinho após emissão do relatório;
-		- Apresentar mensagem informando que a cotação foi salva no histórico;
-    OK - Correcão de svg loading;
-    OK - Permitir parametrizar quantidade de itens por página nas listagens;
-    OK - Responsive na altura da listagem ;
+    Ok - Adicionar versão em área deslogada também;
+    - Alteração na paginação demorando para refletir no isLoading;
+    - Garantir no localstorage que seja carregado os dados do usuário;
     X - Ao não selecionar no autocomplete, permitir que o conteúdo continue;
         OBS: Caso não apareça no autocomplete, faz sentido de fato continuar com a busca mesmo assim?
 

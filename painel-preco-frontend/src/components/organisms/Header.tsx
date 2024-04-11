@@ -10,6 +10,7 @@ import HeaderUserInfo from "../molecules/HeaderUserInfo";
 import { logoutAction } from "@/app/action/logoutActions";
 import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 import { Session } from "next-auth";
+const { version } = require('@/../package.json');
 
 export interface ILink {
   description: string
@@ -81,7 +82,7 @@ const Header: React.FC<FormTitleProps> = ({
 
               <NavbarContent className="md:hidden pr-3" justify="center">
                 <NavbarBrand >
-                  <Link href={'/'} className="text-inherit">
+                  <Link href={'/'} className="text-inherit" title={`Mural de Preço ${version}`}>
                     <TTIcon />
                     <p className="font-bold text-inherit">Mural de Preço</p>
                   </Link>
@@ -90,7 +91,7 @@ const Header: React.FC<FormTitleProps> = ({
 
               <NavbarContent className="hidden md:flex gap-4" justify="center">
                 <NavbarBrand className="mr-4">
-                  <Link href={'/'} className="text-inherit">
+                  <Link href={'/'} className="text-inherit" title={`Mural de Preço ${version}`}>
                     <TTIcon />
                     <p className="ml-2 font-bold text-inherit">Mural de Preço</p>
                   </Link>
@@ -171,6 +172,12 @@ const Header: React.FC<FormTitleProps> = ({
                     </NavbarMenuItem>
                   }
                 </>
+                <NavbarMenuItem>
+                  <p className="text-default-500 text-small m-2">
+                    Mural de Preço versão
+                    <span className="ml-2 font-semibold text-default-600 text-small">{version}</span>
+                  </p>
+                </NavbarMenuItem>
               </div>
             </NavbarMenu>
           </div>

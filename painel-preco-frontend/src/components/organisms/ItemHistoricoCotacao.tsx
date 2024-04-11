@@ -4,12 +4,14 @@ import { IHistoricoCotacao } from "@/interfaces/types"
 import { Button, Card, CardBody } from "@nextui-org/react";
 import { useTheme } from "next-themes";
 import ClipboardIcon from "../atoms/icons/ClipboardIcon";
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { useState } from "react";
 import FileDownloadIcon from "../atoms/icons/FileDownloadIcon";
 import { getHistoricoCotacao } from "@/hooks/api";
 import { catchErrorFromFetch } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
 import RefreshCircleIcon from "../atoms/icons/RefreshCircleIcon";
+import { downloadPDF } from "@/utils/fileUtils";
+import { useRouter } from "next/navigation";
 
 interface IProps {
   item: IHistoricoCotacao
@@ -23,15 +25,9 @@ const ItemHistoricoCotacao: React.FC<IProps> = ({
 
   const i = item;
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(false);
-
-  const downloadPDF = (fileName: string, file: string) => {
-    const anchorElement = document.createElement('a');
-    anchorElement.href = `data:application/pdf;base64,${file}`;
-    anchorElement.download = fileName;
-    anchorElement.click();
-  }
 
   const selectItem = async (uuid : string) => {
     if (!!accessToken && !!uuid && !isLoading) {
@@ -39,7 +35,6 @@ const ItemHistoricoCotacao: React.FC<IProps> = ({
         setIsLoading(true);
         const req: IHistoricoCotacao|null = await getHistoricoCotacao({ info: [{ val: uuid, param: 'uuid' }], accessToken });
         setIsLoading(false);
-        console.log(req)
         if (!!req) {
           downloadPDF(req.nomeArquivo, req.arquivo);
         }
@@ -71,7 +66,7 @@ const ItemHistoricoCotacao: React.FC<IProps> = ({
                         Cotação realizada em: {i.criadoEm}
                       </p>
                       <p className="text-small mt-1 text-foreground/80">
-                        Código de Validação: {i.hashValidacao}
+                        Código de Validação: <Button type="button" variant="flat" color="primary" onPress={() => router.push(`/cotacao/validacao/${i.hashValidacao}`) }>{i.hashValidacao}</Button>
                       </p>
                     </div>
                   </div>
