@@ -8,7 +8,6 @@ import { addSnackError } from "@/utils/snackbarUtils";
 import yupStrings from "@/utils/yupStrings";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@nextui-org/react";
-import { Session } from "next-auth";
 import { useRouter } from "next/navigation";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
@@ -33,6 +32,10 @@ const FormValidateItem: React.FC<IPageValidacaoClient> = ({params}) => {
   const router = useRouter();
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  if (!!params.itens && params.itens.length > 0) {
+    initialForm.cotacao = params.itens.join('/');
+  }
 
   const {
     control,
@@ -65,7 +68,7 @@ const FormValidateItem: React.FC<IPageValidacaoClient> = ({params}) => {
 
   return (
     <form className='container flex flex-col items-start justify-start' onSubmit={handleSubmit(onSubmit, onSubmitError)}>
-      <FormRow>
+      <FormRow className="" gap={0}>
         <InputForm
           name="cotacao"
           label="Código de Validação da Cotação"
@@ -74,7 +77,7 @@ const FormValidateItem: React.FC<IPageValidacaoClient> = ({params}) => {
           control={control}
           errors={errors}
           />
-        <Button style={{ height: 'auto' }} color="primary" type="submit" isDisabled={doingRequest}>
+        <Button className="h-unit-14 w-full md:w-auto" color="primary" type="submit" isDisabled={doingRequest}>
           { doingRequest ? <><LoadingCircleIcon />Validando Cotação...</> : 'Validar Cotação' }
         </Button>
       </FormRow>

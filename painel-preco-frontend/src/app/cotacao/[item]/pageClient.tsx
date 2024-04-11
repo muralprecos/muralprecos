@@ -293,7 +293,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           <Spacer y={3} />
                           <FormRow defwrap={false} className="flex-wrap">
                           { itemLicitacao.links.map(i => 
-                            <Button className="" key={i.nome} color="primary" variant="ghost" href={i.url} target="_blank" as={Link}>
+                            <Button className="" key={i.nome} color="warning" variant="flat" href={i.url} target="_blank" as={Link}>
                               {i.nome}
                             </Button>
                           )}

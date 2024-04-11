@@ -5,8 +5,8 @@ import Icon, { IconPropsChild } from "../Icon"
 const ShieldIcon: React.FC<IconPropsChild & { isOk: boolean }> = ({
   isCursorPointer = false,
   isOk = false,
-  width = 112,
-  height = 112,
+  width = 98,
+  height = 98,
   ...opts
 }) => {
 

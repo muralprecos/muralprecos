@@ -34,8 +34,8 @@ const HeaderUserInfo: React.FC<HeaderUserInfoProps> = ({
         <Button className="sm:flex hidden" isIconOnly variant='flat' as={Link} href="/carrinho" >
           <Badge color="danger" content={cartsize} isInvisible={cartsize==0} shape="circle">
             <CartIcon
-              classNamesArrSvg={['stroke-primary']}
-              classNamesArrPath={['stroke-primary']}/>
+              classNamesArrSvg={['stroke-primary-title']}
+              classNamesArrPath={['stroke-primary-title']}/>
           </Badge>
         </Button>
         <Popover showArrow placement="bottom" className='sm:flex hidden'>

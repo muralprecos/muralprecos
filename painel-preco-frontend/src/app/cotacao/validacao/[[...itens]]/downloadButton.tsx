@@ -16,7 +16,6 @@ type IDownloadButton = {
 const DownloadButton: React.FC<IDownloadButton> = ({text = 'Baixar', item, accessToken, ...opts}) => {
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const { theme, setTheme } = useTheme();
   
   const download = async (item: string) => {
     try {
@@ -32,7 +31,7 @@ const DownloadButton: React.FC<IDownloadButton> = ({text = 'Baixar', item, acces
   }
 
   return (
-    <Button type="button" color={theme === 'light' ? 'primary' : 'secondary'} onClick={() => { download(item) }} {...opts}>
+    <Button type="button" color='primary' onClick={() => { download(item) }} {...opts}>
       {text}
     </Button>
   )

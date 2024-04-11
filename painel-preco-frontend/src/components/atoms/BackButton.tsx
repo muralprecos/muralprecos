@@ -19,7 +19,7 @@ const BackButton: React.FC<FormTitleProps> = ({
   }
 
   return (
-    <Button color="secondary" type="button" onClick={goBack}>
+    <Button color="default" type="button" onClick={goBack}>
       <span className="block md:hidden">Voltar</span>
       <span className="hidden md:block">{ label != null ? `Voltar para ${label}` : 'Voltar' }</span>
     </Button>

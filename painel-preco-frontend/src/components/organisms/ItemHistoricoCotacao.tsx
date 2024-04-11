@@ -12,6 +12,7 @@ import { useSnackbar } from "notistack";
 import RefreshCircleIcon from "../atoms/icons/RefreshCircleIcon";
 import { downloadPDF } from "@/utils/fileUtils";
 import { useRouter } from "next/navigation";
+import LoadingCircleIcon from "../atoms/icons/LoadingCircleIcon";
 
 interface IProps {
   item: IHistoricoCotacao
@@ -72,25 +73,23 @@ const ItemHistoricoCotacao: React.FC<IProps> = ({
                   </div>
                 </div>
 
-                <div className="flex flex-row gap-3 basis-1/12 items-start justify-end pr-3">
-                  <Button
-                    isIconOnly
-                    className="text-default-900/60"
-                    radius="full"
-                    color="primary"
-                    variant="solid"
-                    isDisabled={isLoading}
-                    onPress={() => selectItem(i.uuid) }
-                  >
-                    { isLoading ? 
-                    <span className="animate-spin-slow absolute transform -translate-x-1/2 -translate-y-1/2">
-                      <RefreshCircleIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}/> 
-                    </span>
-                    :
-                    <FileDownloadIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}></FileDownloadIcon>
-                    }
-                  </Button>
-                </div>
+                
+                <Button
+                  isIconOnly
+                  className="text-gray-200 flex flex-row gap-3"
+                  radius="full" 
+                  color="primary"
+                  variant="solid"
+                  isDisabled={isLoading}
+                  onPress={() => selectItem(i.uuid) }
+                >
+                  { isLoading ? 
+                  <LoadingCircleIcon/> 
+                  :
+                  <FileDownloadIcon classNamesArrPath={['stroke-gray-200']}></FileDownloadIcon>
+                  }
+                </Button>
+
               </CardBody>
             </Card>
           </div>

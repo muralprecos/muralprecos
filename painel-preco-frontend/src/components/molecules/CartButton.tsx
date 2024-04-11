@@ -61,7 +61,7 @@ const CartButton: React.FC<CartButtonProps> = ({
           isIconOnly={isCompact}
           onPress={() => onClickAddCart(itemRetornoLicitacao) }
         >
-          <CartPlusIcon classNamesArrPath={theme == 'light' ? ['stroke-white fill-white'] : []}></CartPlusIcon>
+          <CartPlusIcon classNamesArrPath={['stroke-white fill-white']}></CartPlusIcon>
           { !isCompact && 
             <span>Adicionar ao Carrinho</span>
           }
