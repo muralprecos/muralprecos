@@ -29,11 +29,12 @@ export default async function RootLayout({
   const session = await auth();
   
   const linksHeader : ILink[] = [
-    {description: 'Realizar Cotação', link: '/cotacao', isPublic: false },
-    {description: 'Histórico', link: '/cotacao/historico', isPublic: false },
-    {description: 'Carrinho', link: '/carrinho', isPublic: false },
-    {description: 'Documentos', link: 'https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos', isPublic: false, isExternal: true },
-    {description: 'Certidões', link: 'https://certidoes-apf.apps.tcu.gov.br', isPublic: false, isExternal: true },
+    {description: 'Realizar Cotação', link: '/cotacao', access: 'private' },
+    {description: 'Histórico', link: '/cotacao/historico', access: 'private' },
+    {description: 'Carrinho', link: '/carrinho', access: 'private' },
+    {description: 'Validar Cotacao', link: '/cotacao/validacao', access: 'public' },
+    {description: 'Documentos', link: 'https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos', access: 'private', isExternal: true },
+    {description: 'Certidões', link: 'https://certidoes-apf.apps.tcu.gov.br', access: 'private', isExternal: true },
   ]
 
   return (

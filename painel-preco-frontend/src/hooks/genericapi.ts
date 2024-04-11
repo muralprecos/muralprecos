@@ -2,7 +2,7 @@ import logger from "../../services/logger";
 import { mountUrl } from "@/utils/requestUtils";
 import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
 
-const host = `${process.env.API_URL}`;
+export const HOST_API = `${process.env.API_URL}`;
 export const revalidate = 3600; // revalida os dados a cada hora
 
 export interface ResponseReq {
@@ -40,7 +40,7 @@ const doReq = async (
         headers: new Headers(HEADERS),
         ...config
       }
-      const url = mountUrl({ host, path, page, size, info, filterFields});
+      const url = mountUrl({ host: HOST_API, path, page, size, info, filterFields});
       const res = await fetch(url, reqOpts)
         .then((resp) : Promise<ResponseReq> => {
             if (resp.ok) {

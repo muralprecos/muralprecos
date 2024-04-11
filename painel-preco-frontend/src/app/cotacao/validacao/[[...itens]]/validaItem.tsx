@@ -1,17 +1,12 @@
 import FormRow from "@/components/atoms/FormRow";
 import ShieldIcon from "@/components/atoms/icons/ShieldIcon";
 import { getValidateCotacao } from "@/hooks/api";
-import { Card, CardBody } from "@nextui-org/react";
+import { Card, CardBody, Divider } from "@nextui-org/react";
 import DownloadButton from "./downloadButton";
+import { IResValidacaoCotacao, IValidaCotacao } from "@/interfaces/types";
 
-type IValidacaoCotacao = {
-  uuid: string
-  isok: boolean
-  message: string
-  file?: Blob
-}
 
-const naoValidado = (uuid: string) : IValidacaoCotacao => {
+const naoValidado = (uuid: string) : IResValidacaoCotacao => {
   return {
     isok: false,
     uuid: uuid,
@@ -19,17 +14,18 @@ const naoValidado = (uuid: string) : IValidacaoCotacao => {
   }
 }
 
-export default async function ValidaItens({ itens, accessToken }: { itens: string[], accessToken: string }) {
+export default async function ValidaItens({ itens }: { itens: string[] }) {
   
-  const validacoes : IValidacaoCotacao[] = await Promise.all(
+  const validacoes : IResValidacaoCotacao[] = await Promise.all(
     itens.map(async (item) => {
       try {
-        const validateCotacao = await getValidateCotacao(item, accessToken);
-        if (validateCotacao != null && validateCotacao instanceof Blob) {
+        const res = await getValidateCotacao(item);
+        if (res != null && 'hashValidacao' in res) {
+          const validateCotacao = res as IValidaCotacao;
           return {
             isok: true,
             uuid: item,
-            file: validateCotacao,
+            validacao: validateCotacao,
             message: 'Cotação VÁLIDA'
           };
         } else {
@@ -41,7 +37,7 @@ export default async function ValidaItens({ itens, accessToken }: { itens: strin
     })
   );
 
-  const getClassname = (val : IValidacaoCotacao) => {
+  const getClassname = (val : IResValidacaoCotacao) => {
     return val.isok ? 'from-lime-400 to-lime-500' : 'from-red-400 to-red-500';
   }
 
@@ -56,17 +52,34 @@ export default async function ValidaItens({ itens, accessToken }: { itens: strin
         >
           <CardBody className="flex-col justify-around">
             <FormRow className="flex flex-col items-center justify-center" gap={1}>
-              <span>Código de Validação:</span>
               <span className="font-bold">{val.uuid}</span>
             </FormRow>
+            <Divider/>
             <FormRow className="flex flex-col justify-center">
               <div className="flex items-center justify-center">
                 <ShieldIcon isOk={val.isok} className=""/>
               </div>
               <div className="flex flex-row items-center justify-center gap-2 text-black">
-                { val.file ? <DownloadButton item={val.uuid} accessToken={accessToken} text={`Baixar - ${val.message}`} variant="shadow" /> : <span className="font-bold">{val.message}</span>  }
+                { val.validacao ? 
+                  <DownloadButton file={val.validacao.arquivo} filename={val.validacao.nomeArquivo} variant="shadow">
+                    Baixar Cópia - {val.message}
+                  </DownloadButton> : 
+                  <span className="font-bold">{val.message}</span>  
+                }
               </div>
             </FormRow>
+            {
+              val.validacao && (
+                <>
+                  <Divider/>
+                  <FormRow className="flex flex-col items-start justify-center" gap={1}>
+                    <span><label className="font-bold mr-2">Criado em:</label>{val.validacao.criadoEm}</span>
+                    <span><label className="font-bold mr-2">Arquivo:</label>{val.validacao.nomeArquivo}</span>
+                    <span><label className="font-bold mr-2">Descrição:</label>{val.validacao.nome}</span>
+                  </FormRow>
+                </>
+              )
+            }
           </CardBody>
         </Card>
       ))}
