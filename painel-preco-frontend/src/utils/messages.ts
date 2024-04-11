@@ -3,6 +3,7 @@ export const messages = {
   LOGIN_SUCCESS : 'Login realizado com sucesso!',
   LOGIN_WRONG : 'Credenciais incorretas.',
   LOGIN_ERROR : 'Ops, não foi possível realizar login. Caso o problema persista, contacte o administrador do sistema.',
+  REQUEST_ERROR : 'Ops, ocorreu um problema. Tente novamente.',
 
   AUTH_ERROR_UNAUTH : 'É necessário realizar login.',
   AUTH_ERROR_UNKOWN : 'Realize o login novamente para prosseguir.',

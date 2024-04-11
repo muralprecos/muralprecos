@@ -62,11 +62,11 @@ const ItemListLicitacao: React.FC<IProps> = ({
                     isIconOnly
                     className="text-default-900/60"
                     radius="full"
-                    color="primary"
+                    color="secondary"
                     variant="solid"
                     onPress={() => selectItem(i.uuid) }
                   >
-                    <ClipboardIcon classNamesArrPath={theme == 'light' ? ['stroke-gray-200'] : []}></ClipboardIcon>
+                    <ClipboardIcon classNamesArrPath={theme != 'light' ? ['stroke-gray-200'] : []}></ClipboardIcon>
                   </Button>
                 </div>
               </CardBody>

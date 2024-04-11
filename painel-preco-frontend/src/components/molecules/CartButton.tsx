@@ -54,14 +54,14 @@ const CartButton: React.FC<CartButtonProps> = ({
     <div className="flex-1">
       { !isOnCar(itemRetornoLicitacao) ? 
         <Button
-          className="text-default-900/90 w-full"
-          color="secondary"
+          className="w-full"
+          color="primary"
           variant="solid"
           radius={isCompact ? 'full' : 'sm'}
           isIconOnly={isCompact}
           onPress={() => onClickAddCart(itemRetornoLicitacao) }
         >
-          <CartPlusIcon classNamesArrPath={theme != 'light' ? ['stroke-white fill-white'] : []}></CartPlusIcon>
+          <CartPlusIcon classNamesArrPath={theme == 'light' ? ['stroke-white fill-white'] : []}></CartPlusIcon>
           { !isCompact && 
             <span>Adicionar ao Carrinho</span>
           }

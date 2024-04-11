@@ -7,13 +7,15 @@ import { useAnimate } from "framer-motion";
 export interface IAlertMessage {
   message: string
   type: 'warning' | 'danger' | 'success' | 'default'
+  className?: string
 }
 
 function Alert({
   message,
   type = 'default',
-  ...opts
+  className = ''
 } : IAlertMessage) {
+
 
   const [scopeAnimate, animate] = useAnimate();
   const [isHide, setIsHide] = useState<boolean>(true);
@@ -49,7 +51,7 @@ function Alert({
   return (
     <div ref={scopeAnimate} className="w-full box-content flex">
     { !isHide &&
-      <div className={`w-full flex items-center justify-between gap-3 bg-${type} text-${type}-foreground py-2 px-4 rounded my-2 mx-4`}>
+      <div className={`w-full flex items-center justify-between gap-3 bg-${type} text-${type}-foreground py-2 px-4 rounded my-2 mx-4 ${className}`}>
         {message}
         <Button variant="light" className={`text-${type}-foreground`} isIconOnly={true} onPress={hide}>X</Button>
       </div>

@@ -109,7 +109,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
           <CardBody>
             <section className='container flex flex-col items-start justify-start'>
               <FormTitle title={showTitle()}>
-                <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/cotacao" >
+                <Button className="force-text-transform-none" color="secondary" type="button" as={Link} href="/cotacao" >
                   Nova Cotação
                 </Button>
                 <BackButton />

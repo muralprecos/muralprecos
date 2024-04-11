@@ -92,6 +92,9 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
           <CardBody>
             <section className='container flex flex-col items-start justify-start'>
               <FormTitle title="Realizar Cotação" isNoSSR={true}>
+                <Button className="force-text-transform-none" color="secondary" type="button" as={Link} href="/cotacao/validacao">
+                  Validar Cotação
+                </Button>
                 <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/carrinho" isDisabled={_cartList.length < 1}>
                   Ir para o Carrinho
                 </Button>

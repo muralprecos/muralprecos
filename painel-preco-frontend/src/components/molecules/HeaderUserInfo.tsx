@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 
 import { Button } from '@nextui-org/button'
-import { Avatar, Badge, Link, NavbarItem, Popover, PopoverContent, PopoverTrigger, User } from '@nextui-org/react'
+import { Avatar, Badge, Link, NavbarItem, Popover, PopoverContent, PopoverTrigger } from '@nextui-org/react'
 import CartIcon from '../atoms/icons/CartIcon';
 import HeaderUserPopover from './HeaderUserPopover';
 

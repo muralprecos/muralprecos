@@ -13,3 +13,7 @@ select,   textarea,   input[type="text"],   input[type="password"], input[type="
 .force-text-transform-none {
   text-transform: none !important;
 }
+
+.force-transition-all {
+  transition-property: all !important;
+}
