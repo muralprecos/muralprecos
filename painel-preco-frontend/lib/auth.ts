@@ -8,6 +8,8 @@ import { jwtDecode } from "jwt-decode";
 import { IUserInfo } from "@/interfaces/types";
 import { loginRefreshToken } from "@/app/action/loginRefreshTokenActions";
 import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
+import { authCheckSession } from "@/app/action/authCheckSession";
+import { logoutAction } from "@/app/action/logoutActions";
 
 const credentialsConfig = CredentialsProvider({
   name: "credentials",
@@ -56,32 +58,34 @@ const config = {
     },
     async jwt({ token, user }) {
       // apenas na primeira chamada de login
-      // console.log('jwt:', { token, user })
-      logger.info("...jwt...");
       if (user) {
         token.decoded = jwtDecode<IUserInfo>(`${user.access_token}`);
         token.access_token = user.access_token;
         token.id_token = user.id_token;
-        token.exp = user.exp;
         token.refresh_token = user.refresh_token;
         token.error = user.error;
         logger.info("Token registred...");
+        logger.info(user);
         return token;
       }
-      // nas demais chamadas
-      const nowTimeStamp = Math.floor(Date.now() / 1000);
-      const tokenExpires : number = token.exp != null ? +token.exp : nowTimeStamp;
-      if (nowTimeStamp <= tokenExpires) {
-        logger.info(`jwt ativo ${nowTimeStamp} ${tokenExpires}`);
+
+      const isAuth = await authCheckSession(token);
+      if (isAuth) {
+        logger.info(`jwt ativo`);
         return token;
       }
       // token expirou ou não existe
-      logger.info(`Token has expired. Will refresh... ${nowTimeStamp} < ${tokenExpires}`);
-      return loginRefreshToken(token);
+      logger.info(`Token has expired. Will refresh...`);
+      const refreshToken = await loginRefreshToken(token);
+      if (!refreshToken.error) {
+        return loginRefreshToken(token);
+      } else {
+        return null;
+      }
+      
     },
     async session({ session, token }) {
       //properties to the client without encrypt
-      logger.info("...session...");
       if (token) {
         logger.info("session com token");
         session.access_token = encrypt(`${token.access_token}`); // see utils/sessionTokenAccessor.js
