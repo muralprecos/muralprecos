@@ -27,7 +27,6 @@ async function refreshAccessToken(token: JWT) {
       access_token: refreshToken.access_token,
       decoded: jwtDecode(refreshToken.access_token),
       id_token: refreshToken.id_token,
-      exp: Math.floor(Date.now() / 1000) + refreshToken.exp,
       refresh_token: refreshToken.refresh_token,
     };
   } catch (error) {
