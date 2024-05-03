@@ -9,13 +9,9 @@ import { isClientNextjs } from '@/utils/validateUtils';
 
 import cartReducer, { initialState as cartInitialState } from './features/cart-slice'
 import cotacaoSearchReducer, { initialState as cotacaoSearchInitialState } from './features/cotacao-search-slice'
-import { IUser } from '@/interfaces/types';
+import { ICart } from '@/interfaces/types';
 
-const authState = isClientNextjs() ? {
-  value: JSON.parse(localStorage.getItem("authValue") || "null") as IUser,
-  loading: 'idle'
-} as any : null;
-const cartState = isClientNextjs() ? JSON.parse(localStorage.getItem("cart") || "null") : null;
+const cartState = isClientNextjs() ? JSON.parse(localStorage.getItem("carts") || "null") as ICart : null;
 const cotacaoSearchState = isClientNextjs() ? JSON.parse(localStorage.getItem("cotacaoSearch") || "null") : null;
 
 export const store = configureStore({

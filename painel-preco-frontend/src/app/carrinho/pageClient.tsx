@@ -26,14 +26,18 @@ import LoadingCircleIcon from "@/components/atoms/icons/LoadingCircleIcon";
 import Alert, { IAlertMessage } from "@/components/molecules/Alert";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import ResizebleScroll from "@/components/molecules/ResizebleScroll";
+import { getUserCartBySession, getUsernameBySession } from "@/utils/cartUtils";
+import { Session } from "next-auth";
 
 
 export interface IPropsCartPge {
   accessToken: string | null
+  session: Session | null
 }
 
 const CartPage: React.FC<IPropsCartPge> = ({
   accessToken,
+  session,
   ...opts
 }) => {
 
@@ -51,11 +55,11 @@ const CartPage: React.FC<IPropsCartPge> = ({
 
   const [alertMsg, setAlertMsg] = useState<IAlertMessage|null>(null);
   const { theme, setTheme } = useTheme();
-  const _cartList = useAppSelector((state) => state.cartReducer.value);
+  const _cartList = useAppSelector((state) => state.cartReducer);
   const [cart, setCart] = useState<IRetornoPesquisaItensLicitacao[]>([]);
 
   useEffect(() => {
-    setCart(_cartList);
+    setCart(getUserCartBySession(_cartList, session));
     setIsLoading(false);
   }, [_cartList]);
 
@@ -64,11 +68,14 @@ const CartPage: React.FC<IPropsCartPge> = ({
   }
 
   const onClickRemoveCart = (item: IRetornoPesquisaItensLicitacao) => {
-    dispatch(remove(item));
+    dispatch(remove({
+      item,
+      user: getUsernameBySession(session)
+    }));
   }
 
   const clearCart = () => {
-    dispatch(clear());
+    dispatch(clear(getUsernameBySession(session)));
   }
 
   const selectItem = async (uuid : string) => {
@@ -87,7 +94,7 @@ const CartPage: React.FC<IPropsCartPge> = ({
     try {
       setDoingRequest(true);
       const now = convertTZptBR(new Date());
-      const res = await postDownloadItensCotacoes(_cartList, accessToken);
+      const res = await postDownloadItensCotacoes(cart, accessToken);
       setDoingRequest(false);
       if (res != null) {
         if (res instanceof Blob) {

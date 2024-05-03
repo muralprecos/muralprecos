@@ -23,9 +23,9 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 Check configs in docker-compose.yml file. Default target is production, but can be "dev" or "builder" (only generate the build files, without execute the server). You can change the exposed ports too, by default uses port number 3000.
 
 ```bash
-docker compose up
-docker build . -t ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest --target production
+docker build . -t ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
 docker push ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
+docker-compose up
 ```
 
 ## Development Without CORS
@@ -100,11 +100,13 @@ Só Back:
 	- Quadro resumo das cotações (concatenação de cotações anteriores);
 	- Armazenar a organização ao realizar cotação (histórico);
 		- Filtrar pela organização e pelo usário logado;
+    -  Verificar se os nomes são iguais, se sim, não concatená-los (SetList). Ex:
+        matheusmmcs - MANUTENCAO GERADOR ELETRICO,MANUTENCAO GERADOR ELETRICO,MANU... - 07/04/2024
 
 Só Front:
-    - Garantir no localstorage que seja carregado os dados do usuário;
     - Atenticação por permissão ao carregar server component;
 
+    Ok - Garantir no localstorage que seja carregado os dados do usuário;
     Ok - Revisão das cores de botões;
     Ok - Criar interface para validar cotacao (cod validacao via GET);
 		Endpoint: http://{{HOST_ADDRESS}}/serverapi/v1/cotacoes/validacao
@@ -114,8 +116,7 @@ Só Front:
         OBS: Caso não apareça no autocomplete, faz sentido de fato continuar com a busca mesmo assim?
 
 -> Add no backlog:
-    Verificar se os nomes são iguais, se sim, não concatená-los. Ex:
-        matheusmmcs - MANUTENCAO GERADOR ELETRICO,MANUTENCAO GERADOR ELETRICO,MANU... - 07/04/2024
+   
 
 
 ======================================

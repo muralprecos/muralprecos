@@ -9,7 +9,7 @@ listenerMiddleware.startListening({
   matcher: isAnyOf(clear, add, remove),
   effect: (action, listenerApi) => {
     return localStorage.setItem(
-      "cart",
+      "carts",
       JSON.stringify((listenerApi.getState() as RootState).cartReducer)
     )
   }
