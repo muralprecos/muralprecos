@@ -5,4 +5,3 @@ node_modules
 README.md
 .dockerignore
 .git
-package-lock.json
