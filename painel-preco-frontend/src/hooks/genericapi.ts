@@ -1,8 +1,8 @@
-import logger from "../../services/logger";
 import { mountUrl } from "@/utils/requestUtils";
 import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
 
 export const HOST_API = `${process.env.API_URL}`;
+export const HOST_API_PREFIX = '/serverapi/v1';
 export const revalidate = 3600; // revalida os dados a cada hora
 
 export interface ResponseReq {

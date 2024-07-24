@@ -14,12 +14,14 @@ const nextConfig = {
   env: {
     // pulls from .env file
     API_URL: process.env.API_URL,
-    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    AUTH_SECRET: process.env.AUTH_SECRET,
     KEYCLOAK_ID: process.env.KEYCLOAK_ID,
     KEYCLOAK_ISSUER: process.env.KEYCLOAK_ISSUER,
     GET_TOKEN_URL: process.env.GET_TOKEN_URL,
     REFRESH_TOKEN_URL: process.env.REFRESH_TOKEN_URL,
-    END_SESSION_URL: process.env.END_SESSION_URL
+    END_SESSION_URL: process.env.END_SESSION_URL,
+    CHECK_SESSION_URL: process.env.CHECK_SESSION_URL,
+    KEYCLOAK_SECRET: process.env.KEYCLOAK_SECRET
   },
   webpack(config) {
     config.resolve.extensions.push('.ts', '.tsx');

@@ -1,52 +1,52 @@
 import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IAPISearchPropsLogged, IHistoricoCotacao, IValidaCotacao } from "@/interfaces/types";
-import { ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob, postGenericJson } from "./genericapi";
+import { HOST_API_PREFIX, ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob, postGenericJson } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
 
 
 export const getListPorteFornecedor = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged): Promise<IPorteFornecedor[]|null> => {
-  return getGenericObject<IPorteFornecedor[]>({ path: '/serverapi/v1/portes-fornecedor' , accessToken, ...opts });
+  return getGenericObject<IPorteFornecedor[]>({ path: HOST_API_PREFIX + '/portes-fornecedor' , accessToken, ...opts });
 }
 export const getListEsferas = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IEsfera[]>({ path: '/serverapi/v1/esferas', accessToken, ...opts });
+  return getGenericObject<IEsfera[]>({ path: HOST_API_PREFIX + '/esferas', accessToken, ...opts });
 }
 export const getFormasCompra = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IFormaCompra[]>({ path: '/serverapi/v1/formas-compra' , accessToken, ...opts });
+  return getGenericObject<IFormaCompra[]>({ path: HOST_API_PREFIX + '/formas-compra' , accessToken, ...opts });
 }
 export const getListModalidadesCompra = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IModalidadeCompra[]>({ path: '/serverapi/v1/modalidades-compra' , accessToken, ...opts });
+  return getGenericObject<IModalidadeCompra[]>({ path: HOST_API_PREFIX + '/modalidades-compra' , accessToken, ...opts });
 }
 export const getListPeriodosCompra = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IPeriodoCompra[]>({ path: '/serverapi/v1/periodos-compra' , accessToken, ...opts });
+  return getGenericObject<IPeriodoCompra[]>({ path: HOST_API_PREFIX + '/periodos-compra' , accessToken, ...opts });
 }
 export const getListSituacoesLicitacao = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<ISituacaoLicitacao[]>({ path: '/serverapi/v1/situacoes-licitacao' , accessToken, ...opts });
+  return getGenericObject<ISituacaoLicitacao[]>({ path: HOST_API_PREFIX + '/situacoes-licitacao' , accessToken, ...opts });
 }
 export const getListEstados = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericObject<IUnidadeFederativa[]>({ path: '/serverapi/v1/unidades-federativas' , accessToken, ...opts });
+  return getGenericObject<IUnidadeFederativa[]>({ path: HOST_API_PREFIX + '/unidades-federativas' , accessToken, ...opts });
 }
 export const getListAnos = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged) => {
-  return getGenericListPageable<IAnoCompra>({ path: '/serverapi/v1/anos-compra' , accessToken, ...opts });
+  return getGenericListPageable<IAnoCompra>({ path: HOST_API_PREFIX + '/anos-compra' , accessToken, ...opts });
 }
 
 export const getListMunicipios = async (
   opts : IAPISearchProps) => {
   const uuiduf = getValParamSearch(opts.info, 'uuiduf');
   opts.info = extractParamSearch(opts.info, 'uuiduf');
-  opts.path = `/serverapi/v1/unidades-federativas/${uuiduf}/municipios`;
+  opts.path = `${HOST_API_PREFIX}/unidades-federativas/${uuiduf}/municipios`;
   return getGenericListPageable<IMunicipio>(opts);
 }
 
 export const getListFornecedores = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<IFornecedor>({ path: '/serverapi/v1/fornecedores' , ...opts });
+  return getGenericListPageable<IFornecedor>({ path: HOST_API_PREFIX + '/fornecedores' , ...opts });
 }
 export const getFornecedorDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListFornecedores);
@@ -54,12 +54,12 @@ export const getFornecedorDesc = async (uuid: string) : Promise<string | null> =
 
 export const getListOrgaos = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<IOrgao>({ path: '/serverapi/v1/orgaos' , ...opts });
+  return getGenericListPageable<IOrgao>({ path: HOST_API_PREFIX + '/orgaos' , ...opts });
 }
 export const getListOrgaosSuperiores = async (
   opts : IAPISearchProps) => {
   opts.info = forceParamSearch(opts.info, 'ehSuperior', 'true');
-  return getGenericListPageable<IOrgao>({ path: '/serverapi/v1/orgaos' , ...opts });
+  return getGenericListPageable<IOrgao>({ path: HOST_API_PREFIX + '/orgaos' , ...opts });
 }
 export const getOrgaoDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListOrgaos);
@@ -67,7 +67,7 @@ export const getOrgaoDesc = async (uuid: string) : Promise<string | null> => {
 
 export const getListUASG = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<IUnidadeGestora>({ path: '/serverapi/v1/unidades-gestoras' , ...opts });
+  return getGenericListPageable<IUnidadeGestora>({ path: HOST_API_PREFIX + '/unidades-gestoras' , ...opts });
 }
 export const getUASGDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListUASG);
@@ -75,7 +75,7 @@ export const getUASGDesc = async (uuid: string) : Promise<string | null> => {
 
 export const getListUnidadesFornecimento = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<IObjetoAPI>({ path: '/serverapi/v1/unidades-fornecimento' , ...opts });
+  return getGenericListPageable<IObjetoAPI>({ path: HOST_API_PREFIX + '/unidades-fornecimento' , ...opts });
 }
 export const getUnidadeFornecimentoDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListUnidadesFornecimento);
@@ -83,7 +83,7 @@ export const getUnidadeFornecimentoDesc = async (uuid: string) : Promise<string 
 
 export const getListNomeMaterial = async (
   opts : IAPISearchProps) => {
-  return getGenericListPageable<INomeMaterial>({ path: '/serverapi/v1/materiais' , ...opts });
+  return getGenericListPageable<INomeMaterial>({ path: HOST_API_PREFIX + '/materiais' , ...opts });
 }
 export const getNomeMaterialDesc = async (uuid: string) : Promise<string | null> => {
   return getObjectDesc({info: [{param: 'uuid', val: uuid}]}, getListNomeMaterial);
@@ -92,37 +92,37 @@ export const getNomeMaterialDesc = async (uuid: string) : Promise<string | null>
 export const getListObjetosCompras = async (
   opts : IAPISearchProps) => {
   opts.info = forceParamSearch(opts.info, 'only', 'true');
-  return getGenericListPageable<IObjetoCompra>({ path: '/serverapi/v1/licitacoes' , ...opts });
+  return getGenericListPageable<IObjetoCompra>({ path: HOST_API_PREFIX + '/licitacoes' , ...opts });
 }
 export const getListDescricao = async (
   opts : IAPISearchProps) => {
   opts.info = forceParamSearch(opts.info, 'only', 'true');
-  return getGenericListPageable<IItemDescricao>({ path: '/serverapi/v1/itens-licitacao' , ...opts });
+  return getGenericListPageable<IItemDescricao>({ path: HOST_API_PREFIX + '/itens-licitacao' , ...opts });
 }
 
 export const getItemLicitacao = async (
   opts : IAPISearchPropsLogged) => {
   const uuid = getValParamSearch(opts.info, 'uuid');
   opts.info = extractParamSearch(opts.info, 'uuid');
-  return getGenericObject<IItemLicitacao>({ path: `/serverapi/v1/itens-licitacao/${uuid}` , ...opts });
+  return getGenericObject<IItemLicitacao>({ path: `${HOST_API_PREFIX}/itens-licitacao/${uuid}` , ...opts });
 }
 
 export const getListHistoricoCotacoes = async (
   opts : IAPISearchPropsLogged) => {
-  return getGenericListPageable<IHistoricoCotacao>({ path: '/serverapi/v1/cotacoes' , ...opts });
+  return getGenericListPageable<IHistoricoCotacao>({ path: HOST_API_PREFIX + '/cotacoes' , ...opts });
 }
 export const getHistoricoCotacao = async (
   opts : IAPISearchPropsLogged) => {
   const uuid = getValParamSearch(opts.info, 'uuid');
   opts.info = extractParamSearch(opts.info, 'uuid');
-  return getGenericObject<IHistoricoCotacao>({ path: `/serverapi/v1/cotacoes/${uuid}` , ...opts });
+  return getGenericObject<IHistoricoCotacao>({ path: `${HOST_API_PREFIX}/cotacoes/${uuid}` , ...opts });
 }
 
 export const getValidateCotacao = async (
   hash: string
   ) : Promise<IValidaCotacao|ResponseError|null> => {
     return postGenericJson({
-      path: '/serverapi/v1/cotacoes/validacao',
+      path: HOST_API_PREFIX + '/cotacoes/validacao',
       bodydata: JSON.stringify({
         "hash": hash
       }),
@@ -136,7 +136,7 @@ export const getPesquisarCotacoes = async (
   { info, config, accessToken } : IAPISearchPropsLogged) => {
     const pageinfo = getNumberOrUndefined(getValParamSearch(info, 'page'));
     const sizeinfo = getNumberOrUndefined(getValParamSearch(info, 'size'));
-    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: '/serverapi/v1/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo, accessToken: accessToken ?? undefined });
+    return getGenericObject<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>>({ path: HOST_API_PREFIX + '/itens-licitacao' , info, config, page: pageinfo, size: sizeinfo, accessToken: accessToken ?? undefined });
 }
 
 export const postDownloadItensCotacoes = async (
@@ -144,7 +144,7 @@ export const postDownloadItensCotacoes = async (
   accessToken: string
   ) : Promise<Blob|ResponseError|null> => {
     return postGenericBlob({
-      path: '/serverapi/v1/cotacoes',
+      path: HOST_API_PREFIX + '/cotacoes',
       bodydata: JSON.stringify({
         "itens": itens.map( i => i.uuid )
       }),
