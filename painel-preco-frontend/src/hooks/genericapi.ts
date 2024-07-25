@@ -1,5 +1,6 @@
 import { mountUrl } from "@/utils/requestUtils";
 import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
+import logger from "../../services/logger";
 
 export const HOST_API = `${process.env.API_URL}`;
 export const HOST_API_PREFIX = '/serverapi/v1';
@@ -41,6 +42,7 @@ const doReq = async (
         ...config
       }
       const url = mountUrl({ host: HOST_API, path, page, size, info, filterFields});
+      logger.info('Doing request: ' + url);
       const res = await fetch(url, reqOpts)
         .then((resp) : Promise<ResponseReq> => {
             if (resp.ok) {
