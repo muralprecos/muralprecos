@@ -28,6 +28,7 @@ import ModalConfirm from '@/components/molecules/ModalConfirm';
 
 
 export interface IPropsSearchItensLicitacaoForm {
+  prefixAPI: string
   session: Session | null
   accessToken: string | null
   searchParams?: ReadonlyURLSearchParams
@@ -91,6 +92,7 @@ type FieldsForms = {
 }
 
 const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
+  prefixAPI,
   session,
   accessToken,
   searchParams,
@@ -169,6 +171,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
     municipioId: { type: 'autocompleteAsync', label: 'Município', auto: {
       async: useAutocompleteFilter<IMunicipio>({
+        prefixAPI,
         minCharactersLoad: 0,
         getList: getListMunicipios,
         infos: ufId ? [{ val: ufId, param: 'uuiduf' }] : [],
@@ -178,45 +181,45 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
       isDisabled: !hasUF()
     }},
     orgaoSuperiorId: { type: 'autocompleteAsync', label: 'Orgão Superior', auto: {
-      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaosSuperiores, accessToken }),
+      async: useAutocompleteFilter<IOrgao>({ prefixAPI, getList: getListOrgaosSuperiores, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getOrgaoDesc
     }},
     orgaoId: { type: 'autocompleteAsync', label: 'Orgão', auto: {
-      async: useAutocompleteFilter<IOrgao>({ getList: getListOrgaos, accessToken }),
+      async: useAutocompleteFilter<IOrgao>({ prefixAPI, getList: getListOrgaos, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getOrgaoDesc
     }},
     fornecedorId: { type: 'autocompleteAsync', label: 'Fornecedor', auto: {
-      async: useAutocompleteFilter<IFornecedor>({ params: ['nome'], getList: getListFornecedores, accessToken }),
+      async: useAutocompleteFilter<IFornecedor>({ prefixAPI, params: ['nome'], getList: getListFornecedores, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getFornecedorDesc
     }},
     materialId: { type: 'autocompleteAsync', label: 'Nome/Código Material', auto: {
-      async: useAutocompleteFilter<INomeMaterial>({ getList: getListNomeMaterial, accessToken }),
+      async: useAutocompleteFilter<INomeMaterial>({ prefixAPI, getList: getListNomeMaterial, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getNomeMaterialDesc
     }},
     ugId: { type: 'autocompleteAsync', label: 'Unidade Gestora', auto: {
-      async: useAutocompleteFilter<IUnidadeGestora>({ getList: getListUASG, accessToken }),
+      async: useAutocompleteFilter<IUnidadeGestora>({ prefixAPI, getList: getListUASG, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getUASGDesc
     }},
     unidade_fornecimento: { type: 'autocompleteAsync', label: 'Unidade de Fornecimento', auto: {
-      async: useAutocompleteFilter<IObjetoAPI>({ getList: getListUnidadesFornecimento, accessToken }),
+      async: useAutocompleteFilter<IObjetoAPI>({ prefixAPI, getList: getListUnidadesFornecimento, accessToken }),
       attrVal: "uuid",
       apiFindDesc: getUnidadeFornecimentoDesc
     }},
     descricao: { type: 'autocompleteAsync', label: 'Descrição', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricao'], getList: getListDescricao, accessToken }),
+      async: useAutocompleteFilter<IItemDescricao>({ prefixAPI, params: ['descricao'], getList: getListDescricao, accessToken }),
       attrVal: "nome"
     }},
     descricaoComplementar: { type: 'autocompleteAsync', label: 'Descrição Complementar', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: getListDescricao, accessToken }),
+      async: useAutocompleteFilter<IItemDescricao>({ prefixAPI, params: ['descricaoComplementar'], getList: getListDescricao, accessToken }),
       attrVal: "nome"
     }},
     objeto: { type: 'autocompleteAsync', label: 'Objeto da Compra', auto: {
-      async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: getListObjetosCompras, accessToken }),
+      async: useAutocompleteFilter<IObjetoCompra>({ prefixAPI, params: ['objeto'], getList: getListObjetosCompras, accessToken }),
       attrVal: "nome"
     }},
   }

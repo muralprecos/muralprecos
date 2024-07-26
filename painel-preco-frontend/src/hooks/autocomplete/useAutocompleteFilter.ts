@@ -2,6 +2,7 @@ import { IAPISearchInfo, IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } 
 import { useAsyncList } from "@react-stately/data";
 
 export interface IAutocompleteListHook<T extends ISimpleObjetoAPI> {
+  prefixAPI: string
   initialFilterText?: string | null
   initialSelectedKeys?: Iterable<string | number> | null
   minCharactersLoad?: number
@@ -13,6 +14,7 @@ export interface IAutocompleteListHook<T extends ISimpleObjetoAPI> {
 }
 
 export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
+  prefixAPI,
   initialFilterText = '',
   initialSelectedKeys = '',
   minCharactersLoad = 3,
@@ -46,7 +48,7 @@ export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
           }
         }
         
-        const opts:IAPISearchProps = {size, info, config: { signal }};
+        const opts:IAPISearchProps = {size, info, config: { signal }, prefixAPI};
         if (accessToken!=null) opts.accessToken = accessToken;
         const res = doReq ? await getList(opts) : { content: [] };
 

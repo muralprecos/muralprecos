@@ -42,7 +42,8 @@ const doReq = async (
         ...config
       }
       const url = mountUrl({ host: HOST_API, path, page, size, info, filterFields});
-      logger.info('Doing request: ' + url);
+      //console.log('Doing request client: ' + url)
+      //logger.info('Doing request: ' + url);
       const res = await fetch(url, reqOpts)
         .then((resp) : Promise<ResponseReq> => {
             if (resp.ok) {

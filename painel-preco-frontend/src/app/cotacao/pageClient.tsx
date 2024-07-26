@@ -32,6 +32,7 @@ export const TABS_COTACAO = {
 }
 
 const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
+  prefixAPI,
   session,
   accessToken,
   anosCompras,
@@ -140,6 +141,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                 </div>
                 <div className="flex flex-col items-start justify-start basis-3/4 w-full">
                   <SearchItensLicitacaoForm
+                    prefixAPI={prefixAPI}
                     session={session}
                     accessToken={accessToken}
                     searchParams={searchParams}
