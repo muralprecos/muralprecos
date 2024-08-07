@@ -6,22 +6,19 @@ import { useTheme } from "next-themes";
 import ClipboardIcon from "../atoms/icons/ClipboardIcon";
 import { useState } from "react";
 import FileDownloadIcon from "../atoms/icons/FileDownloadIcon";
-import { getHistoricoCotacao } from "@/hooks/api";
 import { catchErrorFromFetch } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
-import RefreshCircleIcon from "../atoms/icons/RefreshCircleIcon";
 import { downloadPDF } from "@/utils/fileUtils";
 import { useRouter } from "next/navigation";
 import LoadingCircleIcon from "../atoms/icons/LoadingCircleIcon";
+import { apiClientGetItemHistorico } from "@/hooks/apiclient";
 
 interface IProps {
   item: IHistoricoCotacao
-  accessToken: string | null
 }
 
 const ItemHistoricoCotacao: React.FC<IProps> = ({
-  item,
-  accessToken
+  item
 }) => {
 
   const i = item;
@@ -31,10 +28,10 @@ const ItemHistoricoCotacao: React.FC<IProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const selectItem = async (uuid : string) => {
-    if (!!accessToken && !!uuid && !isLoading) {
+    if (!!uuid && !isLoading) {
       const fetchData = async () => {
         setIsLoading(true);
-        const req: IHistoricoCotacao|null = await getHistoricoCotacao({ info: [{ val: uuid, param: 'uuid' }], accessToken });
+        const req: IHistoricoCotacao|null = await apiClientGetItemHistorico([{ val: uuid, param: 'uuid' }]);
         setIsLoading(false);
         if (!!req) {
           downloadPDF(req.nomeArquivo, req.arquivo);

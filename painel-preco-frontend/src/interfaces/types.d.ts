@@ -141,7 +141,6 @@ export interface IAPISearchPropsLogged extends IAPISearchProps {
 
 export interface IAPISearchProps {
   host?: string
-  prefixAPI?: string
   path?: string
   page?: number
   size?: number

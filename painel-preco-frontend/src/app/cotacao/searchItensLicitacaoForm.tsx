@@ -8,7 +8,7 @@ import { Button, Divider, useDisclosure } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 
 import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, ISimpleObjetoAPI, IUnidadeGestora } from "@/interfaces/types";
-import { getListFornecedores, getListMunicipios, getListNomeMaterial, getListOrgaos, getListOrgaosSuperiores, getListUASG, getListUnidadesFornecimento, getListObjetosCompras, getListDescricao, FIELDS_COTACOES_LIST, getFornecedorDesc, getOrgaoDesc, getNomeMaterialDesc, getUASGDesc, getUnidadeFornecimentoDesc } from "@/hooks/api";
+import { FIELDS_COTACOES_LIST, getFornecedorDesc, getOrgaoDesc, getNomeMaterialDesc, getUASGDesc, getUnidadeFornecimentoDesc } from "@/hooks/api";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 
 import FormRow from "@/components/atoms/FormRow";
@@ -25,12 +25,11 @@ import { AsyncListData } from '@react-stately/data';
 import { Session } from 'next-auth';
 import LoadingCircleIcon from '@/components/atoms/icons/LoadingCircleIcon';
 import ModalConfirm from '@/components/molecules/ModalConfirm';
+import { apiClientGetListDescricao, apiClientGetListDescricaoComplementar, apiClientGetListFornecedores, apiClientGetListMunicipios, apiClientGetListNomeMaterial, apiClientGetListObjetoCompra, apiClientGetListOrgaos, apiClientGetListOrgaosSuperiores, apiClientGetListUASG, apiClientGetListUnidadesFornecimento } from '@/hooks/apiclient';
 
 
 export interface IPropsSearchItensLicitacaoForm {
-  prefixAPI: string
   session: Session | null
-  accessToken: string | null
   searchParams?: ReadonlyURLSearchParams
   anosCompras: IItemSelect[]
   empresaPorte: IItemSelect[]
@@ -92,9 +91,7 @@ type FieldsForms = {
 }
 
 const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
-  prefixAPI,
   session,
-  accessToken,
   searchParams,
   anosCompras,
   empresaPorte,
@@ -171,55 +168,55 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
     municipioId: { type: 'autocompleteAsync', label: 'Município', auto: {
       async: useAutocompleteFilter<IMunicipio>({
-        prefixAPI,
         minCharactersLoad: 0,
-        getList: getListMunicipios,
+        params: ['nome'],
+        getList: apiClientGetListMunicipios,
         infos: ufId ? [{ val: ufId, param: 'uuiduf' }] : [],
-        accessToken
+        
       }),
       attrVal: "uuid",
       isDisabled: !hasUF()
     }},
     orgaoSuperiorId: { type: 'autocompleteAsync', label: 'Orgão Superior', auto: {
-      async: useAutocompleteFilter<IOrgao>({ prefixAPI, getList: getListOrgaosSuperiores, accessToken }),
+      async: useAutocompleteFilter<IOrgao>({ getList: apiClientGetListOrgaosSuperiores }),
       attrVal: "uuid",
       apiFindDesc: getOrgaoDesc
     }},
     orgaoId: { type: 'autocompleteAsync', label: 'Orgão', auto: {
-      async: useAutocompleteFilter<IOrgao>({ prefixAPI, getList: getListOrgaos, accessToken }),
+      async: useAutocompleteFilter<IOrgao>({ getList: apiClientGetListOrgaos }),
       attrVal: "uuid",
       apiFindDesc: getOrgaoDesc
     }},
     fornecedorId: { type: 'autocompleteAsync', label: 'Fornecedor', auto: {
-      async: useAutocompleteFilter<IFornecedor>({ prefixAPI, params: ['nome'], getList: getListFornecedores, accessToken }),
+      async: useAutocompleteFilter<IFornecedor>({ params: ['nome'], getList: apiClientGetListFornecedores }),
       attrVal: "uuid",
       apiFindDesc: getFornecedorDesc
     }},
     materialId: { type: 'autocompleteAsync', label: 'Nome/Código Material', auto: {
-      async: useAutocompleteFilter<INomeMaterial>({ prefixAPI, getList: getListNomeMaterial, accessToken }),
+      async: useAutocompleteFilter<INomeMaterial>({ getList: apiClientGetListNomeMaterial }),
       attrVal: "uuid",
       apiFindDesc: getNomeMaterialDesc
     }},
     ugId: { type: 'autocompleteAsync', label: 'Unidade Gestora', auto: {
-      async: useAutocompleteFilter<IUnidadeGestora>({ prefixAPI, getList: getListUASG, accessToken }),
+      async: useAutocompleteFilter<IUnidadeGestora>({ getList: apiClientGetListUASG }),
       attrVal: "uuid",
       apiFindDesc: getUASGDesc
     }},
     unidade_fornecimento: { type: 'autocompleteAsync', label: 'Unidade de Fornecimento', auto: {
-      async: useAutocompleteFilter<IObjetoAPI>({ prefixAPI, getList: getListUnidadesFornecimento, accessToken }),
+      async: useAutocompleteFilter<IObjetoAPI>({ getList: apiClientGetListUnidadesFornecimento }),
       attrVal: "uuid",
       apiFindDesc: getUnidadeFornecimentoDesc
     }},
     descricao: { type: 'autocompleteAsync', label: 'Descrição', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ prefixAPI, params: ['descricao'], getList: getListDescricao, accessToken }),
+      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricao'], getList: apiClientGetListDescricao }),
       attrVal: "nome"
     }},
     descricaoComplementar: { type: 'autocompleteAsync', label: 'Descrição Complementar', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ prefixAPI, params: ['descricaoComplementar'], getList: getListDescricao, accessToken }),
+      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: apiClientGetListDescricaoComplementar }),
       attrVal: "nome"
     }},
     objeto: { type: 'autocompleteAsync', label: 'Objeto da Compra', auto: {
-      async: useAutocompleteFilter<IObjetoCompra>({ prefixAPI, params: ['objeto'], getList: getListObjetosCompras, accessToken }),
+      async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: apiClientGetListObjetoCompra }),
       attrVal: "nome"
     }},
   }

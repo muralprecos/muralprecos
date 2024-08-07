@@ -129,6 +129,7 @@ const Login = (props: Props) => {
                 <InputForm
                   name="login"
                   label="Usuário"
+                  autoComplete="username"
                   autoFocus
                   endContent={
                     <Button className="p-0" disabled={true} variant="light" isIconOnly={true}>
@@ -149,6 +150,7 @@ const Login = (props: Props) => {
                   label="Senha"
                   placeholder="Digite sua senha"
                   type={showPass ? "text" : "password"}
+                  autoComplete="current-password"
                   endContent={
                     <Button className="p-0" variant="light" isIconOnly={true} onPressEnd={handleShowPass}>
                       {

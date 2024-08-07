@@ -2,27 +2,24 @@ import { IAPISearchInfo, IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } 
 import { useAsyncList } from "@react-stately/data";
 
 export interface IAutocompleteListHook<T extends ISimpleObjetoAPI> {
-  prefixAPI: string
   initialFilterText?: string | null
   initialSelectedKeys?: Iterable<string | number> | null
   minCharactersLoad?: number
   size?: number
   params?: string[]
   infos?: IAPISearchInfo[] | undefined
-  getList: (props: IAPISearchProps) => Promise<IReturnRequestAPI<T>|null>
+  getList: (info : IAPISearchInfo[]) => Promise<IReturnRequestAPI<T>|null>
   accessToken?: string|null
 }
 
 export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
-  prefixAPI,
   initialFilterText = '',
   initialSelectedKeys = '',
   minCharactersLoad = 3,
   size = 20,
   params = ['nome'],
   infos,
-  getList,
-  accessToken
+  getList
 } : IAutocompleteListHook<T>) {
 
   const list = useAsyncList<T>({
@@ -47,11 +44,7 @@ export function useAutocompleteFilter<T extends ISimpleObjetoAPI>({
             doReq = false;
           }
         }
-        
-        const opts:IAPISearchProps = {size, info, config: { signal }, prefixAPI};
-        if (accessToken!=null) opts.accessToken = accessToken;
-        const res = doReq ? await getList(opts) : { content: [] };
-
+        const res = doReq ? await getList(info) : { content: [] };
         return {
           items: res != null ? res.content : []
         };

@@ -1,7 +1,6 @@
 import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemDescricao, IModalidadeCompra, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, IPeriodoCompra, IPorteFornecedor, IRetornoPesquisaItensLicitacao, ISituacaoLicitacao, IUnidadeFederativa, IUnidadeGestora, IItemLicitacao, IReturnRequestAPI, IUserAuth, IAPISimpleSearchPropsLogged, IAPISearchPropsLogged, IHistoricoCotacao, IValidaCotacao } from "@/interfaces/types";
 import { HOST_API_PREFIX, ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob, postGenericJson } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
-import logger from "../../services/logger";
 
 
 export const getListPorteFornecedor = async (
@@ -41,7 +40,7 @@ export const getListMunicipios = async (
   opts : IAPISearchProps) => {
   const uuiduf = getValParamSearch(opts.info, 'uuiduf');
   opts.info = extractParamSearch(opts.info, 'uuiduf');
-  opts.path = `${opts.prefixAPI}/unidades-federativas/${uuiduf}/municipios`;
+  opts.path = `${HOST_API_PREFIX}/unidades-federativas/${uuiduf}/municipios`;
   return getGenericListPageable<IMunicipio>(opts);
 }
 

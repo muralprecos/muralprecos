@@ -35,7 +35,7 @@ export default async function PageHistoricoCotacao() {
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
               <Suspense fallback={<LoadingList/>}>
-                <ViewHistoricoCotacao session={session} accessToken={accessToken} />
+                <ViewHistoricoCotacao />
               </Suspense>
             </FormRow>
           </section>

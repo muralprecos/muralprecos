@@ -8,19 +8,13 @@ import PaginationFooter from "../molecules/PaginationFooter";
 import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/navigation";
 import LoadingList from "../molecules/LoadingList";
 import { isClientNextjs } from "@/utils/validateUtils";
-import { getPesquisarCotacoes } from "@/hooks/api";
 import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
 import EmptyListText from "../atoms/EmptyListText";
 import ResizebleScroll from "../molecules/ResizebleScroll";
+import { apiClientPostSearchListItens } from "@/hooks/apiclient";
 
-interface IProps {
-  token: string | null
-}
-
-const ListItemLicitacao: React.FC<IProps> = ({
-  token
-}) => {
+const ListItemLicitacao: React.FC = () => {
   
   const router = useRouter();
   const searchParams : ReadonlyURLSearchParams = useSearchParams();
@@ -31,24 +25,24 @@ const ListItemLicitacao: React.FC<IProps> = ({
   const [paginationInfo, setPaginationInfo] = useState<IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null>(null);
 
   useEffect(() => {
-    if (!!token) {
-      const fetchData = async () => {
-        if (isClientNextjs()) {
-          setIsLoading ? setIsLoading(true) : null;
-          const req: IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ info: searchParamsToInfo(searchParams), accessToken: token });
-          setIsLoading ? setIsLoading(false) : null;
-          if (req?.content) {
-            // console.log(req)
-            setPaginationInfo(req);
-            setItensLicitacao(req?.content)
-          }
+    const fetchData = async () => {
+      if (isClientNextjs()) {
+        setIsLoading ? setIsLoading(true) : null;
+        
+        const req: IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null = await apiClientPostSearchListItens(searchParamsToInfo(searchParams));
+        
+        setIsLoading ? setIsLoading(false) : null;
+        if (req?.content) {
+          // console.log(req)
+          setPaginationInfo(req);
+          setItensLicitacao(req?.content)
         }
       }
-      fetchData().catch(e => {
-        catchErrorFromFetch(e, enqueueSnackbar, 'carregar item');
-      });
     }
-  }, [searchParams, router, token, setItensLicitacao, enqueueSnackbar]);
+    fetchData().catch(e => {
+      catchErrorFromFetch(e, enqueueSnackbar, 'carregar item');
+    });
+  }, [searchParams, router, setItensLicitacao, enqueueSnackbar]);
 
   const hastItens = () => {
     return itensLicitacao != null && itensLicitacao.length > 0;

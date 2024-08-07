@@ -8,7 +8,6 @@ import { auth } from "auth";
 import { checkSession } from "@/utils/sessionCheckerServerUtils";
 import { Suspense } from "react";
 import Loading from "../loading";
-import { HOST_API_PREFIX } from "@/hooks/genericapi";
 
 export default async function CotacaoHome() {
 
@@ -63,9 +62,7 @@ export default async function CotacaoHome() {
       {/* <SetDynamicRoute/> */}
       <Suspense fallback={<Loading/>}>
         <PageClient
-          prefixAPI={HOST_API_PREFIX}
           session={session}
-          accessToken={accessToken}
           empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores, 'nome', 'uuid')}
           esferas={reqDataListToSelect<IEsfera>(esferas, 'nome', 'uuid')}
           compraFormas={reqDataListToSelect<IFormaCompra>(formasCompra, 'nome', 'uuid')}
