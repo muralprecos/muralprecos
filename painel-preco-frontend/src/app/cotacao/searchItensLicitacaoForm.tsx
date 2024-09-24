@@ -235,9 +235,9 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     return !!obj && obj.type === 'autocompleteAsync';
   }
 
-  const clearForm = (e?: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const clearForm = (e?: React.MouseEvent<HTMLButtonElement, MouseEvent>, defVals?: FormDataCotacao) => {
     if (e!=null) { e.preventDefault(); }
-    reset();
+    reset(defVals);
     Object.keys(fields).forEach(k => {
       const key = k as keyof FormDataCotacao;
       const v = fields[key];
@@ -318,6 +318,16 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   }
 
   const handleAdvancedFormClick = () => {
+    const curPeriodo = getValues("periodoCompraId");
+    const curUF = getValues("ufId");
+    const curMunicipio = getValues("municipioId");
+    const curDescricao = getValues("descricao");
+    clearForm(undefined, {
+      periodoCompraId: curPeriodo,
+      ufId: curUF,
+      municipioId: curMunicipio,
+      descricao: curDescricao
+    });
     setShowAdvancedForm((prev) => !prev);
   };
 
@@ -345,7 +355,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-3/4">
-            <InputForm name="objeto" label="Objeto" control={control} errors={errors} />
+            <InputForm name="descricao" label="Descrição" control={control} errors={errors} />
           </div>
           <div className="flex basis-1/4 justify-items-center items-center">
             <Button color="default" variant="ghost" onClick={handleAdvancedFormClick} fullWidth className='h-full min-h-12'>
@@ -364,11 +374,11 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
             <FormRow className={classname_rowmobile}>
               <div className="basis-1/2">
               {/* { mountFieldForm("descricao", fields.descricao) } */}
-                <InputForm name="descricao" label="Descrição" control={control} errors={errors} />
+                <InputForm name="descricaoComplementar" label="Descrição Complementar" control={control} errors={errors} />
               </div>
               <div className="basis-1/2">
                 {/* { mountFieldForm("descricaoComplementar", fields.descricaoComplementar) } */}
-                <InputForm name="descricaoComplementar" label="Descrição Complementar" control={control} errors={errors} />
+                <InputForm name="objeto" label="Objeto" control={control} errors={errors} />
               </div>
             </FormRow>
 
