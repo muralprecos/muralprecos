@@ -33,14 +33,17 @@ export const apiClientGetListUnidadesFornecimento = async (info : IAPISearchInfo
   return apiClientGenericGetList('nome', 'unidade-fornecimento', info);
 }
 
+//UNUSED
 export const apiClientGetListDescricao = async (info : IAPISearchInfo[]) => {
   return apiClientGenericGetList('descricao', 'descricao', info);
 }
 
+//UNUSED
 export const apiClientGetListDescricaoComplementar = async (info : IAPISearchInfo[]) => {
   return apiClientGenericGetList('descricaoComplementar', 'descricao-complementar', info);
 }
 
+//UNUSED
 export const apiClientGetListObjetoCompra = async (info : IAPISearchInfo[]) => {
   return apiClientGenericGetList('objeto', 'objeto-compra', info);
 }
