@@ -7,7 +7,7 @@ import yupStrings from '@/utils/yupStrings';
 import { Button, Divider, useDisclosure } from '@nextui-org/react'
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 
-import { IFornecedor, IItemDescricao, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IObjetoCompra, IOrgao, ISimpleObjetoAPI, IUnidadeGestora } from "@/interfaces/types";
+import { IFornecedor, IItemSelect, IMunicipio, INomeMaterial, IObjetoAPI, IOrgao, ISimpleObjetoAPI, IUnidadeGestora } from "@/interfaces/types";
 import { FIELDS_COTACOES_LIST, getFornecedorDesc, getOrgaoDesc, getNomeMaterialDesc, getUASGDesc, getUnidadeFornecimentoDesc } from "@/hooks/api";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 
@@ -25,7 +25,7 @@ import { AsyncListData } from '@react-stately/data';
 import { Session } from 'next-auth';
 import LoadingCircleIcon from '@/components/atoms/icons/LoadingCircleIcon';
 import ModalConfirm from '@/components/molecules/ModalConfirm';
-import { apiClientGetListDescricao, apiClientGetListDescricaoComplementar, apiClientGetListFornecedores, apiClientGetListMunicipios, apiClientGetListNomeMaterial, apiClientGetListObjetoCompra, apiClientGetListOrgaos, apiClientGetListOrgaosSuperiores, apiClientGetListUASG, apiClientGetListUnidadesFornecimento } from '@/hooks/apiclient';
+import { apiClientGetListFornecedores, apiClientGetListMunicipios, apiClientGetListNomeMaterial, apiClientGetListOrgaos, apiClientGetListOrgaosSuperiores, apiClientGetListUASG, apiClientGetListUnidadesFornecimento } from '@/hooks/apiclient';
 import InputForm from '@/components/molecules/InputForm';
 
 
