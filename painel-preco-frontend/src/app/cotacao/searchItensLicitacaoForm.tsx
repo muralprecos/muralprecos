@@ -26,6 +26,7 @@ import { Session } from 'next-auth';
 import LoadingCircleIcon from '@/components/atoms/icons/LoadingCircleIcon';
 import ModalConfirm from '@/components/molecules/ModalConfirm';
 import { apiClientGetListDescricao, apiClientGetListDescricaoComplementar, apiClientGetListFornecedores, apiClientGetListMunicipios, apiClientGetListNomeMaterial, apiClientGetListObjetoCompra, apiClientGetListOrgaos, apiClientGetListOrgaosSuperiores, apiClientGetListUASG, apiClientGetListUnidadesFornecimento } from '@/hooks/apiclient';
+import InputForm from '@/components/molecules/InputForm';
 
 
 export interface IPropsSearchItensLicitacaoForm {
@@ -207,18 +208,18 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
       attrVal: "uuid",
       apiFindDesc: getUnidadeFornecimentoDesc
     }},
-    descricao: { type: 'autocompleteAsync', label: 'Descrição', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricao'], getList: apiClientGetListDescricao }),
-      attrVal: "nome"
-    }},
-    descricaoComplementar: { type: 'autocompleteAsync', label: 'Descrição Complementar', auto: {
-      async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: apiClientGetListDescricaoComplementar }),
-      attrVal: "nome"
-    }},
-    objeto: { type: 'autocompleteAsync', label: 'Objeto da Compra', auto: {
-      async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: apiClientGetListObjetoCompra }),
-      attrVal: "nome"
-    }},
+    // descricao: { type: 'autocompleteAsync', label: 'Descrição', auto: {
+    //   async: useAutocompleteFilter<IItemDescricao>({ params: ['descricao'], getList: apiClientGetListDescricao }),
+    //   attrVal: "nome"
+    // }},
+    // descricaoComplementar: { type: 'autocompleteAsync', label: 'Descrição Complementar', auto: {
+    //   async: useAutocompleteFilter<IItemDescricao>({ params: ['descricaoComplementar'], getList: apiClientGetListDescricaoComplementar }),
+    //   attrVal: "nome"
+    // }},
+    // objeto: { type: 'autocompleteAsync', label: 'Objeto da Compra', auto: {
+    //   async: useAutocompleteFilter<IObjetoCompra>({ params: ['objeto'], getList: apiClientGetListObjetoCompra }),
+    //   attrVal: "nome"
+    // }},
   }
   
   function isFieldSelect(obj: FieldFormTypes | undefined): obj is FieldFormSelect {
@@ -319,16 +320,19 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     <form onSubmit={handleSubmit(onSubmit, onSubmitError)} className='container flex flex-col items-start justify-start'>
         <FormRow className={classname_rowmobile}>
           <div className="basis-1/2">
-            { mountFieldForm("descricao", fields.descricao) }
+          {/* { mountFieldForm("descricao", fields.descricao) } */}
+            <InputForm name="descricao" label="Descrição" control={control} errors={errors} />
           </div>
           <div className="basis-1/2">
-            { mountFieldForm("descricaoComplementar", fields.descricaoComplementar) }
+            {/* { mountFieldForm("descricaoComplementar", fields.descricaoComplementar) } */}
+            <InputForm name="descricaoComplementar" label="Descrição Complementar" control={control} errors={errors} />
           </div>
         </FormRow>
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-full">
-            { mountFieldForm("objeto", fields.objeto) }
+            {/* { mountFieldForm("objeto", fields.objeto) } */}
+            <InputForm name="objeto" label="Objeto" control={control} errors={errors} />
           </div>
         </FormRow>
 
