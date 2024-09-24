@@ -27,6 +27,8 @@ import LoadingCircleIcon from '@/components/atoms/icons/LoadingCircleIcon';
 import ModalConfirm from '@/components/molecules/ModalConfirm';
 import { apiClientGetListFornecedores, apiClientGetListMunicipios, apiClientGetListNomeMaterial, apiClientGetListOrgaos, apiClientGetListOrgaosSuperiores, apiClientGetListUASG, apiClientGetListUnidadesFornecimento } from '@/hooks/apiclient';
 import InputForm from '@/components/molecules/InputForm';
+import DoubleAltArrowDownIcon from '@/components/atoms/icons/DoubleAltArrowDownIcon';
+import DoubleAltArrowUpIcon from '@/components/atoms/icons/DoubleAltArrowUpIcon';
 
 
 export interface IPropsSearchItensLicitacaoForm {
@@ -110,6 +112,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
   const _initialFormDataLocalStorage: FormDataCotacao = useAppSelector((state) => state.cotacaoSearchReducer.value);
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
   const {isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange} = useDisclosure();
+  const [showAdvancedForm, setShowAdvancedForm] = useState<boolean>(false);
 
   const [lastUF, setLastUF] = useState<string|null>();
   const {
@@ -314,95 +317,117 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     }
   }
 
+  const handleAdvancedFormClick = () => {
+    setShowAdvancedForm((prev) => !prev);
+  };
+
   const classname_rowmobile = "flex-col md:flex-row";
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onSubmitError)} className='container flex flex-col items-start justify-start'>
-        <FormRow className={classname_rowmobile}>
-          <div className="basis-1/2">
-          {/* { mountFieldForm("descricao", fields.descricao) } */}
-            <InputForm name="descricao" label="Descrição" control={control} errors={errors} />
-          </div>
-          <div className="basis-1/2">
-            {/* { mountFieldForm("descricaoComplementar", fields.descricaoComplementar) } */}
-            <InputForm name="descricaoComplementar" label="Descrição Complementar" control={control} errors={errors} />
-          </div>
-        </FormRow>
-
-        <FormRow className={classname_rowmobile}>
+        {/* <FormRow className={classname_rowmobile}>
           <div className="basis-full">
-            {/* { mountFieldForm("objeto", fields.objeto) } */}
             <InputForm name="objeto" label="Objeto" control={control} errors={errors} />
           </div>
-        </FormRow>
-
-        <Divider />
+        </FormRow> */}
 
         <FormRow className={classname_rowmobile}>
-          <div className="basis-1/4">
-            { mountFieldForm("ano", fields.ano) }
-          </div> 
-          <div className="basis-1/4">
-            { mountFieldForm("porteFornecedor", fields.porteFornecedor) }
-          </div>
-          <div className="basis-1/4">
-            { mountFieldForm("esferaId", fields.esferaId) }
-          </div>
-          <div className="basis-1/4">
-            { mountFieldForm("formaCompraId", fields.formaCompraId) }
-          </div>
-        </FormRow>
-
-        <FormRow className={classname_rowmobile}>
-          <div className="basis-1/3">
-            { mountFieldForm("modalidadeCompraId", fields.modalidadeCompraId) }
-          </div>
           <div className="basis-1/3">
             { mountFieldForm("periodoCompraId", fields.periodoCompraId) }
           </div>
           <div className="basis-1/3">
-            { mountFieldForm("situacao_licitacao", fields.situacao_licitacao) }
-          </div>
-        </FormRow>
-
-        <FormRow className={classname_rowmobile}>
-          <div className="basis-1/2">
             { mountFieldForm("ufId", fields.ufId) }
           </div>
-
-          <div className="basis-1/2">
+          <div className="basis-1/3">
             { mountFieldForm("municipioId", fields.municipioId) }
           </div>
         </FormRow>
 
         <FormRow className={classname_rowmobile}>
-          <div className="basis-1/2">
-            { mountFieldForm("orgaoSuperiorId", fields.orgaoSuperiorId) }
+          <div className="basis-3/4">
+            <InputForm name="objeto" label="Objeto" control={control} errors={errors} />
           </div>
-
-          <div className="basis-1/2">
-            { mountFieldForm("orgaoId", fields.orgaoId) }
-          </div>
-        </FormRow>
-
-        <FormRow className={classname_rowmobile}>
-          <div className="basis-1/2">
-            { mountFieldForm("fornecedorId", fields.fornecedorId) }
-          </div>
-
-          <div className="basis-1/2">
-            { mountFieldForm("materialId", fields.materialId) }
+          <div className="flex basis-1/4 justify-items-center items-center">
+            <Button color="default" variant="ghost" onClick={handleAdvancedFormClick} fullWidth className='h-full min-h-12'>
+              {showAdvancedForm ? <DoubleAltArrowUpIcon /> : <DoubleAltArrowDownIcon /> }
+              {showAdvancedForm ? 'Busca Simplificada' : 'Busca Avançada'}
+            </Button>
           </div>
         </FormRow>
 
-        <FormRow className={classname_rowmobile}>
-          <div className="basis-1/2">
-            { mountFieldForm("ugId", fields.ugId) }
-          </div>
-          <div className="basis-1/2">
-            { mountFieldForm("unidade_fornecimento", fields.unidade_fornecimento) }
-          </div>
-        </FormRow>
+
+        {showAdvancedForm && (
+          <>
+
+            <Divider />
+
+            <FormRow className={classname_rowmobile}>
+              <div className="basis-1/2">
+              {/* { mountFieldForm("descricao", fields.descricao) } */}
+                <InputForm name="descricao" label="Descrição" control={control} errors={errors} />
+              </div>
+              <div className="basis-1/2">
+                {/* { mountFieldForm("descricaoComplementar", fields.descricaoComplementar) } */}
+                <InputForm name="descricaoComplementar" label="Descrição Complementar" control={control} errors={errors} />
+              </div>
+            </FormRow>
+
+            <FormRow className={classname_rowmobile}>
+              <div className="basis-1/4">
+                { mountFieldForm("ano", fields.ano) }
+              </div> 
+              <div className="basis-1/4">
+                { mountFieldForm("porteFornecedor", fields.porteFornecedor) }
+              </div>
+              <div className="basis-1/4">
+                { mountFieldForm("esferaId", fields.esferaId) }
+              </div>
+              <div className="basis-1/4">
+                { mountFieldForm("formaCompraId", fields.formaCompraId) }
+              </div>
+            </FormRow>
+
+            <FormRow className={classname_rowmobile}>
+              <div className="basis-1/2">
+                { mountFieldForm("modalidadeCompraId", fields.modalidadeCompraId) }
+              </div>
+              <div className="basis-1/2">
+                { mountFieldForm("situacao_licitacao", fields.situacao_licitacao) }
+              </div>
+            </FormRow>
+
+            <FormRow className={classname_rowmobile}>
+              <div className="basis-1/2">
+                { mountFieldForm("orgaoSuperiorId", fields.orgaoSuperiorId) }
+              </div>
+
+              <div className="basis-1/2">
+                { mountFieldForm("orgaoId", fields.orgaoId) }
+              </div>
+            </FormRow>
+
+            <FormRow className={classname_rowmobile}>
+              <div className="basis-1/2">
+                { mountFieldForm("fornecedorId", fields.fornecedorId) }
+              </div>
+
+              <div className="basis-1/2">
+                { mountFieldForm("materialId", fields.materialId) }
+              </div>
+            </FormRow>
+
+            <FormRow className={classname_rowmobile}>
+              <div className="basis-1/2">
+                { mountFieldForm("ugId", fields.ugId) }
+              </div>
+              <div className="basis-1/2">
+                { mountFieldForm("unidade_fornecimento", fields.unidade_fornecimento) }
+              </div>
+            </FormRow>
+            </>
+        )}
+
+        <Divider />
         
         <FormRow className="justify-end">
         
