@@ -285,5 +285,13 @@ export interface IUser {
   user: IUserRequest | null
 }
 
+export interface ICartItem {
+  user: string
+  item: IRetornoPesquisaItensLicitacao
+}
+
+export interface ICart {
+  [user: string] : IRetornoPesquisaItensLicitacao[]
+}
 
 //type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;

@@ -48,6 +48,8 @@ const Login = (props: Props) => {
   const { data: session, status } = useSession();
   const [showPass, setShowPass] = useState<boolean>(false);
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
+  const [loginSuccessWaitingNewPage, setLoginSuccess] = useState<boolean>(false);
+
   
   const {
     control,
@@ -71,6 +73,7 @@ const Login = (props: Props) => {
         setDoingRequest(false);
         addSnackError(enqueueSnackbar,res?.error);
       } else {
+        setLoginSuccess(true);
         addSnackSuccess(enqueueSnackbar,messages.LOGIN_SUCCESS);
       }
     } catch (e) {
@@ -109,7 +112,7 @@ const Login = (props: Props) => {
   if (status == "authenticated") {
     return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
   }
-  if (status == "loading") return <LoadingPage/>
+  if (status == "loading" || loginSuccessWaitingNewPage) return <LoadingPage/>
 
   return (
     <section className='flex items-center justify-center flex-col flex-1 -mt-8 mx-2' style={{ width: 'calc(100% - 1em)'}}>
@@ -126,6 +129,7 @@ const Login = (props: Props) => {
                 <InputForm
                   name="login"
                   label="Usuário"
+                  autoComplete="username"
                   autoFocus
                   endContent={
                     <Button className="p-0" disabled={true} variant="light" isIconOnly={true}>
@@ -146,6 +150,7 @@ const Login = (props: Props) => {
                   label="Senha"
                   placeholder="Digite sua senha"
                   type={showPass ? "text" : "password"}
+                  autoComplete="current-password"
                   endContent={
                     <Button className="p-0" variant="light" isIconOnly={true} onPressEnd={handleShowPass}>
                       {

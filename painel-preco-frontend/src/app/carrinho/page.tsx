@@ -14,6 +14,6 @@ export default async function PageCarrinho() {
   }
 
   return (
-    <CartPage accessToken={accessToken} />
+    <CartPage session={session} />
   );
 }

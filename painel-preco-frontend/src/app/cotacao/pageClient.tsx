@@ -2,7 +2,7 @@
 
 import { Button, Card, CardBody, Divider, Listbox, ListboxItem } from "@nextui-org/react";
 import SearchItensLicitacaoForm, { IPropsSearchItensLicitacaoForm } from "./searchItensLicitacaoForm";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
 import { addSnackError, addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
 import FormRow from "@/components/atoms/FormRow";
@@ -14,6 +14,7 @@ import { messages } from "@/utils/messages";
 import { useAppSelector } from "@/redux/store";
 import Link from "next/link";
 import NoSSR from "@/components/atoms/NoSSR";
+import { getUserCartBySession } from "@/utils/cartUtils";
 
 export const TABS_COTACAO = {
   SEARCH: {
@@ -32,7 +33,6 @@ export const TABS_COTACAO = {
 
 const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   session,
-  accessToken,
   anosCompras,
   empresaPorte,
   esferas,
@@ -44,7 +44,13 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
   ...opts
 }) => {
 
-  const _cartList = useAppSelector((state) => state.cartReducer.value);
+  const [cartsize, setCartsize] = useState<number>(0);
+  const _cartList = useAppSelector((state) => state.cartReducer);
+
+  useEffect(() => {
+    const ulist = getUserCartBySession(_cartList, session);
+    setCartsize(ulist.length);
+  }, [_cartList])
   
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const searchParams : ReadonlyURLSearchParams = useSearchParams();
@@ -95,7 +101,7 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                 <Button className="force-text-transform-none" color="secondary" type="button" as={Link} href="/cotacao/validacao">
                   Validar Cotação
                 </Button>
-                <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/carrinho" isDisabled={_cartList.length < 1}>
+                <Button className="force-text-transform-none" color="primary" type="button" as={Link} href="/carrinho" isDisabled={cartsize < 1}>
                   Ir para o Carrinho
                 </Button>
               </FormTitle>
@@ -134,7 +140,6 @@ const PageClient: React.FC<IPropsSearchItensLicitacaoForm> = ({
                 <div className="flex flex-col items-start justify-start basis-3/4 w-full">
                   <SearchItensLicitacaoForm
                     session={session}
-                    accessToken={accessToken}
                     searchParams={searchParams}
                     empresaPorte={empresaPorte}
                     esferas={esferas}

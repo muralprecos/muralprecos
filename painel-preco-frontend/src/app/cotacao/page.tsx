@@ -63,7 +63,6 @@ export default async function CotacaoHome() {
       <Suspense fallback={<Loading/>}>
         <PageClient
           session={session}
-          accessToken={accessToken}
           empresaPorte={reqDataListToSelect<IPorteFornecedor>(porteFornecedores, 'nome', 'uuid')}
           esferas={reqDataListToSelect<IEsfera>(esferas, 'nome', 'uuid')}
           compraFormas={reqDataListToSelect<IFormaCompra>(formasCompra, 'nome', 'uuid')}

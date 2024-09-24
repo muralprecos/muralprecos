@@ -35,7 +35,7 @@ export default async function PageCotacaoListagem() {
             <Divider className="my-4" />
             <FormRow className='flex flex-col items-start justify-start'>
               <Suspense fallback={<LoadingList/>}>
-                <ListItemLicitacao token={accessToken} />
+                <ListItemLicitacao/>
               </Suspense>
             </FormRow>
           </section>

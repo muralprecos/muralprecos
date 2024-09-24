@@ -65,7 +65,7 @@ const config = {
         token.refresh_token = user.refresh_token;
         token.error = user.error;
         logger.info("Token registred...");
-        logger.info(user);
+        // logger.info(user);
         return token;
       }
 

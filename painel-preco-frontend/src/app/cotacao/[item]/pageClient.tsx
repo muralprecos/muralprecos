@@ -9,19 +9,16 @@ import InfoText from "@/components/atoms/InfoText";
 import InfoTitle from "@/components/atoms/InfoTitle";
 import CartButton from "@/components/molecules/CartButton";
 import { isClientNextjs } from "@/utils/validateUtils";
-import { getItemLicitacao } from "@/hooks/api";
 import { addSnackError } from "@/utils/snackbarUtils";
 import { useSnackbar } from "notistack";
 import LoadingItem from "@/components/molecules/LoadingItem";
 import { strIfNotNull } from "@/utils/convertData";
-import { Session } from "next-auth";
 import { catchErrorFromFetch } from "@/utils/requestUtils";
 import BackButton from "@/components/atoms/BackButton";
+import { apiClientGetItemCotacao } from "@/hooks/apiclient";
 
 export interface IPropsViewItensLicitacao {
   params: { item: string }
-  session: Session | null
-  accessToken: string | null
 }
 
 const INFO_TYPE = {
@@ -33,8 +30,6 @@ const INFO_TYPE = {
 
 const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
   params,
-  session,
-  accessToken,
   ...opts
 }) => {
 
@@ -43,24 +38,22 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
   const [itemLicitacao, setItemLicitacao] = useState<IItemLicitacao|null>();
 
   useEffect(() => {
-    if (session != null && !!accessToken) {
-      const fetchData = async () => {
-        if (isClientNextjs()) {
-          setIsLoading ? setIsLoading(true) : null;
-          const req: IItemLicitacao | null = await getItemLicitacao({ info: [{ val: params.item, param: 'uuid' }], accessToken });
-          setIsLoading ? setIsLoading(false) : null;
-          if (req) {
-            setItemLicitacao(req);
-          } else {
-            addSnackError(enqueueSnackbar, 'Problema ao carregar item, tente novamente!');
-          }
+    const fetchData = async () => {
+      if (isClientNextjs()) {
+        setIsLoading ? setIsLoading(true) : null;
+        const req: IItemLicitacao | null = await apiClientGetItemCotacao([{ val: params.item, param: 'uuid' }]);
+        setIsLoading ? setIsLoading(false) : null;
+        if (req) {
+          setItemLicitacao(req);
+        } else {
+          addSnackError(enqueueSnackbar, 'Problema ao carregar item, tente novamente!');
         }
       }
-      fetchData().catch(e => {
-        catchErrorFromFetch(e, enqueueSnackbar, 'carregar item');
-      });
     }
-  }, [params, accessToken, session, setItemLicitacao, enqueueSnackbar]);
+    fetchData().catch(e => {
+      catchErrorFromFetch(e, enqueueSnackbar, 'carregar item');
+    });
+  }, [params, setItemLicitacao, enqueueSnackbar]);
 
   const showTitle = () => {
     return itemLicitacao != null ? itemLicitacao.descricao : isLoading ? 'Carregando Item...' : 'Item não encontrado';

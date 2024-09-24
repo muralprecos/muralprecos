@@ -8,11 +8,6 @@ services:
     image: painelpreco-frontend-test:latest
     # image: ghcr.io/ttsolutionspi/painel-precos-frontend:latest
     container_name: painel_precos_app_front
-    #build:
-      #context: ./
-      # target: dev
-      #target: production
-      #dockerfile: Dockerfile
     volumes:
         - /app/public
         - /app/node_modules

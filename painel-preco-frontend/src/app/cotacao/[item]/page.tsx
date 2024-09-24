@@ -14,6 +14,6 @@ export default async function PageItemCotacao({ params } : { params : { item: st
   }
 
   return (
-    <ViewItemLicitacao params={params}  session={session} accessToken={accessToken} />
+    <ViewItemLicitacao params={params} />
   );
 }

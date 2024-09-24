@@ -15,7 +15,6 @@ import LoadingList from "@/components/molecules/LoadingList";
 import ClipboardIcon from "@/components/atoms/icons/ClipboardIcon";
 import Link from "next/link";
 import ModalConfirm from "@/components/molecules/ModalConfirm";
-import { postDownloadItensCotacoes } from "@/hooks/api";
 import { DATE_PATTERN, convertTZptBR, datePattern } from "@/utils/dateUtils";
 import { downloadFile, mountUrl } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
@@ -26,14 +25,17 @@ import LoadingCircleIcon from "@/components/atoms/icons/LoadingCircleIcon";
 import Alert, { IAlertMessage } from "@/components/molecules/Alert";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import ResizebleScroll from "@/components/molecules/ResizebleScroll";
+import { getUserCartBySession, getUsernameBySession } from "@/utils/cartUtils";
+import { Session } from "next-auth";
+import { apiClientPostGerarPDFCotacao } from "@/hooks/apiclient";
 
 
 export interface IPropsCartPge {
-  accessToken: string | null
+  session: Session | null
 }
 
 const CartPage: React.FC<IPropsCartPge> = ({
-  accessToken,
+  session,
   ...opts
 }) => {
 
@@ -51,11 +53,11 @@ const CartPage: React.FC<IPropsCartPge> = ({
 
   const [alertMsg, setAlertMsg] = useState<IAlertMessage|null>(null);
   const { theme, setTheme } = useTheme();
-  const _cartList = useAppSelector((state) => state.cartReducer.value);
+  const _cartList = useAppSelector((state) => state.cartReducer);
   const [cart, setCart] = useState<IRetornoPesquisaItensLicitacao[]>([]);
 
   useEffect(() => {
-    setCart(_cartList);
+    setCart(getUserCartBySession(_cartList, session));
     setIsLoading(false);
   }, [_cartList]);
 
@@ -64,11 +66,14 @@ const CartPage: React.FC<IPropsCartPge> = ({
   }
 
   const onClickRemoveCart = (item: IRetornoPesquisaItensLicitacao) => {
-    dispatch(remove(item));
+    dispatch(remove({
+      item,
+      user: getUsernameBySession(session)
+    }));
   }
 
   const clearCart = () => {
-    dispatch(clear());
+    dispatch(clear(getUsernameBySession(session)));
   }
 
   const selectItem = async (uuid : string) => {
@@ -80,14 +85,10 @@ const CartPage: React.FC<IPropsCartPge> = ({
   }
 
   const generatePDF = async () => {
-    if (accessToken == null) {
-      addSnackError(enqueueSnackbar, 'Realize o Login novamente e repita a operação.');
-      return;
-    }
     try {
       setDoingRequest(true);
       const now = convertTZptBR(new Date());
-      const res = await postDownloadItensCotacoes(_cartList, accessToken);
+      const res = await apiClientPostGerarPDFCotacao(cart);
       setDoingRequest(false);
       if (res != null) {
         if (res instanceof Blob) {
@@ -98,8 +99,8 @@ const CartPage: React.FC<IPropsCartPge> = ({
           });
           addSnackSuccess(enqueueSnackbar, 'Iniciando download da cotação!');
           clearCart();
-        } else if (res.error) {
-          addSnackError(enqueueSnackbar, res.error);
+        } else {
+          addSnackError(enqueueSnackbar, 'Não foi possível gerar o arquivo da cotação');
         }
       } else {
         addSnackError(enqueueSnackbar, 'Nenhum arquivo retornado!');

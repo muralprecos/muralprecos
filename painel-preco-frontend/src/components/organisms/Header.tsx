@@ -10,6 +10,7 @@ import HeaderUserInfo from "../molecules/HeaderUserInfo";
 import { logoutAction } from "@/app/action/logoutActions";
 import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 import { Session } from "next-auth";
+import { getUserCartBySession } from "@/utils/cartUtils";
 const { version } = require('@/../package.json');
 
 export interface ILink {
@@ -33,7 +34,7 @@ const Header: React.FC<FormTitleProps> = ({
 }) => {
 
   const pathname = usePathname();
-  const _cartList = useAppSelector((state) => state.cartReducer.value);
+  const _cartList = useAppSelector((state) => state.cartReducer);
 
   const [username, setUsername] = React.useState<string>('');
   const [cartsize, setCartsize] = React.useState<number>(0);
@@ -46,7 +47,8 @@ const Header: React.FC<FormTitleProps> = ({
   }, [session])
 
   useEffect(() => {
-    setCartsize(_cartList.length);
+    const ulist = getUserCartBySession(_cartList, session);
+    setCartsize(ulist.length);
   }, [_cartList])
 
   const activeLink = (url: string, pathname: string) => {

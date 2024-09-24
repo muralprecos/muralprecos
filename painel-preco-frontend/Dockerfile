@@ -1,17 +1,24 @@
-FROM node:18-alpine AS build
+FROM node:18-alpine AS base
+
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package*.json ./
+#RUN npm update && npm install
 RUN npm install -g npm@10.4.0
 RUN npm ci
+
+
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
-RUN npm run build --debug
+RUN npm run build
 
-FROM node:18-alpine AS runtime
+
+FROM node:18-alpine AS runner
 WORKDIR /app
-COPY package*.json ./
-RUN npm install -g npm@10.4.0
-RUN npm ci
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
@@ -19,13 +26,15 @@ RUN adduser --system --uid 1001 nextjs
 RUN mkdir -p /appserverlogs
 RUN chown nextjs:nodejs /appserverlogs
 RUN chmod 755 /appserverlogs
-COPY --from=build --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=build /app/public ./public
-COPY --from=build /app/next.config.js ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/.env.production ./.env.production
+COPY --from=builder /app/public ./public
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs
 EXPOSE 3000
 ENV PORT 3000
-CMD ["npm", "run", "start", "--loglevel=verbose"]
+
+CMD ["node", "server.js"]
