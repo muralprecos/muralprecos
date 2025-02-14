@@ -17,7 +17,7 @@ public class LicitacaoObj {
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id_licitacao_obj")
+	@Column(name = "id_licitacao")
 	private Long id;
 	
 	/** Objeto da Compra **/

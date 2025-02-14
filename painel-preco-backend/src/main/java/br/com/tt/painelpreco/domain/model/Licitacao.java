@@ -36,7 +36,7 @@ public class Licitacao {
 	
 	private UUID uuid;
 	
-	private Integer numero;
+	private String numero;
 	
 	/** UASG */
 	@ManyToOne

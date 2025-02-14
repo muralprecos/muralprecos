@@ -14,7 +14,7 @@ import lombok.Setter;
 public class LicitacaoDTO {
 	
 	private UUID uuid;
-	private Integer numero;
+	private String numero;
 	private UnidadeGestoraDTO unidadeGestora;
 	private ModalidadeCompraDTO modalidadeCompra;
 	private String numeroProcesso;

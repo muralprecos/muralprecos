@@ -81,7 +81,7 @@ public class ItemLicitacao {
 	
 	public List<Link> getLinks() {
 		Integer uasg = licitacao.getUnidadeGestora().getCodigo();
-		Integer numLicitacao = licitacao.getNumero();
+		String numLicitacao = licitacao.getNumero();
 		Integer codModalidade = licitacao.getModalidadeCompra().getCodigo();
 		String url = "http://comprasnet.gov.br/livre/pregao/ata2.asp?co_no_uasg=" + uasg + "&numprp=" + numLicitacao + "&codigoModalidade=" + codModalidade + "&f_lstSrp=T&f_Uf=&f_numPrp=0&f_codUasg=" + uasg + "&f_codMod=" + codModalidade + "&f_tpPregao=E&f_lstICMS=T&f_dtAberturaIni=&f_dtAberturaFim=";
 		links.add(new Link(licitacao.getNumeroFormatado(), url));

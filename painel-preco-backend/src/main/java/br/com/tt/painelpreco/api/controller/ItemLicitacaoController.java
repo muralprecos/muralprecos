@@ -69,7 +69,8 @@ public class ItemLicitacaoController {
 			if (filter.isDescricaoOnly())
 				itens = itemLicitacaoDescService.listaByDescricao(filter.getDescricao(), pageable);
 			if (filter.isDescricaoComplmentarOnly())
-				itens = itemLicitacaoDescCompService.listaByDescricaoComplementar(filter.getDescricaoComplementar(), pageable);
+//				itens = itemLicitacaoDescCompService.listaByDescricaoComplementar(filter.getDescricaoComplementar(), pageable);
+				itens = itemLicitacaoDescService.listaByDescricao(filter.getDescricao(), pageable);
 		} else {			
 			itens = itemLicitacaoService.listaByFilter(ItemLicitacaoSpecs.filtroGeral(filter), pageable);
 		}

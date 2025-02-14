@@ -10,7 +10,11 @@ import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 
 public interface ItemLicitacaoDescRepository extends JpaRepository<ItemLicitacao, Integer>, JpaSpecificationExecutor<ItemLicitacao> {
 
-	@Query("SELECT new ItemLicitacaoDesc(il.descricao) FROM ItemLicitacaoDesc il WHERE UPPER(il.descricao) LIKE UPPER(:descricao) ORDER BY il.descricao")
+	@Query("SELECT new ItemLicitacao(il.descricao) "
+			+ "FROM ItemLicitacao il "
+			+ "WHERE UPPER(il.descricao) LIKE UPPER(:descricao) "
+			+ "OR UPPER(il.descricaoComplementar) LIKE UPPER(:descricao) "
+			+ "ORDER BY il.descricao")
 	Page<ItemLicitacao> findAllByDescricao(String descricao, Pageable pageable);
 	
 }
