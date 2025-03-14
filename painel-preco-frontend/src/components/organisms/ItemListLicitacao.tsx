@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import CartButton from "../molecules/CartButton";
 import ClipboardIcon from "../atoms/icons/ClipboardIcon";
 import { mountUrl } from "@/utils/requestUtils";
+import { formatCurrency, parseCurrency, calcUnityValueByQuantity } from "@/utils/formatCurrency";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
 
@@ -49,9 +50,9 @@ const ItemListLicitacao: React.FC<IProps> = ({
                     <div className="flex flex-col gap-0">
                       <h3 className="font-semibold text-foreground/90">{i.descricao}</h3>
                       <p className="text-small mt-1 text-foreground/80">
-                        Quantidade: {i.quantidade} {i.unidadeFornecimento?.nome}
+                        Quantidade: {i.quantidade} | Unidade: {i.unidadeFornecimento?.nome}
                       </p>
-                      <h1 className="text-small font-medium">Valor: {i.valor}</h1>
+                      <h1 className="text-small font-medium">Valor: {i.valor} | Valor da Unidade: {formatCurrency(calcUnityValueByQuantity(parseCurrency(i.valor), i.quantidade))}</h1>
                     </div>
                   </div>
                 </div>

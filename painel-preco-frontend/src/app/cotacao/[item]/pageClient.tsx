@@ -10,6 +10,7 @@ import InfoTitle from "@/components/atoms/InfoTitle";
 import CartButton from "@/components/molecules/CartButton";
 import { isClientNextjs } from "@/utils/validateUtils";
 import { addSnackError } from "@/utils/snackbarUtils";
+import { formatCurrency, parseCurrency, calcUnityValueByQuantity } from "@/utils/formatCurrency";
 import { useSnackbar } from "notistack";
 import LoadingItem from "@/components/molecules/LoadingItem";
 import { strIfNotNull } from "@/utils/convertData";
@@ -86,7 +87,8 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
     if (keys instanceof Set) {
       const it = keys.values();
       const first = it.next();
-      setSelectedKeys(new Set([first.value]));
+      const key = first.value || '';
+      setSelectedKeys(new Set([key]));
     }
   }
   const hasSelectedValue = (vals:string[]) => {
@@ -154,14 +156,22 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           <Divider orientation="horizontal" />
                           <Spacer y={3} />
                           <FormRow>
-                            <InfoText label="Unidade" orientarion="row">
-                              {strIfNotNull(itemLicitacao?.unidadeFornecimento?.nome)}
-                            </InfoText>
                             <InfoText label="Quantidade" orientarion="row">
                               {strIfNotNull(itemLicitacao?.quantidade)}
                             </InfoText>
-                            <InfoText label="Valor" orientarion="row">
+                            <InfoText label="Unidade" orientarion="row">
+                              {strIfNotNull(itemLicitacao?.unidadeFornecimento?.nome)}
+                            </InfoText>
+                          </FormRow>
+                          <Divider orientation="horizontal" />
+                          <FormRow>
+                            <InfoText label="Valor Total" orientarion="row">
                               {strIfNotNull(itemLicitacao?.valor)}
+                            </InfoText>
+                            <InfoText label="Valor por Unidade" orientarion="row">
+                              {strIfNotNull(
+                                formatCurrency(calcUnityValueByQuantity(parseCurrency(itemLicitacao?.valor), itemLicitacao?.quantidade))
+                              )}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
@@ -171,12 +181,14 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
-                          <FormRow>
+                          {/* <FormRow>
                             <InfoText label="Descrição Complementar">
                               {strIfNotNull(itemLicitacao?.descricaoComplementar)}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
+                          */}
+                          
                           <FormRow>
                             <InfoText label="Unidade de Fornecimento">
                               {/* (CatMat: {strIfNotNull(itemLicitacao?.material?.codigo)}) - {itemLicitacao?.material?.nome} */}
