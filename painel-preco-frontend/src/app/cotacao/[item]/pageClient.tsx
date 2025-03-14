@@ -178,8 +178,9 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
-                            <InfoText label="Material">
-                              (CatMat: {strIfNotNull(itemLicitacao?.material?.codigo)}) - {itemLicitacao?.material?.nome}
+                            <InfoText label="Unidade de Fornecimento">
+                              {/* (CatMat: {strIfNotNull(itemLicitacao?.material?.codigo)}) - {itemLicitacao?.material?.nome} */}
+                              {strIfNotNull(itemLicitacao?.unidadeFornecimento?.nome)}
                             </InfoText>
                           </FormRow>
                           <Divider orientation="horizontal" />
@@ -244,8 +245,8 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
-                            <InfoText label="Forma Compra">
-                              {strIfNotNull(itemLicitacao?.licitacao.formaCompra.nome)} ({strIfNotNull(itemLicitacao?.licitacao.formaCompra.sigla)})
+                            <InfoText label="Modo de Disputa">
+                              {strIfNotNull(itemLicitacao?.licitacao.formaCompra.nome)}
                             </InfoText>
                             <InfoText label="Modalidade Compra">
                               {strIfNotNull(itemLicitacao?.licitacao.modalidadeCompra.nome)} ({strIfNotNull(itemLicitacao?.licitacao.modalidadeCompra.codigo)})
@@ -253,7 +254,7 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           </FormRow>
                           <Divider orientation="horizontal" />
                           <FormRow>
-                            <InfoText label="Unidade Gestora">
+                            <InfoText label="Unidade">
                               {strIfNotNull(itemLicitacao?.licitacao.unidadeGestora.nome)} ({strIfNotNull(itemLicitacao?.licitacao.unidadeGestora.codigo)})
                             </InfoText>
                           </FormRow>
@@ -261,7 +262,8 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                           <FormRow>
                             <InfoText label="Órgão">
                               { itemLicitacao?.licitacao.orgao != null ? <>
-                                {strIfNotNull(itemLicitacao?.licitacao.orgao.nome)} ({strIfNotNull(itemLicitacao?.licitacao.orgao.codigo)})
+                                {strIfNotNull(itemLicitacao?.licitacao.orgao.nome)} 
+                                {/* ({strIfNotNull(itemLicitacao?.licitacao.orgao.codigo)}) */}
                               </> : '-' }
                             </InfoText>
                           </FormRow>
@@ -271,7 +273,8 @@ const ViewItemLicitacao: React.FC<IPropsViewItensLicitacao> = ({
                               <Divider orientation="horizontal" />
                               <FormRow>
                                 <InfoText label="Órgão Superior">
-                                  {strIfNotNull(itemLicitacao?.licitacao.orgaoSuperior.nome)} ({strIfNotNull(itemLicitacao?.licitacao.orgaoSuperior.codigo)})
+                                  {strIfNotNull(itemLicitacao?.licitacao.orgaoSuperior.nome)} 
+                                  {/* ({strIfNotNull(itemLicitacao?.licitacao.orgaoSuperior.codigo)}) */}
                                 </InfoText>
                               </FormRow>
                             </div>

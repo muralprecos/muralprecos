@@ -163,7 +163,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
     ano: { type: 'autocompletStatic', label: 'Ano da Compra', items: anosCompras },
     porteFornecedor: { type: 'autocompletStatic', label: 'Porte da Empresa', items: empresaPorte },
     esferaId: { type: 'autocompletStatic', label: 'Esfera', items: esferas },
-    formaCompraId: { type: 'autocompletStatic', label: 'Forma da Compra', items: compraFormas },
+    formaCompraId: { type: 'autocompletStatic', label: 'Mode de Disputa', items: compraFormas },
     modalidadeCompraId: { type: 'autocompletStatic', label: 'Modalidade Compra', items: compraModalidades },
     periodoCompraId: { type: 'autocompletStatic', label: 'Período da Compra', items: compraPeriodos },
 
@@ -201,7 +201,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
       attrVal: "uuid",
       apiFindDesc: getNomeMaterialDesc
     }},
-    ugId: { type: 'autocompleteAsync', label: 'Unidade Gestora', auto: {
+    ugId: { type: 'autocompleteAsync', label: 'Unidade', auto: {
       async: useAutocompleteFilter<IUnidadeGestora>({ getList: apiClientGetListUASG }),
       attrVal: "uuid",
       apiFindDesc: getUASGDesc
@@ -355,7 +355,7 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
         <FormRow className={classname_rowmobile}>
           <div className="basis-3/4">
-            <InputForm name="descricao" label="Descrição" control={control} errors={errors} />
+            <InputForm name="descricao" label="Descrição do Item" control={control} errors={errors} />
           </div>
           <div className="flex basis-1/4 justify-items-center items-center">
             <Button color="default" variant="ghost" onClick={handleAdvancedFormClick} fullWidth className='h-full min-h-12'>
@@ -372,13 +372,19 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
             <Divider />
 
             <FormRow className={classname_rowmobile}>
+              {/*
               <div className="basis-1/2">
-              {/* { mountFieldForm("descricao", fields.descricao) } */}
+               { mountFieldForm("descricao", fields.descricao) }
                 <InputForm name="descricaoComplementar" label="Descrição Complementar" control={control} errors={errors} />
               </div>
+              */}
               <div className="basis-1/2">
                 {/* { mountFieldForm("descricaoComplementar", fields.descricaoComplementar) } */}
                 <InputForm name="objeto" label="Objeto" control={control} errors={errors} />
+              </div>
+              
+              <div className="basis-1/2">
+                { mountFieldForm("unidade_fornecimento", fields.unidade_fornecimento) }
               </div>
             </FormRow>
 
@@ -407,33 +413,33 @@ const SearchItensLicitacaoForm: React.FC<IPropsSearchItensLicitacaoForm> = ({
             </FormRow>
 
             <FormRow className={classname_rowmobile}>
+              {/* 
               <div className="basis-1/2">
                 { mountFieldForm("orgaoSuperiorId", fields.orgaoSuperiorId) }
               </div>
+              */}
 
               <div className="basis-1/2">
                 { mountFieldForm("orgaoId", fields.orgaoId) }
               </div>
+
+              <div className="basis-1/2">
+                { mountFieldForm("ugId", fields.ugId) }
+              </div>
             </FormRow>
 
+            {/*
             <FormRow className={classname_rowmobile}>
+              
               <div className="basis-1/2">
                 { mountFieldForm("fornecedorId", fields.fornecedorId) }
               </div>
-
+              
               <div className="basis-1/2">
                 { mountFieldForm("materialId", fields.materialId) }
               </div>
             </FormRow>
-
-            <FormRow className={classname_rowmobile}>
-              <div className="basis-1/2">
-                { mountFieldForm("ugId", fields.ugId) }
-              </div>
-              <div className="basis-1/2">
-                { mountFieldForm("unidade_fornecimento", fields.unidade_fornecimento) }
-              </div>
-            </FormRow>
+            */}
             </>
         )}
 

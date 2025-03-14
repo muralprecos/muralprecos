@@ -260,3 +260,9 @@ https://orizens.com/blog/integrating-react-hook-form-and-redux-toolkit-rtk/
 
 Print de tela de exemplo:
 https://github.com/orgs/TTSolutionsPI/projects/1?pane=issue&itemId=33720481
+
+
+========
+
+Anotações após modificações nas APIs:
+- Material: CatMat sempre vazio, não é retornado informação de material (${HOST_API_PREFIX}/itens-licitacao/${uuid})
