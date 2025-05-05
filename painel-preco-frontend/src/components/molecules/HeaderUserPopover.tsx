@@ -3,17 +3,20 @@
 import React from "react";
 import { Avatar, Card, CardBody, CardFooter, CardHeader, Chip, Listbox, ListboxItem } from "@nextui-org/react";
 import ThemeSwitcher from "./ThemeSwitcher";
+import { IUserInfo } from "@/interfaces/types";
 const { version } = require('@/../package.json');
 
 type HeaderUserPopoverProps = {
-  username: string
+  userInfo: IUserInfo
   cartsize: number
+  gravatar: string|undefined
   logout: (event: React.MouseEvent<HTMLElement>) => void
 } //& React.AllHTMLAttributes<HTMLElement>
 
 const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
-  username,
+  userInfo,
   cartsize,
+  gravatar,
   logout,
   ...opts
 }) => {
@@ -23,12 +26,12 @@ const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
       <CardHeader className="justify-between">
         <div className="flex gap-3 min-w-[200px]">
           <Avatar isBordered radius="full" size="md"
-            name={username}
-            // src="https://i.pravatar.cc/150?u=a04258114e29026702d"
+            name={userInfo.name}
+            src={gravatar}
             />
           <div className="flex flex-col items-start justify-center">
-            <h4 className="text-small font-semibold leading-none text-default-600">{username}</h4>
-            <h5 className="text-tiny tracking-tight text-default-500">Administrador</h5>
+            <h4 className="text-small font-semibold leading-none text-default-600">{userInfo.name}</h4>
+            <h5 className="text-tiny tracking-tight text-default-500">{userInfo.organizacao?.nome}</h5>
           </div>
         </div>
         <ThemeSwitcher />

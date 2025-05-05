@@ -11,6 +11,8 @@ import { logoutAction } from "@/app/action/logoutActions";
 import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 import { Session } from "next-auth";
 import { getUserCartBySession } from "@/utils/cartUtils";
+import { IUserInfo } from "@/interfaces/types";
+import { getUserBySession } from "@/utils/sessionTokenAccessor";
 const { version } = require('@/../package.json');
 
 export interface ILink {
@@ -36,13 +38,13 @@ const Header: React.FC<FormTitleProps> = ({
   const pathname = usePathname();
   const _cartList = useAppSelector((state) => state.cartReducer);
 
-  const [username, setUsername] = React.useState<string>('');
+  const [userInfo, setUserInfo] = React.useState<IUserInfo|null>(null);
   const [cartsize, setCartsize] = React.useState<number>(0);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   useEffect(() => {
     if (session?.userInfo?.name) {
-      setUsername(session?.userInfo?.name);
+      setUserInfo(getUserBySession(session));
     }
   }, [session])
 
@@ -126,7 +128,7 @@ const Header: React.FC<FormTitleProps> = ({
                     </>
                   ) : (
                     <>
-                      <HeaderUserInfo cartsize={cartsize} username={username} logout={onClickLogout} />
+                      { userInfo && <HeaderUserInfo cartsize={cartsize} userInfo={userInfo} logout={onClickLogout} /> }
                     </>
                   )}
                 </NavbarContent>

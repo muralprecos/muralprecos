@@ -71,7 +71,7 @@ const config = {
 
       const isAuth = await authCheckSession(token);
       if (isAuth) {
-        logger.info(`jwt ativo`);
+        // logger.info(`jwt ativo`);
         return token;
       }
       // token expirou ou não existe
@@ -87,7 +87,7 @@ const config = {
     async session({ session, token }) {
       //properties to the client without encrypt
       if (token) {
-        logger.info("session com token");
+        // logger.info("session com token");
         session.access_token = encrypt(`${token.access_token}`); // see utils/sessionTokenAccessor.js
         session.id_token = encrypt(`${token.id_token}`);  // see utils/sessionTokenAccessor.js
         session.userInfo = token.decoded;
