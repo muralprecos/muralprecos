@@ -9,7 +9,7 @@ export async function get_gravatar (email: string, size?: number): Promise<strin
 
   const s = size || 80;
   try {
-    const URL = 'http://www.gravatar.com/avatar/' + MD5(email) + '.jpg?s=' + s;
+    const URL = 'https://www.gravatar.com/avatar/' + MD5(email) + '.jpg?s=' + s;
     const response = await fetch(URL + '&d=404');
 
     if (response.status === 200) {
