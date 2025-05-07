@@ -2,6 +2,7 @@
 import { auth } from "auth";
 import { decrypt } from "./encryption";
 import { Session } from "next-auth";
+import { IUserInfo } from "@/interfaces/types";
 
 export async function getAccessToken() {
   const session = await auth();
@@ -59,6 +60,19 @@ export async function getAccessTokenClient(session: Session|null) {
   if (!!session && !!session.access_token) {    
     const accessTokenDecrypted = decrypt(session.access_token)    
     return accessTokenDecrypted;
+  }
+  return null;
+}
+
+export function getUserBySession(session: Session|null) : IUserInfo | null {
+  if (!!session && !!session.access_token) {
+    const {
+      name, given_name, family_name, email, email_verified, organizacao, preferred_username, realm_access
+    } = session.userInfo;
+  
+    return {
+      name, given_name, family_name, email, email_verified, organizacao, preferred_username, realm_access
+    }
   }
   return null;
 }

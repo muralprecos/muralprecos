@@ -9,7 +9,6 @@ import { IUserInfo } from "@/interfaces/types";
 import { loginRefreshToken } from "@/app/action/loginRefreshTokenActions";
 import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 import { authCheckSession } from "@/app/action/authCheckSession";
-import { logoutAction } from "@/app/action/logoutActions";
 
 const credentialsConfig = CredentialsProvider({
   name: "credentials",
@@ -56,7 +55,7 @@ const config = {
       if (pathname === "/middlewareProtected") return !!auth;
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       // apenas na primeira chamada de login
       if (user) {
         token.decoded = jwtDecode<IUserInfo>(`${user.access_token}`);
@@ -69,9 +68,16 @@ const config = {
         return token;
       }
 
+      if (trigger === "update") {
+        token.updateFirstName = session.firstName;
+        token.updateLastName = session.lastName;
+        token.updateName = session.firstName + ' ' + session.lastName;
+        token.updateEmail = session.email;
+      }
+
       const isAuth = await authCheckSession(token);
       if (isAuth) {
-        logger.info(`jwt ativo`);
+        // logger.info(`jwt ativo`);
         return token;
       }
       // token expirou ou não existe
@@ -87,12 +93,30 @@ const config = {
     async session({ session, token }) {
       //properties to the client without encrypt
       if (token) {
-        logger.info("session com token");
+        // logger.info("session com token");
         session.access_token = encrypt(`${token.access_token}`); // see utils/sessionTokenAccessor.js
         session.id_token = encrypt(`${token.id_token}`);  // see utils/sessionTokenAccessor.js
         session.userInfo = token.decoded;
         session.roles = token.decoded.realm_access.roles;
         session.error = token.error;
+
+        //forcar atualizar propriedades apos update de usuario
+        if (token.updateFirstName) {
+          session.userInfo.given_name = token.updateFirstName;
+        }
+        if (token.updateLastName) {
+          session.userInfo.family_name = token.updateLastName;
+        }
+        if (token.updateEmail) {
+          session.userInfo.email = token.updateEmail;
+        }
+        if (token.updateName) {
+          session.userInfo.name = token.updateName;
+        }
+        delete token.updateFirstName;
+        delete token.updateLastName;
+        delete token.updateFirstName;
+        delete token.updateName;
       }
       return session;
     },

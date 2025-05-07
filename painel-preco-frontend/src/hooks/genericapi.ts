@@ -120,7 +120,7 @@ export const postGenericBlob =  async (
   ) : Promise<Blob|ResponseError|null> => {
     try {
       const res = await reqBodyGeneric<Blob>({ path, bodydata, acceptType, accessToken, method: 'POST' });
-      return res.status ? res.data?.blob() : res.data?.json();
+      return res.status ? res.data ? res.data.blob() : null : null;
     } catch (e) {
       throw new Error('Ocorreu um problema na requisição para o servidor.');
     }

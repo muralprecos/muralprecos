@@ -2,11 +2,15 @@
 import { Divider } from "@nextui-org/react";
 import NoSSR from "./NoSSR";
 
+type HTMLHeadingElements = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'div' | 'section';
+
 type FormTitleProps = {
   title: string
-  children: React.ReactNode
+  children?: React.ReactNode
   isNoSSR?: boolean
   gap?: number
+  addClassName?: string
+  as?: HTMLHeadingElements
 } & React.AllHTMLAttributes<HTMLElement>
 
 const FormTitle: React.FC<FormTitleProps> = ({
@@ -14,12 +18,14 @@ const FormTitle: React.FC<FormTitleProps> = ({
   children,
   isNoSSR=false,
   gap=3,
+  addClassName,
+  as: Tag = "h1",
   ...opts
 }) => {
 
   const _className = opts.className;
   delete opts.className;
-  const defaultClassName = `text-lg font-bold uppercase text-primary-title flex sm:flex-row sm:items-center sm:justify-between flex-col justify-start items-start w-full px-2 gap-${gap}`;
+  const defaultClassName = `text-lg font-bold uppercase text-primary-title flex sm:flex-row sm:items-center sm:justify-between flex-col justify-start items-start w-full px-2 gap-${gap} ${addClassName}`;
 
   const buttonArea = <>
     <Divider className="my-1 sm:hidden" />
@@ -29,7 +35,7 @@ const FormTitle: React.FC<FormTitleProps> = ({
   </>;
 
   return (
-    <h1 className={_className || defaultClassName} { ...opts}>
+    <Tag className={_className || defaultClassName} { ...opts}>
       <div className="flex-auto w-full">
         {title}
       </div>
@@ -41,8 +47,7 @@ const FormTitle: React.FC<FormTitleProps> = ({
           {buttonArea}
         </>
       }
-      
-    </h1>
+    </Tag>
   );
 };
 

@@ -23,6 +23,8 @@ import LoadingCircleIcon from "../atoms/icons/LoadingCircleIcon";
 import EyeIcon from "../atoms/icons/EyeIcon";
 import EyeClosedIcon from "../atoms/icons/EyeClosedIcon";
 import IconTheme from "../atoms/IconTheme";
+import { logoutAction } from "@/app/action/logoutActions";
+import { Session } from "next-auth";
 
 const schema = yup.object({
   login: yup.string().required(yupStrings.required),
@@ -36,6 +38,7 @@ const initialForm: FormData = {
 }
 
 type Props = {
+  session: Session | null;
   className?: string;
   callbackUrl?: string;
   error?: string;
@@ -91,12 +94,6 @@ const Login = (props: Props) => {
   }
 
   useEffect(() => {
-    if (status == "authenticated") {
-      router.push(INITIAL_PAGE_LOGGED);
-    }
-  }, [router, status, session]);
-
-  useEffect(() => {
     if (!!props.error) {
       addSnackError(enqueueSnackbar, props.error);
     }
@@ -108,10 +105,6 @@ const Login = (props: Props) => {
     })
   }
 
-
-  if (status == "authenticated") {
-    return <SimpleInformationPage title={messages.PAGE_REDIRECT} />
-  }
   if (status == "loading" || loginSuccessWaitingNewPage) return <LoadingPage/>
 
   return (

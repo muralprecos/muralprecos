@@ -29,6 +29,7 @@ export default async function RootLayout({
   const session = await auth();
   
   const linksHeader : ILink[] = [
+    {description: 'Perfil do Usuário', link: '/usuario/perfil', access: 'private', onlyVisible: 'mobile' },
     {description: 'Realizar Cotação', link: '/cotacao', access: 'private' },
     {description: 'Histórico', link: '/cotacao/historico', access: 'private' },
     {description: 'Carrinho', link: '/carrinho', access: 'private' },

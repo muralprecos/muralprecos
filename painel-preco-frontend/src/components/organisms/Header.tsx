@@ -11,6 +11,8 @@ import { logoutAction } from "@/app/action/logoutActions";
 import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
 import { Session } from "next-auth";
 import { getUserCartBySession } from "@/utils/cartUtils";
+import { IUserInfo } from "@/interfaces/types";
+import { getUserBySession } from "@/utils/sessionTokenAccessor";
 const { version } = require('@/../package.json');
 
 export interface ILink {
@@ -18,6 +20,7 @@ export interface ILink {
   link: string
   access: 'private' | 'public' | 'all'
   isExternal?: boolean
+  onlyVisible?: 'mobile' | 'desktop'
 }
 
 type FormTitleProps = {
@@ -36,20 +39,20 @@ const Header: React.FC<FormTitleProps> = ({
   const pathname = usePathname();
   const _cartList = useAppSelector((state) => state.cartReducer);
 
-  const [username, setUsername] = React.useState<string>('');
+  const [userInfo, setUserInfo] = React.useState<IUserInfo|null>(null);
   const [cartsize, setCartsize] = React.useState<number>(0);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   useEffect(() => {
     if (session?.userInfo?.name) {
-      setUsername(session?.userInfo?.name);
+      setUserInfo(getUserBySession(session));
     }
   }, [session])
 
   useEffect(() => {
     const ulist = getUserCartBySession(_cartList, session);
     setCartsize(ulist.length);
-  }, [_cartList])
+  }, [_cartList, session])
 
   const activeLink = (url: string, pathname: string) => {
     return pathname === url
@@ -59,12 +62,15 @@ const Header: React.FC<FormTitleProps> = ({
     return session?.userInfo?.name != null && session?.userInfo?.name != '';
   }
 
-  const showLink = (item : ILink) : boolean => {
-    return item.access === 'all' || (item.access === 'private' && isLogged()) || (item.access === 'public' && !isLogged());
+  const showLink = (item : ILink, menuStyle : 'topbar' | 'stack') : boolean => {
+    const access = item.access === 'all' || (item.access === 'private' && isLogged()) || (item.access === 'public' && !isLogged());
+    return !item.onlyVisible ? access
+      : item.onlyVisible === 'mobile' && menuStyle === 'stack' ? access
+      : item.onlyVisible === 'desktop' && menuStyle === 'topbar' ? access
+      : false;
   }
 
-  const onClickLogout = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
+  const onClickLogout = () => {
     logoutAction();
   };
 
@@ -99,7 +105,7 @@ const Header: React.FC<FormTitleProps> = ({
                   </Link>
                 </NavbarBrand>
                 {links.map((item, index) => {
-                  if (showLink(item)) {
+                  if (showLink(item, 'topbar')) {
                     return  <NavbarItem key={`${item.description}-${index}`} isActive={activeLink(item.link, pathname)}>
                       <Link
                         className="w-full"
@@ -126,7 +132,7 @@ const Header: React.FC<FormTitleProps> = ({
                     </>
                   ) : (
                     <>
-                      <HeaderUserInfo cartsize={cartsize} username={username} logout={onClickLogout} />
+                      { userInfo && <HeaderUserInfo cartsize={cartsize} userInfo={userInfo} logout={onClickLogout} /> }
                     </>
                   )}
                 </NavbarContent>
@@ -138,7 +144,7 @@ const Header: React.FC<FormTitleProps> = ({
             <NavbarMenu className="justify-between pb-16" >
               <div className="flex flex-col gap-3">
                 {links.map((item, index) => {
-                  if (showLink(item)) {
+                  if (showLink(item, 'stack')) {
                     return <NavbarMenuItem key={`${item.description}-${index}`}>
                               <Link
                                   className="w-full"
