@@ -259,6 +259,13 @@ export interface IUserInfo {
   }
 }
 
+export interface IUserKeyCloakRequest {
+  firstName: string
+  lastName: string
+  email: string
+  newPassword?: string
+}
+
 export interface IUserAuth {
   username: string
   password: string

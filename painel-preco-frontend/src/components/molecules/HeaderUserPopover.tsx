@@ -1,7 +1,7 @@
 'use client'
 
-import React from "react";
-import { Avatar, Card, CardBody, CardFooter, CardHeader, Chip, Listbox, ListboxItem } from "@nextui-org/react";
+import React, { useState } from "react";
+import { Avatar, Card, CardBody, CardFooter, CardHeader, Chip, Divider, Listbox, ListboxItem } from "@nextui-org/react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { IUserInfo } from "@/interfaces/types";
 const { version } = require('@/../package.json');
@@ -21,6 +21,13 @@ const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
   ...opts
 }) => {
 
+  const [loading, setLoading] = useState<boolean>();
+
+  const handleLogout = async (event: React.MouseEvent<HTMLElement>) => {
+    setLoading(true);
+    await logout(event);
+  }
+
   return (
     <Card shadow="none" className="max-w-[300px] border-none bg-transparent">
       <CardHeader className="justify-between">
@@ -36,17 +43,20 @@ const HeaderUserPopover: React.FC<HeaderUserPopoverProps> = ({
         </div>
         <ThemeSwitcher />
       </CardHeader>
-      <CardBody className="px-3 py-0">
+      <Divider />
+      <CardBody className="px-3 py-0 mt-2">
         <Listbox
           aria-label="Actions"
         >
+          <ListboxItem showDivider key="perfil" href="/usuario/perfil">Editar Perfil</ListboxItem>
           <ListboxItem key="edit" href="/cotacao">Realizar Cotação</ListboxItem>
-          {/* <ListboxItem key="edit" href="/">Editar Perfil</ListboxItem> */}
           <ListboxItem key="cart" href="/carrinho" endContent={cartsize > 0 ? <Chip size="sm" radius="sm" color="primary">{cartsize}</Chip> : ''
           }>Ver Carrinho</ListboxItem>
           <ListboxItem key="history" href="/cotacao/historico">Histórico de Cotações</ListboxItem>
-          <ListboxItem key="validacao" href="/cotacao/validacao">Validar Cotação</ListboxItem>
-          <ListboxItem key="logout" className="text-danger" color="danger" onClick={(e) => {logout(e)}}>Sair da Conta</ListboxItem>
+          <ListboxItem showDivider key="validacao" href="/cotacao/validacao">Validar Cotação</ListboxItem>
+          <ListboxItem key="logout" className="text-danger" color="danger" onClick={handleLogout} isDisabled={loading}>
+            { !loading ? 'Sair da Conta' : 'Saindo...' }
+          </ListboxItem>
         </Listbox>
       </CardBody>
       <CardFooter className="gap-1">

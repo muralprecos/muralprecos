@@ -6,8 +6,10 @@ export default async function Home() {
 
   const session = await auth();
   if (!session || !session.userInfo) {
+    console.log('HOME PAGE_LOGIN')
     redirect(INITIAL_PAGE_LOGIN);
   } else {
+    console.log('HOME LOGGED')
     redirect(INITIAL_PAGE_LOGGED);
   }
 

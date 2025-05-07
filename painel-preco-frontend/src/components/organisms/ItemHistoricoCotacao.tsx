@@ -64,7 +64,7 @@ const ItemHistoricoCotacao: React.FC<IProps> = ({
                         Cotação realizada em: {i.criadoEm}
                       </p>
                       <p className="text-small mt-1 text-foreground/80">
-                        Código de Validação: <Button type="button" variant="flat" color="primary" onPress={() => router.push(`/cotacao/validacao/${i.hashValidacao}`) }>{i.hashValidacao}</Button>
+                        Código de Validação: <Button type="button" variant="ghost" color="primary" onPress={() => router.push(`/cotacao/validacao/${i.hashValidacao}`) }>{i.hashValidacao}</Button>
                       </p>
                     </div>
                   </div>

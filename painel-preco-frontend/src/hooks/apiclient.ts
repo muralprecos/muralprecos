@@ -1,4 +1,4 @@
-import { IAPISearchInfo, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
+import { IAPISearchInfo, IRetornoPesquisaItensLicitacao, IUserKeyCloakRequest } from "@/interfaces/types";
 import { getValParamSearch } from "@/utils/searchParamUtils";
 
 
@@ -116,5 +116,18 @@ export const apiClientPostGerarPDFCotacao = async (cart : IRetornoPesquisaItensL
     })
   });
   const data = await res.blob();
+  return data;
+}
+
+export const apiClientPostUserUpdate = async (user : IUserKeyCloakRequest) => {
+  const res = await fetch(`/api/user/update`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(user)
+  });
+  const data = await res.json();
   return data;
 }
