@@ -1,4 +1,4 @@
-import { IAPISearchInfo, IRetornoPesquisaItensLicitacao, IUserKeyCloakRequest } from "@/interfaces/types";
+import { IAPISearchInfo, IConversationIAHistory, IRetornoPesquisaItensLicitacao, IUserKeyCloakRequest } from "@/interfaces/types";
 import { getValParamSearch } from "@/utils/searchParamUtils";
 
 
@@ -127,6 +127,18 @@ export const apiClientPostUserUpdate = async (user : IUserKeyCloakRequest) => {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(user)
+  });
+  const data = await res.json();
+  return data;
+}
+
+export const apiClientConversationIA = async (conversationHistory : IConversationIAHistory[], ia: 'deepseek' | 'grok' | 'openai' = 'deepseek') => {
+  const res = await fetch(`/api/ia/${ia}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ conversation_history: conversationHistory })
   });
   const data = await res.json();
   return data;

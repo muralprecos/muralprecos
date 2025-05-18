@@ -302,3 +302,9 @@ export interface ICart {
 }
 
 //type PropGetter<P = Record<string, unknown>, R = DOMAttributes> = (props?: Merge<DOMAttributes, P>, ref?: React.Ref<any>) => R & React.RefAttributes<any>;
+
+export interface IConversationIAHistory {
+    sender?: string;
+    role: string;
+    content: string;
+}[]

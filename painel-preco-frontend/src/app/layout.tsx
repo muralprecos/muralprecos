@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google'
 import Providers from './providers'
 import Header, { ILink } from '@/components/organisms/Header'
 import { auth } from 'auth'
+import ChatWidget from '@/components/organisms/ChatWidget'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -43,7 +44,12 @@ export default async function RootLayout({
       <body className={`${inter.className} min-h-svh flex flex-col`}>
         <Providers>
           <Header session={session} links={linksHeader}/>
-          <main className='flex-1 flex flex-col'>{children}</main>
+          <main className='flex-1 flex flex-col'>
+            {children}
+            { session && session?.userInfo && (
+              <ChatWidget />
+            )}
+          </main>
           <footer></footer>
         </Providers>
       </body>
