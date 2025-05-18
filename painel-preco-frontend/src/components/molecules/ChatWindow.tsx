@@ -141,7 +141,6 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
                     <Bot size={16} className="inline-block mr-1 text-primary" />
                     <span className="font-semibold mr-2 text-primary">{userMessage(msg)}:</span>
                     <ReactMarkdown
-                      children={cleanMarkdown(msg.content)}
                       components={{
                         code({node, className, children, ...props}) {
                             return <code className={`${className} break-words whitespace-pre-wrap text-sm mb-2`} {...props}>
@@ -149,7 +148,9 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
                             </code>
                           }
                       }}
-                    />
+                    >
+                      { cleanMarkdown(msg.content) }
+                    </ReactMarkdown>
                   </>
                 ) }
                 { msg.role === RoleMessage.USER &&  (
