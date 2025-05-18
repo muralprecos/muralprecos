@@ -89,11 +89,12 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
 
   return (
     <div
-      className={`fixed z-50 ${
+      className={`fixed z-50 shadow-lg ${
         isFullScreen ? "inset-4" : "bottom-20 right-4"
       }`}
       style={!isFullScreen ? {
-        width: "30rem"
+        width: "30rem",
+        maxWidth: '92%'
       } : {}}
     >
       <Card className="h-full flex flex-col">
