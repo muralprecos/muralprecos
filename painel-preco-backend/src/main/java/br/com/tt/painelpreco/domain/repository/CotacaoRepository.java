@@ -9,7 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.domain.model.Cotacao;
 
 public interface CotacaoRepository extends JpaRepository<Cotacao, Integer>, JpaSpecificationExecutor<Cotacao> {
@@ -17,8 +19,8 @@ public interface CotacaoRepository extends JpaRepository<Cotacao, Integer>, JpaS
 	@Transactional
 	Cotacao findByHashValidacao(String hash);
 	
-	@Query("SELECT new Cotacao(uuid, nome, nomeArquivo, stringBusca, hashValidacao, criadoEm) FROM Cotacao c ORDER BY c.criadoPor, c.criadoEm")
-	Page<Cotacao> findAllSemArquivo(Pageable pageable);
+	@Query("SELECT new Cotacao(uuid, nome, nomeArquivo, stringBusca, hashValidacao, criadoEm) FROM Cotacao c WHERE c.criadoPor = :usuario ORDER BY c.criadoEm DESC")
+	Page<Cotacao> findByUsuarioSemArquivo(@Param("usuario") Usuario usuario, Pageable pageable);
 
 	@Transactional
 	Cotacao findByUuid(UUID uuid);

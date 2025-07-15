@@ -1,6 +1,7 @@
 package br.com.tt.painelpreco.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -28,6 +29,30 @@ public class IOUtil {
 			}
 		}
         return sb.toString();
+	}
+	
+	public static byte[] convertInputStreamToByteArray(InputStream inputStream) throws IOException {
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		int nRead;
+		byte[] data = new byte[1024];
+		while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+			buffer.write(data, 0, nRead);
+		}
+		buffer.flush();
+		return buffer.toByteArray();
+	}
+	
+	public static InputStream loadInputStreamInClassPath(String path) {
+		return IOUtil.class.getClassLoader().getResourceAsStream(path);
+	}
+	
+	public static byte[] loadArrayByteInClassPath(String path) {
+		try {
+			return IOUtil.convertInputStreamToByteArray(IOUtil.loadInputStreamInClassPath(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }

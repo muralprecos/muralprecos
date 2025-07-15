@@ -2,11 +2,11 @@
 <!-- Created with Jaspersoft Studio version 6.20.3.final using JasperReports Library version 6.20.3-415f9428cffdb6805c6f85bbb29ebaf18813a2ab  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="cotacao_detalhes" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="fc5ef9f4-2177-4253-8488-3c4830a1b9a9">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Postgres - localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalDBMural"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="384"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="608"/>
 	<parameter name="itens" class="java.util.Collection" nestedType="java.util.UUID">
-		<defaultValueExpression><![CDATA[new ArrayList(Arrays.asList(new UUID[]{UUID.fromString("4b50f108-b993-11ee-ab7e-0242ac110002"), UUID.fromString("0cd2aaa0-b99a-11ee-ab7e-0242ac110002"), UUID.fromString("6ee9c862-b99b-11ee-ab7e-0242ac110002")}))]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[new ArrayList(Arrays.asList(new UUID[]{UUID.fromString("7dea62df-835b-489a-9a47-e97eebe1a337"), UUID.fromString("13964d1d-ab08-4894-a020-64be9416d9f0"), UUID.fromString("d41414cf-ce8e-4ec6-882c-58ed84da58bd")}))]]></defaultValueExpression>
 	</parameter>
 	<parameter name="queryString" class="java.lang.String">
 		<defaultValueExpression><![CDATA["papel lembrete"]]></defaultValueExpression>
@@ -29,7 +29,10 @@ from (
 		l.data_resultado_compra,
 		mc.nome as modalidade,
 		$P{fonte} as fonte,
-		'http://comprasnet.gov.br/livre/pregao/ata2.asp?co_no_uasg=' || ug.codigo || '&numprp=' || l.numero || '&codigoModalidade=' || mc.codigo || '&f_lstSrp=T&f_Uf=&f_numPrp=0&f_codUasg=' || ug.codigo || '&f_codMod=' || mc.codigo || '&f_tpPregao=E&f_lstICMS=T&f_dtAberturaIni=&f_dtAberturaFim=' as links,
+		case
+			when l.esfera_id = 1 then 'https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=' || ug.codigo ||  lpad(mc.codigo_comprasnet::varchar, 2, '0') || l.numero || substring(l.numero_controle_pncp from 25 for 4)
+			else 'https://pncp.gov.br/app/editais/' || substring(l.numero_controle_pncp from 1 for 14) || '/' || substring(l.numero_controle_pncp from 25 for 4) || '/' || cast(substring(l.numero_controle_pncp from 18 for 6) as integer)
+		end as links,
 		uf.sigla as uf,
 		coalesce(unf.nome, 'Unidade') as unidade_fornecimento
 	from mural.licitacao l join mural.item_licitacao il on il.licitacao_id = l.id_licitacao
@@ -40,7 +43,7 @@ from (
 		join mural.fornecedor f on f.id_fornecedor = il.fornecedor_id
 		join mural.unidade_gestora ug on ug.id_unidade_gestora = l.unidade_gestora_id
 where $X{IN, il.uuid, itens}
-order by 1, 5, 4, 2, 3
+order by 5 asc, 4 desc, 1, 2, 3 asc
 ) as i]]>
 	</queryString>
 	<field name="id" class="java.lang.Long">
@@ -288,7 +291,7 @@ order by 1, 5, 4, 2, 3
 					<textElement>
 						<paragraph firstLineIndent="2"/>
 					</textElement>
-					<textFieldExpression><![CDATA["R$ " + new DecimalFormat("#,##0.00").format($F{valor})]]></textFieldExpression>
+					<textFieldExpression><![CDATA[java.text.NumberFormat.getCurrencyInstance(new Locale("pt","br")).format($F{valor}.doubleValue()).replace("$ ", "")]]></textFieldExpression>
 				</textField>
 				<staticText>
 					<reportElement x="1" y="100" width="78" height="15" uuid="a5339182-3b92-4beb-9f12-f6ab8fe01f87">
@@ -364,7 +367,7 @@ order by 1, 5, 4, 2, 3
 				<textFieldExpression><![CDATA[$F{orgao}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight">
-				<reportElement stretchType="RelativeToTallestObject" x="280" y="38" width="130" height="20" uuid="dfb4f66b-0819-4d7e-9c7f-b21b1b85aa10">
+				<reportElement stretchType="RelativeToTallestObject" x="280" y="38" width="120" height="20" uuid="dfb4f66b-0819-4d7e-9c7f-b21b1b85aa10">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4e418c8b-533d-4f3a-83ee-cc85de3d50bf"/>
 					<property name="com.jaspersoft.studio.unit.firstLineIndent" value="px"/>
 				</reportElement>
@@ -375,7 +378,7 @@ order by 1, 5, 4, 2, 3
 				<textFieldExpression><![CDATA[$F{identificacao}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight">
-				<reportElement stretchType="RelativeToTallestObject" x="410" y="38" width="80" height="20" uuid="e63c4847-ca70-41d0-91f5-428ec36c799c">
+				<reportElement stretchType="RelativeToTallestObject" x="400" y="38" width="60" height="20" uuid="e63c4847-ca70-41d0-91f5-428ec36c799c">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4e418c8b-533d-4f3a-83ee-cc85de3d50bf"/>
 					<property name="com.jaspersoft.studio.unit.firstLineIndent" value="px"/>
 				</reportElement>
@@ -386,7 +389,7 @@ order by 1, 5, 4, 2, 3
 				<textFieldExpression><![CDATA[$F{data_licitacao}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight">
-				<reportElement stretchType="RelativeToTallestObject" x="490" y="38" width="45" height="20" uuid="60e49b05-8568-4091-8541-e81a4aeb9f78">
+				<reportElement stretchType="RelativeToTallestObject" x="460" y="38" width="75" height="20" uuid="60e49b05-8568-4091-8541-e81a4aeb9f78">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4e418c8b-533d-4f3a-83ee-cc85de3d50bf"/>
 					<property name="com.jaspersoft.studio.unit.firstLineIndent" value="px"/>
 				</reportElement>
@@ -394,7 +397,7 @@ order by 1, 5, 4, 2, 3
 					<font size="10" isBold="true"/>
 					<paragraph firstLineIndent="2"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new DecimalFormat("#,##0.00").format($F{preco})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[java.text.NumberFormat.getCurrencyInstance(new Locale("pt","br")).format($F{preco}.doubleValue()).replace("$ ", "")]]></textFieldExpression>
 			</textField>
 			<frame>
 				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="40" y="278" width="495" height="59" forecolor="#FFFFFF" backcolor="rgba(243, 242, 247, 0.9019608)" uuid="7db1572e-8abd-4cd6-9c71-39327c4c6e87"/>
@@ -460,7 +463,7 @@ order by 1, 5, 4, 2, 3
 				</staticText>
 			</frame>
 			<staticText>
-				<reportElement mode="Opaque" x="495" y="2" width="45" height="30" forecolor="#FFFFFF" backcolor="#333399" uuid="84eabb2a-111f-48f6-9029-3853e3010e15">
+				<reportElement mode="Opaque" x="460" y="2" width="80" height="30" forecolor="#FFFFFF" backcolor="#333399" uuid="84eabb2a-111f-48f6-9029-3853e3010e15">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.firstLineIndent" value="px"/>
 				</reportElement>
@@ -475,10 +478,10 @@ order by 1, 5, 4, 2, 3
 					<font isBold="true"/>
 					<paragraph firstLineIndent="2"/>
 				</textElement>
-				<text><![CDATA[Preço (R$)]]></text>
+				<text><![CDATA[Preço]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="415" y="2" width="80" height="30" forecolor="#FFFFFF" backcolor="#333399" uuid="ab8df17b-533e-4e24-9304-2e0b7eb4d7b1">
+				<reportElement mode="Opaque" x="400" y="2" width="60" height="30" forecolor="#FFFFFF" backcolor="#333399" uuid="ab8df17b-533e-4e24-9304-2e0b7eb4d7b1">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.firstLineIndent" value="px"/>
 				</reportElement>
@@ -496,7 +499,7 @@ order by 1, 5, 4, 2, 3
 				<text><![CDATA[Data da Licitação]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="285" y="2" width="130" height="30" forecolor="#FFFFFF" backcolor="#333399" uuid="43acf4c5-71ab-4b20-849c-610595471c69">
+				<reportElement mode="Opaque" x="285" y="2" width="115" height="30" forecolor="#FFFFFF" backcolor="#333399" uuid="43acf4c5-71ab-4b20-849c-610595471c69">
 					<property name="com.jaspersoft.studio.unit.firstLineIndent" value="px"/>
 				</reportElement>
 				<box>

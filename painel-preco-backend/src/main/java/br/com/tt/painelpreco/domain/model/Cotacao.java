@@ -8,11 +8,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.util.DateUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -56,8 +59,9 @@ public class Cotacao {
 	@Column(name = "criado_em", nullable = false)
 	private Date criadoEm = new Date();
 	
-	@Column(name = "criado_por", nullable = true)
-	private String criadoPor;
+	@ManyToOne
+	@JoinColumn(name = "criado_por", nullable = false)
+	private Usuario criadoPor;
 	
 	@Column(nullable = true)
 	private String ip;

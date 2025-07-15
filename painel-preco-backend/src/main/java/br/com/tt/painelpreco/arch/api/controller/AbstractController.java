@@ -25,6 +25,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import br.com.tt.painelpreco.arch.api.dto.DTO;
 import br.com.tt.painelpreco.arch.exception.ArchException;
+import br.com.tt.painelpreco.arch.infra.auth.Organizacao;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.util.ReflectionUtil;
 import br.com.tt.painelpreco.util.ReportUtil;
@@ -126,9 +127,18 @@ public abstract class AbstractController {
 		return getKeyCloakContext().getToken();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Usuario getUsuario() {
 		try {
-			return new Usuario(getAccessToken().getPreferredUsername(), getAccessToken().getGivenName(), getAccessToken().getEmail());
+			AccessToken token = getAccessToken();
+			Map<String,Object> claims = token.getOtherClaims();
+			Map<String,Object> organizacaoMap = (Map<String, Object>) claims.get("organizacao");
+			String id = (String) organizacaoMap.get("uuid");
+			String nome = (String) organizacaoMap.get("nome");
+			
+			Organizacao organizacao = new Organizacao(id, nome);
+			
+			return new Usuario(getAccessToken().getPreferredUsername(), String.format("%s $s", getAccessToken().getGivenName(), getAccessToken().getFamilyName()), getAccessToken().getEmail(), organizacao);
 		} catch (NullPointerException e) {
 			return new Usuario();
 			// TODO: handle exception

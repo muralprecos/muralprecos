@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.domain.model.Cotacao;
 import br.com.tt.painelpreco.domain.repository.CotacaoRepository;
 import br.com.tt.painelpreco.util.StringUtil;
@@ -30,8 +31,8 @@ public class CotacaoService {
 		return cotacaoRepository.findByHashValidacao(hash);
 	}
 
-	public Page<Cotacao> findAllSemArquivo(Pageable pageable) {
-		return cotacaoRepository.findAllSemArquivo(pageable);
+	public Page<Cotacao> findByUsuarioSemArquivo(Usuario usuario, Pageable pageable) {
+		return cotacaoRepository.findByUsuarioSemArquivo(usuario, pageable);
 	}
 
 	public Cotacao findByUuid(UUID uuid) {

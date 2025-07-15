@@ -2,7 +2,7 @@
 <!-- Created with Jaspersoft Studio version 6.20.3.final using JasperReports Library version 6.20.3-415f9428cffdb6805c6f85bbb29ebaf18813a2ab  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="cotacao" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="fc3ceb32-7cd5-4f1c-bb05-70a38d443be8">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Postgres - localhost"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LocalDBMural"/>
 	<property name="background.image.path" value="/home/euclydes/workspaces/sts/tt/painel-preco/src/main/resources/static/img/bg.png"/>
 	<property name="background.image.widht" value="297"/>
 	<property name="background.image.height" value="378"/>
@@ -13,7 +13,7 @@
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="199"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="793"/>
 	<parameter name="itens" class="java.util.Collection" nestedType="java.util.UUID">
-		<defaultValueExpression><![CDATA[new ArrayList(Arrays.asList(new UUID[]{UUID.fromString("4b50f108-b993-11ee-ab7e-0242ac110002"), UUID.fromString("0cd2aaa0-b99a-11ee-ab7e-0242ac110002"), UUID.fromString("6ee9c862-b99b-11ee-ab7e-0242ac110002")}))]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA[new ArrayList(Arrays.asList(new UUID[]{UUID.fromString("7dea62df-835b-489a-9a47-e97eebe1a337"), UUID.fromString("13964d1d-ab08-4894-a020-64be9416d9f0"), UUID.fromString("d41414cf-ce8e-4ec6-882c-58ed84da58bd")}))]]></defaultValueExpression>
 	</parameter>
 	<parameter name="queryString" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["papel lembrete"]]></defaultValueExpression>
@@ -37,9 +37,7 @@
 		<defaultValueExpression><![CDATA["https://muraldeprecos.com"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="subreportCotacaoDetalhe" class="net.sf.jasperreports.engine.JasperReport"/>
-	<parameter name="logo" class="java.lang.String">
-		<defaultValueExpression><![CDATA["/home/euclydes/workspaces/sts/tt/painel-preco/src/main/resources/static/images/logo.png"]]></defaultValueExpression>
-	</parameter>
+	<parameter name="logo" class="byte[]" isForPrompting="false"/>
 	<parameter name="nome" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["Padrão"]]></defaultValueExpression>
 	</parameter>
@@ -56,7 +54,7 @@ from (
 		join mural.unidade_gestora ug on ug.id_unidade_gestora = l.unidade_gestora_id
 		join mural.modalidade_compra mc on mc.id_modalidade_compra = l.modalidade_compra_id
 where $X{IN, il.uuid, itens}
-order by 1, 5, 4, 2, 3
+order by 5 asc, 4 desc, 1, 2, 3 asc
 ) as i]]>
 	</queryString>
 	<field name="id" class="java.lang.Long">
@@ -92,15 +90,6 @@ order by 1, 5, 4, 2, 3
 	</variable>
 	<variable name="maximo" class="java.lang.Double" resetType="Group" resetGroup="Group1" calculation="Highest">
 		<variableExpression><![CDATA[$F{preco}]]></variableExpression>
-	</variable>
-	<variable name="variancia" class="java.lang.Double" resetType="Group" resetGroup="Group1" calculation="Variance">
-		<variableExpression><![CDATA[$F{preco}]]></variableExpression>
-	</variable>
-	<variable name="desvio_padrao" class="java.lang.Double" resetType="Group" resetGroup="Group1" calculation="StandardDeviation">
-		<variableExpression><![CDATA[$F{preco}]]></variableExpression>
-	</variable>
-	<variable name="mediana" class="java.lang.Double" resetType="Group" resetGroup="Group1">
-		<variableExpression><![CDATA[org.apache.commons.math3.stat.StatUtils.percentile(org.apache.commons.lang3.ArrayUtils.toPrimitive((Double[]) $V{precos}.toArray(new Double[$V{precos}.size()])), 50)]]></variableExpression>
 	</variable>
 	<variable name="precos" class="java.util.List">
 		<variableExpression><![CDATA[$V{precos}]]></variableExpression>
@@ -144,14 +133,14 @@ order by 1, 5, 4, 2, 3
 					<text><![CDATA[Órgão]]></text>
 				</staticText>
 				<staticText>
-					<reportElement mode="Opaque" x="300" y="33" width="130" height="30" forecolor="#000000" backcolor="rgba(216, 207, 250, 0.56078434)" uuid="7fade6a9-93a1-48eb-832d-e217a50127c6"/>
+					<reportElement mode="Opaque" x="300" y="33" width="120" height="30" forecolor="#000000" backcolor="rgba(216, 207, 250, 0.56078434)" uuid="7fade6a9-93a1-48eb-832d-e217a50127c6"/>
 					<textElement textAlignment="Left" verticalAlignment="Middle">
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Identificação]]></text>
 				</staticText>
 				<staticText>
-					<reportElement mode="Opaque" x="430" y="33" width="80" height="30" forecolor="#000000" backcolor="rgba(216, 207, 250, 0.56078434)" uuid="687ddd4f-1ab3-49fb-b344-7ac97220effe">
+					<reportElement mode="Opaque" x="420" y="33" width="60" height="30" forecolor="#000000" backcolor="rgba(216, 207, 250, 0.56078434)" uuid="687ddd4f-1ab3-49fb-b344-7ac97220effe">
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					</reportElement>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -160,13 +149,13 @@ order by 1, 5, 4, 2, 3
 					<text><![CDATA[Data da Licitação]]></text>
 				</staticText>
 				<staticText>
-					<reportElement mode="Opaque" x="510" y="33" width="45" height="30" forecolor="#000000" backcolor="rgba(216, 207, 250, 0.56078434)" uuid="c81d5d85-9598-4c0d-9a3b-f8b6784a1261">
+					<reportElement mode="Opaque" x="480" y="33" width="75" height="30" forecolor="#000000" backcolor="rgba(216, 207, 250, 0.56078434)" uuid="c81d5d85-9598-4c0d-9a3b-f8b6784a1261">
 						<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					</reportElement>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font isBold="true"/>
 					</textElement>
-					<text><![CDATA[Preço (R$)]]></text>
+					<text><![CDATA[Preço]]></text>
 				</staticText>
 				<textField>
 					<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="40" y="-1" width="515" height="32" forecolor="#FFFFFF" backcolor="#6600CC" uuid="c43d1aea-00e1-43ad-8503-e0f9bd6ad80b">
@@ -207,7 +196,7 @@ order by 1, 5, 4, 2, 3
 						<textElement textAlignment="Right" verticalAlignment="Middle">
 							<font isBold="true"/>
 						</textElement>
-						<textFieldExpression><![CDATA["R$ " + new DecimalFormat("#,##0.00").format($V{media})]]></textFieldExpression>
+						<textFieldExpression><![CDATA[java.text.NumberFormat.getCurrencyInstance(new Locale("pt","br")).format($V{media}.doubleValue()).replace("$ ", "")]]></textFieldExpression>
 					</textField>
 				</frame>
 				<frame>
@@ -233,7 +222,7 @@ order by 1, 5, 4, 2, 3
 						<textElement textAlignment="Right" verticalAlignment="Middle">
 							<font isBold="true"/>
 						</textElement>
-						<textFieldExpression><![CDATA["R$ " + new DecimalFormat("#,##0.00").format($V{mediana})]]></textFieldExpression>
+						<textFieldExpression><![CDATA[java.text.NumberFormat.getCurrencyInstance(new Locale("pt","br")).format((($V{precos}.size() == 0) ? 0.0 : ($V{precos}.size() % 2 == 1) ? (Double) $V{precos}.get(($V{precos}.size() + 1) / 2 - 1) : (Double) ((Double) $V{precos}.get($V{precos}.size() / 2 - 1) + (Double) $V{precos}.get($V{precos}.size() / 2)) / 2)).replace("$ ", "")]]></textFieldExpression>
 					</textField>
 				</frame>
 				<line>
@@ -277,7 +266,7 @@ order by 1, 5, 4, 2, 3
 						<textElement textAlignment="Right" verticalAlignment="Middle">
 							<font isBold="true"/>
 						</textElement>
-						<textFieldExpression><![CDATA["R$ " + new DecimalFormat("#,##0.00").format($V{minimo})]]></textFieldExpression>
+						<textFieldExpression><![CDATA[java.text.NumberFormat.getCurrencyInstance(new Locale("pt","br")).format($V{minimo}.doubleValue()).replace("$ ", "")]]></textFieldExpression>
 					</textField>
 				</frame>
 				<frame>
@@ -305,63 +294,7 @@ order by 1, 5, 4, 2, 3
 						<textElement textAlignment="Right" verticalAlignment="Middle">
 							<font isBold="true"/>
 						</textElement>
-						<textFieldExpression><![CDATA["R$ " + new DecimalFormat("#,##0.00").format($V{maximo})]]></textFieldExpression>
-					</textField>
-				</frame>
-				<frame>
-					<reportElement mode="Opaque" x="285" y="80" width="125" height="50" backcolor="rgba(243, 242, 247, 0.9019608)" uuid="1e8cd4ba-8124-465a-ac37-d5139e4ffeba">
-						<property name="com.jaspersoft.studio.unit.height" value="px"/>
-						<property name="com.jaspersoft.studio.unit.width" value="px"/>
-					</reportElement>
-					<box>
-						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-					</box>
-					<staticText>
-						<reportElement mode="Transparent" x="11" y="5" width="100" height="20" forecolor="#000000" backcolor="#FFFFFF" uuid="9866638b-de2f-4537-b79e-fec628768110">
-							<property name="com.jaspersoft.studio.unit.width" value="px"/>
-						</reportElement>
-						<textElement textAlignment="Right" verticalAlignment="Middle">
-							<font isBold="true"/>
-						</textElement>
-						<text><![CDATA[Variância:]]></text>
-					</staticText>
-					<textField>
-						<reportElement mode="Transparent" x="11" y="27" width="100" height="20" forecolor="#000000" backcolor="#FFFFFF" uuid="b17329c0-e867-4d88-8bcc-e9fd236c7aed"/>
-						<textElement textAlignment="Right" verticalAlignment="Middle">
-							<font isBold="true"/>
-						</textElement>
-						<textFieldExpression><![CDATA["R$ " + new DecimalFormat("#,##0.00").format($V{variancia})]]></textFieldExpression>
-					</textField>
-				</frame>
-				<frame>
-					<reportElement mode="Opaque" x="417" y="80" width="125" height="50" backcolor="rgba(243, 242, 247, 0.9019608)" uuid="262b95f7-2a94-4f18-a62c-a4245b423464">
-						<property name="com.jaspersoft.studio.unit.height" value="px"/>
-						<property name="com.jaspersoft.studio.unit.width" value="px"/>
-					</reportElement>
-					<box>
-						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-					</box>
-					<staticText>
-						<reportElement mode="Transparent" x="13" y="5" width="100" height="20" forecolor="#000000" backcolor="#FFFFFF" uuid="6b748d0c-9b0b-4226-93a7-31311251d2b7">
-							<property name="com.jaspersoft.studio.unit.width" value="px"/>
-						</reportElement>
-						<textElement textAlignment="Right" verticalAlignment="Middle">
-							<font isBold="true"/>
-						</textElement>
-						<text><![CDATA[Desvio padrão:]]></text>
-					</staticText>
-					<textField>
-						<reportElement mode="Transparent" x="13" y="26" width="100" height="20" forecolor="#000000" backcolor="#FFFFFF" uuid="7f887ea8-f732-4619-b3e4-af61a2953bb9"/>
-						<textElement textAlignment="Right" verticalAlignment="Middle">
-							<font isBold="true"/>
-						</textElement>
-						<textFieldExpression><![CDATA["R$ " + new DecimalFormat("#,##0.00").format($V{desvio_padrao})]]></textFieldExpression>
+						<textFieldExpression><![CDATA[java.text.NumberFormat.getCurrencyInstance(new Locale("pt","br")).format($V{maximo}.doubleValue()).replace("$ ", "")]]></textFieldExpression>
 					</textField>
 				</frame>
 				<subreport>
@@ -380,7 +313,7 @@ order by 1, 5, 4, 2, 3
 		<band height="74">
 			<image>
 				<reportElement x="10" y="10" width="50" height="50" uuid="0fb425b5-7ee0-4936-b1d0-bb63abb9e103"/>
-				<imageExpression><![CDATA[$P{logo}]]></imageExpression>
+				<imageExpression><![CDATA[new ByteArrayInputStream($P{logo})]]></imageExpression>
 			</image>
 			<textField textAdjust="StretchHeight">
 				<reportElement x="70" y="14" width="290" height="46" uuid="f7fbe415-e8a6-4169-9213-be74df5090ad"/>
@@ -489,13 +422,13 @@ order by 1, 5, 4, 2, 3
 				<reportElement positionType="FixRelativeToBottom" x="0" y="21" width="555" height="1" uuid="20d6ac9e-eb24-4e57-ad5e-1f267f21f3a3"/>
 			</line>
 			<textField textAdjust="StretchHeight">
-				<reportElement stretchType="RelativeToTallestObject" x="510" y="0" width="45" height="20" uuid="eab1774c-6fca-4ddc-99d4-c4290641f9e7">
+				<reportElement stretchType="RelativeToTallestObject" x="480" y="0" width="75" height="20" uuid="eab1774c-6fca-4ddc-99d4-c4290641f9e7">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4e418c8b-533d-4f3a-83ee-cc85de3d50bf"/>
 				</reportElement>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression><![CDATA[new DecimalFormat("#,##0.00").format($F{preco})]]></textFieldExpression>
+				<textFieldExpression><![CDATA[java.text.NumberFormat.getCurrencyInstance(new Locale("pt","br")).format($F{preco}.doubleValue()).replace("$ ", "")]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight">
 				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="40" height="20" uuid="f38a2510-88b2-4d61-8d1e-3dc42e19935f">
@@ -516,7 +449,7 @@ order by 1, 5, 4, 2, 3
 				<textFieldExpression><![CDATA[$F{orgao}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight">
-				<reportElement stretchType="RelativeToTallestObject" x="300" y="0" width="130" height="20" uuid="d3fef47f-0408-416a-b6e2-2c5657b4c1a5">
+				<reportElement stretchType="RelativeToTallestObject" x="300" y="0" width="120" height="20" uuid="d3fef47f-0408-416a-b6e2-2c5657b4c1a5">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4e418c8b-533d-4f3a-83ee-cc85de3d50bf"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
@@ -525,7 +458,7 @@ order by 1, 5, 4, 2, 3
 				<textFieldExpression><![CDATA[$F{identificacao}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight">
-				<reportElement stretchType="RelativeToTallestObject" x="430" y="0" width="80" height="20" uuid="599dba75-3dca-4203-a131-76fd1a38e823">
+				<reportElement stretchType="RelativeToTallestObject" x="420" y="0" width="60" height="20" uuid="599dba75-3dca-4203-a131-76fd1a38e823">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="4e418c8b-533d-4f3a-83ee-cc85de3d50bf"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -631,16 +564,17 @@ order by 1, 5, 4, 2, 3
 					<text><![CDATA[Medidas de tendência central (mediana e média)  dos preços praticados em licitações anteriores (Art. 5º, II, IN 65/2021) do itens selecionados pelo usuário.]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="15" y="101" width="529" height="19" uuid="a7b5337f-39c8-47a4-9ba0-dcc23ad5d604"/>
+					<reportElement x="11" y="101" width="529" height="19" uuid="a7b5337f-39c8-47a4-9ba0-dcc23ad5d604"/>
 					<textElement>
 						<font isBold="true"/>
 					</textElement>
 					<text><![CDATA[Fonte de dados utilizada (Art. 3º, III):]]></text>
 				</staticText>
-				<staticText>
-					<reportElement x="15" y="121" width="527" height="19" uuid="ddac5d0b-53be-4e8b-b3c3-824db5442a0c"/>
-					<text><![CDATA[https://paineldeprecos.planejamento.gov.br/]]></text>
-				</staticText>
+				<textField>
+					<reportElement x="11" y="121" width="531" height="19" uuid="02e0d81a-d57a-48e8-8d35-aa1006a889c1"/>
+					<textElement verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$P{fonte}]]></textFieldExpression>
+				</textField>
 			</frame>
 			<staticText>
 				<reportElement mode="Opaque" x="0" y="1" width="555" height="32" forecolor="#FFFFFF" backcolor="#6600CC" uuid="bbde67e1-1e9e-4aa1-9281-9995769e18a4">

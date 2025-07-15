@@ -25,8 +25,11 @@ import br.com.tt.painelpreco.api.dto.CotacaoDTO;
 import br.com.tt.painelpreco.api.dto.form.CotacaoForm;
 import br.com.tt.painelpreco.api.dto.form.CotacaoValidacaoForm;
 import br.com.tt.painelpreco.arch.api.controller.AbstractController;
+import br.com.tt.painelpreco.arch.exception.ArchException;
+import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.domain.model.Cotacao;
 import br.com.tt.painelpreco.domain.service.CotacaoService;
+import br.com.tt.painelpreco.domain.service.UsuarioService;
 import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.DateUtil;
 import br.com.tt.painelpreco.util.MessageDigestUtil;
@@ -38,56 +41,73 @@ public class CotacaoController extends AbstractController {
 	
 	private static final String LINK_VALIDACAO_COTACAO = ApiVersion.LATEST + "/cotacoes/%s/validar";
 
-	private static final Object DATA_SOURCE = "https://paineldeprecos.planejamento.gov.br/";
+	private static final Object DATA_SOURCE = "https://pncp.gov.br/";
 
 	@Autowired
 	private CotacaoService cotacaoService;
 	
 	@Autowired
+	private UsuarioService usuarioService;
+	
+	@Autowired
 	private ModelConverter converter;
+	
+	private Usuario getUsuarioLogado() {
+		String login = super.getUsuario().getLogin();
+		Usuario usuario = usuarioService.findByLogin(login);
+		if (usuario == null)
+			throw new ArchException("Usuário '" + login + "' não encontrado.");
+		
+		return usuario;
+	}
 	
 	@PostMapping
 	public ResponseEntity<?> imprimir(@RequestBody CotacaoForm cotacaoForm, HttpServletResponse response) {
 		UUID[] itens = cotacaoForm.getItens();
-		String usuario = super.getUsuario().getLogin();
 		String ip = super.getRemoteAddress();
 		String stringBusca = cotacaoService.findStringBuscaByItens(itens);
 		Date agora = new Date();
 		String agoraStr = DateUtil.format(agora, "dd/MM/yyyy");
-		String nome = usuario + " - " + stringBusca + " - " + agoraStr;
 		String nomeArquivo = String.format("Cotacao-%s.pdf", DateUtil.format(new Date(), "dd-MM-yyyy"));
 		
 		Cotacao cotacao = new Cotacao();
-		cotacao.setCriadoPor(usuario);
-		cotacao.setIp(ip);
-		cotacao.setStringBusca(stringBusca);
-		cotacao.setCriadoEm(agora);
-		cotacao.setNome(nome);
-		cotacao.setNomeArquivo(nomeArquivo);
+		try {
+			Usuario usuario = this.getUsuarioLogado();
+			String nome = usuario.getLogin() + " - " + stringBusca + " - " + agoraStr;
+			cotacao.setCriadoPor(usuario);
+			cotacao.setIp(ip);
+			cotacao.setStringBusca(stringBusca);
+			cotacao.setCriadoEm(agora);
+			cotacao.setNome(nome);
+			cotacao.setNomeArquivo(nomeArquivo);
+			
+			String hashValidacao = MessageDigestUtil.getHashMD5(cotacao.toString().getBytes());
+			cotacao.setHashValidacao(hashValidacao);
+			
+			Map<String, Object> params = new HashMap<>();
+			params.put("itens", itens);
+			params.put("queryString", stringBusca);
+			params.put("nome", nome);
+			params.put("cabecalho", usuario.getCabecalho());
+			params.put("logo", usuario.getLogo());
+			params.put("dataPesquisa", agoraStr);
+			params.put("dataGeracao", agoraStr);
+			params.put("ip", ip);
+			params.put("hashValidacao", hashValidacao);
+			params.put("linkValidacao", super.getAppDomain() + String.format(LINK_VALIDACAO_COTACAO, hashValidacao));
+			params.put("fonte", DATA_SOURCE);
+			params.put("subreportCotacaoDetalhe", super.getReport("cotacao_detalhes"));
+			
+			byte[] pdf = super.reportExportPDF("cotacao", params);
+			cotacao.setArquivo(pdf);
+			
+			cotacaoService.save(cotacao);
+			
+			super.downloadPDF(pdf, response, nomeArquivo);
+		} catch (ArchException e) {
+			throw new ArchException("Usuário não pode criar contação. Motivo: " + e.getMessage());
+		}
 		
-		
-		String hashValidacao = MessageDigestUtil.getHashMD5(cotacao.toString().getBytes());
-		cotacao.setHashValidacao(hashValidacao);
-		
-		Map<String, Object> params = new HashMap<>();
-		params.put("itens", itens);
-		params.put("queryString", stringBusca);
-		params.put("nome", nome);
-		params.put("cabecalho", "TT Soluções & Consultoria - Unidade de Compras e Licitações");
-		params.put("dataPesquisa", agoraStr);
-		params.put("dataGeracao", agoraStr);
-		params.put("ip", ip);
-		params.put("hashValidacao", hashValidacao);
-		params.put("linkValidacao", super.getAppDomain() + String.format(LINK_VALIDACAO_COTACAO, hashValidacao));
-		params.put("fonte", DATA_SOURCE);
-		params.put("subreportCotacaoDetalhe", super.getReport("cotacao_detalhes"));
-		
-		byte[] pdf = super.reportExportPDF("cotacao", params);
-		cotacao.setArquivo(pdf);
-		
-		cotacaoService.save(cotacao);
-		
-		super.downloadPDF(pdf, response, nomeArquivo);
 		return ResponseEntity.ok().build(); 
 	}
 	
@@ -115,7 +135,14 @@ public class CotacaoController extends AbstractController {
 	
 	@GetMapping
 	public Page<CotacaoDTO> listar(@PageableDefault(size = 10) Pageable pageable) {
-		Page<Cotacao> cotacoes = cotacaoService.findAllSemArquivo(pageable);
+		Usuario usuario = null;
+		try {
+			usuario = this.getUsuarioLogado();
+		} catch (ArchException e) {
+			throw new ArchException("Histórico de cotação não pode ser recuperado. Motivo: " + e.getMessage());
+		}
+		
+		Page<Cotacao> cotacoes = cotacaoService.findByUsuarioSemArquivo(usuario, pageable);
 		
 		List<CotacaoDTO> cotacoesDTO = converter.toDTOCollection(cotacoes.getContent(), CotacaoDTO.class);
 		
