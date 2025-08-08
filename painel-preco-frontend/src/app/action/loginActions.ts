@@ -1,32 +1,43 @@
 "use server";
 
 import { messages } from "@/utils/messages";
-import { signIn } from "auth";
+import { signIn } from "@/lib/auth";
 import { AuthError } from "next-auth";
-import logger from "../../../services/logger";
 
-export async function loginAction(formData: Partial<Record<"username" | "password" | "redirect", unknown>>) {
+export async function loginAction(
+  formData: Partial<Record<"username" | "password" | "redirect", unknown>>
+) {
   try {
-    // logger.info("...loginAction...");
-    const redirectIsString = typeof formData.redirect === 'string';
-    return signIn('credentials', {
+    const res = await signIn('credentials', {
       username: formData.username,
       password: formData.password,
-      redirect: redirectIsString,
-      redirectTo: redirectIsString ? `${formData.redirect}` : '/'
-    })
+      redirect: false, // <- NÃO redireciona automaticamente
+    });
+
+    // Se houve erro (ex: senha incorreta)
+    if (res?.error) {
+      return { error: res.error };
+    }
+
+    // Login bem-sucedido
+    return { success: true };
   } catch (error) {
-    // logger.info("loginAction error");
     if (error instanceof AuthError) {
-      logger.info("loginAction AuthError");
-      logger.error(error.type, error.message)
       switch (error.type) {
         case 'CredentialsSignin':
-          return {error: messages.LOGIN_WRONG}
+          return { error: messages.LOGIN_WRONG };
         default:
-          return {error: 'Ocorreu um problema ao autenticar'}
+          return {
+            error: 'CredentialsSignin',
+            message: messages.LOGIN_WRONG,
+          };
       }
     }
-    throw error;
+
+    // Fallback para erro desconhecido
+    return {
+      error: "UNKNOWN_ERROR",
+      message: "Erro desconhecido.",
+    };
   }
 }

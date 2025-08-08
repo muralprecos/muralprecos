@@ -1,51 +1,56 @@
-'use client'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
 
-import { Select, SelectItem, SelectProps, Selection } from '@nextui-org/react'
-import { IItemSelect } from '@/interfaces/types'
-import { Controller, FieldError, FieldErrors, FieldErrorsImpl, FieldValues, Merge, UseControllerProps } from 'react-hook-form'
-
-interface IProps<P extends FieldValues> extends UseControllerProps<P>, Omit<SelectProps, "children"|"items"|"defaultItems"|"name"> {
-  items: IItemSelect[]
-  errors?: FieldErrors
+interface IItemSelect {
+  label: string;
+  value: string;
 }
 
-function SelectForm<P extends FieldValues>({
-  items,
+interface Props<P extends FieldValues> extends UseControllerProps<P> {
+  items: IItemSelect[];
+  label: string;
+  errors?: Record<string, any>;
+  className?: string;
+}
+
+export default function SelectForm<P extends FieldValues>({
   name,
-  label,
   control,
+  label,
+  items,
   errors,
-  className="w-full",
-  ...opts
-} : IProps<P>) {
-  
-  const err: FieldError| Merge<FieldError, FieldErrorsImpl<any>> | undefined = errors ? errors[name] : undefined;
-  const isValid = err == null;
-  const errMsg = !isValid ? label + ' ' + err.message : '';
+  className,
+}: Props<P>) {
+  const error = errors?.[name]?.message;
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field: { ref, ...field } }) => {
-        return <Select
-          {...field}
-          ref={ref}
-          label={label}
-          items={items}
-          errorMessage={isValid ? "" : errMsg}
-          isInvalid={isValid ? false : true}
-          selectedKeys={field.value ? [field.value] : []}
-          {...opts}>
-          {items.map((o) => (
-            <SelectItem key={o.value} value={o.value}>
-              {o.label}
-            </SelectItem>
-          ))}
-        </Select>
-      }}
-    />
-  )
+    <div className={className}>
+      <label className="block text-sm font-medium mb-1">{label}</label>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => (
+          <Select value={field.value} onValueChange={field.onChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              {items.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {error && <p className="text-sm text-red-500 mt-1">{error.toString()}</p>}
+    </div>
+  );
 }
-
-export default SelectForm;

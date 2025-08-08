@@ -57,13 +57,17 @@ export const apiClientGetListMunicipios = async (info : IAPISearchInfo[]) => {
   return data;
 }
 
-export const apiClientGetItemCotacao = async (info : IAPISearchInfo[]) => {
+export const apiClientGetItemCotacao = async (info: IAPISearchInfo[]) => {
   const uuid = getValParamSearch(info, 'uuid');
+  if (!uuid || uuid === "undefined") {
+    console.error("UUID ausente ou inválido em apiClientGetItemCotacao", info);
+    return null;
+  }
 
   const res = await fetch(`/api/cotacao/ver-item/${uuid}`);
   const data = await res.json();
   return data;
-}
+};
 
 export const apiClientPostSearchListItens = async (info : IAPISearchInfo[]) => {
   const res = await fetch(`/api/cotacao/listar-items`, {

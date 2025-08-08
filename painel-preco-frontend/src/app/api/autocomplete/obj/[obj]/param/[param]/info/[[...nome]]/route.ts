@@ -3,31 +3,42 @@ import { getListDescricao, getListFornecedores, getListNomeMaterial, getListObje
 import { IAPISearchInfo, IAPISearchProps, IReturnRequestAPI } from "@/interfaces/types";
 import { NextRequest, NextResponse } from "next/server";
 
-type FuncAPI = (opts:IAPISearchProps)=>Promise<IReturnRequestAPI<any>|null>
+type FuncAPI = (opts: IAPISearchProps) => Promise<IReturnRequestAPI<any> | null>;
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { obj: string, param: string, nome: string } }
+  { params }: { params: Promise<{ obj: string; param: string; nome?: string[] }> }
 ) {
-  //parametros enviados
+  const resolvedParams = await params;
+
   const info: IAPISearchInfo[] = [];
-  if (!!params.nome && params.nome.length > 0) {
-    info.push({ param: params.param, val: params.nome[0] })
+
+  if (resolvedParams.nome && resolvedParams.nome.length > 0) {
+    info.push({ param: resolvedParams.param, val: resolvedParams.nome[0] });
   }
 
-  const o = params.obj;
-  const getAPI : FuncAPI|null = o == 'descricao' ? getListDescricao :
-                    o == 'descricao-complementar' ? getListDescricao :
-                    o == 'fornecedores' ? getListFornecedores :
-                    o == 'nome-material' ? getListNomeMaterial :
-                    o == 'objeto-compra' ? getListObjetosCompras :
-                    o == 'orgaos' ? getListOrgaos :
-                    o == 'orgaos-superiores' ? getListOrgaosSuperiores :
-                    o == 'unidade-fornecimento' ? getListUnidadesFornecimento :
-                    o == 'unidade-gestora' ? getListUASG :
-                    null;
-  
-  //TODO: apriomorar retorno de erro
-  if (getAPI == null) return NextResponse.json({ message: "Wrong Access!" });;
+  const o = resolvedParams.obj;
+
+  const apiMap: Record<string, FuncAPI> = {
+    'descricao': getListDescricao,
+    'descricao-complementar': getListDescricao,
+    'fornecedores': getListFornecedores,
+    'nome-material': getListNomeMaterial,
+    'objeto-compra': getListObjetosCompras,
+    'orgaos': getListOrgaos,
+    'orgaos-superiores': getListOrgaosSuperiores,
+    'unidade-fornecimento': getListUnidadesFornecimento,
+    'unidade-gestora': getListUASG,
+  };
+
+  const getAPI = apiMap[o] ?? null;
+
+  if (getAPI == null) {
+    return NextResponse.json(
+      { message: "Wrong Access!" },
+      { status: 400 }
+    );
+  }
+
   return genericGET(getAPI, info);
 }

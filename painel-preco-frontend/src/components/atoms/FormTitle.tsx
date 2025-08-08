@@ -1,54 +1,68 @@
-
-import { Divider } from "@nextui-org/react";
-import NoSSR from "./NoSSR";
-
-type HTMLHeadingElements = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'div' | 'section';
+import { BackButton, ButtonNewQuote, CartButton } from "./Buttons";
+import { cn } from "@/lib/utils";
 
 type FormTitleProps = {
-  title: string
-  children?: React.ReactNode
-  isNoSSR?: boolean
-  gap?: number
-  addClassName?: string
-  as?: HTMLHeadingElements
-} & React.AllHTMLAttributes<HTMLElement>
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  children?: React.ReactNode;
+  icon?: React.ReactNode;
+  className?: string;
+  backButton?: boolean;
+  newQuoteButton?: boolean;
+  cartButton?: boolean;
+  gap?: number;
+  addClassName?: string;
+  uppercase?: boolean;
+} & React.AllHTMLAttributes<HTMLElement>;
 
-const FormTitle: React.FC<FormTitleProps> = ({
+export default function FormTitle({
   title,
+  description,
   children,
-  isNoSSR=false,
-  gap=3,
+  gap = 3,
   addClassName,
   as: Tag = "h1",
-  ...opts
-}) => {
-
-  const _className = opts.className;
-  delete opts.className;
-  const defaultClassName = `text-lg font-bold uppercase text-primary-title flex sm:flex-row sm:items-center sm:justify-between flex-col justify-start items-start w-full px-2 gap-${gap} ${addClassName}`;
-
-  const buttonArea = <>
-    <Divider className="my-1 sm:hidden" />
-    <div className={`flex justify-end w-full gap-${gap}`}>
-      {children}
-    </div>
-  </>;
+  backButton = false,
+  newQuoteButton = false,
+  cartButton = false,
+  uppercase = true,
+  icon,
+  className,
+  ...rest
+}: FormTitleProps) {
+  const defaultClassName = cn(
+    "text-lg font-bold text-primary-title flex flex-col sm:flex-row sm:items-center sm:justify-between w-full px-2",
+    uppercase && "uppercase",
+    `gap-${gap}`,
+    addClassName,
+    className
+  );
 
   return (
-    <Tag className={_className || defaultClassName} { ...opts}>
-      <div className="flex-auto w-full">
-        {title}
+    <div className={defaultClassName} {...rest}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 min-w-0 flex-1">
+        <div>
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            {icon && <span className="flex-shrink-0">{icon}</span>}
+            <span>{title}</span>
+          </div>
+          {description && (
+            <span className="text-sm text-muted-foreground mt-1 sm:mt-0 sm:ml-2">
+              {description}
+            </span>
+          )}
+        </div>
       </div>
-      { isNoSSR ? 
-        <NoSSR>
-          {buttonArea}
-        </NoSSR> : 
-        <>
-          {buttonArea}
-        </>
-      }
-    </Tag>
-  );
-};
 
-export default FormTitle;
+      {/* Botões */}
+      <div className="flex w-full sm:w-auto flex-wrap gap-2 justify-between sm:justify-end mt-2 sm:mt-0">
+        {backButton && <BackButton className="flex-1 sm:flex-none" />}
+        {newQuoteButton && <ButtonNewQuote className="flex-1 sm:flex-none" />}
+        {cartButton && <CartButton className="flex-1 sm:flex-none" />}
+      </div>
+
+      {/* Children abaixo */}
+      {children && <div className="w-full mt-2">{children}</div>}
+    </div>
+  );
+}

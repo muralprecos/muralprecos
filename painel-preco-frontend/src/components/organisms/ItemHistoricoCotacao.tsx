@@ -1,96 +1,134 @@
 "use client";
 
-import { IHistoricoCotacao } from "@/interfaces/types"
-import { Button, Card, CardBody } from "@nextui-org/react";
-import { useTheme } from "next-themes";
-import ClipboardIcon from "../atoms/icons/ClipboardIcon";
-import { useState } from "react";
-import FileDownloadIcon from "../atoms/icons/FileDownloadIcon";
-import { catchErrorFromFetch } from "@/utils/requestUtils";
-import { useSnackbar } from "notistack";
-import { downloadPDF } from "@/utils/fileUtils";
+import { IHistoricoCotacao } from "@/interfaces/types";
+import { Button } from "@/components/ui/button";
+import {
+  Calendar,
+  ClipboardCheck,
+  ClipboardList,
+  Download,
+  Loader2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import LoadingCircleIcon from "../atoms/icons/LoadingCircleIcon";
+import { useSnackbar } from "notistack";
+import { useState } from "react";
+import { catchErrorFromFetch } from "@/utils/requestUtils";
+import { downloadPDF } from "@/utils/fileUtils";
 import { apiClientGetItemHistorico } from "@/hooks/apiclient";
+import { cn } from "@/lib/utils";
+import { Badge } from "../ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface IProps {
-  item: IHistoricoCotacao
+  item: IHistoricoCotacao;
 }
 
-const ItemHistoricoCotacao: React.FC<IProps> = ({
-  item
-}) => {
-
-  const i = item;
-  const { theme, setTheme } = useTheme();
+export default function ItemHistoricoCotacao({ item }: IProps) {
   const router = useRouter();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(false);
 
-  const selectItem = async (uuid : string) => {
-    if (!!uuid && !isLoading) {
-      const fetchData = async () => {
-        setIsLoading(true);
-        const req: IHistoricoCotacao|null = await apiClientGetItemHistorico([{ val: uuid, param: 'uuid' }]);
-        setIsLoading(false);
-        if (!!req) {
-          downloadPDF(req.nomeArquivo, req.arquivo);
-        }
+  const handleDownloadPDF = async () => {
+    if (!item.uuid || isLoading) return;
+
+    try {
+      setIsLoading(true);
+      const res = await apiClientGetItemHistorico([
+        { val: item.uuid, param: "uuid" },
+      ]);
+      if (res) {
+        downloadPDF(res.nomeArquivo, res.arquivo);
       }
-      fetchData().catch(e => {
-        catchErrorFromFetch(e, enqueueSnackbar, 'arquivo da cotação');
-      });
+    } catch (err) {
+      catchErrorFromFetch(err, enqueueSnackbar, "arquivo da cotação");
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
+  const handleViewDetails = () => {
+    router.push(`/cotacoes/validacao/${item.hashValidacao}`);
+  };
 
   return (
-          <div className="flex-1 w-full flex-wrap md:flex-nowrap gap-4 py-2">
-            <Card className="bg-default-100/50 flex flex-row mx-4" shadow="sm">
-              <CardBody className="flex-row items-center justify-between">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors gap-4">
+      {/* Coluna esquerda: Ícone + Detalhes */}
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 flex-1 text-center sm:text-left">
+        <div className="p-3 bg-primary/10 rounded-lg flex-shrink-0">
+          <ClipboardList className="h-8 w-8 text-primary" />
+        </div>
 
-                <div className="flex gap-6 md:gap-4 items-center justify-center basis-1/12">
-                  <div className="relative col-span-6 md:col-span-4">
-                    <ClipboardIcon height={48} width={48}
-                      classNamesArrPath={theme == 'light' ? ['stroke-gray-500'] : ['stroke-gray-400']}
-                      ></ClipboardIcon>
-                  </div>
-                </div>
+        <div className="flex-1">
+          <h4 className="font-medium text-lg mb-1 text-foreground">
+            {item.nome}
+          </h4>
 
-                <div className="flex flex-col basis-11/12">
-                  <div className="flex justify-between items-start">
-                    <div className="flex flex-col gap-0">
-                      <h3 className="font-semibold text-foreground/90">{i.nome}</h3>
-                      <p className="text-small mt-1 text-foreground/80">
-                        Cotação realizada em: {i.criadoEm}
-                      </p>
-                      <p className="text-small mt-1 text-foreground/80">
-                        Código de Validação: <Button type="button" variant="ghost" color="primary" onPress={() => router.push(`/cotacao/validacao/${i.hashValidacao}`) }>{i.hashValidacao}</Button>
-                      </p>
-                    </div>
-                  </div>
-                </div>
+          <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+            <p className="text-sm flex flex-col sm:flex-row items-center sm:items-start gap-1 sm:gap-4 mt-1">
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                Cotação realizada em: {item.criadoEm}
+              </span>
+            </p>
 
-                
-                <Button
-                  isIconOnly
-                  className="text-gray-200 flex flex-row gap-3"
-                  radius="full" 
-                  color="primary"
-                  variant="solid"
-                  isDisabled={isLoading}
-                  onPress={() => selectItem(i.uuid) }
-                >
-                  { isLoading ? 
-                  <LoadingCircleIcon/> 
-                  :
-                  <FileDownloadIcon classNamesArrPath={['stroke-gray-200']}></FileDownloadIcon>
-                  }
-                </Button>
-
-              </CardBody>
-            </Card>
+            <span>
+              <span className="font-medium">Código de Validação:</span>{" "}
+              <Badge variant="outline" className="text-xs">
+                {item.hashValidacao}
+              </Badge>
+            </span>
           </div>
-  )
-}
+        </div>
+      </div>
 
-export default ItemHistoricoCotacao;
+      {/* Coluna direita: Botões */}
+      <div className="flex items-center justify-center sm:justify-end gap-2 mt-4 sm:mt-0">
+        {/* Botão de Detalhes com Tooltip */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleViewDetails}
+              className="rounded-full border hover:bg-muted/70 transition-colors"
+            >
+              <ClipboardCheck className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Validar esta cotação</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Botão de Download com Tooltip */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleDownloadPDF}
+              className={cn(
+                "rounded-full border hover:bg-muted/70 transition-colors",
+                isLoading && "opacity-70 cursor-not-allowed"
+              )}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Baixar arquivo PDF da cotação</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </div>
+  );
+}

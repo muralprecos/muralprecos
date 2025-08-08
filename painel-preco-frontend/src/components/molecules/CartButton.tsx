@@ -1,104 +1,72 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-
-import { Button } from '@nextui-org/react'
-import { useAppSelector, useDispatch } from '@/redux/store'
-import { IRetornoPesquisaItensLicitacao } from '@/interfaces/types'
-import { add, remove } from '@/redux/features/cart-slice'
-import CartPlusIcon from '../atoms/icons/CartPlusIcon'
-import CartRemoveIcon from '../atoms/icons/CartRemoveIcon'
-import { useSession } from 'next-auth/react'
-import { getUserCart, getUserCartBySession, getUsernameBySession } from '@/utils/cartUtils'
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useAppSelector } from "@/store/store";
+import { add, remove } from "@/store/features/cart-slice";
+import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
+import { ShoppingCart, ShoppingCartIcon, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { getUserCart, getUsernameBySession } from "@/utils/cartUtils";
+import { cn } from "@/lib/utils";
+import { useDispatch } from "react-redux";
 
 type CartButtonProps = {
-  itemRetornoLicitacao?: IRetornoPesquisaItensLicitacao | null
-  isCompact?: boolean
-}
+  itemRetornoLicitacao?: IRetornoPesquisaItensLicitacao | null;
+  isCompact?: boolean;
+};
 
-const CartButton: React.FC<CartButtonProps> = ({
+export default function CartButton({
   itemRetornoLicitacao,
-  isCompact = false
-}) => {
+  isCompact = false,
+}: CartButtonProps) {
   const [mounted, setMounted] = useState(false);
-
   const session = useSession();
   const dispatch = useDispatch();
+  const cartState = useAppSelector((state) => state.cartReducer);
 
-  const _cartList = useAppSelector((state) => state.cartReducer);
-  const [cart, setCart] = useState<IRetornoPesquisaItensLicitacao[]>([]);
+  const username = getUsernameBySession(session.data);
+  const cart = getUserCart(cartState, username);
 
-  
   useEffect(() => {
-    setCart(getUserCart(_cartList, getUsername()));
-  }, [_cartList]);
-
-  
-  useEffect(() => {
-    setMounted(true)
+    setMounted(true);
   }, []);
 
-  const getUsername = () => {
-    return session.data?.userInfo?.preferred_username
-  }
-
-  const isOnCar = (item: IRetornoPesquisaItensLicitacao) => {
-    return cart.filter((el) => el.uuid == item.uuid).length > 0;
-  }
-
-  const onClickAddCart = (item: IRetornoPesquisaItensLicitacao) => {
-    dispatch(add({
-      item,
-      user: getUsername()
-    }));
-  }
-
-  const onClickRemoveCart = (item: IRetornoPesquisaItensLicitacao) => {
-    dispatch(remove({
-      item,
-      user: getUsername()
-    }));
-  }
-
   if (!mounted || !itemRetornoLicitacao) return null;
-
-  if (!session || session.status != 'authenticated' || getUsername() == null) {
-    return <p>Autentique-se novamente</p>;
+  if (!session || session.status !== "authenticated" || !username) {
+    return (
+      <p className="text-sm text-muted-foreground">Autentique-se novamente</p>
+    );
   }
+
+  const isInCart = cart.some((item) => item.uuid === itemRetornoLicitacao.uuid);
+
+  const handleToggle = () => {
+    const action = isInCart ? remove : add;
+    dispatch(action({ item: itemRetornoLicitacao, user: username }));
+  };
 
   return (
-    <div className="flex-1">
-      { !isOnCar(itemRetornoLicitacao) ? 
-        <Button
-          className={`${isCompact ? '': 'w-full'}`}
-          color="primary"
-          variant="solid"
-          radius={isCompact ? 'full' : 'sm'}
-          isIconOnly={isCompact}
-          onPress={() => onClickAddCart(itemRetornoLicitacao) }
-        >
-          <CartPlusIcon classNamesArrPath={['stroke-white fill-white']}></CartPlusIcon>
-          { !isCompact && 
-            <span>Adicionar ao Carrinho</span>
-          }
-        </Button>
-      : 
-        <Button
-          className={`text-default-900/90  ${isCompact ? '': 'w-full'}`}
-          color="danger"
-          variant="solid"
-          radius={isCompact ? 'full' : 'sm'}
-          isIconOnly={isCompact}
-          onPress={() => onClickRemoveCart(itemRetornoLicitacao) }
-        >
-          <CartRemoveIcon classNamesArrPath={['stroke-white fill-white']}></CartRemoveIcon>
-          { !isCompact && 
-            <span className="text-white">Remover do Carrinho</span>
-          }
-        </Button>
-      }
-    </div>
-  )
+    <Button
+      onClick={handleToggle}
+      variant={isInCart ? "default" : "outline"}
+      size={isCompact ? "icon" : "sm"}
+      className={cn(
+        "transition-all",
+        isCompact ? "rounded-full h-10 w-10" : "w-full"
+      )}
+      aria-label={isInCart ? "Remover do carrinho" : "Adicionar ao carrinho"}
+    >
+      {isInCart ? (
+        <Trash2 className="h-4 w-4" />
+      ) : (
+        <ShoppingCartIcon className="h-4 w-4" />
+      )}
+      {!isCompact && (
+        <span className="ml-2">
+          {isInCart ? "Remover do Carrinho" : "Adicionar ao Carrinho"}
+        </span>
+      )}
+    </Button>
+  );
 }
-
-export default CartButton;
