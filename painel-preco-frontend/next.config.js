@@ -1,18 +1,9 @@
-// const isProduction = process.env.NODE_ENV === 'production';
-
-/** @type {import('next').NextConfig} */
 const nextConfig = {
-  output : "standalone",
-  // output: 'standalone',
-  //output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
-  // experimental: {
-  //   serverActions: true,
-  // },
+  output: "standalone",
   generateBuildId: async () => {
     return `${Date.now() + Math.round(Math.random() * 2441139)}`;
   },
   env: {
-    // pulls from .env file
     API_URL: process.env.API_URL,
     AUTH_SECRET: process.env.AUTH_SECRET,
     KEYCLOAK_ID: process.env.KEYCLOAK_ID,
@@ -21,15 +12,11 @@ const nextConfig = {
     REFRESH_TOKEN_URL: process.env.REFRESH_TOKEN_URL,
     END_SESSION_URL: process.env.END_SESSION_URL,
     CHECK_SESSION_URL: process.env.CHECK_SESSION_URL,
-    KEYCLOAK_SECRET: process.env.KEYCLOAK_SECRET
+    KEYCLOAK_SECRET: process.env.KEYCLOAK_SECRET,
   },
-  webpack(config) {
-    config.resolve.extensions.push('.ts', '.tsx');
-    config.resolve.fallback = { fs: false };
-    return config;
-  },
+  turbopack: {}, // habilita Turbopack oficialmente no Next 15
   compiler: {
-    styledComponents: true
+    styledComponents: true,
   },
   async headers() {
     return [
@@ -40,11 +27,11 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=9999999999, must-revalidate',
-          }
+          },
         ],
       },
-    ]
+    ];
   },
 };
 
-module.exports = nextConfig
+module.exports = nextConfig;

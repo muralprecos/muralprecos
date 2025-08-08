@@ -1,146 +1,74 @@
-// tailwind.config.js
-const {nextui} = require("@nextui-org/react");
-
-const COLORS = {
-  purple: '#6d0bd8',
-  green: '#a1f71c',
-  greenMedium: '#7ee62f',
-  purpleDark: '#1b0945'
-}
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
-      keyframes: {
-        'spin-slow': {
-          '0%': {
-            transform: 'rotate(0deg)',
-          },
-          '100%': {
-            transform: 'rotate(360deg)',
-          },
-        },
-      },
-      animation: {
-        'spin-slow': 'spin-slow 2s linear infinite',
-      }
-    },
+  	extend: {
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		colors: {
+  			background: 'hsl(var(--background))',
+  			foreground: 'hsl(var(--foreground))',
+  			card: {
+  				DEFAULT: 'hsl(var(--card))',
+  				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			popover: {
+  				DEFAULT: 'hsl(var(--popover))',
+  				foreground: 'hsl(var(--popover-foreground))'
+  			},
+  			primary: {
+  				DEFAULT: 'hsl(var(--primary))',
+  				foreground: 'hsl(var(--primary-foreground))'
+  			},
+  			secondary: {
+  				DEFAULT: 'hsl(var(--secondary))',
+  				foreground: 'hsl(var(--secondary-foreground))'
+  			},
+  			muted: {
+  				DEFAULT: 'hsl(var(--muted))',
+  				foreground: 'hsl(var(--muted-foreground))'
+  			},
+  			accent: {
+  				DEFAULT: 'hsl(var(--accent))',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
+  			destructive: {
+  				DEFAULT: 'hsl(var(--destructive))',
+  				foreground: 'hsl(var(--destructive-foreground))'
+  			},
+  			border: 'hsl(var(--border))',
+  			input: 'hsl(var(--input))',
+  			ring: 'hsl(var(--ring))',
+  			chart: {
+  				'1': 'hsl(var(--chart-1))',
+  				'2': 'hsl(var(--chart-2))',
+  				'3': 'hsl(var(--chart-3))',
+  				'4': 'hsl(var(--chart-4))',
+  				'5': 'hsl(var(--chart-5))'
+  			},
+  			sidebar: {
+  				DEFAULT: 'hsl(var(--sidebar-background))',
+  				foreground: 'hsl(var(--sidebar-foreground))',
+  				primary: 'hsl(var(--sidebar-primary))',
+  				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+  				accent: 'hsl(var(--sidebar-accent))',
+  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+  				border: 'hsl(var(--sidebar-border))',
+  				ring: 'hsl(var(--sidebar-ring))'
+  			}
+  		}
+  	}
   },
-  darkMode: "class",
+  darkMode: ["class", "class"],
   plugins: [
-    nextui({
-      //https://colors.muz.li/palette/6d0bd8/350a97/d6c3ff/ac88ff/ffffff
-      //https://coolors.co/palettes/popular/violet
-      prefix: 'tt',
-      themes: {
-        light: {
-          layout: {}, // light theme layout tokens
-          colors: {
-            'bg-gradiente-inicial': '#daccf8',
-            'bg-gradiente-final': '#eee8fa',
-            background: '#fff',
-            foreground: '#222',
-            primary: {
-              50: '#1e1259',//250°, 80%, 35%
-              100: '#2f1982',//253°, 83%, 44%
-              200: '#341387',//257°, 86%, 53%
-              300: '#4412a1',//261°, 89%, 63%
-              400: '#580fbd',//265°, 92%, 74%
-              500: '#6d0bd8',//269°, 95%, 85%
-              600: '#a866ff',
-              700: '#d1adff',
-              800: '#e8d6ff',
-              900: '#f5edff',
-              DEFAULT: '#6d0bd8',
-              foreground: '#ffffff',
-              title: COLORS.purple
-            },
-            secondary: {
-              DEFAULT: '#bef781',
-              foreground: COLORS.purpleDark,
-              btnback: '#bef781'
-            },
-            danger: {
-              DEFAULT: '#ff5252',
-              oreground: '#fff'
-            },
-            warning: {
-              DEFAULT: '#ffcf82',
-              foreground: '#9e670f'
-            },
-            success: {
-              DEFAULT: '#b7f15f',
-              foreground: '#376b00'
-            },
-            focus: '#a866ff'
-          } // light theme colors
-        },
-        dark: {
-          layout: {}, // dark theme layout tokens
-          colors: {} // dark theme colors
-        },
-        modern: {
-          extend: 'dark', // <- inherit default values from dark theme
-          colors: {
-            'bg-gradiente-inicial': '#0e0326',
-            'bg-gradiente-final': '#1b0747',
-            background: '#150636',
-            foreground: '#ffffff',
-            primary: {
-              50: '#1e1259',//250°, 80%, 35%
-              100: '#2f1982',//253°, 83%, 44%
-              200: '#341387',//257°, 86%, 53%
-              300: '#4412a1',//261°, 89%, 63%
-              400: '#580fbd',//265°, 92%, 74%
-              500: '#6d0bd8',//269°, 95%, 85%
-              600: '#a866ff',
-              700: '#d1adff',
-              800: '#e8d6ff',
-              900: '#f5edff',
-              DEFAULT: '#6d0bd8',
-              foreground: '#ffffff',
-              title: COLORS.green
-            },
-            secondary: {
-              300: '#d0fe9f',
-              500: '#ade96c',
-              600: '#47960b',
-              DEFAULT: '#ade96c',
-              foreground: COLORS.purpleDark,
-              btnback: '#bef781'
-            },
-            danger: {
-              DEFAULT: '#bf3b3b',
-            },
-            focus: '#a866ff'
-          },
-          layout: {
-            disabledOpacity: '0.3',
-            radius: {
-              small: '1px',
-              medium: '2px',
-              large: '4px'
-            },
-            borderWidth: {
-              small: '1px',
-              medium: '2px',
-              large: '3px'
-            }
-          }
-        }
-      }
-    })
+    require("tailwindcss-animate"),
+    require("tailwind-scrollbar"),
   ],
-}
+};

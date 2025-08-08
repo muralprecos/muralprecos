@@ -1,268 +1,42 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Pricing Panel V2.0
 
-## Getting Started
+Este projeto é um painel de precificação desenvolvido para facilitar a gestão e visualização de preços de produtos ou serviços. O objetivo é fornecer uma interface intuitiva para atualização, consulta e análise de preços, integrando-se facilmente com outros sistemas da empresa.
 
-First, run the development server:
+## Funcionalidades
+
+- Visualização de preços atuais
+- Atualização de preços em tempo real
+- Histórico de alterações de preços
+- Filtros e busca por produto ou categoria
+- Integração com sistemas externos via API
+
+## Estrutura do Projeto
+
+```
+pricing-panel/
+├── public/                 # Arquivos estáticos (imagens, favicon, etc.)
+├── src/
+│   ├── components/         # Componentes reutilizáveis da interface
+│   ├── pages/              # Páginas principais da aplicação
+│   ├── services/           # Serviços de integração (APIs, etc.)
+│   ├── hooks/              # Hooks customizados
+│   ├── utils/              # Funções utilitárias
+│   ├── App.js              # Componente principal da aplicação
+│   └── index.js            # Ponto de entrada da aplicação
+├── package.json            # Dependências e scripts do projeto
+└── README.md               # Documentação do projeto
+```
+
+## Como Executar
+
+1. Instale as dependências:
+
+```bash
+npm install
+```
+
+2. Inicie o projeto:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Deploy
-
-Check configs in docker-compose.yml file. Default target is production, but can be "dev" or "builder" (only generate the build files, without execute the server). You can change the exposed ports too, by default uses port number 3000.
-
-```bash
-docker build . -t ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
-docker push ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
-docker-compose up
-```
-
-## Development Without CORS
-
-To run project localhost and don't get CORS error, execute this command on terminal:
-
-open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
-
-
-Executar Chrome com CORS:
-Mac: open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/Users/matheuscampanha/Documents/chrome_files/chrome_dev_test" --disable-web-security
-Linux: google-chrome --disable-web-security --user-data-dir="/tmp/"
-
-- https://www.svgrepo.com/collection/solar-linear-icons/
-- https://www.svgrepo.com/collection/solar-bold-icons/
-- https://www.svgrepo.com/collection/solar-outline-icons/
-
-## Dev performance checks:
-
-```bash
-npx depcheck
-```
-
-## Important DOCs:
-
-Flex Layout Aux:
-- https://angrytools.com/css-flex/
-- https://flexbox.tech/
-- https://www.cssportal.com/css-flexbox-generator/
-- https://tobiasahlin.com/blog/common-flexbox-patterns/
-
-Create Theme NextUI
-- https://nextui.org/docs/customization/create-theme
-
-Getting started with new NextUI:
-- https://blog.logrocket.com/getting-started-nextui-next-js/
-
-Customizing tailwind-css with react:
-- https://blog.logrocket.com/theming-react-components-tailwind-css/
-
-
-
-### TODO Work:
-
-https://www.youtube.com/watch?v=Lzml9L3f4IM&ab_channel=NetNinja
-https://www.youtube.com/watch?v=fcUMBjBEDr0&ab_channel=DevJuniorAlves
-https://nextjs.org/docs/pages/building-your-application/configuring/debugging
-https://blog.logrocket.com/common-next-js-errors/
-https://authjs.dev/reference/nextjs#in-server-components
-https://blog.stackademic.com/authentication-in-next-js-with-auth-js-nextauth-5-b74e3ae18ab8
-https://github.com/nextauthjs/next-auth-v5-example
-
-https://michaelangelo-io.medium.com/better-logging-with-nextjs-app-directory-60a07c96d146
-https://github.com/pinojs/pino
-https://github.com/michaelangeloio/michaelangelo.io/blob/main/lib/logger.ts
-
-
-======================================
-
-Front e Back:
-	- Histórico:
-		- Ordenar por data de realização;
-		- Filtrar:
-			- Data (intervalo);
-			- Descrição;
-			- Código de Validação;
-		- Adicionar informações dos filtros ao salvar histórico de cotação;
-			- Apresentar na listagem informações dos filtros aplicados;
-
-Só Back:
-	- ASCII nos autocompletes de descrição/objeto;
-	- Quadro resumo das cotações (concatenação de cotações anteriores);
-	- Armazenar a organização ao realizar cotação (histórico);
-		- Filtrar pela organização e pelo usário logado;
-    -  Verificar se os nomes são iguais, se sim, não concatená-los (SetList). Ex:
-        matheusmmcs - MANUTENCAO GERADOR ELETRICO,MANUTENCAO GERADOR ELETRICO,MANU... - 07/04/2024
-
-Só Front:
-    - Atenticação por permissão ao carregar server component;
-
-    Ok - Garantir no localstorage que seja carregado os dados do usuário;
-    Ok - Revisão das cores de botões;
-    Ok - Criar interface para validar cotacao (cod validacao via GET);
-		Endpoint: http://{{HOST_ADDRESS}}/serverapi/v1/cotacoes/validacao
-			Body: {"hash": "1bdba88ef7645089f2b8f863093d88b0"}
-    Ok - Adicionar versão em área deslogada;
-    X - Ao não selecionar no autocomplete, permitir que o conteúdo continue;
-        OBS: Caso não apareça no autocomplete, faz sentido de fato continuar com a busca mesmo assim?
-
--> Add no backlog:
-   
-
-
-======================================
-
-- Refresh Token (estudar estratégia - server e client);
-
-- Replicar lógica de usuário não autenticado após request para outros trechos do app;
-
-
-
-
-
-
-
-- PROBLEMA DE AUTENTICAÇ˜AO: TOKEN INVALIDO (ERRO 401 e ROUTE DO NEXTAUTH NAO CORRIJE)
-
-- Gerar botões de links ao visualizar item;q
-
-ok - Período de Compra; (obrigatório)
-
-https://fatfish.medium.com/4-custom-react-hooks-every-developer-should-know-c61f644bbc3e
-
-- Middleware protected pages:
-    https://next-auth.js.org/tutorials/securing-pages-and-api-routes#server-side
-    https://github.com/nextauthjs/next-auth-v5-example
-    https://acubeddu87.medium.com/nextjs-14-app-router-and-unit-testing-f0ba74b5436b
-
-- Apresentar mensagem de erro após retorno problemático de request;
-
-- Configurar o deploy para utilizar o arquivo de environment correto;
-
-- Gestão de erro ao realizar login errado;
-
-- Verificar TODO
-
-- Linkar com autenticação:
-    Refreshtoken;
-    Plugar o NextAuth ao formulário interno;
-    Remover Interfaces de Autenticação anterior;
-
-    Criar Middleware de autenticação
-        Serverside:
-            https://nextjs.org/docs/app/building-your-application/authentication#authorization-using-server-components
-    Autenticar:
-        Parâmetro docker: client_secret e client_id
-        Tratar erros de login errado
-    Verificar informações do JWT;
-
-
-
-- Botão de limpar autocomplete não está retirando as informações do formulário (Unidade Gestora, por exemplo)
-
-- Autocomplete com carregamento do municipio via request/localstorage
-
-- Apresentar filtros buscados;
-
-
-
-- middleware de autenticação;
-
-- Loading a cada request;
-
-- Request com signal;
-
-- Pré-loading de imagens/svg;
-
-- Resolver hints;
-
-- Evitar o lazy loading de itens (por exemplo, header verificando carrinho e logado);
-
-- Histórico de cotações;
-
-- Tela de cadastro/edição de usuário / login;
-
-- Listagem de itens de licitação antes de gerar PDF;
-	- Segunda listagem informando período de compra;
-
-- Aprimorar segurança nos parâmetros get (algoritmos de criptografia)
-
-====================================== Pós Reunião 10/01
-
-Filtros pré-definidos (armazenar filtros);
-    - Pessoal;
-    - Institucional;
-
-Filtros mais usados:
-    Período de Compra; (obrigatório)
-    Região;
-    Modalidade;
-    Tipo: serviço / material;
-
-Média / Media de preço dos vencedores;
-
-Botão para link para o edital / termo de referência;
-
-Geração do relatório de cotação:
-    Período da compra;
-
-=======================================
-
-
-https://medium.com/@raphox/rails-and-next-js-the-perfect-combination-for-modern-web-development-final-part-a88af492a00
-https://levelup.gitconnected.com/authentication-in-two-lines-of-code-auth-js-next-js-14-653b252abfd3
-https://www.youtube.com/watch?v=SO8lBVWF2Y8&t=68s&ab_channel=WebDevSimplified
-https://redux-toolkit.js.org/api/createAsyncThunk
-https://orizens.com/blog/integrating-react-hook-form-and-redux-toolkit-rtk/
-
-
-
-- Estudo: https://nextjs.org/docs/app/building-your-application/caching
-
-- rever oq pode ter renderização no servidor: https://nextjs.org/docs/app/building-your-application/rendering/composition-patterns
-
-- revisar formulário: https://www.youtube.com/watch?v=dDpZfOQBMaU&t=5s&ab_channel=LeeRobinson
-
-- verificar padrão adotado para requisições com type: https://douglasmoura.dev/en-US/using-fetch-with-typescript
-
-
-# Aprimoramentos Front:
-
-- Nome/Código Material -> apresentar nome e código na listagem do autocomplete;
-
-- Orgao (caso superior seja selecionado, filtrar os menores por ele)
-	http://muraldeprecos.com/api/v1/orgaos/dfd49cc0-4f86-11ee-8095-0242ac120003/suborgaos?page=0&size=50
-
-- Verificar TODOs
-
-- Botão de carrinho do detalhe do item condicional para add/remove;
-
-
-# Aprimoramentos Back:
-
-- Retornar textos de descrição como setlist (descrição complementar, objeto, etc) para não retornar textos iguais;
-
-
-+++++++++++
--Identificar quais dados devem ser apresentados na listagem do itens de compra bem como no detalhamento do item;
--[BACKLOG-V1] Implementar relatório de cotação;
--[BACKLOG-V1] Implementar endpoint de finalização de cotação;
--[BACKLOG-V2] No endpoint de unidades-federativas, criar parâmetro top10=true, para carregar os top 10 munícipios (que possuem mais licitações no estado) quando se selecionar um estado.
-
-Print de tela de exemplo:
-https://github.com/orgs/TTSolutionsPI/projects/1?pane=issue&itemId=33720481
-
-
-========
-
-Anotações após modificações nas APIs:
-- Material: CatMat sempre vazio, não é retornado informação de material (${HOST_API_PREFIX}/itens-licitacao/${uuid})
