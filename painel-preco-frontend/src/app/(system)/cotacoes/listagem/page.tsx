@@ -9,6 +9,7 @@ export default function PageCotacaoListagem() {
   return (
     <div>
       <PageHeader
+        title="Cotação"
         breadcrumbItems={[
           {
             label: "Cotação",

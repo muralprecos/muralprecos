@@ -33,8 +33,6 @@ import { useTheme } from "next-themes";
 export function NavUser({ session }: { session: Session | null }) {
   const { isMobile } = useSidebar();
 
-  console.log(session)
-
   const org = session?.userInfo?.organizacao?.nome ?? "Sem organização  ";
   const name = session?.userInfo?.name ?? "Usuário";
   const email = session?.userInfo?.email ?? "user@example.com";

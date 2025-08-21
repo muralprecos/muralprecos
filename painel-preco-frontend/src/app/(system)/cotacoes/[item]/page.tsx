@@ -11,6 +11,7 @@ export default async function PageItemCotacao({
   return (
     <div>
       <PageHeader
+        title="Cotação"
         breadcrumbItems={[
           {
             label: "Cotação",

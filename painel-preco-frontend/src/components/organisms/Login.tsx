@@ -121,7 +121,7 @@ export default function Login(props: Props) {
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-white mb-2">
-            Bem-vindo(a) ao mural de preços
+            Bem-vindo(a) ao Mural de Preços
           </h1>
           <p className="text-purple-200 text-sm">
             Acesse dados essenciais de forma rápida e segura

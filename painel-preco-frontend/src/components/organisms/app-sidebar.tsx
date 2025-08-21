@@ -71,7 +71,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           asChild
           className="data-[slot=sidebar-menu-button]:!p-1.5"
         >
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 py-7">
             <TTLogo className="w-5 h-5" />
             <span className="text-base font-semibold text-primary">Mural de Preços</span>
           </Link>
