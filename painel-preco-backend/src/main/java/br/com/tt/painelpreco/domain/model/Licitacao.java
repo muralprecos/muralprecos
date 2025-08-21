@@ -93,6 +93,9 @@ public class Licitacao {
 	
 	private Double valor;
 	
+	@Column(name = "numero_controle_pncp")
+	private String numeroPncp;
+	
 	@OneToMany(mappedBy = "licitacao")
 	private List<ItemLicitacao> itens = new ArrayList<>();
 	
@@ -112,6 +115,18 @@ public class Licitacao {
 		String ano = numStr.substring(2);
 		
 		return modalidadeCompra.getNome() + " N.º " + num + "/" + ano;
+	}
+
+	public boolean isFederal() {
+		return esfera.isFederal();
+	}
+
+	public String getAnoNumeroPncp() {
+		return numeroPncp.substring(24);
+	}
+	
+	public String getCodigoModalidadeComprasNet() {
+		return modalidadeCompra.getCodigoComprasNet();
 	}
 
 }

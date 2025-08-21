@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import br.com.tt.painelpreco.domain.model.vo.Link;
+import br.com.tt.painelpreco.util.StringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -80,10 +81,20 @@ public class ItemLicitacao {
 	}
 	
 	public List<Link> getLinks() {
-		Integer uasg = licitacao.getUnidadeGestora().getCodigo();
-		String numLicitacao = licitacao.getNumero();
-		Integer codModalidade = licitacao.getModalidadeCompra().getCodigo();
-		String url = "http://comprasnet.gov.br/livre/pregao/ata2.asp?co_no_uasg=" + uasg + "&numprp=" + numLicitacao + "&codigoModalidade=" + codModalidade + "&f_lstSrp=T&f_Uf=&f_numPrp=0&f_codUasg=" + uasg + "&f_codMod=" + codModalidade + "&f_tpPregao=E&f_lstICMS=T&f_dtAberturaIni=&f_dtAberturaFim=";
+		String url = null;
+		if (licitacao.isFederal()) {
+			Integer uasg = licitacao.getUnidadeGestora().getCodigo();
+			String codModalidade = licitacao.getCodigoModalidadeComprasNet();
+			String numLicitacao = licitacao.getNumero();
+			String anoNumeroPncp = licitacao.getAnoNumeroPncp();
+			url = "https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=" + uasg + codModalidade + numLicitacao + anoNumeroPncp;
+		} else {
+			String numeroPncp = licitacao.getNumeroPncp();
+			String param1 = StringUtil.substring(numeroPncp, 0, 14);
+			String param2 = StringUtil.substring(numeroPncp, 24, 4);
+			String param3 = StringUtil.substring(numeroPncp, 17, 6);
+			url = String.format("https://pncp.gov.br/app/editais/%s/%s/%s", param1, param2, param3);
+		}
 		links.add(new Link(licitacao.getNumeroFormatado(), url));
 		
 		return links;
