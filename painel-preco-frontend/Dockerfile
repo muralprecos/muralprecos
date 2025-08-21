@@ -26,7 +26,6 @@ RUN adduser --system --uid 1001 nextjs
 RUN mkdir -p /appserverlogs
 RUN chown nextjs:nodejs /appserverlogs
 RUN chmod 755 /appserverlogs
-COPY --from=builder /app/public ./public
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 COPY --from=builder /app/public ./public
