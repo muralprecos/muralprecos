@@ -1,70 +1,140 @@
-'use client'
+"use client";
 
-import { Autocomplete, AutocompleteItem, AutocompleteProps } from '@nextui-org/react'
-import { ISimpleObjetoAPI } from '@/interfaces/types'
-import { AsyncListData } from '@react-stately/data'
-import { Controller, FieldError, FieldErrors, FieldErrorsImpl, FieldValues, Merge, UseControllerProps } from 'react-hook-form'
-import { messages } from '@/utils/messages'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ISimpleObjetoAPI } from "@/interfaces/types";
+import { AsyncListData } from "@react-stately/data";
+import {
+  Controller,
+  FieldErrors,
+  FieldValues,
+  UseControllerProps,
+} from "react-hook-form";
+import { useState } from "react";
+import { messages } from "@/utils/messages";
 
-type KeyOfType<T, V> = keyof {
-  [P in keyof T as T[P] extends V? P: never]: any
+interface IProps<T extends ISimpleObjetoAPI, P extends FieldValues>
+  extends UseControllerProps<P> {
+  attrVal: keyof T;
+  autocompleteHook: AsyncListData<T>;
+  errors?: FieldErrors;
+  label?: string;
+  className?: string;
+  placeholder?: string;
 }
 
-interface IProps<T extends ISimpleObjetoAPI, P extends FieldValues> extends UseControllerProps<P>, Omit<AutocompleteProps, "children"|"items"|"defaultItems"|"name"> {
-  attrVal: keyof T
-  autocompleteHook: AsyncListData<T>
-  errors?: FieldErrors
-}
-
-function AutocompleteAsyncForm<T extends ISimpleObjetoAPI, P extends FieldValues>({
-  autocompleteHook,
-  attrVal,
+export function AutocompleteAsyncForm<
+  T extends ISimpleObjetoAPI,
+  P extends FieldValues
+>({
   name,
-  label,
   control,
+  attrVal,
+  autocompleteHook,
   errors,
-  className="w-full",
-  variant="flat",
-  placeholder="Digite para buscar...",
-  ...opts
-} : IProps<T, P>) {
-  
-  const err: FieldError| Merge<FieldError, FieldErrorsImpl<any>> | undefined = errors ? errors[name] : undefined;
-  const isValid = err == null;
-  const errMsg = !isValid ? label + ' ' + err.message : '';
+  label,
+  className,
+  placeholder = "Digite para buscar...",
+}: IProps<T, P>) {
+  const [open, setOpen] = useState(false);
+
+  const fieldError = errors?.[name];
+  const isValid = !fieldError;
+  const errorMessage = !isValid ? `${label ?? ""} ${fieldError?.message}` : "";
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <Autocomplete
-          className={className}
-          variant={variant}
-          placeholder={placeholder}
-          label={label}
-          inputValue={autocompleteHook.filterText}
-          isLoading={autocompleteHook.isLoading}
-          items={autocompleteHook.items}
-          onInputChange={autocompleteHook.setFilterText}
-          onSelectionChange={field.onChange}
-          errorMessage={isValid ? "" : errMsg}
-          isInvalid={isValid ? false : true}
-          listboxProps={{
-            emptyContent: messages.FORM_AUTOCOMPLETE_EMPTY
-          }}
-          {...field}
-          {...opts}
+    <div className={cn("w-full", className)}>
+      {label && (
+        <label
+          htmlFor={name}
+          className="block text-sm font-medium text-foreground mb-1"
         >
-          {(item:T) => (
-            <AutocompleteItem key={item[attrVal]+''} className="capitalize">
-              {item.nome}
-            </AutocompleteItem>
-          )}
-        </Autocomplete>
+          {label}
+        </label>
       )}
-    />
-  )
-}
 
-export default AutocompleteAsyncForm;
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => {
+          const selectedItem = autocompleteHook.items.find(
+            (i) => i[attrVal] + "" === field.value + ""
+          );
+
+          return (
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className={cn(
+                    "w-full justify-between",
+                    !field.value && "text-muted-foreground",
+                    !isValid && "border-destructive"
+                  )}
+                >
+                  {selectedItem?.nome || placeholder}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 max-h-60 overflow-y-auto">
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder={placeholder}
+                    value={autocompleteHook.filterText}
+                    onValueChange={autocompleteHook.setFilterText}
+                  />
+                  <CommandEmpty>
+                    {messages.FORM_AUTOCOMPLETE_EMPTY}
+                  </CommandEmpty>
+                  <CommandGroup>
+                    {autocompleteHook.items.map((item) => {
+                      const itemId = item[attrVal] + "";
+                      return (
+                        <CommandItem
+                          key={itemId}
+                          onSelect={() => {
+                            field.onChange(itemId);
+                            setOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              itemId === field.value
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {item.nome}
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          );
+        }}
+      />
+
+      {!isValid && (
+        <p className="text-xs text-destructive mt-1">{errorMessage}</p>
+      )}
+    </div>
+  );
+}

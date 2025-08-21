@@ -1,61 +1,108 @@
-'use client'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import {
+  Controller,
+  type FieldValues,
+  type UseControllerProps,
+} from "react-hook-form";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useState } from "react";
+import { Button } from "../ui/button";
 
-import { Autocomplete, AutocompleteItem, AutocompleteProps } from '@nextui-org/react'
-import { IItemSelect } from '@/interfaces/types'
-import { Controller, FieldError, FieldErrors, FieldErrorsImpl, FieldValues, Merge, UseControllerProps } from 'react-hook-form'
-import { messages } from '@/utils/messages'
-
-interface IProps<P extends FieldValues> extends UseControllerProps<P>, Omit<AutocompleteProps, "children"|"items"|"defaultItems"|"name"> {
-  items: IItemSelect[]
-  errors?: FieldErrors
+interface IItem {
+  label: string;
+  value: string;
 }
 
-function AutocompleteForm<P extends FieldValues>({
-  items,
+interface Props<T extends FieldValues> extends UseControllerProps<T> {
+  label: string;
+  items: IItem[];
+  placeholder?: string;
+  className?: string;
+  errors?: Record<string, any>;
+}
+
+export default function AutocompleteForm<T extends FieldValues>({
+  control,
   name,
   label,
-  control,
+  items,
+  placeholder = "Digite para buscar...",
+  className,
   errors,
-  className="w-full",
-  variant="flat",
-  placeholder="Digite para buscar...",
-  ...opts
-} : IProps<P>) {
-  
-  const err: FieldError| Merge<FieldError, FieldErrorsImpl<any>> | undefined = errors ? errors[name] : undefined;
-  const isValid = err == null;
-  const errMsg = !isValid ? label + ' ' + err.message : '';
+}: Props<T>) {
+  const error = errors?.[name]?.message;
+  const [open, setOpen] = useState(false);
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <Autocomplete
-          className={className}
-          variant={variant}
-          placeholder={placeholder}
-          label={label}
-          defaultItems={items}
-          onSelectionChange={field.onChange}
-          selectedKey={field.value}
-          errorMessage={isValid ? "" : errMsg}
-          isInvalid={isValid ? false : true}
-          listboxProps={{
-            emptyContent: messages.FORM_AUTOCOMPLETE_EMPTY
-          }}
-          {...field}
-          {...opts}
-        >
-          {(item) => (
-            <AutocompleteItem key={item.value} className="capitalize">
-              {item.label}
-            </AutocompleteItem>
-          )}
-        </Autocomplete>
-      )}
-    />
-  )
-}
+    <div className={cn("w-full", className)}>
+      <label className="block text-sm font-medium mb-1">{label}</label>
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => {
+          const selectedItem = items.find((item) => item.value === field.value);
 
-export default AutocompleteForm;
+          return (
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className={cn(
+                    "w-full justify-between",
+                    !field.value && "text-muted-foreground"
+                  )}
+                >
+                  {selectedItem?.label || placeholder}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 max-h-60 overflow-y-auto">
+                <Command>
+                  <CommandInput placeholder={placeholder} className="h-9" />
+                  <CommandEmpty>Nenhuma opção encontrada.</CommandEmpty>
+                  <CommandGroup>
+                    {items.map((item) => (
+                      <CommandItem
+                        key={item.value}
+                        value={item.label}
+                        onSelect={() => {
+                          field.onChange(item.value);
+                          setOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            item.value === field.value
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                        {item.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          );
+        }}
+      />
+      {error && <p className="text-sm text-red-500 mt-1">{error.toString()}</p>}
+    </div>
+  );
+}

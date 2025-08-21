@@ -5,15 +5,16 @@ import { NextRequest } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { uuiduf: string; nome: string } }
+  { params }: { params: Promise<{ uuiduf: string; nome?: string[] }> } 
 ) {
-  //parametros enviados
+  const resolvedParams = await params; 
+
   const info: IAPISearchInfo[] = [];
-  if (!!params.uuiduf) {
-    info.push({ param: 'uuiduf', val: params.uuiduf })
+  if (!!resolvedParams.uuiduf) {
+    info.push({ param: 'uuiduf', val: resolvedParams.uuiduf });
   }
-  if (!!params.nome && params.nome.length > 0) {
-    info.push({ param: 'nome', val: params.nome[0] })
+  if (!!resolvedParams.nome && resolvedParams.nome.length > 0) {
+    info.push({ param: 'nome', val: resolvedParams.nome[0] }); // resolvedParams.nome é array opcional
   }
 
   return genericGET(getListMunicipios, info);

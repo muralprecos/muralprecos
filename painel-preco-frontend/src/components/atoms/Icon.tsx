@@ -1,87 +1,82 @@
-
-import React, { Fragment } from 'react'
+import React, { Fragment } from "react";
+import { ReactSVG } from "react-svg";
 import classNames from "classnames";
 
-import { ReactSVG } from 'react-svg'
-
-
 export type IconProps = {
-  file: string,
-  color?: string,
-  wrapper?: 'span' | 'div'
-  className?: string
-  classNamesArrSvg?: string[]
-  classNamesArrPath?: string[]
-  classNamesArrCircle?: string[]
-  isCursorPointer?: boolean
-  width?: number
-  height?: number
-} & React.AllHTMLAttributes<HTMLElement>
-
-export type IconPropsChild = Omit<IconProps, "file"|"color">;
-
+  file: string;
+  color?: string;
+  wrapper?: "span" | "div";
+  className?: string;
+  isCursorPointer?: boolean;
+  width?: number;
+  height?: number;
+} & React.AllHTMLAttributes<HTMLElement>;
+export type IconPropsChild = Omit<IconProps, "file" | "color">;
 const Icon: React.FC<IconProps> = ({
   file,
   color,
   className,
   width = 24,
   height = 24,
-  classNamesArrSvg,
-  classNamesArrPath,
-  classNamesArrCircle,
-  wrapper = 'div',
+  wrapper = "div",
   isCursorPointer = true,
   ...opts
 }) => {
-
-  const strClassNameSvg = classNamesArrSvg?.length ? classNamesArrSvg.join(' ') : '';
-  const strClassNamePaths = classNamesArrPath?.length ? classNamesArrPath.join(' ') : '';
-  const strClassNameCircle = classNamesArrCircle?.length ? classNamesArrCircle.join(' ') : '';
+  const wrapperClassName = classNames(className, {
+    "cursor-pointer": isCursorPointer,
+  });
 
   const content = (
     <Fragment>
-      <ReactSVG src={`/${file}`} wrapper={wrapper} className={className} beforeInjection={(svg) => {
-          svg.setAttribute('width', width.toString());
-          svg.setAttribute('height', height.toString());
+      <ReactSVG
+        src={`/${file}`}
+        wrapper={wrapper}
+        className=""
+        beforeInjection={(svg) => {
+          svg.setAttribute("width", width.toString());
+          svg.setAttribute("height", height.toString());
 
-          if (strClassNameSvg != '') {
-            strClassNameSvg.split(' ').forEach((s) => {
-              svg.classList.add(s);
-            })
-          }
+          // aplicar classes data-* (opcional)
+          const classes = className?.split(" ") || [];
 
-          if (strClassNamePaths != '') {
-            svg.querySelectorAll('path').forEach(path => {
-              strClassNamePaths.split(' ').forEach((s) => {
-                path.classList.add(s);
-              });
-            });
-          }
+          const svgClasses = classes
+            .filter((c) => c.startsWith("data-svg:"))
+            .map((c) => c.replace("data-svg:", ""));
+          const pathClasses = classes
+            .filter((c) => c.startsWith("data-path:"))
+            .map((c) => c.replace("data-path:", ""));
+          const circleClasses = classes
+            .filter((c) => c.startsWith("data-circle:"))
+            .map((c) => c.replace("data-circle:", ""));
 
-          if (strClassNameCircle != '') {
-            svg.querySelectorAll('circle').forEach(circ => {
-              strClassNameCircle.split(' ').forEach((s) => {
-                circ.classList.add(s);
-              });
-            });
-          }
+          svgClasses.forEach((cls) => svg.classList.add(cls));
+
+          svg
+            .querySelectorAll("path")
+            .forEach((el) =>
+              pathClasses.forEach((cls) => el.classList.add(cls))
+            );
+
+          svg
+            .querySelectorAll("circle")
+            .forEach((el) =>
+              circleClasses.forEach((cls) => el.classList.add(cls))
+            );
         }}
-        useRequestCache={true} />
+        useRequestCache={true}
+      />
     </Fragment>
   );
 
-  return  wrapper == 'span' ? 
-            <span className={classNames({
-                'cursor-pointer': isCursorPointer
-              })} {...opts}>
-              { content }
-            </span> :
-            <div className={classNames({
-                'cursor-pointer': isCursorPointer
-              })} {...opts}>
-              { content }
-            </div>
-}
+  return wrapper === "span" ? (
+    <span className={wrapperClassName} {...opts}>
+      {content}
+    </span>
+  ) : (
+    <div className={wrapperClassName} {...opts}>
+      {content}
+    </div>
+  );
+};
 
-
-export default Icon
+export default Icon;

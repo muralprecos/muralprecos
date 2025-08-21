@@ -1,5 +1,5 @@
 const yupStrings = {
-  required: 'é obrigatório'
+  required: 'Este campo é obrigatório.',
 }
 
 export default yupStrings;

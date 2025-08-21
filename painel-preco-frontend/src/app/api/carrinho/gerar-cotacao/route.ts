@@ -26,6 +26,4 @@ export async function POST(request: NextRequest) {
   } else {
     return NextResponse.json(res);
   }
-
-  
 }

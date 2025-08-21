@@ -1,54 +1,53 @@
-'use client'
+"use client";
 
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalProps } from '@nextui-org/react'
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
-interface IProp extends Omit<ModalProps, "children"|"title"> {
-  title: string
-  description: string
-  actionYes: () => void
+interface IProp {
+  title: string;
+  description: string;
+  actionYes: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  className?: string;
 }
 
-function ModalConfirm({
+export function ModalConfirm({
   title,
   description,
   actionYes,
-  isOpen,
+  open,
   onOpenChange,
-  className="w-full",
-  ...opts
-} : IProp) {
-
-  const x : (isOpen: boolean) => void = (isOpen) => {
-    if (!!onOpenChange) onOpenChange(isOpen);
-  }
-
-  const y : (onClose: () => void) => void = (onClose) => {
+  className = "w-full",
+}: IProp) {
+  const handleConfirm = () => {
     actionYes();
-    onClose();
-  }
+    onOpenChange(false);
+  };
 
   return (
-    <Modal {...opts} isOpen={isOpen} onOpenChange={x}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
-              <ModalBody>
-                <p>{description}</p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancelar
-                </Button>
-                <Button color="primary" onPress={(e) => y(onClose)}>
-                  Confirmar
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-        </Modal>
-  )
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={className}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancelar
+          </Button>
+          <Button onClick={handleConfirm}>Confirmar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export default ModalConfirm;

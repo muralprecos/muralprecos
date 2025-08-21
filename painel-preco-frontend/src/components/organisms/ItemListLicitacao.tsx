@@ -1,79 +1,118 @@
 "use client";
 
-import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types"
-import { Button, Card, CardBody } from "@nextui-org/react";
-import WallpaperIcon from "../atoms/icons/WallpaperIcon";
-import { useTheme } from "next-themes";
-import CartButton from "../molecules/CartButton";
-import ClipboardIcon from "../atoms/icons/ClipboardIcon";
-import { mountUrl } from "@/utils/requestUtils";
-import { formatCurrency, parseCurrency, calcUnityValueByQuantity } from "@/utils/formatCurrency";
+import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
+import { Button } from "@/components/ui/button";
+import { Package, ClipboardList, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
+import {
+  formatCurrency,
+  parseCurrency,
+  calcUnityValueByQuantity,
+} from "@/utils/formatCurrency";
+import CartButton from "../molecules/CartButton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface IProps {
-  item: IRetornoPesquisaItensLicitacao
-  setIsLoading: Dispatch<SetStateAction<boolean>>
+  item: IRetornoPesquisaItensLicitacao;
+  setIsLoading?: Dispatch<SetStateAction<boolean>>;
+  mode?: "list" | "cart";
+  onRemoveFromCart?: (item: IRetornoPesquisaItensLicitacao) => void;
 }
 
-const ItemListLicitacao: React.FC<IProps> = ({
+export default function ItemListLicitacao({
   item,
-  setIsLoading
-}) => {
-  const i = item;
-  const { theme, setTheme } = useTheme();
+  setIsLoading,
+  mode = "list",
+  onRemoveFromCart,
+}: IProps) {
   const router = useRouter();
 
-  const selectItem = async (uuid : string) => {
-    setIsLoading ? setIsLoading(true) : null;
-    router.push(mountUrl({
-      host: '',
-      path: '/cotacao/[uuid]'.replace('[uuid]',uuid)
-    }));
-  }
+  const handleSelectItem = async (uuid: string) => {
+    if (setIsLoading) setIsLoading(true);
+    console.log("Item recebido:", item);
+    console.log("UUID recebido:", uuid);
+    router.push(`/cotacoes/${uuid}`);
+  };
+
+  const unitValue = calcUnityValueByQuantity(
+    parseCurrency(item.valor),
+    item.quantidade
+  );
 
   return (
-          <div className="flex-1 w-full flex-wrap md:flex-nowrap gap-4 py-2">
-            <Card className="bg-default-100/50 flex flex-row mx-4" shadow="sm">
-              <CardBody className="flex-row items-center justify-between">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors gap-4">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 flex-1 text-center sm:text-left">
+        <div className="p-3 bg-primary/10 rounded-lg flex-shrink-0">
+          <Package className="h-8 w-8 text-primary" />
+        </div>
 
-                <div className="flex gap-6 md:gap-4 items-center justify-center basis-1/12">
-                  <div className="relative col-span-6 md:col-span-4">
-                    <WallpaperIcon height={48} width={48}
-                      classNamesArrPath={theme == 'light' ? ['stroke-gray-500'] : ['stroke-gray-400']}
-                      ></WallpaperIcon>
-                  </div>
-                </div>
+        <div className="flex-1">
+          <h4 className="font-medium text-lg mb-2 text-foreground">
+            {item.descricao}
+          </h4>
 
-                <div className="flex flex-col basis-10/12">
-                  <div className="flex justify-between items-start">
-                    <div className="flex flex-col gap-0">
-                      <h3 className="font-semibold text-foreground/90">{i.descricao}</h3>
-                      <p className="text-small mt-1 text-foreground/80">
-                        Quantidade: {i.quantidade} | Unidade: {i.unidadeFornecimento?.nome}
-                      </p>
-                      <h1 className="text-small font-medium">Valor: {i.valor} | Valor da Unidade: {formatCurrency(calcUnityValueByQuantity(parseCurrency(i.valor), i.quantidade))}</h1>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-row gap-3 basis-1/12 items-start justify-start">
-                  <CartButton itemRetornoLicitacao={i} isCompact={true} />
-                  <Button
-                    isIconOnly
-                    className="text-default-900/60"
-                    radius="full"
-                    color="secondary"
-                    variant="solid"
-                    onPress={() => selectItem(i.uuid) }
-                  >
-                    <ClipboardIcon></ClipboardIcon>
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
+          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+            <div>
+              <span className="font-medium">Quantidade:</span> {item.quantidade}{" "}
+              | <span className="font-medium">Unidade:</span>{" "}
+              {item.unidadeFornecimento?.nome}
+            </div>
+            <div>
+              <span className="font-medium">Valor:</span> {item.valor} |{" "}
+              <span className="font-medium">Valor da Unidade:</span>{" "}
+              {formatCurrency(unitValue)}
+            </div>
           </div>
-  )
-}
+        </div>
+      </div>
 
-export default ItemListLicitacao;
+      <div className="flex items-center justify-center sm:justify-end gap-2">
+        {mode === "list" ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <CartButton itemRetornoLicitacao={item} isCompact={true} />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Adicionar ao carrinho</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => onRemoveFromCart?.(item)}
+                className="rounded-full border hover:bg-destructive/80 transition-colors text-red-700"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Remover do carrinho</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => handleSelectItem(item.uuid)}
+              className="rounded-full border hover:bg-muted/70 transition-colors"
+            >
+              <ClipboardList className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Ver detalhes deste item</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </div>
+  );
+}

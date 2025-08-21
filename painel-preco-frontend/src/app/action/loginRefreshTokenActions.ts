@@ -1,7 +1,6 @@
 "use server";
 
 import { JWT } from "next-auth/jwt";
-import logger from "../../../services/logger";
 import { jwtDecode } from "jwt-decode";
 
 // this will refresh an expired access token, when needed
@@ -21,7 +20,7 @@ async function refreshAccessToken(token: JWT) {
     const refreshToken = await resp.json();
     if (!resp.ok) throw refreshToken;
 
-    logger.info("Token refreshed!");
+    // logger.info("Token refreshed!");
     return {
       ...token,
       access_token: refreshToken.access_token,
@@ -30,8 +29,8 @@ async function refreshAccessToken(token: JWT) {
       refresh_token: refreshToken.refresh_token,
     };
   } catch (error) {
-    logger.error("Token refresh error...")
-    logger.error(error)
+    // logger.error("Token refresh error...")
+    // logger.error(error)
 
     return {
       ...token,

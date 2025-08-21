@@ -1,34 +1,40 @@
-'use client'
+"use client";
 
-import { Button } from "@nextui-org/react";
-import { useState, useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAnimate } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export interface IAlertMessage {
-  message: string
-  type: 'warning' | 'danger' | 'success' | 'default'
-  className?: string
+  message: string;
+  type?: "warning" | "danger" | "success" | "default";
+  className?: string;
 }
 
-function Alert({
+const menuVariants = {
+  open: { opacity: 1 },
+  closed: { opacity: 0 },
+};
+
+export function AlertMessage({
   message,
-  type = 'default',
-  className = ''
-} : IAlertMessage) {
-
-
+  type = "default",
+  className = "",
+}: IAlertMessage) {
   const [scopeAnimate, animate] = useAnimate();
-  const [isHide, setIsHide] = useState<boolean>(true);
-  const menuVariants = {
-    open: {
-      opacity: 1,
-      // maxHeight: 100
-    },
-    closed: {
-      opacity: 0,
-      // maxHeight: 0
-    },
-  }
+  const [isHidden, setIsHidden] = useState(true);
+
+  const hide = useCallback(async () => {
+    await animate(scopeAnimate.current, menuVariants.closed, {
+      duration: 0.25,
+    });
+    setIsHidden(true);
+  }, [animate, scopeAnimate]);
+
+  const show = useCallback(() => {
+    setIsHidden(false);
+    animate(scopeAnimate.current, menuVariants.open, { duration: 0.25 });
+  }, [animate, scopeAnimate]);
 
   useEffect(() => {
     if (message) {
@@ -36,28 +42,18 @@ function Alert({
     } else {
       hide();
     }
-  }, [message]);
-
-  const hide = async () => {
-    await animate(scopeAnimate.current, menuVariants.closed, { duration: 0.25 });
-    setIsHide(true);
-  }
-
-  const show = () => {
-    setIsHide(false);
-    animate(scopeAnimate.current, menuVariants.open, { duration: 0.25 });
-  }
+  }, [message, show, hide]);
 
   return (
-    <div ref={scopeAnimate} className="w-full box-content flex">
-    { !isHide &&
-      <div className={`w-full flex items-center justify-between gap-3 bg-${type} text-${type}-foreground py-2 px-4 rounded my-2 mx-4 ${className}`}>
-        {message}
-        <Button variant="light" className={`text-${type}-foreground`} isIconOnly={true} onPress={hide}>X</Button>
-      </div>
-    }
+    <div ref={scopeAnimate} className="w-full flex">
+      {!isHidden && (
+        <Alert className={`flex justify-between items-center ${className}`}>
+          <AlertDescription>{message}</AlertDescription>
+          <Button variant="ghost" onClick={hide}>
+            X
+          </Button>
+        </Alert>
+      )}
     </div>
-  )
+  );
 }
-
-export default Alert;

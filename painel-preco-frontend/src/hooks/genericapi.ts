@@ -1,6 +1,5 @@
 import { mountUrl } from "@/utils/requestUtils";
 import { IAPISearchProps, IReturnRequestAPI, ISimpleObjetoAPI } from "@/interfaces/types";
-import logger from "../../services/logger";
 
 export const HOST_API = `${process.env.API_URL}`;
 export const HOST_API_PREFIX = `${process.env.API_URL_PREFIX || '/v1'}`;
@@ -75,7 +74,7 @@ const doReq = async (
                 statusDetails: isTypeError ? error.message : error.statusDetails,
                 data: isTypeError ? null : error.data
             }
-            logger.error(`Throw error durante request. Path: ${url}. Opts: ${JSON.stringify(reqOpts)}. Response status: ${result.statusCode}. Error Name: ${result.statusText}.`);
+           
             throw result;
         });
         return res;

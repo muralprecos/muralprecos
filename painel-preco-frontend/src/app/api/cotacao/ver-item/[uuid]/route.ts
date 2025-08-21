@@ -5,21 +5,20 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { uuid: string; } }
+  context: { params: Promise<{ uuid: string }> } // ou usar 'any' se quiser evitar typings manuais
 ) {
-  //parametros enviados
+  const { uuid } = await context.params;
+
   const info: IAPISearchInfo[] = [];
-  if (!!params.uuid) {
-    info.push({ param: 'uuid', val: params.uuid })
+  if (uuid) {
+    info.push({ param: "uuid", val: uuid });
   }
 
-  //validar acesso
   const accessToken = await getAccessToken() || '';
   if (!accessToken) {
-    return NextResponse.json({ message: "Wrong Access, please login!" });
+    return NextResponse.json({ message: "Wrong Access, please login!" }, { status: 401 });
   }
 
-  //consultar API
-  const data = await getItemLicitacao({info, accessToken});
+  const data = await getItemLicitacao({ info, accessToken });
   return NextResponse.json(data);
 }

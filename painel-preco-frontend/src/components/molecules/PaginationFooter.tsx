@@ -1,177 +1,199 @@
-'use client'
+"use client";
 
-import { Button, Divider, Input, Pagination, Select, SelectItem } from "@nextui-org/react";
-import FormRow from "../atoms/FormRow";
-import { IAPISearchInfo, IReturnRequestAPI } from "@/interfaces/types";
-import { ReadonlyURLSearchParams, usePathname, useRouter } from 'next/navigation';
+import { Dispatch, SetStateAction, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ReadonlyURLSearchParams } from "next/navigation";
 import { mountUrl, searchParamsToInfo } from "@/utils/requestUtils";
 import { forceParamSearch } from "@/utils/searchParamUtils";
-import { Dispatch, SetStateAction, useState } from "react";
+import { IAPISearchInfo, IReturnRequestAPI } from "@/interfaces/types";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface IPropsPageCotacaoListagem<T> {
-  paginationInfo: IReturnRequestAPI<T>|null|undefined,
-  searchParams: ReadonlyURLSearchParams
-  isLoading: boolean
-  setIsLoading: Dispatch<SetStateAction<boolean>>
+  paginationInfo: IReturnRequestAPI<T> | null | undefined;
+  searchParams: ReadonlyURLSearchParams;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-function PaginationFooter<T extends any>({
+function PaginationFooter<T>({
   paginationInfo,
   searchParams,
   isLoading,
   setIsLoading,
-  ...opts
-} : IPropsPageCotacaoListagem<T>) {
-
+}: IPropsPageCotacaoListagem<T>) {
   const router = useRouter();
   const pathname = usePathname();
-  const sizeOptions = ['5', '10', '20', '50', '100'];
+  const sizeOptions = ["5", "10", "20", "50", "100"];
 
-  const [selectedValue, setSelectedValue] = useState<string>(`${paginationInfo?.size || 10}`);
-  const [pageSelected, setPageSelected] = useState<string>(`${paginationInfo ? (paginationInfo.number+1)+'' : ''}`);
+  const initialSize = searchParams.get("size") ?? "5";
+  const [selectedValue, setSelectedValue] = useState<string>(initialSize);
+  const [pageSelected, setPageSelected] = useState<string>(
+    `${paginationInfo ? paginationInfo.number + 1 + "" : ""}`
+  );
 
-  const canDecrement = (): boolean  => {
+  const canDecrement = (): boolean => {
     return paginationInfo != null && paginationInfo.number > 0;
-  }
-
-  const decrementPage = () => {
-    if (paginationInfo != null && canDecrement()) {
-      changeToPage(paginationInfo.number-1);
-    }
-  }
-
-  const canIncrement = (): boolean  => {
-    return paginationInfo != null && paginationInfo.number < paginationInfo.totalPages-1;
-  }
-
-  const incrementPage = () => {
-    if (paginationInfo != null && canIncrement()) {
-      changeToPage(paginationInfo.number+1);
-    }
-  }
-
-  const firstPage = () => {
-    changeToPage(0);
-  }
-
-  const lastPage = () => {
-    if (paginationInfo != null) {
-      changeToPage(paginationInfo.totalPages);
-    }
-  }
-
-  const changeToPage = (newpage : number) => {
-    changeSearchParams([{param: 'page', val: (newpage < 0 ? 0 : newpage) +''}]);
-    setPageSelected(`${newpage+1}`);
   };
 
-  const changeSize = (newsize : string) => {
-    setPageSelected('1');
+  const canIncrement = (): boolean => {
+    return (
+      paginationInfo != null &&
+      paginationInfo.number < paginationInfo.totalPages - 1
+    );
+  };
+
+  const changeToPage = (newPage: number) => {
+    setPageSelected(`${newPage + 1}`);
     changeSearchParams([
-      {param: 'page', val: '0'},
-      {param: 'size', val: newsize}
+      { param: "page", val: newPage < 0 ? "0" : `${newPage}` },
+    ]);
+  };
+
+  const changeSize = (newSize: string) => {
+    setPageSelected("1");
+    changeSearchParams([
+      { param: "page", val: "0" },
+      { param: "size", val: newSize },
     ]);
   };
 
   const changeSearchParams = (newParams: IAPISearchInfo[]) => {
     setIsLoading(true);
-    let info : IAPISearchInfo[] = searchParamsToInfo(searchParams);
+    let info: IAPISearchInfo[] = searchParamsToInfo(searchParams);
     newParams.forEach((np) => {
       info = forceParamSearch(info, np.param, np.val);
     });
-    router.push(mountUrl({
-      host: '',
-      path: pathname,
-      info
-    }));
+    router.push(
+      mountUrl({
+        host: "",
+        path: pathname,
+        info,
+      })
+    );
     setIsLoading(false);
   };
 
-  return (
-    <FormRow className={`flex flex-row items-center justify-between ${isLoading ? 'opacity-30': ''}`}>
-      <div className="flex flex-row gap-4 w-full text-center md:justify-start justify-center items-center">
-        <div className="flex text-small text-default-500 min-w-0 items-center gap-2 justify-center">
-          <span>Página</span>
-          <Input 
-            className="min-w-16 w-min text-small-important text-default-500"
-            fullWidth={false} 
-            value={pageSelected}
-            variant="underlined"
-            type="number"
-            min={1}
-            max={paginationInfo?.totalPages}
-            onChange={(e) => {
-              setPageSelected(e.target.value);
-            }}
-            onFocusChange={(onEl) => {
-              if (!onEl) {
-                changeToPage(parseInt(pageSelected)-1);
-              }
-            }}
-            onKeyUp={(e) => {
-              if (e.key === 'Enter') {
-                changeToPage(parseInt(pageSelected)-1);
-              }
-            }}
-            /> 
-          <span>de {paginationInfo?.totalPages}</span>
-          <span>({paginationInfo?.totalElements} itens)</span>
-        </div>
+  const generatePageNumbers = () => {
+    if (!paginationInfo) return [];
+    const pages = [];
+    const totalPages = paginationInfo.totalPages;
+    const currentPage = paginationInfo.number + 1;
 
-        <Divider className="h-10" orientation="vertical" />
-
-        <Select 
-          label="Itens por Página" 
-          placeholder="Selecione um valor"
-          className="text-small text-default-500 min-w-32 w-auto"
-          fullWidth={false}
-          defaultSelectedKeys={[selectedValue]}
-          onChange={(e) => {
-            changeSize(e.target.value);
-          }}
-        >
-          {sizeOptions.map((sizeopt) => (
-            <SelectItem key={sizeopt} value={sizeopt} >
-              {sizeopt}
-            </SelectItem>
-          ))}
-        </Select>
-      </div>
-      { paginationInfo &&
-        <div className="flex gap-2 w-full md:justify-end justify-center border-gray-200 border-t-1 md:border-none py-3">
-          <Button
-            size="sm"
-            variant="flat"
-            color="primary"
-            className={`hidden md:block`}
-            isDisabled={!canDecrement()}
-            onPress={decrementPage}
-          >
-            Anterior
-          </Button>
-          
-          <Pagination
-            total={paginationInfo.totalPages}
-            color="primary"
-            page={paginationInfo?.number+1}
-            onChange={(n) => {
-              changeToPage(n-1);
-            }}/>
-          
-          <Button
-            size="sm"
-            variant="flat"
-            color="primary"
-            className={`hidden md:block`}
-            isDisabled={!canIncrement()}
-            onPress={incrementPage}
-          >
-            Próxima
-          </Button>
-        </div>
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 4, "...", totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(
+          1,
+          "...",
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages
+        );
+      } else {
+        pages.push(
+          1,
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages
+        );
       }
-    </FormRow>
-  )
+    }
+
+    return pages;
+  };
+
+  return (
+    <div
+      className={`flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t mt-6 transition-opacity ${
+        isLoading ? "opacity-50 pointer-events-none" : ""
+      }`}
+    >
+      <div className="flex items-center gap-4">
+        <span className="text-sm text-muted-foreground">Página</span>
+        <Badge variant="outline">{pageSelected}</Badge>
+        <span className="text-sm text-muted-foreground">
+          de {paginationInfo?.totalPages} ({paginationInfo?.totalElements}{" "}
+          itens)
+        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            Itens por Página
+          </span>
+          <Select
+            value={selectedValue}
+            onValueChange={(value) => {
+              setSelectedValue(value);
+              changeSize(value);
+            }}
+          >
+            <SelectTrigger className="w-20">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {sizeOptions.map((sizeopt) => (
+                <SelectItem key={sizeopt} value={sizeopt}>
+                  {sizeopt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!canDecrement()}
+          onClick={() => changeToPage(paginationInfo!.number - 1)}
+        >
+          <ChevronLeft className="h-4 w-4" /> Anterior
+        </Button>
+
+        <div className="flex items-center gap-1">
+          {generatePageNumbers().map((page, index) => (
+            <Button
+              key={index}
+              variant={
+                page === paginationInfo!.number + 1 ? "default" : "outline"
+              }
+              size="sm"
+              className="w-8 h-8"
+              disabled={page === "..."}
+              onClick={() => typeof page === "number" && changeToPage(page - 1)}
+            >
+              {page}
+            </Button>
+          ))}
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!canIncrement()}
+          onClick={() => changeToPage(paginationInfo!.number + 1)}
+        >
+          Próxima <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 export default PaginationFooter;

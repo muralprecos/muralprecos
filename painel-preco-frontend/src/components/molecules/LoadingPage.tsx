@@ -1,32 +1,30 @@
-'use client'
+"use client";
 
-import { Card, Skeleton } from "@nextui-org/react";
-
-function LoadingPage({
-  ...opts
-}) {
+export default function LoadingPage({ ...opts }) {
   return (
-    <div className="w-full flex items-center justify-center gap-3">
-      <div className="w-[500px] flex flex-col gap-2 m-4">
-        <Card className="w-full space-y-5 p-4" radius="lg">
-          <div className="space-y-3">
-            <Skeleton className="w-3/5 rounded-lg">
-              <div className="h-3 w-3/5 rounded-lg bg-default-200"></div>
-            </Skeleton>
-            <Skeleton className="w-4/5 rounded-lg">
-              <div className="h-3 w-4/5 rounded-lg bg-default-200"></div>
-            </Skeleton>
-            <Skeleton className="w-2/5 rounded-lg">  
-              <div className="h-3 w-2/5 rounded-lg bg-default-300"></div>
-            </Skeleton>
-          </div>
-          <Skeleton className="rounded-lg">
-            <div className="h-24 rounded-lg bg-default-300"></div>
-          </Skeleton>
-        </Card>
+    <div
+      className="w-full flex items-center justify-center py-8"
+      aria-busy="true"
+      aria-label="Carregando formulário"
+      {...opts}
+    >
+      <div className="w-full max-w-md bg-muted border border-border rounded-xl p-6 shadow-sm animate-pulse space-y-6">
+        {/* Título do formulário */}
+        <div className="h-5 w-2/3 bg-muted-foreground/30 rounded"></div>
+
+        {/* Campos do formulário */}
+        <div className="space-y-4">
+          <div className="h-4 w-full bg-muted-foreground/20 rounded"></div>
+          <div className="h-4 w-full bg-muted-foreground/20 rounded"></div>
+          <div className="h-24 w-full bg-muted-foreground/10 rounded"></div>
+        </div>
+
+        {/* Ações */}
+        <div className="flex justify-end gap-3">
+          <div className="h-8 w-24 bg-muted-foreground/20 rounded"></div>
+          <div className="h-8 w-20 bg-muted-foreground/30 rounded"></div>
+        </div>
       </div>
     </div>
-  )
+  );
 }
-
-export default LoadingPage;
