@@ -1,6 +1,6 @@
 import { ReactNode, ElementType, Fragment } from "react";
 import { SidebarTrigger } from "../ui/sidebar";
-import { Separator } from "@/components/ui/separator";
+// import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -35,7 +35,7 @@ export function PageHeader({
   children,
   titleAs: Title = "h1",
   subtitleAs: Subtitle = "p",
-  titleClassName = "text-2xl font-bold tracking-tight truncate",
+  titleClassName = "text-2xl font-bold tracking-tight truncate text-primary",
   subtitleClassName = "text-sm text-muted-foreground mt-1 truncate",
   breadcrumbItems,
   backButton = false,
@@ -48,7 +48,7 @@ export function PageHeader({
     <div className="sticky top-0 z-40 border-b bg-card/95 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="flex items-center justify-between gap-4">
         {/* Sidebar Trigger */}
-        <SidebarTrigger className="h-9 w-9 shrink-0" />
+        <SidebarTrigger className="h-9 w-9 shrink-0 text-primary" />
 
         {/* Conteúdo principal (título + breadcrumb) */}
         <div className="flex-1 min-w-0">
@@ -63,7 +63,7 @@ export function PageHeader({
 
           {hasBreadcrumb && (
             <div className="flex items-center gap-2 mt-1">
-              <Separator orientation="vertical" className="h-4" />
+              {/* <Separator orientation="vertical" className="h-4" /> */}
               <Breadcrumb>
                 <BreadcrumbList>
                   {breadcrumbItems.map((item, index) => {

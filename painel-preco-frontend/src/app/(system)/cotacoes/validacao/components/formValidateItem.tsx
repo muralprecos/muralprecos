@@ -3,6 +3,7 @@
 import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
 import InputForm from "@/components/molecules/InputForm";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { messages } from "@/utils/messages";
 import { addSnackError } from "@/utils/snackbarUtils";
 import yupStrings from "@/utils/yupStrings";
@@ -67,22 +68,25 @@ const FormValidateItem: React.FC<IPageValidacaoClient> = ({ params }) => {
       className="space-y-2"
       onSubmit={handleSubmit(onSubmit, onSubmitError)}
     >
-      <InputForm
-        name="cotacao"
-        label="Código de Validação da Cotação"
-        control={control}
-        errors={errors}
-      />
-      <Button className="w-full" type="submit" disabled={doingRequest}>
-        {doingRequest ? (
-          <>
-            <LoadingCircleIcon />
-            Validando Cotação...
-          </>
-        ) : (
-          "Validar Cotação"
-        )}
-      </Button>
+      <div className="flex w-full items-center gap-2">
+        <InputForm
+          name="cotacao"
+          placeholder="Código de Validação da Cotação"
+          className="w-full"
+          control={control}
+          errors={errors}
+        />
+        <Button type="submit" disabled={doingRequest}>
+          {doingRequest ? (
+            <>
+              <LoadingCircleIcon />
+              Validando Cotação...
+            </>
+          ) : (
+            "Validar Cotação"
+          )}
+        </Button>
+    </div>
     </form>
   );
 };

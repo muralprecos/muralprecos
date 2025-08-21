@@ -5,14 +5,8 @@ export default async function PageHistoricoCotacao() {
   return (
     <div>
       <PageHeader
-        breadcrumbItems={[
-          {
-            label: "Cotações",
-            href: "/cotacoes/realizar-cotacao",
-            hiddenOnMobile: true,
-          },
-          { label: "Histórico" },
-        ]}
+        title="Histórico"
+        subtitle="Cotações realizadas anteriormente"
       />
 
       <ViewHistoricoCotacao />

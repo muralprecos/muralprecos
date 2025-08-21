@@ -8,14 +8,8 @@ export default async function PageCarrinho() {
   return (
     <div>
       <PageHeader
-        breadcrumbItems={[
-          {
-            label: "Cotações",
-            href: "/cotacoes/realizar-cotacao",
-            hiddenOnMobile: true,
-          },
-          { label: "Carrinho" },
-        ]}
+        title="Carrinho"
+        subtitle="Listagem de itens selecionados para a cotação"
       />
       <CartPage session={session} />
     </div>

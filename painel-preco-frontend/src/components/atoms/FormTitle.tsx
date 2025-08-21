@@ -31,7 +31,7 @@ export default function FormTitle({
   ...rest
 }: FormTitleProps) {
   const defaultClassName = cn(
-    "text-lg font-bold text-primary-title flex flex-col sm:flex-row sm:items-center sm:justify-between w-full px-2",
+    "text-lg font-bold flex flex-col sm:flex-row sm:items-center sm:justify-between w-full px-2",
     uppercase && "uppercase",
     `gap-${gap}`,
     addClassName,

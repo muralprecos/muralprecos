@@ -73,7 +73,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         >
           <Link href="/" className="flex items-center gap-2">
             <TTLogo className="w-5 h-5" />
-            <span className="text-base font-semibold">Mural de Preços</span>
+            <span className="text-base font-semibold text-primary">Mural de Preços</span>
           </Link>
         </SidebarMenuButton>
       </SidebarHeader>

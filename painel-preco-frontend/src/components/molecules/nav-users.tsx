@@ -130,11 +130,11 @@ export function NavUser({ session }: { session: Session | null }) {
                 <span>Sair</span>
               </button>
             </DropdownMenuItem>
-            {/* <div className="flex items-center">
-              <span className="ml-auto px-3 py-1 text-xs text-muted-foreground">
-                V.{version}
+            <div className="flex items-center">
+              <span className="ml-auto px-3 py-1 text-muted-foreground" style={{ fontSize: "0.5rem" }}>
+                Mural de Preços v.{version}
               </span>
-            </div> */}
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

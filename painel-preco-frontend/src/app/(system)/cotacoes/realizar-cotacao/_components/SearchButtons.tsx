@@ -46,6 +46,7 @@ export function SearchButtons({
       <Button
         type="button"
         className="w-full md:w-auto"
+        variant="secondary"
         onClick={() => setIsModalOpen(true)}
       >
         <Trash2 className="h-4 w-4" />

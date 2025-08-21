@@ -40,3 +40,25 @@ npm install
 ```bash
 npm run dev
 ```
+
+## Deploy
+
+Check configs in docker-compose.yml file. Default target is production, but can be "dev" or "builder" (only generate the build files, without execute the server). You can change the exposed ports too, by default uses port number 3000.
+
+```bash
+docker build . -t ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
+docker push ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
+docker-compose up
+```
+
+## Development Without CORS
+
+To run project localhost and don't get CORS error, execute this command on terminal:
+
+open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/tmp/chrome_dev_test" --disable-web-security
+
+Execute Chrome with CORS:
+
+Mac: open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/Users/matheuscampanha/Documents/chrome_files/chrome_dev_test" --disable-web-security
+Linux: google-chrome --disable-web-security --user-data-dir="/tmp/"
+
