@@ -33,9 +33,11 @@ import { useTheme } from "next-themes";
 export function NavUser({ session }: { session: Session | null }) {
   const { isMobile } = useSidebar();
 
+  console.log(session)
+
   const org = session?.userInfo?.organizacao?.nome ?? "Sem organização  ";
-  const name = session?.user?.name ?? "Usuário";
-  const email = session?.user?.email ?? "user@example.com";
+  const name = session?.userInfo?.name ?? "Usuário";
+  const email = session?.userInfo?.email ?? "user@example.com";
   const image = session?.user?.image ?? "";
   const { version } = require("@/../package.json");
 
@@ -131,7 +133,7 @@ export function NavUser({ session }: { session: Session | null }) {
               </button>
             </DropdownMenuItem>
             <div className="flex items-center">
-              <span className="ml-auto px-3 py-1 text-muted-foreground" style={{ fontSize: "0.5rem" }}>
+              <span className="ml-auto px-3 py-1 text-muted-foreground" style={{ fontSize: "0.6rem" }}>
                 Mural de Preços v.{version}
               </span>
             </div>
