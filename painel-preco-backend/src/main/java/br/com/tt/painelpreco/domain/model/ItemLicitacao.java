@@ -37,7 +37,7 @@ public class ItemLicitacao {
 	@JoinColumn(name = "licitacao_id")
 	private Licitacao licitacao;
 	
-	private Integer codigo;
+	private String codigo;
 
 	/** Descrição do Item **/
 	private String descricao;
@@ -83,7 +83,7 @@ public class ItemLicitacao {
 	public List<Link> getLinks() {
 		String url = null;
 		if (licitacao.isFederal()) {
-			Integer uasg = licitacao.getUnidadeGestora().getCodigo();
+			String uasg = licitacao.getUnidadeGestora().getCodigo();
 			String codModalidade = licitacao.getCodigoModalidadeComprasNet();
 			String numLicitacao = licitacao.getNumero();
 			String anoNumeroPncp = licitacao.getAnoNumeroPncp();
