@@ -1,7 +1,6 @@
 package br.com.tt.painelpreco.domain.repository.spec;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import javax.persistence.criteria.Predicate;
 
@@ -28,7 +27,7 @@ public class ItemLicitacaoSpecs {
 				predicates.add(builder.between(root.join("licitacao").get("dataResultadoCompra"), DateUtil.getDateFirtDayYear(filtro.getAno()), DateUtil.getDateLastDayYear(filtro.getAno())));
 			
 			if (!StringUtil.isEmpty(filtro.getObjeto()))
-				predicates.add(builder.like(builder.upper(root.join("licitacao").get("objeto")), JPAUtil.likeExpression(filtro.getObjeto())));
+				predicates.add(builder.like(builder.upper(root.join("licitacao").get("objeto")), JPAUtil.likeExpressionSplit(filtro.getObjeto())));
 			
 			if (filtro.getOrgaoSuperiorId() != null)
 				predicates.add(builder.equal(root.join("licitacao").get("orgaoSuperior").get("uuid"), filtro.getOrgaoSuperiorId()));
@@ -70,10 +69,10 @@ public class ItemLicitacaoSpecs {
 			/** ====================================================== LICITACAO ====================================================== **/
 			
 			if (!StringUtil.isEmpty(filtro.getDescricao()))
-				predicates.add(builder.like(builder.upper(root.get("descricao")), JPAUtil.likeExpression(filtro.getDescricao())));
+				predicates.add(builder.like(builder.upper(root.get("descricao")), JPAUtil.likeExpressionSplit(filtro.getDescricao())));
 			
 			if (!StringUtil.isEmpty(filtro.getDescricaoComplementar()))
-				predicates.add(builder.like(builder.upper(root.get("descricaoComplementar")), JPAUtil.likeExpression(filtro.getDescricaoComplementar())));
+				predicates.add(builder.like(builder.upper(root.get("descricaoComplementar")), JPAUtil.likeExpressionSplit(filtro.getDescricaoComplementar())));
 			
 			if (filtro.getMaterialId() != null)
 				predicates.add(builder.equal(root.get("material").get("uuid"), filtro.getMaterialId()));

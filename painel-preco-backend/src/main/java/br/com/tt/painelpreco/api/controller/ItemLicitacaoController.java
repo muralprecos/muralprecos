@@ -73,6 +73,7 @@ public class ItemLicitacaoController {
 				itens = itemLicitacaoDescService.listaByDescricao(filter.getDescricao(), pageable);
 		} else {			
 			itens = itemLicitacaoService.listaByFilter(ItemLicitacaoSpecs.filtroGeral(filter), pageable);
+//			itens = itemLicitacaoService.listaByFilter(filter, pageable);
 		}
 		
 		return new PageImpl<>(getCollectionDTO(itens, filter), pageable, itens.getTotalElements());

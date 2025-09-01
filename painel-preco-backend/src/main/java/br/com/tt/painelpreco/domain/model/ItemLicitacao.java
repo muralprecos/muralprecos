@@ -14,11 +14,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+
 import br.com.tt.painelpreco.domain.model.vo.Link;
 import br.com.tt.painelpreco.util.StringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@Indexed
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @Entity
@@ -40,6 +44,7 @@ public class ItemLicitacao {
 	private Integer codigo;
 
 	/** Descrição do Item **/
+	@FullTextField
 	private String descricao;
 	
 	/** Descrição Complementar **/
