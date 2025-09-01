@@ -114,7 +114,11 @@ public class Licitacao {
 		String num = numStr.substring(0, 1);
 		String ano = numStr.substring(2);
 		
-		return modalidadeCompra.getNome() + " N.º " + num + "/" + ano;
+		try {
+			return modalidadeCompra.getNome() + " N.º " + num + "/" + ano;
+		} catch (NullPointerException | IndexOutOfBoundsException e) {
+			return modalidadeCompra.getNome() + " N.º " + numStr + "/"  + getAnoNumeroPncp();
+		}
 	}
 
 	public boolean isFederal() {

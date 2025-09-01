@@ -83,6 +83,12 @@ public class ItemLicitacaoSpecs {
 			if (filtro.getFornecedorId() != null)
 				predicates.add(builder.equal(root.get("fornecedor").get("uuid"), filtro.getFornecedorId()));
 			
+			query.orderBy(builder.desc(root.get("licitacao").get("dataResultadoCompra")))
+				.orderBy(builder.desc(root.get("licitacao").get("dataAbertura")))
+				.orderBy(builder.desc(root.get("licitacao").get("numeroPncp")))
+				.orderBy(builder.desc(root.get("numeroItem")))
+				.orderBy(builder.desc(root.get("numeroPncp")));
+			
 			return builder.and(predicates.toArray(new Predicate[0]));
 		};
 	}

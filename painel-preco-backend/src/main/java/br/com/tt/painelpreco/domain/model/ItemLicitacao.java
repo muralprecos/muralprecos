@@ -66,6 +66,12 @@ public class ItemLicitacao {
 	@ManyToOne
 	@JoinColumn(name = "fornecedor_id")
 	private Fornecedor fornecedor;
+	
+	@Column(name = "numero_item")
+	private Integer numeroItem;
+	
+	@Column(name = "numero_controle_pncp")
+	private String numeroPncp;
 
 	@Transient
 	private List<Link> links = new ArrayList<>();
