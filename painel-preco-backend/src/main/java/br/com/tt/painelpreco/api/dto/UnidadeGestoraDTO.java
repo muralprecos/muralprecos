@@ -10,7 +10,7 @@ import lombok.Setter;
 public class UnidadeGestoraDTO {
 	
 	private UUID uuid;
-	private Integer codigo;
+	private String codigo;
 	private String nome;
 
 }

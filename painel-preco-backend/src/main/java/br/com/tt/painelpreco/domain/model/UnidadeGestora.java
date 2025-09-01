@@ -27,7 +27,7 @@ public class UnidadeGestora {
 	private UUID uuid;
 	
 	/** UASG */
-	private Integer codigo;
+	private String codigo;
 	
 	private String nome;
 
