@@ -110,14 +110,13 @@ public class Licitacao {
 	}
 	
 	public String getNumeroFormatado() {
-		String numStr = String.valueOf(numero);
-		String num = numStr.substring(0, 1);
-		String ano = numStr.substring(2);
-		
 		try {
+			String num = numero.substring(0, 1);
+			String ano = numero.substring(2);
+		
 			return modalidadeCompra.getNome() + " N.º " + num + "/" + ano;
 		} catch (NullPointerException | IndexOutOfBoundsException e) {
-			return modalidadeCompra.getNome() + " N.º " + numStr + "/"  + getAnoNumeroPncp();
+			return modalidadeCompra.getNome() + " N.º " + numero + "/"  + getAnoNumeroPncp();
 		}
 	}
 
