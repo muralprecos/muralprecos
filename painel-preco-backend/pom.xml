@@ -158,6 +158,17 @@
 <!--			<groupId>org.springframework.boot</groupId>-->
 <!--			<artifactId>spring-boot-starter-data-redis</artifactId>-->
 <!--		</dependency>-->
+		<dependency>
+		  <groupId>org.hibernate.search</groupId>
+		  <artifactId>hibernate-search-mapper-orm</artifactId>
+		  <version>6.2.0.Final</version>
+		</dependency>
+		
+		<dependency>
+		  <groupId>org.hibernate.search</groupId>
+		  <artifactId>hibernate-search-backend-lucene</artifactId>
+		  <version>6.2.0.Final</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
