@@ -68,8 +68,8 @@ public class ItemLicitacaoSpecs {
 			}
 			/** ====================================================== LICITACAO ====================================================== **/
 			
-			if (!StringUtil.isEmpty(filtro.getDescricao()))
-				predicates.add(builder.like(builder.upper(root.get("descricao")), JPAUtil.likeExpressionSplit(filtro.getDescricao())));
+//			if (!StringUtil.isEmpty(filtro.getDescricao()))
+//				predicates.add(builder.like(builder.upper(root.get("descricao")), JPAUtil.likeExpressionSplit(filtro.getDescricao())));
 			
 			if (!StringUtil.isEmpty(filtro.getDescricaoComplementar()))
 				predicates.add(builder.like(builder.upper(root.get("descricaoComplementar")), JPAUtil.likeExpressionSplit(filtro.getDescricaoComplementar())));

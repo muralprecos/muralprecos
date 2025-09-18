@@ -16,8 +16,9 @@ public class StartupIndexer {
 	}
 	
 	@Transactional
-	public void init() {
-		Search.session(em).massIndexer().start();
+	public void init(boolean startup) {
+		if (startup)
+			Search.session(em).massIndexer().start();
 	}
 
 }

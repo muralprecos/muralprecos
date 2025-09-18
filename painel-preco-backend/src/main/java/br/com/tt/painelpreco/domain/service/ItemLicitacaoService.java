@@ -39,9 +39,8 @@ public class ItemLicitacaoService {
 	
 	public Page<ItemLicitacao> listaByFilter(ItemLicitacaoFilter filter, Pageable pageable) {
 		List<Long> ids = itemLicitacaoSearchRepository.searchByDescricao(filter.getDescricao());
-		Specification<ItemLicitacao> spec = ItemLicitacaoSpecs.filtroGeral(filter);
-		spec.and((root, query, cb) -> root.in(ids));
-		return itemLicitacaoRepository.findAll(spec, pageable);
+		Specification<ItemLicitacao> spec = ItemLicitacaoSpecs.filtroGeral(filter);		
+		return itemLicitacaoRepository.findAll(spec.and((root, query, builder) -> builder.and(root.get("id").in(ids))), pageable);
 	}
 
 	public Page<ItemLicitacao> listaByDescricao(String descricao, Pageable pageable) {
