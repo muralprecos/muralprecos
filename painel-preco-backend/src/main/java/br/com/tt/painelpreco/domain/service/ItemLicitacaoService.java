@@ -13,7 +13,6 @@ import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 import br.com.tt.painelpreco.domain.repository.ItemLicitacaoRepository;
 import br.com.tt.painelpreco.domain.repository.ItemLicitacaoSearchRepository;
-import br.com.tt.painelpreco.domain.repository.spec.ItemLicitacaoSpecs;
 import br.com.tt.painelpreco.util.JPAUtil;
 
 @Service
@@ -38,9 +37,10 @@ public class ItemLicitacaoService {
 	}
 	
 	public Page<ItemLicitacao> listaByFilter(ItemLicitacaoFilter filter, Pageable pageable) {
-		List<Long> ids = itemLicitacaoSearchRepository.searchByDescricao(filter.getDescricao());
-		Specification<ItemLicitacao> spec = ItemLicitacaoSpecs.filtroGeral(filter);		
-		return itemLicitacaoRepository.findAll(spec.and((root, query, builder) -> builder.and(root.get("id").in(ids))), pageable);
+		return itemLicitacaoSearchRepository.searchByDescricao(filter, pageable);
+//		List<Long> ids = itemLicitacaoSearchRepository.searchByDescricao(filter.getDescricao());
+//		Specification<ItemLicitacao> spec = ItemLicitacaoSpecs.filtroGeral(filter);		
+//		return itemLicitacaoRepository.findAll(spec.and((root, query, builder) -> builder.and(root.get("id").in(ids))), pageable);
 	}
 
 	public Page<ItemLicitacao> listaByDescricao(String descricao, Pageable pageable) {
