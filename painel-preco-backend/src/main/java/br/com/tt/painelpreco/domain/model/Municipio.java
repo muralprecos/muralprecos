@@ -11,9 +11,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@Indexed
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @Entity
@@ -26,12 +33,15 @@ public class Municipio {
 	@Column(name = "id_municipio")
 	private Integer id;
 	
+	@GenericField
 	private UUID uuid;
 	
 	private String nome;
 	
 	@ManyToOne
 	@JoinColumn(name = "unidade_federativa_id")
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
+	@IndexedEmbedded(includePaths = {"uuid"})
 	private UnidadeFederativa uf;
 
 }

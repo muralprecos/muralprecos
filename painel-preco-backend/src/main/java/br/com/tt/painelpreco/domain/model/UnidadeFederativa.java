@@ -11,10 +11,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+
 import br.com.tt.painelpreco.util.StringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@Indexed
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @Entity
@@ -38,6 +42,7 @@ public class UnidadeFederativa {
 	@Column(name = "id_unidade_federativa")
 	private Integer id;
 	
+	@GenericField
 	private UUID uuid;
 	
 	private String nome;

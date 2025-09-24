@@ -27,5 +27,8 @@ public interface ItemLicitacaoRepository extends JpaRepository<ItemLicitacao, In
 	
 	@Query("SELECT DISTINCT new ItemLicitacao(il.descricaoComplementar) FROM ItemLicitacao il WHERE UPPER(il.descricaoComplementar) LIKE UPPER(:descricaoComplementar) ORDER BY il.descricaoComplementar")
 	Page<ItemLicitacao> findAllByDescricaoComplementar(String descricaoComplementar, Pageable pageable);
-	
+
+	@Query("SELECT i FROM ItemLicitacao i ORDER BY i.id ASC")
+	List<ItemLicitacao> findLote();
+
 }

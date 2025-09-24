@@ -17,11 +17,19 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.search.engine.backend.types.Sortable;
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
+
 import br.com.tt.painelpreco.domain.model.vo.PeriodoCompra;
 import br.com.tt.painelpreco.util.DateUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@Indexed
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @Entity
@@ -34,6 +42,7 @@ public class Licitacao {
 	@Column(name = "id_licitacao")
 	private Long id;
 	
+	@GenericField
 	private UUID uuid;
 	
 	private String numero;
@@ -70,6 +79,8 @@ public class Licitacao {
 	
 	@ManyToOne
 	@JoinColumn(name = "municipio_id")
+	@IndexedEmbedded(includePaths = {"uuid"})
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private Municipio municipio;
 	
 	/** Forma da Compra (SISPP (preços praticados) ou o SISRP (menor preço)) **/
@@ -89,6 +100,7 @@ public class Licitacao {
 	/** Ano da Compra **/
 	@Temporal(TemporalType.DATE)
 	@JoinColumn(name = "data_resultado_compra")
+	@GenericField(sortable = Sortable.YES)
 	private Date dataResultadoCompra;
 	
 	private Double valor;

@@ -14,9 +14,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.DocumentId;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
 
 import br.com.tt.painelpreco.domain.model.vo.Link;
 import br.com.tt.painelpreco.util.StringUtil;
@@ -41,6 +44,8 @@ public class ItemLicitacao {
 	
 	@ManyToOne
 	@JoinColumn(name = "licitacao_id")
+	@IndexedEmbedded(includePaths = {"uuid", "municipio.uuid", "dataResultadoCompra"})
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private Licitacao licitacao;
 	
 	private String codigo;
