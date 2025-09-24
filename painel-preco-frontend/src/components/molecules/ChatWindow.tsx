@@ -1,17 +1,16 @@
 "use client";
 
+import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { useEffect, useRef, useState } from "react";
-import { X, Maximize, Minimize, Bot, User } from "lucide-react";
+import { X, Maximize, Minimize, Bot, User, Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { apiClientConversationIA } from "@/hooks/apiclient";
 
-interface IConversationIAHistory {
-  role: string;
+export interface ChatMessage {
+  role: "user" | "assistant" | "system";
   content: string;
 }
 
@@ -19,14 +18,15 @@ interface ChatWindowProps {
   onClose: () => void;
 }
 
-enum RoleMessage {
-  USER = "user",
-  ASSISTANT = "assistant",
-  SYSTEM = "system",
-}
-
 export default function ChatWindow({ onClose }: ChatWindowProps) {
-  const [messages, setMessages] = useState<IConversationIAHistory[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      role: "system",
+      content:
+        "Você é um assistente especializado em cotação de preços. Ajude os usuários com questões relacionadas a preços, produtos e comparação de custos de forma útil e profissional.",
+    },
+  ]);
+  const [threadId, setThreadId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,56 +34,60 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const canSendMessage = (): boolean => {
-    return input.trim() !== "";
+    return input.trim() !== "" && !loading;
   };
 
-  const userMessage = (msg: IConversationIAHistory) => {
-    return msg.role === RoleMessage.USER
-      ? "Você"
-      : msg.role === RoleMessage.ASSISTANT
-      ? "Assistente"
-      : "Sistema";
+  const getUserMessages = () => {
+    return messages.filter((msg) => msg.role !== "system");
   };
 
   const handleSend = async () => {
     if (!canSendMessage()) return;
+
+    const userMessage = input.trim();
+    setInput("");
     setLoading(true);
 
     try {
-      messages.push({ role: RoleMessage.USER, content: input });
-      setMessages(messages);
-      setInput("");
-      setTimeout(() => {
-        scrollDown();
-      }, 500);
+      // Adiciona a mensagem do usuário localmente
+      setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+      setTimeout(() => scrollDown(), 100);
 
-      const response = await apiClientConversationIA(messages);
-      const resposta = response.data;
+      // Envia apenas a última mensagem para o backend
+      const response = await fetch("/api/ia/openai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage, threadId }),
+      });
 
-      messages.push({ role: RoleMessage.ASSISTANT, content: resposta });
-      setMessages(messages);
+      const data = await response.json();
 
-      setTimeout(() => {
-        scrollDown();
-      }, 500);
+      // Atualiza threadId se foi criado um novo
+      if (data.threadId) setThreadId(data.threadId);
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.reply },
+      ]);
+
+      setTimeout(() => scrollDown(), 100);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao enviar mensagem:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Desculpe, ocorreu um erro. Verifique sua conexão e tente novamente.",
+        },
+      ]);
     } finally {
       setLoading(false);
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
-
-    // Foca no campo após envio
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 0);
   };
-
   const toggleFullScreen = () => {
     setIsFullScreen((prev) => !prev);
-  };
-
-  const cleanMarkdown = (raw: string): string => {
-    return raw.replace(/^```(?:markdown)?\n/, "").replace(/\n```$/, "");
   };
 
   const scrollDown = () => {
@@ -97,35 +101,49 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
     }
   };
 
+  useEffect(() => {
+    setTimeout(() => inputRef.current?.focus(), 200);
+  }, []);
+
+  const visibleMessages = getUserMessages();
+
   return (
     <div
-      className={`fixed z-50 shadow-2xl border border-border rounded-lg bg-background ${
+      className={`fixed z-50 shadow-2xl border border-border rounded-lg bg-background transition-all duration-300 ${
         isFullScreen ? "inset-4" : "bottom-20 right-4"
       }`}
       style={
         !isFullScreen
           ? {
-              width: "30rem",
-              maxWidth: "92%",
+              width: "28rem",
+              maxWidth: "90vw",
+              height: "32rem",
+              maxHeight: "80vh",
             }
           : {}
       }
     >
       <Card className="h-full flex flex-col border-0 shadow-none">
-        {/* Barra superior */}
-        <div className="flex justify-between items-center px-4 py-3 border-b border-border bg-muted/50 rounded-t-lg">
-          <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-sm text-foreground">
-              MurAI de Preços
-            </span>
+        <div className="flex justify-between items-center px-4 py-3 border-b border-border bg-muted/30 rounded-t-lg">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-full">
+              <Bot className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <span className="font-semibold text-sm text-foreground">
+                Assistente IA
+              </span>
+              <p className="text-xs text-muted-foreground">
+                Especialista em Cotações
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
               onClick={toggleFullScreen}
-              className="h-8 w-8 p-0 hover:bg-muted"
+              className="h-8 w-8 p-0 hover:bg-muted transition-colors"
             >
               {isFullScreen ? (
                 <Minimize className="h-4 w-4" />
@@ -137,92 +155,85 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive transition-colors"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
-        {/* Corpo do chat */}
-        <CardContent
-          className="flex flex-col gap-0 flex-grow p-0"
-          style={
-            !isFullScreen
-              ? {
-                  minHeight: "300px",
-                  maxHeight: "400px",
-                }
-              : {}
-          }
-        >
-          <ScrollArea
-            className="flex-grow w-full px-4"
-            style={{ height: isFullScreen ? "calc(100vh - 200px)" : "350px" }}
-          >
+        <CardContent className="flex flex-col flex-grow p-0 overflow-hidden">
+          <ScrollArea className="flex-grow px-4">
             <div className="py-4 space-y-4">
-              {messages.length === 0 && !loading && (
-                <div className="flex items-center justify-center h-32">
-                  <p className="text-sm text-muted-foreground text-center">
-                    Consulte nossa IA para auxiliar sua Cotação!
-                  </p>
+              {visibleMessages.length === 0 && !loading && (
+                <div className="flex flex-col items-center justify-center h-40 text-center space-y-3">
+                  <div className="p-4 bg-primary/5 rounded-full">
+                    <Bot className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-1">
+                      Olá! Sou seu assistente de IA
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Como posso ajudá-lo com suas cotações hoje?
+                    </p>
+                  </div>
                 </div>
               )}
 
-              {messages.map((msg, idx) => (
+              {visibleMessages.map((msg, idx) => (
                 <div key={idx} className="space-y-2">
-                  {msg.role === RoleMessage.ASSISTANT && (
+                  {msg.role === "assistant" && (
                     <div className="flex gap-3 items-start">
                       <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                         <Bot className="h-4 w-4 text-primary" />
                       </div>
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-primary">
-                            {userMessage(msg)}
-                          </span>
-                        </div>
-                        <div className="prose prose-sm max-w-none text-foreground">
-                          <ReactMarkdown
-                            components={{
-                              code({ className, children, ...props }) {
-                                return (
-                                  <code
-                                    className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono break-words"
-                                    {...props}
-                                  >
-                                    {children}
-                                  </code>
-                                );
-                              },
-                              pre({ children }) {
-                                return (
-                                  <pre className="bg-muted p-3 rounded-md overflow-x-auto text-sm">
-                                    {children}
-                                  </pre>
-                                );
-                              },
-                              p({ children }) {
-                                return (
-                                  <p className="text-sm leading-relaxed">
-                                    {children}
-                                  </p>
-                                );
-                              },
-                            }}
-                          >
-                            {cleanMarkdown(msg.content)}
-                          </ReactMarkdown>
+                      <div className="flex-1 space-y-1 max-w-[85%]">
+                        <div className="bg-muted/50 rounded-lg px-4 py-3">
+                          <div className="prose prose-sm max-w-none">
+                            <ReactMarkdown
+                              components={{
+                                code({ className, children, ...props }) {
+                                  return (
+                                    <code
+                                      className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </code>
+                                  );
+                                },
+                                pre({ children }) {
+                                  return (
+                                    <pre className="bg-muted p-3 rounded-md overflow-x-auto text-xs">
+                                      {children}
+                                    </pre>
+                                  );
+                                },
+                                p({ children }) {
+                                  return (
+                                    <p className="text-sm leading-relaxed mb-2 last:mb-0">
+                                      {children}
+                                    </p>
+                                  );
+                                },
+                              }}
+                            >
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {msg.role === RoleMessage.USER && (
+                  {msg.role === "user" && (
                     <div className="flex gap-3 items-start justify-end">
-                      <div className="max-w-[80%]">
-                        <div className="text-primary bg-foreground/10 rounded-lg px-4 py-2">
-                          <p className="text-sm">{msg.content}</p>
+                      <div className="max-w-[85%]">
+                        <div className="bg-primary text-primary-foreground rounded-lg px-4 py-3">
+                          <p className="text-sm leading-relaxed">
+                            {msg.content}
+                          </p>
                         </div>
                       </div>
                       <div className="flex-shrink-0 w-8 h-8 bg-muted rounded-full flex items-center justify-center">
@@ -231,7 +242,9 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
                     </div>
                   )}
 
-                  {idx < messages.length - 1 && <Separator className="my-4" />}
+                  {idx < visibleMessages.length - 1 && (
+                    <Separator className="my-3 opacity-50" />
+                  )}
                 </div>
               ))}
 
@@ -241,21 +254,18 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
                     <Bot className="h-4 w-4 text-primary animate-pulse" />
                   </div>
                   <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm text-primary">
-                        Assistente
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
+                    <div className="bg-muted/50 rounded-lg px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"></div>
+                        <div
+                          className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
+                          style={{ animationDelay: "0.1s" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -264,7 +274,6 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
             <div ref={scrollRef} />
           </ScrollArea>
 
-          {/* Entrada de mensagem */}
           <div className="border-t border-border p-4">
             <div className="flex gap-2">
               <Input
@@ -278,10 +287,11 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
               />
               <Button
                 onClick={handleSend}
-                disabled={loading || !canSendMessage()}
-                className="px-6"
+                disabled={!canSendMessage()}
+                size="icon"
+                className="shrink-0"
               >
-                {loading ? "Analisando..." : "Enviar"}
+                <Send className="h-4 w-4" />
               </Button>
             </div>
           </div>
