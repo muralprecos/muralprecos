@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { openai } from "@/lib/openai";
+import { getOpenAI } from "@/lib/openai";
+import OpenAI from "openai";
 
 const ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID!;
 
-async function waitForRunCompletion(threadId: string, runId: string) {
+async function waitForRunCompletion(openai: OpenAI , threadId: string, runId: string) {
   let run;
   do {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -24,6 +25,14 @@ export async function POST(req: Request) {
       );
     }
 
+    const openai = getOpenAI();
+    if (!openai) {
+      return NextResponse.json(
+        { error: "Serviço de IA não está disponível no momento." },
+        { status: 503 }
+      );
+    }
+
     const threadId =
       existingThreadId ?? (await openai.beta.threads.create()).id;
 
@@ -36,7 +45,7 @@ export async function POST(req: Request) {
       assistant_id: ASSISTANT_ID,
     });
 
-    const completedRun = await waitForRunCompletion(threadId, run.id);
+    const completedRun = await waitForRunCompletion(openai, threadId, run.id);
 
     if (completedRun.status === "failed") {
       const errorMessage =
