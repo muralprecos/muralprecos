@@ -31,7 +31,7 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 			.where(f -> f.match().field("descricao").matching(descricao))
 //			.sort(f -> f.field("numeroPncp").desc()
 //					.then().field("numeroItem").asc())
-            .fetch(pageable.getPageSize(), (int) pageable.getOffset())
+            .fetch((int) pageable.getOffset(), pageable.getPageSize())
             .hits();
 
 	    long totalHits = searchSession.search(ItemLicitacao.class)

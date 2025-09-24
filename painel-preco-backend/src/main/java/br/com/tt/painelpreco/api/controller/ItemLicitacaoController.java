@@ -18,7 +18,6 @@ import br.com.tt.painelpreco.api.dto.DescricaoItemLicitacaoDTO;
 import br.com.tt.painelpreco.api.dto.ItemLicitacaoDTO;
 import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
-import br.com.tt.painelpreco.domain.repository.spec.ItemLicitacaoSpecs;
 import br.com.tt.painelpreco.domain.service.ItemLicitacaoDescCompService;
 import br.com.tt.painelpreco.domain.service.ItemLicitacaoDescService;
 import br.com.tt.painelpreco.domain.service.ItemLicitacaoService;
