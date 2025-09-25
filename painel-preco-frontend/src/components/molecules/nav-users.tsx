@@ -29,16 +29,27 @@ import { Session } from "next-auth";
 import { logoutAction } from "@/app/action/logoutActions";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export function NavUser({ session, status }: { session: Session | null, status: string }) {
   const { isMobile } = useSidebar();
 
+  const STR_LOADING = "Carregando...";
   const isLoading = status === 'loading';
 
-  const STR_LOADING = "Carregando...";
-  const org = isLoading ? '' : session?.userInfo?.organizacao?.nome || "Sem organização";
-  const name = isLoading ? STR_LOADING : session?.userInfo?.name || "Usuário";
-  const email = isLoading ? '' : session?.userInfo?.email || "user@example.com";
+  const [name, setDisplayName] = useState(STR_LOADING);
+  const [org, setDisplayOrg] = useState(STR_LOADING);
+  const [email, setDisplayEmail] = useState(STR_LOADING);
+
+  useEffect(() => {
+    const userInfo = session?.userInfo;
+    if (userInfo && !isLoading) {
+      setDisplayName(userInfo?.name || "Usuário");
+      setDisplayEmail(userInfo?.email || "user@example.com");
+      setDisplayOrg(userInfo?.organizacao?.nome || "Sem Organização");
+    }
+  }, [session?.userInfo, isLoading]);
+
   const image = session?.user?.image ?? "";
   const { version } = require("@/../package.json");
 

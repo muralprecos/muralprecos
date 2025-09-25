@@ -61,5 +61,3 @@ Execute Chrome with CORS:
 
 Mac: open -n -a /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --args --user-data-dir="/Users/matheuscampanha/Documents/chrome_files/chrome_dev_test" --disable-web-security
 Linux: google-chrome --disable-web-security --user-data-dir="/tmp/"
-
-AVERIGUIAR CARREGANDO...  EM PRODUÇÃO
