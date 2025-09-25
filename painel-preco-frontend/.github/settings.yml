@@ -3,6 +3,6 @@ branches:
     protection:
       required_pull_request_reviews:
         required_approving_review_count: 1   # exige 1 aprovação
-      enforce_admins: null                   # se aplica regra também para admins
+      enforce_admins: true                   # se aplica regra também para admins
       required_status_checks: null           # não exige CI, mas pode configurar
       restrictions: null                     # ninguém pode dar push direto
