@@ -29,6 +29,8 @@ import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { notify } from "@/components/molecules/NotifyToast";
 import FormTitle from "@/components/atoms/FormTitle";
+import { parseNumber } from "@/utils/stringUtils";
+import { ROUTE_NOVA_COTACAO } from "@/components/atoms/Buttons";
 
 const ListItemLicitacao: React.FC = () => {
   const router = useRouter();
@@ -85,12 +87,13 @@ const ListItemLicitacao: React.FC = () => {
               icon={<Package className="h-5 w-5" />}
               title={"Itens Encontrados"}
               description={`${
-                paginationInfo?.totalElements ?? 0
+                parseNumber(paginationInfo?.totalElements ?? 0)
               } itens encontrados para sua
             cotação`}
               cartButton={true}
               backButton={true}
               uppercase={false}
+              backButtonOnClick={() => router.push(ROUTE_NOVA_COTACAO)}
             />
           </CardTitle>
         </CardHeader>
@@ -109,7 +112,7 @@ const ListItemLicitacao: React.FC = () => {
           ) : (
             <>
               {/* Lista de itens com rolagem interna */}
-              <div className="max-h-[600px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent">
+              {/* <div className="max-h-[600px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent"> */}
                 {itensLicitacao.map((item) => (
                   <ItemListLicitacao
                     key={item.uuid}
@@ -118,7 +121,7 @@ const ListItemLicitacao: React.FC = () => {
                     mode="list"
                   />
                 ))}
-              </div>
+              {/* </div> */}
 
               {/* Paginação fora da rolagem */}
               <div className="">

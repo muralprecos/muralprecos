@@ -3,11 +3,14 @@
 import { useRouter } from "next/navigation";
 import { Button, type ButtonProps } from "../ui/button";
 
+export const ROUTE_NOVA_COTACAO : string = "/cotacoes/realizar-cotacao";
+export const ROUTE_CARRINHO : string = "/carrinho";
+
 export function ButtonNewQuote({ variant = "default", ...props }: ButtonProps) {
   const router = useRouter();
 
   const handleNewQuote = () => {
-    router.push("/cotacoes/realizar-cotacao");
+    router.push(ROUTE_NOVA_COTACAO);
   };
 
   return (
@@ -26,7 +29,7 @@ export function CartButton({ variant = "default", ...props }: ButtonProps) {
   const router = useRouter();
 
   const handleCart = () => {
-    router.push("/carrinho");
+    router.push(ROUTE_CARRINHO);
   };
 
   return (
@@ -41,11 +44,18 @@ export function CartButton({ variant = "default", ...props }: ButtonProps) {
   );
 }
 
-export function BackButton({ variant = "secondary", ...props }: ButtonProps) {
+export function BackButton({ 
+  variant = "secondary", 
+  onClick, ...props 
+}: ButtonProps & { onClick?: () => void }) {
   const router = useRouter();
 
   const goBack = () => {
-    router.back();
+    if (onClick) {
+      onClick();
+    } else {
+      router.back();
+    }
   };
 
   return (
