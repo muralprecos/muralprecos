@@ -1,17 +1,17 @@
 name: Publish Docker image
 
 on:
+  push:
+    branches:
+    - main
   workflow_dispatch:
-  # push:
-  #   branches:
-  #   - main
 
 jobs:
   push_to_registry:
-    name: Build and Push Docker image to GHCR
+    name: Build, Push and Tag
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - name: Check out the repo
@@ -41,3 +41,16 @@ jobs:
             ghcr.io/ttsolutionspi/painel-precos-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Create and push Git tag
+        run: |
+          TAG="${{ steps.get_version.outputs.VERSION }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists. Skipping."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "$TAG" -m "Release version $TAG"
+            git push origin "$TAG"
+            echo "Tag $TAG created and pushed."
+          fi
