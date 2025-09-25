@@ -14,7 +14,6 @@ import {
 import { NavMain } from "../molecules/nav-main";
 import { NavExternal } from "../molecules/nav-external-links";
 import { NavUser } from "../molecules/nav-users";
-import { useSession } from "next-auth/react";
 import { TTLogo } from "../atoms/TTLogo";
 import Link from "next/link";
 
@@ -63,7 +62,6 @@ const sidebarData = {
 };
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const { data: session, status } = useSession();
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -84,7 +82,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser session={session} status={status} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );
