@@ -4,7 +4,6 @@ import {
   IconSun,
   IconDotsVertical,
   IconLogout,
-  IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react";
 
@@ -25,42 +24,70 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import { Session } from "next-auth";
 import { logoutAction } from "@/app/action/logoutActions";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { Skeleton } from "../ui/skeleton";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
-export function NavUser({ session, status }: { session: Session | null, status: string }) {
+export function NavUser() {
+
+  const { data: session, status } = useSession();
   const { isMobile } = useSidebar();
+  const { version } = require("@/../package.json");
+  const { theme, setTheme } = useTheme();
 
-  const STR_LOADING = "Carregando...";
-  const isLoading = status === 'loading';
+  const STR_LOADING = 'Carregando...';
 
-  const [name, setDisplayName] = useState(STR_LOADING);
-  const [org, setDisplayOrg] = useState(STR_LOADING);
-  const [email, setDisplayEmail] = useState(STR_LOADING);
+  const [name, setName] = useState(STR_LOADING);
+  const [org, setOrg] = useState(STR_LOADING);
+  const [email, setEmail] = useState(STR_LOADING);
+  const [initials, setInitials] = useState("..");
+
+  const changeUserInfo = (name: string, org: string, email: string, initials? : string) => {
+    console.log("Changing user info to:", { name, org, email, initials });
+    setName(name);
+    setOrg(org);
+    setEmail(email);
+    setInitials(
+      initials ||
+      name
+        .split(" ")
+        .slice(0, 2)
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    );
+  }
 
   useEffect(() => {
-    const userInfo = session?.userInfo;
-    if (userInfo && !isLoading) {
-      setDisplayName(userInfo?.name || "Usuário");
-      setDisplayEmail(userInfo?.email || "user@example.com");
-      setDisplayOrg(userInfo?.organizacao?.nome || "Sem Organização");
+    console.log("Session status:", status);
+
+    if (status === 'authenticated' && session?.userInfo) {
+      sessionStorage.removeItem("forceRefresh");
+      const userInfo = session.userInfo;
+      changeUserInfo(
+        userInfo.name || "Usuário", 
+        userInfo.organizacao?.nome || "Sem Organização", 
+        userInfo.email || "user@example.com"
+      );
     }
-  }, [session?.userInfo, isLoading]);
+    
+    // workaround para a situação logo após o login o status ser 'unauthenticated' por um breve momento
+    if (status === 'unauthenticated') {
+      console.log('Force re-render...');
+      const forceRefresh = sessionStorage.getItem("forceRefresh");
+      if (!forceRefresh) {
+        sessionStorage.setItem("forceRefresh", "true");
+        window.location.reload();
+      }
+    }
+  }, [session, status]);
+
 
   const image = session?.user?.image ?? "";
-  const { version } = require("@/../package.json");
 
-  const initials = name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
-
-  const { theme, setTheme } = useTheme();
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
@@ -68,6 +95,22 @@ export function NavUser({ session, status }: { session: Session | null, status: 
   const onClickLogout = () => {
     logoutAction();
   };
+
+  if (status === 'loading') {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" className="cursor-wait">
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <div className="grid flex-1 gap-y-1 text-left text-sm leading-tight">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
+  }
 
   return (
     <SidebarMenu>
@@ -122,14 +165,14 @@ export function NavUser({ session, status }: { session: Session | null, status: 
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Link href="/usuario/perfil" className="flex gap-2">
+              <DropdownMenuItem asChild>
+                <Link href="/usuario/perfil" className="flex w-full items-center gap-2">
                   <IconUserCircle className="mr-2 h-4 w-4" />
                   <span>Perfil</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <button onClick={toggleTheme} className="flex gap-2">
+              <DropdownMenuItem asChild>
+                <button onClick={toggleTheme} className="flex w-full items-center gap-2">
                   <IconSun className="mr-2 h-4 w-4" />
                   <span>Alternar Tema</span>
                 </button>
@@ -138,8 +181,8 @@ export function NavUser({ session, status }: { session: Session | null, status: 
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="text-red-600 dark:text-red-400">
-              <button onClick={onClickLogout} className="flex gap-2">
+            <DropdownMenuItem className="text-red-600 dark:text-red-400" asChild>
+              <button onClick={onClickLogout} className="flex w-full items-center gap-2">
                 <IconLogout className="mr-2 h-4 w-4" />
                 <span>Sair</span>
               </button>
