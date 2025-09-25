@@ -13,6 +13,7 @@ type FormTitleProps = {
   gap?: number;
   addClassName?: string;
   uppercase?: boolean;
+  backButtonOnClick?: () => void;
 } & React.AllHTMLAttributes<HTMLElement>;
 
 export default function FormTitle({
@@ -28,6 +29,7 @@ export default function FormTitle({
   uppercase = true,
   icon,
   className,
+  backButtonOnClick,
   ...rest
 }: FormTitleProps) {
   const defaultClassName = cn(
@@ -56,7 +58,7 @@ export default function FormTitle({
 
       {/* Botões */}
       <div className="flex w-full sm:w-auto flex-wrap gap-2 justify-between sm:justify-end mt-2 sm:mt-0">
-        {backButton && <BackButton className="flex-1 sm:flex-none" />}
+        {backButton && <BackButton className="flex-1 sm:flex-none" onClick={backButtonOnClick ?? undefined} />}
         {newQuoteButton && <ButtonNewQuote className="flex-1 sm:flex-none" />}
         {cartButton && <CartButton className="flex-1 sm:flex-none" />}
       </div>

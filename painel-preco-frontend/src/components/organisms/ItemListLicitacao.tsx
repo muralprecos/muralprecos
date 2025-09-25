@@ -12,6 +12,7 @@ import {
 } from "@/utils/formatCurrency";
 import CartButton from "../molecules/CartButton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { parseNumber } from "@/utils/stringUtils";
 
 interface IProps {
   item: IRetornoPesquisaItensLicitacao;
@@ -54,7 +55,7 @@ export default function ItemListLicitacao({
 
           <div className="flex flex-col gap-2 text-sm text-muted-foreground">
             <div>
-              <span className="font-medium">Quantidade:</span> {item.quantidade}{" "}
+              <span className="font-medium">Quantidade:</span> {parseNumber(item.quantidade)}{" "}
               | <span className="font-medium">Unidade:</span>{" "}
               {item.unidadeFornecimento?.nome}
             </div>

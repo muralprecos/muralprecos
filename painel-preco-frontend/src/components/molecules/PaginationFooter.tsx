@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { parseNumber } from "@/utils/stringUtils";
 
 interface IPropsPageCotacaoListagem<T> {
   paginationInfo: IReturnRequestAPI<T> | null | undefined;
@@ -128,7 +129,7 @@ function PaginationFooter<T>({
         <span className="text-sm text-muted-foreground">Página</span>
         <Badge variant="outline">{pageSelected}</Badge>
         <span className="text-sm text-muted-foreground">
-          de {paginationInfo?.totalPages} ({paginationInfo?.totalElements}{" "}
+          de {parseNumber(paginationInfo?.totalPages)} ({parseNumber(paginationInfo?.totalElements)}{" "}
           itens)
         </span>
         <div className="flex items-center gap-2">

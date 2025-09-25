@@ -93,7 +93,7 @@ export default function SearchItensLicitacaoForm({
             host: "",
             path: "/cotacoes/listagem",
             page: 0,
-            size: 20,
+            size: 10,
             info,
             filterFields: FIELDS_COTACOES_LIST,
           })
