@@ -33,9 +33,12 @@ import { useTheme } from "next-themes";
 export function NavUser({ session }: { session: Session | null }) {
   const { isMobile } = useSidebar();
 
-  const org = session?.userInfo?.organizacao?.nome ?? "Sem organização  ";
-  const name = session?.userInfo?.name ?? "Usuário";
-  const email = session?.userInfo?.email ?? "user@example.com";
+  const isLoading = session === null || session === undefined;
+
+  const STR_LOADING = "Carregando...";
+  const org = isLoading ? '' : session?.userInfo?.organizacao?.nome || "Sem organização";
+  const name = isLoading ? STR_LOADING : session?.userInfo?.name || "Usuário";
+  const email = isLoading ? '' : session?.userInfo?.email || "user@example.com";
   const image = session?.user?.image ?? "";
   const { version } = require("@/../package.json");
 
