@@ -63,7 +63,7 @@ const sidebarData = {
 };
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -84,7 +84,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser session={session} />
+        <NavUser session={session} status={status} />
       </SidebarFooter>
     </Sidebar>
   );

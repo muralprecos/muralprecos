@@ -30,10 +30,10 @@ import { logoutAction } from "@/app/action/logoutActions";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 
-export function NavUser({ session }: { session: Session | null }) {
+export function NavUser({ session, status }: { session: Session | null, status: string }) {
   const { isMobile } = useSidebar();
 
-  const isLoading = session === null || session === undefined;
+  const isLoading = status === 'loading';
 
   const STR_LOADING = "Carregando...";
   const org = isLoading ? '' : session?.userInfo?.organizacao?.nome || "Sem organização";
