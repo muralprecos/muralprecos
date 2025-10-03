@@ -7,7 +7,6 @@ import InfoText from "@/components/atoms/InfoText";
 import InfoTitle from "@/components/atoms/InfoTitle";
 import CartButton from "@/components/molecules/CartButton";
 import { isClientNextjs } from "@/utils/validateUtils";
-import { addSnackError } from "@/utils/snackbarUtils";
 import {
   formatCurrency,
   parseCurrency,
@@ -28,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { notify } from "@/components/molecules/NotifyToast";
 
 export interface IPropsViewItensLicitacao {
   uuidItem: string;
@@ -50,24 +50,24 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
     const fetchData = async () => {
       if (isClientNextjs()) {
         setIsLoading(true);
-        const req: IItemLicitacao | null = await apiClientGetItemCotacao([
-          { val: uuidItem, param: "uuid" },
-        ]);
-        setIsLoading(false);
-        if (req) {
-          setItemLicitacao(req);
-        } else {
-          addSnackError(
-            enqueueSnackbar,
-            "Problema ao carregar item, tente novamente!"
-          );
+        try {
+          const req: IItemLicitacao | null = await apiClientGetItemCotacao([
+            { val: uuidItem, param: "uuid" },
+          ]);
+          setIsLoading(false);
+
+          if (req) {
+            setItemLicitacao(req);
+          } else {
+            notify("error", "Problema ao carregar item, tente novamente!");
+          }
+        } catch (e) {
+          catchErrorFromFetch(e, "carregar item");
         }
       }
     };
-    fetchData().catch((e) => {
-      catchErrorFromFetch(e, enqueueSnackbar, "carregar item");
-    });
-  }, [uuidItem, enqueueSnackbar]);
+    fetchData();
+  }, [uuidItem]);
 
   const showTitle = () => {
     return itemLicitacao != null
@@ -398,7 +398,7 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
                                 key={link.nome}
                                 variant="outline"
                                 asChild
-                                className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                                className="text-orange-600 border-orange-200"
                               >
                                 <a
                                   href={link.url}

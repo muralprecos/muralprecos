@@ -159,41 +159,6 @@ export default function BarChartDashboard() {
     fetchDashboardData();
   }, []);
 
-  const stats = [
-    {
-      name: "Licitações Este Mês",
-      value: kpiData.totalTenders.loading
-        ? "..."
-        : kpiData.totalTenders.value.toLocaleString(),
-      icon: FileText,
-      change: kpiData.totalTenders.change,
-      subtitle: "este mês",
-      loading: kpiData.totalTenders.loading,
-    },
-    {
-      name: "Cotações Criadas",
-      value: kpiData.totalQuotations.loading
-        ? "..."
-        : kpiData.totalQuotations.value.toLocaleString(),
-      icon: BarChart3,
-      change: kpiData.totalQuotations.change,
-      subtitle: "total",
-      loading: kpiData.totalQuotations.loading,
-    },
-    {
-      name: "Valor Médio Cotação",
-      value: kpiData.avgQuotationValue.loading
-        ? "..."
-        : `R$ ${kpiData.avgQuotationValue.value.toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-          })}`,
-      icon: DollarSign,
-      change: kpiData.avgQuotationValue.change,
-      subtitle: "média geral",
-      loading: kpiData.avgQuotationValue.loading,
-    },
-  ];
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -214,9 +179,10 @@ export default function BarChartDashboard() {
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData.monthlyQuotations}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="4 4" />
               <XAxis dataKey="month" />
               <YAxis
+                width={95}
                 tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip formatter={(value) => formatCurrency(Number(value))} />

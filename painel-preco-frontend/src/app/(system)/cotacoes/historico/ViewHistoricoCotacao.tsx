@@ -15,13 +15,7 @@ import PaginationFooter from "@/components/molecules/PaginationFooter";
 import ItemHistoricoCotacao from "@/components/organisms/ItemHistoricoCotacao";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import { apiClientPostSearchHistoricoCotacoes } from "@/hooks/apiclient";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { History } from "lucide-react";
 import FormTitle from "@/components/atoms/FormTitle";
 
@@ -53,7 +47,7 @@ export default function ViewHistoricoCotacao() {
       }
     };
     fetchData().catch((e) => {
-      catchErrorFromFetch(e, enqueueSnackbar, "carregar item");
+      catchErrorFromFetch(e, "carregar item");
     });
   }, [router, searchParams, enqueueSnackbar]);
 

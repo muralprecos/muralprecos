@@ -24,8 +24,8 @@ import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
 import { apiClientPostUserUpdate } from "@/hooks/apiclient";
 import { IUserInfo } from "@/interfaces/types";
 import { messages } from "@/utils/messages";
-import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import yupStrings from "@/utils/yupStrings";
+import { notify } from "@/components/molecules/NotifyToast";
 
 const schema = yup.object({
   firstName: yup.string().required(yupStrings.required),
@@ -83,7 +83,7 @@ const FormEditarPerfil: React.FC<IPageValidacaoClient> = ({ usuario }) => {
       const { firstName, lastName, email, password, passwordConfirm } = data;
 
       if (password && password !== passwordConfirm) {
-        addSnackError(enqueueSnackbar, messages.FORM_PASSWORD_DONT_MATCH);
+        notify("error", messages.FORM_PASSWORD_DONT_MATCH);
         setDoingRequest(false);
         return;
       }
@@ -96,21 +96,21 @@ const FormEditarPerfil: React.FC<IPageValidacaoClient> = ({ usuario }) => {
       });
 
       if (res.success) {
-        addSnackSuccess(enqueueSnackbar, messages.REQUEST_SUCCESS);
+        notify("success", messages.REQUEST_SUCCESS);
         await update({ firstName, lastName, email });
         router.push("/");
       } else {
-        addSnackError(enqueueSnackbar, res.error || messages.REQUEST_ERROR);
+        notify("error", res.error || messages.REQUEST_ERROR);
       }
     } catch (error) {
-      addSnackError(enqueueSnackbar, messages.REQUEST_ERROR);
+      notify("error", messages.REQUEST_ERROR);
     } finally {
       setDoingRequest(false);
     }
   };
 
   const onSubmitError: SubmitErrorHandler<FormData> = () => {
-    addSnackError(enqueueSnackbar, messages.REQUEST_ERROR);
+    notify("error", messages.REQUEST_ERROR);
   };
 
   return (

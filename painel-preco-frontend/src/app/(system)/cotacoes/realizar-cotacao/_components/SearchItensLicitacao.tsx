@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
-import { addSnackError, addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
+import { addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
 import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import { logoutAction } from "@/app/action/logoutActions";
 import {
@@ -15,6 +15,7 @@ import { getUserCartBySession } from "@/utils/cartUtils";
 import type { IPropsSearchItensLicitacaoForm } from "./utils";
 import SearchItensLicitacaoForm from "./searchItensLicitacaoForm";
 import { Card, CardContent } from "@/components/ui/card";
+import { notify } from "@/components/molecules/NotifyToast";
 
 const SearchItensLicitacao: React.FC<IPropsSearchItensLicitacaoForm> = ({
   session,
@@ -46,37 +47,17 @@ const SearchItensLicitacao: React.FC<IPropsSearchItensLicitacaoForm> = ({
 
   useEffect(() => {
     if (!hasAuthorization) {
-      addSnackError(enqueueSnackbar, messages.AUTH_ERROR_UNAUTHORIZED);
+      notify("error", messages.AUTH_ERROR_UNAUTHORIZED);
       logoutAction();
     } else {
-      addSnackIfSelectEmpty(enqueueSnackbar, "Anos da Compra", anosCompras);
-      addSnackIfSelectEmpty(
-        enqueueSnackbar,
-        "Portes das Empresas",
-        empresaPorte
-      );
-      addSnackIfSelectEmpty(enqueueSnackbar, "Esferas", esferas);
-      addSnackIfSelectEmpty(enqueueSnackbar, "Formas de Compra", compraFormas);
-      addSnackIfSelectEmpty(
-        enqueueSnackbar,
-        "Modalidades de Compra",
-        compraModalidades
-      );
-      addSnackIfSelectEmpty(
-        enqueueSnackbar,
-        "Períodos de Compra",
-        compraPeriodos
-      );
-      addSnackIfSelectEmpty(
-        enqueueSnackbar,
-        "Situações das Licitações",
-        situacoesLicitacoes
-      );
-      addSnackIfSelectEmpty(
-        enqueueSnackbar,
-        "Unidades Federativas",
-        unidadesFederativas
-      );
+      addSnackIfSelectEmpty("Anos da Compra", anosCompras);
+      addSnackIfSelectEmpty("Portes das Empresas", empresaPorte);
+      addSnackIfSelectEmpty("Esferas", esferas);
+      addSnackIfSelectEmpty("Formas de Compra", compraFormas);
+      addSnackIfSelectEmpty("Modalidades de Compra", compraModalidades);
+      addSnackIfSelectEmpty("Períodos de Compra", compraPeriodos);
+      addSnackIfSelectEmpty("Situações das Licitações", situacoesLicitacoes);
+      addSnackIfSelectEmpty("Unidades Federativas", unidadesFederativas);
     }
   }, [
     enqueueSnackbar,

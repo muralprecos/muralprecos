@@ -7,7 +7,6 @@ import ModalConfirm from "@/components/molecules/ModalConfirm";
 import { DATE_PATTERN, convertTZptBR, datePattern } from "@/utils/dateUtils";
 import { downloadFile, mountUrl } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
-import { addSnackError, addSnackSuccess } from "@/utils/snackbarUtils";
 import { useRouter } from "next/navigation";
 import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
 import EmptyListText from "@/components/atoms/EmptyListText";
@@ -31,6 +30,7 @@ import { FileDown, ShoppingCart, Trash2 } from "lucide-react";
 import { AlertMessage, type IAlertMessage } from "@/components/molecules/Alert";
 import LoadingList from "@/components/molecules/LoadingList";
 import FormTitle from "@/components/atoms/FormTitle";
+import { notify } from "@/components/molecules/NotifyToast";
 
 export interface IPropsCartPge {
   session: Session | null;
@@ -89,17 +89,14 @@ export default function ViewCart({ session }: IPropsCartPge) {
             "Cotação gerada com sucesso e salva no seu histórico. Baixe-a novamente a qualquer momento.",
           type: "success",
         });
-        addSnackSuccess(enqueueSnackbar, "Iniciando download da cotação!");
+        notify("success", "Iniciando download da cotação!");
         clearCart();
       } else {
-        addSnackError(
-          enqueueSnackbar,
-          "Não foi possível gerar o arquivo da cotação"
-        );
+        notify("error", "Não foi possível gerar o arquivo da cotação");
       }
     } catch (e: any) {
       setDoingRequest(false);
-      addSnackError(enqueueSnackbar, e?.message || "Erro ao gerar PDF.");
+      notify("error", e?.message || "Erro ao gerar PDF.");
     }
   };
 
