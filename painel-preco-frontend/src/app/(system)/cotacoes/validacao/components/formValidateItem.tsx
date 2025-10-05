@@ -2,10 +2,9 @@
 
 import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
 import InputForm from "@/components/molecules/InputForm";
+import { notify } from "@/components/molecules/NotifyToast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { messages } from "@/utils/messages";
-import { addSnackError } from "@/utils/snackbarUtils";
 import yupStrings from "@/utils/yupStrings";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/navigation";
@@ -60,7 +59,7 @@ const FormValidateItem: React.FC<IPageValidacaoClient> = ({ params }) => {
   };
 
   const onSubmitError: SubmitErrorHandler<FormData> = (data) => {
-    addSnackError(enqueueSnackbar, messages.REQUEST_ERROR);
+    notify("error", messages.REQUEST_ERROR);
   };
 
   return (
@@ -86,7 +85,7 @@ const FormValidateItem: React.FC<IPageValidacaoClient> = ({ params }) => {
             "Validar Cotação"
           )}
         </Button>
-    </div>
+      </div>
     </form>
   );
 };

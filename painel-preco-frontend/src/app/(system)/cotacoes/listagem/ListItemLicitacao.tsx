@@ -35,7 +35,6 @@ import { ROUTE_NOVA_COTACAO } from "@/components/atoms/Buttons";
 const ListItemLicitacao: React.FC = () => {
   const router = useRouter();
   const searchParams: ReadonlyURLSearchParams = useSearchParams();
-  const { enqueueSnackbar } = useSnackbar();
   const isInitialLoad = useRef(true);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -72,9 +71,9 @@ const ListItemLicitacao: React.FC = () => {
     };
 
     fetchData().catch((e) => {
-      catchErrorFromFetch(e, enqueueSnackbar, "carregar item");
+      catchErrorFromFetch(e, "carregar item");
     });
-  }, [searchParams, router, enqueueSnackbar]);
+  }, [searchParams, router]);
 
   const hasItens = itensLicitacao?.length > 0;
 
@@ -86,9 +85,9 @@ const ListItemLicitacao: React.FC = () => {
             <FormTitle
               icon={<Package className="h-5 w-5" />}
               title={"Itens Encontrados"}
-              description={`${
-                parseNumber(paginationInfo?.totalElements ?? 0)
-              } itens encontrados para sua
+              description={`${parseNumber(
+                paginationInfo?.totalElements ?? 0
+              )} itens encontrados para sua
             cotação`}
               cartButton={true}
               backButton={true}
@@ -113,14 +112,14 @@ const ListItemLicitacao: React.FC = () => {
             <>
               {/* Lista de itens com rolagem interna */}
               {/* <div className="max-h-[600px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent"> */}
-                {itensLicitacao.map((item) => (
-                  <ItemListLicitacao
-                    key={item.uuid}
-                    item={item}
-                    setIsLoading={setIsLoading}
-                    mode="list"
-                  />
-                ))}
+              {itensLicitacao.map((item) => (
+                <ItemListLicitacao
+                  key={item.uuid}
+                  item={item}
+                  setIsLoading={setIsLoading}
+                  mode="list"
+                />
+              ))}
               {/* </div> */}
 
               {/* Paginação fora da rolagem */}

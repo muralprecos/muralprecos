@@ -15,13 +15,7 @@ import PaginationFooter from "@/components/molecules/PaginationFooter";
 import ItemHistoricoCotacao from "@/components/organisms/ItemHistoricoCotacao";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import { apiClientPostSearchHistoricoCotacoes } from "@/hooks/apiclient";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { History } from "lucide-react";
 import FormTitle from "@/components/atoms/FormTitle";
 
@@ -38,23 +32,31 @@ export default function ViewHistoricoCotacao() {
   useEffect(() => {
     const fetchData = async () => {
       if (isClientNextjs()) {
-        setIsLoading ? setIsLoading(true) : null;
-        const req: IReturnRequestAPI<IHistoricoCotacao> | null =
-          await apiClientPostSearchHistoricoCotacoes(
-            5,
-            searchParamsToInfo(searchParams)
-          );
-        setIsLoading ? setIsLoading(false) : null;
-        if (req?.content) {
-          // console.log(req)
-          setPaginationInfo(req);
-          setCotacoes(req?.content);
+        setIsLoading(true);
+        try {
+          const req: IReturnRequestAPI<IHistoricoCotacao> | null =
+            await apiClientPostSearchHistoricoCotacoes(
+              5,
+              searchParamsToInfo(searchParams)
+            );
+
+          if (req) {
+            setPaginationInfo(req);
+            setCotacoes(req.content || []);
+          } else {
+            setPaginationInfo(null);
+            setCotacoes([]);
+          }
+        } catch (e) {
+          catchErrorFromFetch(e, "carregar histórico de cotações");
+          setPaginationInfo(null);
+          setCotacoes([]);
+        } finally {
+          setIsLoading(false);
         }
       }
     };
-    fetchData().catch((e) => {
-      catchErrorFromFetch(e, enqueueSnackbar, "carregar item");
-    });
+    fetchData();
   }, [router, searchParams, enqueueSnackbar]);
 
   const hasItens = cotacoes?.length > 0;
@@ -93,15 +95,16 @@ export default function ViewHistoricoCotacao() {
                 ))}
               </div>
 
-              {/* Paginação fora da rolagem */}
-              <div className="mt-4">
-                <PaginationFooter
-                  setIsLoading={setIsLoading}
-                  isLoading={isLoading}
-                  paginationInfo={paginationInfo}
-                  searchParams={searchParams}
-                />
-              </div>
+              {hasItens && paginationInfo && (
+                <div className="mt-4">
+                  <PaginationFooter
+                    setIsLoading={setIsLoading}
+                    isLoading={isLoading}
+                    paginationInfo={paginationInfo}
+                    searchParams={searchParams}
+                  />
+                </div>
+              )}
             </>
           )}
         </CardContent>

@@ -44,7 +44,7 @@ export default function ItemHistoricoCotacao({ item }: IProps) {
         downloadPDF(res.nomeArquivo, res.arquivo);
       }
     } catch (err) {
-      catchErrorFromFetch(err, enqueueSnackbar, "arquivo da cotação");
+      catchErrorFromFetch(err, "arquivo da cotação");
     } finally {
       setIsLoading(false);
     }
