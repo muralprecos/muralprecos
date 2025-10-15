@@ -121,7 +121,16 @@ mvn clean package -DskipTests
 ### 6. Suba o serviço:
 
   
-Na  raíz do projeto, executo  os  comando  abaixo:
+Em ambiente de produção, suba o projeto com o seguinte comando:
+  
+
+```shell
+
+docker compose -f docker-compose.dev.yml up -d
+
+```
+
+Em ambiente de produção deve ser:
 
   
 
