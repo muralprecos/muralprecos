@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
 import { addSnackIfSelectEmpty } from "@/utils/snackbarUtils";
-import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import { logoutAction } from "@/app/action/logoutActions";
 import {
   CheckRolesStrategy,
@@ -38,7 +37,6 @@ const SearchItensLicitacao: React.FC<IPropsSearchItensLicitacaoForm> = ({
   }, [_cartList, session]);
 
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const searchParams: ReadonlyURLSearchParams = useSearchParams();
   const hasAuthorization = checkAccessRoles(
     session,
     [],
@@ -77,7 +75,6 @@ const SearchItensLicitacao: React.FC<IPropsSearchItensLicitacaoForm> = ({
     <main className="p-6">
       <SearchItensLicitacaoForm
         session={session}
-        searchParams={searchParams}
         empresaPorte={empresaPorte}
         esferas={esferas}
         compraFormas={compraFormas}

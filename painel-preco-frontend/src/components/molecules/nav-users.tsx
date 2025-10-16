@@ -46,7 +46,7 @@ export function NavUser() {
   const [initials, setInitials] = useState("..");
 
   const changeUserInfo = (name: string, org: string, email: string, initials? : string) => {
-    console.log("Changing user info to:", { name, org, email, initials });
+    //console.log("Changing user info to:", { name, org, email, initials });
     setName(name);
     setOrg(org);
     setEmail(email);

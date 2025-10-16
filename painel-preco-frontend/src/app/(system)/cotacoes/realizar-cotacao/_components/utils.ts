@@ -12,7 +12,6 @@ import { Session } from "next-auth";
 
 export interface IPropsSearchItensLicitacaoForm {
   session: Session | null;
-  searchParams?: ReadonlyURLSearchParams;
   anosCompras: IItemSelect[];
   empresaPorte: IItemSelect[];
   esferas: IItemSelect[];
