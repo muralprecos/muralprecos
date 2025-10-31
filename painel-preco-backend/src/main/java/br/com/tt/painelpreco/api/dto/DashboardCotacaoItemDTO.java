@@ -15,8 +15,8 @@ import java.util.UUID;
 public class DashboardCotacaoItemDTO {
 
     private UUID uuid;
-    private String identificador;
-    private Date dataCriacao;
+    private String nome;
+    private String criadoEm;
     private String status;
     private Double valor;
 }
