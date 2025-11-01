@@ -37,7 +37,13 @@ public interface LicitacaoRepository extends JpaRepository<Licitacao, Integer>, 
             "TO_CHAR(l.data_resultado_compra, 'MM/YYYY') AS mesAno, " +
             "COUNT(l.id_licitacao) AS volumeLicitacoes, " +
             "SUM(l.valor) AS valorCotacoes " +
-            "FROM mural.licitacao l WHERE l.data_resultado_compra >= :inicioPeriodo " +
-            "GROUP BY mesAno ORDER BY mesAno", nativeQuery = true)
-    List<DadosMensaisProjection> getLicitacaoMensalVolume(@Param("inicioPeriodo") Date inicioPeriodo);
+            "FROM mural.licitacao l " +
+            // A query agora espera DUAS datas
+            "WHERE l.data_resultado_compra BETWEEN :inicioPeriodo AND :fimPeriodo " +
+            "GROUP BY TO_CHAR(l.data_resultado_compra, 'YYYY-MM'), mesAno " +
+            "ORDER BY TO_CHAR(l.data_resultado_compra, 'YYYY-MM')", nativeQuery = true)
+    List<DadosMensaisProjection> getLicitacaoMensalVolume(
+            @Param("inicioPeriodo") Date inicioPeriodo,
+            @Param("fimPeriodo") Date fimPeriodo
+    );
 }

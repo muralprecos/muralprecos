@@ -71,11 +71,15 @@ public class DashboardService {
 
     // Implementação dos Gráficos
     private DashboardChartDTO getDadosMensaisGraficos() {
-        // Exemplo: Últimos 6 meses
-        Date inicioPeriodo = DateUtil.getStartOfSixMonthsAgo(new Date());
+        Date dataAtual = new Date();
+        int anoAtual = DateUtil.getAno(dataAtual);
 
-        List<DadosMensaisProjection> licitacoes = licitacaoRepository.getLicitacaoMensalVolume(inicioPeriodo);
+        Date inicioPeriodo = DateUtil.getDateFirtDayYear(anoAtual);
 
+        Date primeiroDeDezembro = DateUtil.getDate(anoAtual, DateUtil.DEZEMBRO, 1);
+        Date fimPeriodo = DateUtil.getEndOfMonth(primeiroDeDezembro);
+
+        List<DadosMensaisProjection> licitacoes = licitacaoRepository.getLicitacaoMensalVolume(inicioPeriodo, fimPeriodo);
         List<DashboardChartDTO.DadosMensais> dados = licitacoes.stream()
                 .map(p -> {
 
@@ -94,7 +98,22 @@ public class DashboardService {
     private Page<DashboardLicitacaoItemDTO> getUltimasLicitacoes(Pageable pageable) {
         Page<Licitacao> licitacoesPage = licitacaoRepository.findAll(pageable);
 
-        return licitacoesPage.map(licitacao -> converter.toDTO(licitacao, DashboardLicitacaoItemDTO.class));
+        return licitacoesPage.map(licitacao -> {
+
+            String status = null;
+            if (licitacao.getSituacao() != null) {
+                status = licitacao.getSituacao().getNome();
+            }
+
+            return DashboardLicitacaoItemDTO.builder()
+                    .uuid(licitacao.getUuid())
+                    .numero(licitacao.getNumero())
+                    .objeto(licitacao.getObjeto())
+                    .valor(licitacao.getValor())
+                    .dataAbertura(licitacao.getDataAbertura())
+                    .status(status)
+                    .build();
+        });
     }
 
     private Page<DashboardCotacaoItemDTO> getUltimasCotacoes(Pageable pageable) {
