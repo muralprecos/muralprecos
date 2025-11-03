@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -17,44 +16,20 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { TrendingUp, Eye } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
-export default function LineChartDashboard() {
-  type MonthlyTender = { month: string; tenders: number };
-  type MonthlyQuotation = { month: string; value: number };
+type DadosMensais = {
+  mes: string;
+  volumeLicitacoes: number;
+  valorCotacoes: number;
+};
 
-  type ChartData = {
-    monthlyTenders: MonthlyTender[];
-    monthlyQuotations: MonthlyQuotation[];
-  };
-
-  const [chartData, setChartData] = useState<ChartData>({
-    monthlyTenders: [],
-    monthlyQuotations: [],
-  });
-
-  // Simulate API calls - replace with actual API endpoints
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      // Simulate loading delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock chart data
-      setChartData({
-        monthlyTenders: [
-          { month: "Jan", tenders: 65 },
-          { month: "Fev", tenders: 78 },
-          { month: "Mar", tenders: 92 },
-          { month: "Abr", tenders: 85 },
-          { month: "Mai", tenders: 103 },
-          { month: "Jun", tenders: 125 },
-        ],
-        monthlyQuotations: [],
-      });
-    };
-
-    fetchDashboardData();
-  }, []);
+export default function LineChartDashboard({ data }: { data: DadosMensais[] }) {
+  // Mapeia para o formato que o gráfico entende
+  const chartData = data.map((item) => ({
+    month: item.mes,
+    tenders: item.volumeLicitacoes,
+  }));
 
   return (
     <Card>
@@ -68,7 +43,7 @@ export default function LineChartDashboard() {
       <CardContent>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData.monthlyTenders}>
+            <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />
