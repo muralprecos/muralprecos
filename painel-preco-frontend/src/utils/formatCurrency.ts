@@ -1,6 +1,12 @@
-export function formatCurrency(value: number): string {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+export const formatCurrency = (value: number | null) => {
+    if (value === null || value === undefined) {
+      return "Valor indef.";
+    }
+    return value.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  };
 
 export function parseCurrency(value? : string): number {
   return value ? parseFloat(value.replace(/[R$\s.]/g, "").replace(",", ".")) : 0;
