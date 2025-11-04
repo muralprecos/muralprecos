@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
 import { BarChart3, FileText, DollarSign } from "lucide-react";
 import { PageHeader } from "@/components/molecules/page-header";
 import { KPICard } from "./KPICard";
@@ -10,6 +9,7 @@ import LatestTenders from "./LatestTenders";
 import LineChartDashboard from "./LineChart";
 import BarChartDashboard from "./BarChart";
 import { notify } from "@/components/molecules/NotifyToast";
+import { dashboardMock } from "@/lib/mock";
 
 export default function DashboardLayout() {
   const [kpiData, setKpiData] = useState({
@@ -19,26 +19,56 @@ export default function DashboardLayout() {
     totalSuppliers: { value: 0, change: 0, loading: true },
   });
 
-  // Simulate API calls
+  const [chartData, setChartData] = useState<
+    { mes: string; volumeLicitacoes: number; valorCotacoes: number }[]
+  >([]);
+
   useEffect(() => {
     const fetchDashboardData = async () => {
-      // Simulate loading delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      try {
+        const res = await fetch("/api/dashboard");
+        if (!res.ok) throw new Error("Erro ao buscar dados do dashboard");
 
-      // Mock KPI data
-      setKpiData({
-        totalTenders: { value: 847, change: 12.5, loading: false },
-        totalQuotations: { value: 2847, change: 8.3, loading: false },
-        avgQuotationValue: { value: 15420.5, change: -2.1, loading: false },
-        totalSuppliers: { value: 567, change: 15.2, loading: false },
-      });
+        const data = await res.json();
+        handleDashboardData(data);
+      } catch (error) {
+        console.warn("API falhou, usando dados mockados.");
+        handleDashboardData(dashboardMock);
+
+        notify(
+          "warning",
+          "Usando dados mockados",
+          "A API não respondeu. Exibindo dados ilustrativos locais."
+        );
+      }
     };
 
-    notify(
-      "info",
-      "Dados meramente ilustrativos",
-      "Esses dados são fictícios e não refletem informações reais."
-    );
+    const handleDashboardData = (data: typeof dashboardMock) => {
+      const resumo = data.resumo;
+
+      setKpiData({
+        totalTenders: {
+          value: resumo.licitacoesMes ?? 0,
+          change: resumo.licitacoesMesComparacao ?? 0,
+          loading: false,
+        },
+        totalQuotations: {
+          value: resumo.cotacoesCriadas ?? 0,
+          change: isNaN(parseFloat(resumo.cotacoesCriadasComparacao))
+            ? 0
+            : parseFloat(resumo.cotacoesCriadasComparacao),
+          loading: false,
+        },
+        avgQuotationValue: {
+          value: resumo.valorMedioCotacao ?? 0,
+          change: resumo.valorMedioCotacaoComparacao ?? 0,
+          loading: false,
+        },
+        totalSuppliers: { value: 0, change: 0, loading: false },
+      });
+
+      setChartData(data.graficos.dadosMensais || []);
+    };
 
     fetchDashboardData();
   }, []);
@@ -79,35 +109,30 @@ export default function DashboardLayout() {
   ];
 
   return (
-    <div className="">
+    <div>
       <PageHeader
         title="Dashboard"
         subtitle="Visão geral do sistema de cotações (Dados meramente ilustrativos)"
       />
 
       <main className="p-6">
+        {/* KPIs */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 mb-8">
           {stats.map((stat) => (
-            <KPICard
-              key={stat.name}
-              name={stat.name}
-              value={stat.value}
-              icon={stat.icon}
-              change={stat.change}
-              subtitle={stat.subtitle}
-              loading={stat.loading}
-            />
+            <KPICard key={stat.name} {...stat} />
           ))}
         </div>
 
+        {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <LineChartDashboard />
-          <BarChartDashboard />
+          <LineChartDashboard data={chartData} />
+          <BarChartDashboard data={chartData} />
         </div>
 
+        {/* Listagens */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <LatestTenders />
-          <LatestQuotations />
+          <LatestTenders data={dashboardMock.ultimasLicitacoes.content} />
+          <LatestQuotations data={dashboardMock.ultimasCotacoes.content} />
         </div>
       </main>
     </div>

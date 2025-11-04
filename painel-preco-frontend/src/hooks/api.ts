@@ -2,6 +2,12 @@ import { IAPISearchProps, IAnoCompra, IEsfera, IFormaCompra, IFornecedor, IItemD
 import { HOST_API_PREFIX, ResponseError, getGenericListPageable, getGenericObject, getObjectDesc, postGenericBlob, postGenericJson } from "./genericapi";
 import { extractParamSearch, forceParamSearch, getNumberOrUndefined, getValParamSearch } from "@/utils/searchParamUtils";
 
+export const getDashboardResumo = async ({ accessToken }: { accessToken: string }) => {
+  return getGenericObject<any>({
+    path: HOST_API_PREFIX + '/dashboard/resumo?licitacoes_page=1&cotacoes_page=1',
+    accessToken,
+  });
+};
 
 export const getListPorteFornecedor = async (
   { accessToken, ...opts } : IAPISimpleSearchPropsLogged): Promise<IPorteFornecedor[]|null> => {
