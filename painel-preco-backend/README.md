@@ -397,6 +397,24 @@ curl --location 'http://localhost:8080/serverapi/v1/orgaos/5c9fc00a-4c16-11ee-99
 
 ```
 
+
+### 9. Enviar novas imagens para o Container Registry:
+
+
+Para criar uma nova imagem e enviar ao GHCR, execute o comando abaixo especificando a versão:
+
+
+```shell
+
+docker build . -t ghcr.io/ttsolutionspi/painel-precos-backend:$VERSAO
+docker push ghcr.io/ttsolutionspi/painel-precos-backend:$VERSAO
+
+```
+
+OBS:
+Antigamente o GHCR era "ghcr.io/ttsolutionspi/docker-images/painel-precos-backend:$VERSAO", porém na 1.0.27 migrou para "ghcr.io/ttsolutionspi/painel-precos-backend:$VERSAO".
+
+
   
 
 **OBS:**  algumns  *endpoints* (listados  abaixo) tem  paginação  que  pode  ser  feita  passando  os  parâmetros: **?page=1&size=20**.
