@@ -1,4 +1,4 @@
-CREATE DATABASE painel_preco
+CREATE DATABASE muralpreco
     WITH
     OWNER = postgres
     ENCODING = 'UTF8'
