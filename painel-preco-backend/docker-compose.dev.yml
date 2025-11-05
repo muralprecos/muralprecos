@@ -1,26 +1,26 @@
 version: "3"
 
 services:
-  app:
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    image: painel-precos-backend:local
-    #image: ghcr.io/ttsolutionspi/docker-images/painel-precos-backend:latest
-    environment:
-      TZ: America/Fortaleza 
-    ports:
-      - "8080:8080"
-    env_file: .env
-    depends_on:
-      - postgres
+#  app:
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
+#    image: painel-precos-backend:local
+#    #image: ghcr.io/ttsolutionspi/docker-images/painel-precos-backend:latest
+#    environment:
+#      TZ: America/Fortaleza 
+#    ports:
+#      - "8080:8080"
+#    env_file: .env
+#    depends_on:
+#      - postgres
       
   postgres:
     image: postgres:15.3
     shm_size: 1g
     volumes:
-      - postgres:/var/lib/postgresql/data
-      - ./docker-postgres-initdb.sql:/docker-entrypoint-initdb.d/docker-postgres-initdb.sql
+      - postgres-mural:/var/lib/postgresql/data
+      # - ./docker-postgres-initdb.sql:/docker-entrypoint-initdb.d/docker-postgres-initdb.sql
     environment:
       POSTGRES_DB: muralpreco
       POSTGRES_USER: postgres
@@ -28,22 +28,22 @@ services:
     ports:
       - '5432:5432'
       
-#  keycloak:
-#    image: keycloak/keycloak:22.0.1
-#    command: start-dev
-#    environment:
-#      DB_VENDOR: POSTGRES
-#      DB_ADDR: postgres
-#      DB_DATABASE: keycloak
-#      DB_USER: postgres
-#      DB_PASSWORD: postgres
-#      DB_SCHEMA: public
-#      KEYCLOAK_ADMIN: admin
-#      KEYCLOAK_ADMIN_PASSWORD: admin
-#    ports:
-#      - 8280:8080
-#    depends_on:
-#      - postgres
+  keycloak:
+    image: keycloak/keycloak:22.0.1
+    command: start-dev
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_SCHEMA: public
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - 8280:8080
+    depends_on:
+      - postgres
       
 #  schedule-pncp:
 #    image: ghcr.io/ttsolutionspi/docker-images/schedule-pncp:1.0.0
@@ -64,4 +64,3 @@ services:
 volumes:
   postgres:
     external: true
-

@@ -103,34 +103,23 @@ Para que suba uma versão atualizada do projeto, é gerar o novo .jar que será 
 mvn clean package -DskipTests
 ```
 
-**OBS:** antes  de  gerar o build, alguns  ajustes  podem  ser  necessários no ambiente  de  desenvolvimento:
+**OBS:** antes  de  gerar o build, alguns  ajustes  podem  ser  necessários no **ambiente  de  desenvolvimento**:
 
  1. Comentar indexador do Lucine (**StartupIndexer.java**):
 
-> //earch.session(em).massIndexer().start();
+> //Search.session(em).massIndexer().start();
 
- 2. Comentar  os  serviços  "keycloak" e "schedule-pncp" (**docker-compose.yml**);
-
- 3. Desabilitar o flyway (**application.properties**):
+ 2. Desabilitar o flyway (**application.properties**):
 
 > spring.flyway.baseline-on-migrate=false
 
 > spring.flyway.enabled=false
   
 
-### 6. Suba o serviço:
+### 6. Suba os serviços:
 
   
-Em ambiente de produção, suba o projeto com o seguinte comando:
-  
-
-```shell
-
-docker compose -f docker-compose.dev.yml up -d
-
-```
-
-Em ambiente de produção deve ser:
+Em **ambiente de produção** deve ser:
 
   
 
@@ -139,6 +128,20 @@ Em ambiente de produção deve ser:
 docker compose up --build -d
 
 ```
+  
+  
+Em **ambiente de desenvolvimento**, suba os serviços necessários (postgres, keycloak e redis) para executar o projeto. Use o seguinte comando:
+  
+
+```shell
+
+docker compose -f docker-compose.dev.yml up -d
+
+```
+
+Em seguida, execute o Spring Boot Application no próprio Eclipse STS, por meio da classe PainelPrecoApplication.java.
+
+OBS: alguns parâmetros precisarão ser ajustados no application.properties no ambiente de desenvolvimento, como SSO_AUTH_SERVER (se for usar o Keycloak de produção) e SSO_SECRET;
 
   
 
