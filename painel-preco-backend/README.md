@@ -415,6 +415,8 @@ OBS:
 Antigamente o GHCR era "ghcr.io/ttsolutionspi/docker-images/painel-precos-backend:$VERSAO", porém na 1.0.27 migrou para "ghcr.io/ttsolutionspi/painel-precos-backend:$VERSAO".
 
 
+
+## Anotações Gerais:
   
 
 **OBS:**  algumns  *endpoints* (listados  abaixo) tem  paginação  que  pode  ser  feita  passando  os  parâmetros: **?page=1&size=20**.

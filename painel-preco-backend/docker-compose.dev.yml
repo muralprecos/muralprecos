@@ -2,11 +2,11 @@ version: "3"
 
 services:
 #  app:
-#    build:
-#      context: ./
-#      dockerfile: Dockerfile
-#    image: painel-precos-backend:local
-#    #image: ghcr.io/ttsolutionspi/docker-images/painel-precos-backend:latest
+##    build:
+##      context: ./
+##      dockerfile: Dockerfile
+##    image: painel-precos-backend:local
+#    image: ghcr.io/ttsolutionspi/painel-precos-backend:1.0.27-RC4
 #    environment:
 #      TZ: America/Fortaleza 
 #    ports:
@@ -19,7 +19,7 @@ services:
     image: postgres:15.3
     shm_size: 1g
     volumes:
-      - postgres-mural:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
       # - ./docker-postgres-initdb.sql:/docker-entrypoint-initdb.d/docker-postgres-initdb.sql
     environment:
       POSTGRES_DB: muralpreco
@@ -64,3 +64,9 @@ services:
 volumes:
   postgres:
     external: true
+#    driver: local
+#    driver_opts:
+#      type: none
+#      o: bind
+#      device: /Volumes/KingstonAPFS/docker-databases/postgres-mural
+
