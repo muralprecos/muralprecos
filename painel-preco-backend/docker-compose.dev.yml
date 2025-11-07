@@ -1,0 +1,72 @@
+version: "3"
+
+services:
+#  app:
+##    build:
+##      context: ./
+##      dockerfile: Dockerfile
+##    image: painel-precos-backend:local
+#    image: ghcr.io/ttsolutionspi/painel-precos-backend:1.0.27-RC4
+#    environment:
+#      TZ: America/Fortaleza 
+#    ports:
+#      - "8080:8080"
+#    env_file: .env
+#    depends_on:
+#      - postgres
+      
+  postgres:
+    image: postgres:15.3
+    shm_size: 1g
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      # - ./docker-postgres-initdb.sql:/docker-entrypoint-initdb.d/docker-postgres-initdb.sql
+    environment:
+      POSTGRES_DB: muralpreco
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+      
+  keycloak:
+    image: keycloak/keycloak:22.0.1
+    command: start-dev
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_SCHEMA: public
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - 8280:8080
+    depends_on:
+      - postgres
+      
+#  schedule-pncp:
+#    image: ghcr.io/ttsolutionspi/docker-images/schedule-pncp:1.0.0
+#    depends_on:
+#      - postgres
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready", "-d", "postgres"]
+#      interval: 30s
+#      timeout: 60s
+#      retries: 5
+#      start_period: 80s
+      
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres:
+    external: true
+#    driver: local
+#    driver_opts:
+#      type: none
+#      o: bind
+#      device: /Volumes/KingstonAPFS/docker-databases/postgres-mural
+

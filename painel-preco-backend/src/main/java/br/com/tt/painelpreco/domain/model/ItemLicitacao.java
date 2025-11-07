@@ -14,11 +14,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.DocumentId;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+
 import br.com.tt.painelpreco.domain.model.vo.Link;
 import br.com.tt.painelpreco.util.StringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@Indexed
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @Entity
@@ -26,6 +31,7 @@ import lombok.EqualsAndHashCode;
 public class ItemLicitacao {
 	
 	@EqualsAndHashCode.Include
+	@DocumentId
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_item_licitacao")
@@ -37,9 +43,10 @@ public class ItemLicitacao {
 	@JoinColumn(name = "licitacao_id")
 	private Licitacao licitacao;
 	
-	private Integer codigo;
+	private String codigo;
 
 	/** Descrição do Item **/
+	@FullTextField
 	private String descricao;
 	
 	/** Descrição Complementar **/
@@ -61,6 +68,12 @@ public class ItemLicitacao {
 	@ManyToOne
 	@JoinColumn(name = "fornecedor_id")
 	private Fornecedor fornecedor;
+	
+	@Column(name = "numero_item")
+	private Integer numeroItem;
+	
+	@Column(name = "numero_controle_pncp")
+	private String numeroPncp;
 
 	@Transient
 	private List<Link> links = new ArrayList<>();
@@ -83,7 +96,7 @@ public class ItemLicitacao {
 	public List<Link> getLinks() {
 		String url = null;
 		if (licitacao.isFederal()) {
-			Integer uasg = licitacao.getUnidadeGestora().getCodigo();
+			String uasg = licitacao.getUnidadeGestora().getCodigo();
 			String codModalidade = licitacao.getCodigoModalidadeComprasNet();
 			String numLicitacao = licitacao.getNumero();
 			String anoNumeroPncp = licitacao.getAnoNumeroPncp();

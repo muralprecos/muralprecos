@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>br.com.tt</groupId>
 	<artifactId>painel-preco</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.27</version>
 	<name>painel-preco</name>
 	<description>Painel de Preços da TT Solutions</description>
 	<properties>
@@ -158,6 +158,17 @@
 <!--			<groupId>org.springframework.boot</groupId>-->
 <!--			<artifactId>spring-boot-starter-data-redis</artifactId>-->
 <!--		</dependency>-->
+		<dependency>
+		  <groupId>org.hibernate.search</groupId>
+		  <artifactId>hibernate-search-mapper-orm</artifactId>
+		  <version>6.2.0.Final</version>
+		</dependency>
+		
+		<dependency>
+		  <groupId>org.hibernate.search</groupId>
+		  <artifactId>hibernate-search-backend-lucene</artifactId>
+		  <version>6.2.0.Final</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
