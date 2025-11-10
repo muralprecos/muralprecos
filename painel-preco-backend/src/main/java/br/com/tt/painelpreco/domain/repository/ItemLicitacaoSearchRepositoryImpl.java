@@ -5,8 +5,13 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.session.SearchSession;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 
 @Repository
@@ -19,18 +24,21 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 	}
 
 	@Override
-	public List<Long> searchByDescricao(String descricao) {
-		List<Long> ids = Search.session(em)
-			.search(ItemLicitacao.class)
-			.select(f -> f.id(Long.class))
+	public Page<ItemLicitacao> searchByDescricao(ItemLicitacaoFilter filtro, Pageable pageable) {
+		SearchSession searchSession = Search.session(em);
+		String descricao = filtro.getDescricao();
+		List<ItemLicitacao> hits = searchSession.search(ItemLicitacao.class)
 			.where(f -> f.match().field("descricao").matching(descricao))
-			.fetchAllHits();
-		
-		if (ids.isEmpty()) {
-			return List.of();
-		}
-		
-		return ids;
+//			.sort(f -> f.field("numeroPncp").desc()
+//					.then().field("numeroItem").asc())
+            .fetch((int) pageable.getOffset(), pageable.getPageSize())
+            .hits();
+
+	    long totalHits = searchSession.search(ItemLicitacao.class)
+	    		.where(f -> f.match().field("descricao").matching(descricao))
+	            .fetchTotalHitCount();
+	
+	    return new PageImpl<>(hits, pageable, totalHits);
 	}
 
 }
