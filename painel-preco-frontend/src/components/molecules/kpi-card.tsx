@@ -47,7 +47,7 @@ export function KPICard({
                   <span
                     className={change > 0 ? "text-green-600" : "text-red-600"}
                   >
-                    {Math.abs(change)}%
+                    {Math.abs(change).toFixed(2)}%
                   </span>
                   <span>vs mês anterior</span>
                 </>

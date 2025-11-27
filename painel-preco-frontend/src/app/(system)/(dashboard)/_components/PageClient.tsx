@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { BarChart3, FileText, DollarSign } from "lucide-react";
 import { PageHeader } from "@/components/molecules/page-header";
-import { KPICard } from "./KPICard";
+import { KPICard } from "../../../../components/molecules/kpi-card";
 import LatestQuotations from "./LatestQuotations";
 import LatestTenders from "./ultimas-licitacoes";
 import LineChartDashboard from "./LineChart";
