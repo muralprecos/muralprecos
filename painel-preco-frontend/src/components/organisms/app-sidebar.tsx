@@ -29,11 +29,11 @@ const sidebarData = {
       url: "/cotacoes/realizar-cotacao",
       icon: "mdi:file-document-edit-outline",
     },
-    // {
-    //   title: "Licitações",
-    //   url: "/cotacoes/licitacoes",
-    //   icon: "mdi:file-text-outline",
-    // },
+    {
+      title: "Licitações",
+      url: "/licitacoes",
+      icon: "mdi:file-text-outline",
+    },
     {
       title: "Histórico",
       url: "/cotacoes/historico",

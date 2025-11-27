@@ -1,4 +1,5 @@
 import ItemLicitacao from "@/components/molecules/item-licitacao";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,7 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { Eye, FileText } from "lucide-react";
+import Link from "next/link";
 
 type Licitacao = {
   uuid: string;
@@ -51,6 +53,12 @@ export default function UltimasLicitacoes({ data }: LatestLicitacoesProps) {
             </p>
           )}
         </div>
+        <Link href="/licitacoes">
+          <Button variant="ghost" className="w-full mt-4 gap-2" size="sm">
+            <Eye className="h-4 w-4" />
+            Ver todas
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   );
