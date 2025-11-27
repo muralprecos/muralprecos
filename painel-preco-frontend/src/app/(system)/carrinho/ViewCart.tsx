@@ -24,7 +24,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import ItemListLicitacao from "@/components/organisms/ItemListLicitacao";
+import ItemListLicitacao from "@/components/molecules/ItemListLicitacao";
 import { Button } from "@/components/ui/button";
 import { FileDown, ShoppingCart, Trash2 } from "lucide-react";
 import { AlertMessage, type IAlertMessage } from "@/components/molecules/Alert";

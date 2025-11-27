@@ -1,5 +1,5 @@
+import ItemLicitacao from "@/components/molecules/item-licitacao";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/card";
 import { formatDate } from "@/utils/dateUtils";
 import { formatCurrency } from "@/utils/formatCurrency";
-import { Eye, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 
-type Tender = {
+type Licitacao = {
   uuid: string;
   numero: string;
   objeto: string;
@@ -20,8 +20,8 @@ type Tender = {
   valor: number | null;
 };
 
-type LatestTendersProps = {
-  data: Tender[];
+type LatestLicitacoesProps = {
+  data: Licitacao[];
 };
 
 const getStatusVariant = (
@@ -46,7 +46,7 @@ const getStatusVariant = (
   return "secondary";
 };
 
-export default function LatestTenders({ data }: LatestTendersProps) {
+export default function UltimasLicitacoes({ data }: LatestLicitacoesProps) {
   return (
     <Card>
       <CardHeader>
@@ -59,32 +59,16 @@ export default function LatestTenders({ data }: LatestTendersProps) {
       <CardContent>
         <div className="space-y-3">
           {data && data.length > 0 ? (
-            data.map((tender) => (
-              <div
-                key={tender.uuid}
-                className="p-3 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1 pr-2">
-                    <p className="font-medium text-sm">{tender.numero}</p>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {tender.objeto}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={getStatusVariant(tender.status)}
-                    className="text-xs text-right whitespace-nowrap"
-                  >
-                    {tender.status || "Status indef."}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{formatDate(tender.dataAbertura)}</span>
-                  <span className="font-medium">
-                    {formatCurrency(tender.valor)}
-                  </span>
-                </div>
-              </div>
+            data.map((licitacao) => (
+              <ItemLicitacao
+                key={licitacao.uuid}
+                dataAbertura={licitacao.dataAbertura}
+                numero={licitacao.numero}
+                objeto={licitacao.objeto}
+                status={licitacao.status}
+                uuid={licitacao.uuid}
+                valor={licitacao.valor}
+              />
             ))
           ) : (
             <p className="text-sm text-muted-foreground text-center py-4">

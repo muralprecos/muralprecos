@@ -5,7 +5,7 @@ import { BarChart3, FileText, DollarSign } from "lucide-react";
 import { PageHeader } from "@/components/molecules/page-header";
 import { KPICard } from "./KPICard";
 import LatestQuotations from "./LatestQuotations";
-import LatestTenders from "./LatestTenders";
+import LatestTenders from "./ultimas-licitacoes";
 import LineChartDashboard from "./LineChart";
 import BarChartDashboard from "./BarChart";
 import { notify } from "@/components/molecules/NotifyToast";

@@ -12,7 +12,7 @@ import { useSnackbar } from "notistack";
 import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
 import LoadingList from "@/components/molecules/LoadingList";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
-import ItemHistoricoCotacao from "@/components/organisms/ItemHistoricoCotacao";
+import ItemHistoricoCotacao from "@/components/molecules/ItemHistoricoCotacao";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import { apiClientPostSearchHistoricoCotacoes } from "@/hooks/apiclient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
