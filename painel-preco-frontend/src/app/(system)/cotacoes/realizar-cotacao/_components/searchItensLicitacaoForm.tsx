@@ -56,17 +56,26 @@ export default function SearchItensLicitacaoForm({
     (state) => state.cotacaoSearchReducer.value
   );
 
-  const listSimplifiedForm = ['periodoCompraId', 'ufId', 'municipioId', 'descricao'] as (keyof FormDataCotacao)[];
+  const listSimplifiedForm = [
+    "periodoCompraId",
+    "ufId",
+    "municipioId",
+    "descricao",
+  ] as (keyof FormDataCotacao)[];
   // se algum campo avançado tiver valor, mostra o formulário avançado
   const hasInitialAdvancedForm = useCallback(() => {
     return Object.entries(_initialFormDataLocalStorage).some(([key, value]) => {
-      return value && listSimplifiedForm.indexOf(key as keyof FormDataCotacao) === -1;
+      return (
+        value && listSimplifiedForm.indexOf(key as keyof FormDataCotacao) === -1
+      );
     });
   }, [_initialFormDataLocalStorage]);
 
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showAdvancedForm, setShowAdvancedForm] = useState<boolean>(hasInitialAdvancedForm());
+  const [showAdvancedForm, setShowAdvancedForm] = useState<boolean>(
+    hasInitialAdvancedForm()
+  );
   const [lastUF, setLastUF] = useState<string | null>();
   const [loading, setLoading] = useState(true);
   const initializedRef = useRef(false);
@@ -243,6 +252,13 @@ export default function SearchItensLicitacaoForm({
           {/* Descrição */}
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <InputForm
+              name="objeto"
+              label="Objeto"
+              placeholder="Digite a Descrição do objeto"
+              control={control}
+              errors={errors}
+            />
+            <InputForm
               name="descricao"
               label="Descrição do Item"
               placeholder="Digite a Descrição do Item"
@@ -255,23 +271,40 @@ export default function SearchItensLicitacaoForm({
           {showAdvancedForm && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <InputForm
+                {/* <InputForm
                   name="objeto"
                   label="Objeto"
                   placeholder="Digite a Descrição do objeto"
                   control={control}
                   errors={errors}
-                />
-                <DynamicFormField
+                /> */}
+                {/* <DynamicFormField
                   name="unidade_fornecimento"
                   attr={fields.unidade_fornecimento}
+                  control={control}
+                  errors={errors}
+                /> */}
+                <DynamicFormField
+                  name="ano"
+                  attr={fields.ano}
+                  control={control}
+                  errors={errors}
+                />
+                <DynamicFormField
+                  name="ugId"
+                  attr={fields.ugId}
                   control={control}
                   errors={errors}
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <DynamicFormField name="ano" attr={fields.ano} control={control} errors={errors} />
+              {/* <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <DynamicFormField
+                  name="ano"
+                  attr={fields.ano}
+                  control={control}
+                  errors={errors}
+                />
                 <DynamicFormField
                   name="porteFornecedor"
                   attr={fields.porteFornecedor}
@@ -290,9 +323,9 @@ export default function SearchItensLicitacaoForm({
                   control={control}
                   errors={errors}
                 />
-              </div>
+              </div> */}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <DynamicFormField
                   name="modalidadeCompraId"
                   attr={fields.modalidadeCompraId}
@@ -305,17 +338,22 @@ export default function SearchItensLicitacaoForm({
                   control={control}
                   errors={errors}
                 />
-              </div>
+              </div> */}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <DynamicFormField
                   name="orgaoId"
                   attr={fields.orgaoId}
                   control={control}
                   errors={errors}
                 />
-                <DynamicFormField name="ugId" attr={fields.ugId} control={control} errors={errors} />
-              </div>
+                <DynamicFormField
+                  name="ugId"
+                  attr={fields.ugId}
+                  control={control}
+                  errors={errors}
+                />
+              </div> */}
             </div>
           )}
 
