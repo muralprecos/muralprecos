@@ -1,5 +1,4 @@
 import ItemLicitacao from "@/components/molecules/item-licitacao";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -7,8 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatDate } from "@/utils/dateUtils";
-import { formatCurrency } from "@/utils/formatCurrency";
 import { FileText } from "lucide-react";
 
 type Licitacao = {
@@ -22,28 +19,6 @@ type Licitacao = {
 
 type LatestLicitacoesProps = {
   data: Licitacao[];
-};
-
-const getStatusVariant = (
-  status: string | null
-): "default" | "secondary" | "outline" | "destructive" => {
-  if (!status) return "secondary";
-  const lowerStatus = status.toLowerCase();
-
-  if (lowerStatus.includes("aberta") || lowerStatus.includes("divulgada")) {
-    return "default";
-  }
-  if (lowerStatus.includes("andamento")) {
-    return "secondary";
-  }
-  if (lowerStatus.includes("finalizada") || lowerStatus.includes("concluída")) {
-    return "outline";
-  }
-  if (lowerStatus.includes("cancelada") || lowerStatus.includes("falha")) {
-    return "destructive";
-  }
-
-  return "secondary";
 };
 
 export default function UltimasLicitacoes({ data }: LatestLicitacoesProps) {

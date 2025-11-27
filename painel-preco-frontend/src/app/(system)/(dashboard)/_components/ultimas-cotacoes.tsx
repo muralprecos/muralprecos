@@ -10,7 +10,7 @@ import {
 import { formatCurrency } from "@/utils/formatCurrency";
 import { BarChart3, Eye } from "lucide-react";
 import Link from "next/link";
-type Quotation = {
+type Cotacao = {
   uuid: string;
   nome: string;
   criadoEm: string;
@@ -18,8 +18,8 @@ type Quotation = {
   valor: number | null;
 };
 
-type LatestQuotationsProps = {
-  data: Quotation[];
+type UltimasCotacoesProps = {
+  data: Cotacao[];
 };
 
 const getStatusVariant = (
@@ -38,10 +38,10 @@ const getStatusVariant = (
     return "destructive";
   }
 
-  return "secondary"; // Fallback
+  return "secondary";
 };
 
-export default function LatestQuotations({ data }: LatestQuotationsProps) {
+export default function UltimasCotacoes({ data }: UltimasCotacoesProps) {
   return (
     <Card>
       <CardHeader>

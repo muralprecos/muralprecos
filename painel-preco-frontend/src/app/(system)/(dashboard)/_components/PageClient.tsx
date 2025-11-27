@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { BarChart3, FileText, DollarSign } from "lucide-react";
 import { PageHeader } from "@/components/molecules/page-header";
 import { KPICard } from "../../../../components/molecules/kpi-card";
-import LatestQuotations from "./LatestQuotations";
+import LatestQuotations from "./ultimas-cotacoes";
 import LatestTenders from "./ultimas-licitacoes";
 import LineChartDashboard from "./LineChart";
 import BarChartDashboard from "./BarChart";
@@ -116,20 +116,17 @@ export default function DashboardLayout() {
       />
 
       <main className="p-6">
-        {/* KPIs */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 mb-8">
           {stats.map((stat) => (
             <KPICard key={stat.name} {...stat} />
           ))}
         </div>
 
-        {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <LineChartDashboard data={chartData} />
           <BarChartDashboard data={chartData} />
         </div>
 
-        {/* Listagens */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <LatestTenders data={dashboardMock.ultimasLicitacoes.content} />
           <LatestQuotations data={dashboardMock.ultimasCotacoes.content} />
