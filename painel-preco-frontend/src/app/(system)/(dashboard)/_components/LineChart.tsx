@@ -85,7 +85,7 @@ export default function LineChartDashboard({
         <h3 className="font-semibold text-foreground text-lg">Volume Mensal</h3>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-            {periods.map((period) => (
+            {/* {periods.map((period) => (
               <button
                 key={period}
                 onClick={() => setActivePeriod(period)}
@@ -98,7 +98,7 @@ export default function LineChartDashboard({
               >
                 {period}
               </button>
-            ))}
+            ))} */}
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>2024 - 2025</span>
