@@ -1,6 +1,4 @@
 import { ReactNode, ElementType, Fragment } from "react";
-import { SidebarTrigger } from "../ui/sidebar";
-// import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,7 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { BackButton, ButtonNewQuote } from "../atoms/Buttons";
+import { BackButton, ButtonNewQuote } from "@/components/atoms/Buttons";
 
 interface PageHeaderProps {
   title?: string;
@@ -24,7 +22,6 @@ interface PageHeaderProps {
     href?: string;
     hiddenOnMobile?: boolean;
   }[];
-
   backButton?: boolean;
   newQuoteButton?: boolean;
 }
@@ -35,8 +32,8 @@ export function PageHeader({
   children,
   titleAs: Title = "h1",
   subtitleAs: Subtitle = "p",
-  titleClassName = "text-2xl font-bold tracking-tight truncate text-primary",
-  subtitleClassName = "text-sm text-muted-foreground mt-1 truncate",
+  titleClassName = "text-xl sm:text-2xl font-bold text-foreground",
+  subtitleClassName = "text-sm text-muted-foreground mt-1",
   breadcrumbItems,
   backButton = false,
   newQuoteButton = false,
@@ -45,11 +42,8 @@ export function PageHeader({
   const hasBreadcrumb = breadcrumbItems && breadcrumbItems.length > 0;
 
   return (
-    <div className="sticky top-0 z-40 border-b bg-card/95 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+    <div className="px-6 mb-6 animate-fade-in">
       <div className="flex items-center justify-between gap-4">
-        {/* Sidebar Trigger */}
-        <SidebarTrigger className="h-9 w-9 shrink-0 text-primary" />
-
         {/* Conteúdo principal (título + breadcrumb) */}
         <div className="flex-1 min-w-0">
           {hasTitle && (
@@ -63,7 +57,6 @@ export function PageHeader({
 
           {hasBreadcrumb && (
             <div className="flex items-center gap-2 mt-1">
-              {/* <Separator orientation="vertical" className="h-4" /> */}
               <Breadcrumb>
                 <BreadcrumbList>
                   {breadcrumbItems.map((item, index) => {
@@ -95,7 +88,7 @@ export function PageHeader({
           )}
         </div>
 
-        {/* Children + BackButton no lado oposto */}
+        {/* Children + Buttons no lado oposto */}
         <div className="flex items-center gap-2 shrink-0">
           {children}
           {newQuoteButton && <ButtonNewQuote />}

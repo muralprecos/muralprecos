@@ -1,8 +1,12 @@
+"use client;";
 import { User, Menu, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/atoms/theme-toggle";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useEffect, useState } from "react";
 
 const dashboardNavItems = [
   { label: "Overview", path: "/" },
@@ -12,17 +16,17 @@ const dashboardNavItems = [
 ];
 
 const cotacaoNavItems = [
-  { label: "Realizar Cotação", path: "/realizar-cotacao" },
-  { label: "Carrinho", path: "/carrinho" },
-  { label: "Histórico", path: "/historico" },
-  { label: "Validar Cotação", path: "/validar-cotacao" },
+  { label: "Realizar Cotação", path: "/cotacoes/realizar-cotacao" },
+  { label: "Carrinho", path: "/cotacoes/carrinho" },
+  { label: "Histórico", path: "/cotacoes/historico" },
+  { label: "Validar Cotação", path: "/cotacoes/validar-cotacao" },
 ];
 
 const cotacaoRoutes = [
-  "/realizar-cotacao",
-  "/carrinho",
-  "/historico",
-  "/validar-cotacao",
+  "/cotacoes/realizar-cotacao",
+  "/cotacoes/carrinho",
+  "/cotacoes/historico",
+  "/cotacoes/validar-cotacao",
 ];
 
 interface DashboardHeaderProps {
@@ -30,9 +34,63 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const isCotacaoSection = cotacaoRoutes.includes(pathname);
   const navItems = isCotacaoSection ? cotacaoNavItems : dashboardNavItems;
+
+  const STR_LOADING = "Carregando...";
+
+  const [name, setName] = useState(STR_LOADING);
+  const [org, setOrg] = useState(STR_LOADING);
+  const [email, setEmail] = useState(STR_LOADING);
+  const [initials, setInitials] = useState("..");
+
+  const changeUserInfo = (
+    name: string,
+    org: string,
+    email: string,
+    initials?: string
+  ) => {
+    //console.log("Changing user info to:", { name, org, email, initials });
+    setName(name);
+    setOrg(org);
+    setEmail(email);
+    setInitials(
+      initials ||
+        name
+          .split(" ")
+          .slice(0, 2)
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+    );
+  };
+
+  useEffect(() => {
+    console.log("Session status:", status);
+
+    if (status === "authenticated" && session?.userInfo) {
+      sessionStorage.removeItem("forceRefresh");
+      const userInfo = session.userInfo;
+      changeUserInfo(
+        userInfo.name || "Usuário",
+        userInfo.organizacao?.nome || "Sem Organização",
+        userInfo.email || "user@example.com"
+      );
+    }
+
+    if (status === "unauthenticated") {
+      console.log("Force re-render...");
+      const forceRefresh = sessionStorage.getItem("forceRefresh");
+      if (!forceRefresh) {
+        sessionStorage.setItem("forceRefresh", "true");
+        window.location.reload();
+      }
+    }
+  }, [session, status]);
+
+  const image = session?.user?.image ?? "";
 
   return (
     <header className="flex items-center justify-between mb-8 animate-fade-in relative bg-transparent">
@@ -79,11 +137,14 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
         <div className="flex items-center gap-3 bg-card rounded-full pl-1 pr-4 py-1">
           <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-            <User className="w-4 h-4 text-muted-foreground" />
+            <Avatar className="h-8 w-8 rounded-lg grayscale">
+              <AvatarImage src={image} alt={name} />
+              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+            </Avatar>
           </div>
           <div className="text-sm">
-            <p className="font-medium text-foreground">Admin</p>
-            <p className="text-xs text-muted-foreground">admin@cotacoes.com</p>
+            <p className="font-medium text-foreground">{name}</p>
+            <p className="text-xs text-muted-foreground">{org}</p>
           </div>
         </div>
       </div>
