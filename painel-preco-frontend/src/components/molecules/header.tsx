@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useEffect, useState } from "react";
 import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggler";
+import { TTLogo } from "../atoms/TTLogo";
 
 const dashboardNavItems = [
   { label: "Overview", path: "/" },
@@ -101,9 +102,9 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         <Menu className="w-5 h-5" />
       </button>
 
-      <div className="hidden lg:flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-          <span className="text-primary-foreground font-bold text-sm">TT</span>
+      <div className="hidden lg:flex items-center gap-3 bg-card rounded-full pl-1 pr-4 py-1">
+        <div className="w-8 h-8 rounded-xl items-center justify-center">
+          <img src="/assets/logo-tt.png" />
         </div>
         <span className="text-foreground font-semibold text-lg">
           Mural de Preços
@@ -128,25 +129,23 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       </nav>
 
       <div className="hidden md:flex items-center gap-3">
-        <ThemeTogglerButton className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" />
+        <ThemeTogglerButton
+          variant="link"
+          className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+        />
 
-        <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors relative">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-        </button>
-
-        <div className="flex items-center gap-3 bg-card rounded-full pl-1 pr-4 py-1">
+        <Link
+          href="/usuario/perfil"
+          className="flex items-center gap-3 bg-card rounded-full pl-1 pr-4 py-1"
+        >
           <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-            <Avatar className="h-8 w-8 rounded-lg grayscale">
-              <AvatarImage src={image} alt={name} />
-              <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-            </Avatar>
+            <User className="w-4 h-4 text-muted-foreground" />
           </div>
           <div className="text-sm">
             <p className="font-medium text-foreground">{name}</p>
             <p className="text-xs text-muted-foreground">{org}</p>
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );
