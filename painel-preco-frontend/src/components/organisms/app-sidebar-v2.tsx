@@ -79,7 +79,6 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
   };
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="lg:hidden fixed inset-0 bg-black/50 z-40"
@@ -87,7 +86,6 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
         />
       )}
 
-      {/* Sidebar */}
       <div
         className={cn(
           "fixed lg:sticky top-0 h-auto lg:h-auto p-4 z-50 transition-transform duration-300",
@@ -101,7 +99,6 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
             "w-56 lg:w-16 lg:hover:w-56"
           )}
         >
-          {/* Mobile Close Button */}
           <button
             onClick={onClose}
             className="lg:hidden absolute top-6 right-4 w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center text-sidebar-foreground"
@@ -109,7 +106,6 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
             <X className="w-4 h-4" />
           </button>
 
-          {/* Menu Items */}
           <nav className="flex-1 flex flex-col gap-2 py-4">
             {menuItems.map((item, index) => (
               <Link
@@ -132,7 +128,6 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
             ))}
           </nav>
 
-          {/* Bottom Items */}
           <div className="flex flex-col gap-2 py-4 border-t border-sidebar-border/30 my-[40px]">
             {bottomItems.map((item, index) => (
               <Link

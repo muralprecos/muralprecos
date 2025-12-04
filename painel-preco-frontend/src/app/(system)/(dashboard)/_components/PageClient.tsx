@@ -13,10 +13,7 @@ import type { DashboardResumo } from "@/utils/dashboard";
 
 export default function DashboardLayout() {
   const [loading, setLoading] = useState(true);
-
-  // Estado simplificado para o Resumo
   const [resumoData, setResumoData] = useState<DashboardResumo | null>(null);
-
   const [chartData, setChartData] = useState<
     { mes: string; volumeLicitacoes: number; valorCotacoes: number }[]
   >([]);
