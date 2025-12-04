@@ -1,23 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BarChart3, FileText, DollarSign } from "lucide-react";
 import { PageHeader } from "@/components/molecules/page-header";
-import { KPICard } from "../../../../components/molecules/kpi-card";
 import LatestQuotations from "./ultimas-cotacoes";
 import LatestTenders from "./ultimas-licitacoes";
 import LineChartDashboard from "./LineChart";
 import BarChartDashboard from "./BarChart";
 import { notify } from "@/components/molecules/NotifyToast";
 import { dashboardMock } from "@/lib/mock";
+import { StatCards } from "./stats-card";
+import type { DashboardResumo } from "@/utils/dashboard";
 
 export default function DashboardLayout() {
-  const [kpiData, setKpiData] = useState({
-    totalTenders: { value: 0, change: 0, loading: true },
-    totalQuotations: { value: 0, change: 0, loading: true },
-    avgQuotationValue: { value: 0, change: 0, loading: true },
-    totalSuppliers: { value: 0, change: 0, loading: true },
-  });
+  const [loading, setLoading] = useState(true);
+
+  // Estado simplificado para o Resumo
+  const [resumoData, setResumoData] = useState<DashboardResumo | null>(null);
 
   const [chartData, setChartData] = useState<
     { mes: string; volumeLicitacoes: number; valorCotacoes: number }[]
@@ -25,6 +23,7 @@ export default function DashboardLayout() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      setLoading(true);
       try {
         const res = await fetch("/api/dashboard");
         if (!res.ok) throw new Error("Erro ao buscar dados do dashboard");
@@ -40,31 +39,21 @@ export default function DashboardLayout() {
           "Usando dados mockados",
           "A API não respondeu. Exibindo dados ilustrativos locais."
         );
+      } finally {
+        setLoading(false);
       }
     };
 
     const handleDashboardData = (data: typeof dashboardMock) => {
-      const resumo = data.resumo;
-
-      setKpiData({
-        totalTenders: {
-          value: resumo.licitacoesMes ?? 0,
-          change: resumo.licitacoesMesComparacao ?? 0,
-          loading: false,
-        },
-        totalQuotations: {
-          value: resumo.cotacoesCriadas ?? 0,
-          change: isNaN(parseFloat(resumo.cotacoesCriadasComparacao))
-            ? 0
-            : parseFloat(resumo.cotacoesCriadasComparacao),
-          loading: false,
-        },
-        avgQuotationValue: {
-          value: resumo.valorMedioCotacao ?? 0,
-          change: resumo.valorMedioCotacaoComparacao ?? 0,
-          loading: false,
-        },
-        totalSuppliers: { value: 0, change: 0, loading: false },
+      // Setando os dados diretamente no formato que o componente espera
+      setResumoData({
+        licitacoesMes: data.resumo.licitacoesMes ?? 0,
+        licitacoesMesComparacao: data.resumo.licitacoesMesComparacao ?? 0,
+        cotacoesCriadas: data.resumo.cotacoesCriadas ?? 0,
+        cotacoesCriadasComparacao: data.resumo.cotacoesCriadasComparacao ?? 0,
+        valorMedioCotacao: data.resumo.valorMedioCotacao ?? 0,
+        valorMedioCotacaoComparacao:
+          data.resumo.valorMedioCotacaoComparacao ?? 0,
       });
 
       setChartData(data.graficos.dadosMensais || []);
@@ -73,64 +62,19 @@ export default function DashboardLayout() {
     fetchDashboardData();
   }, []);
 
-  const stats = [
-    {
-      name: "Licitações Este Mês",
-      value: kpiData.totalTenders.loading
-        ? "..."
-        : kpiData.totalTenders.value.toLocaleString(),
-      icon: FileText,
-      change: kpiData.totalTenders.change,
-      subtitle: "este mês",
-      loading: kpiData.totalTenders.loading,
-    },
-    {
-      name: "Cotações Criadas",
-      value: kpiData.totalQuotations.loading
-        ? "..."
-        : kpiData.totalQuotations.value.toLocaleString(),
-      icon: BarChart3,
-      change: kpiData.totalQuotations.change,
-      subtitle: "total",
-      loading: kpiData.totalQuotations.loading,
-    },
-    {
-      name: "Valor Médio Cotação",
-      value: kpiData.avgQuotationValue.loading
-        ? "..."
-        : `R$ ${kpiData.avgQuotationValue.value.toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-          })}`,
-      icon: DollarSign,
-      change: kpiData.avgQuotationValue.change,
-      subtitle: "média geral",
-      loading: kpiData.avgQuotationValue.loading,
-    },
-  ];
-
   return (
     <div>
       <PageHeader
         title="Dashboard"
-        subtitle="Visão geral do sistema de cotações (Dados meramente ilustrativos)"
+        subtitle="Visão geral do sistema de cotações"
       />
 
-      <main className="p-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 mb-8">
-          {stats.map((stat) => (
-            <KPICard key={stat.name} {...stat} />
-          ))}
-        </div>
+      <main className="space-y-8">
+        <section>
+          <StatCards resumo={resumoData} isLoading={loading} />
+        </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <LineChartDashboard data={chartData} />
-          <BarChartDashboard data={chartData} />
-        </div>
-
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <LatestTenders data={dashboardMock.ultimasLicitacoes.content} />
-          <LatestQuotations data={dashboardMock.ultimasCotacoes.content} />
-        </div>
+        <LineChartDashboard data={chartData} resumo={resumoData!} />
       </main>
     </div>
   );

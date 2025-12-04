@@ -42,7 +42,7 @@ export function PageHeader({
   const hasBreadcrumb = breadcrumbItems && breadcrumbItems.length > 0;
 
   return (
-    <div className="px-6 mb-6 animate-fade-in">
+    <div className="mb-6 animate-fade-in">
       <div className="flex items-center justify-between gap-4">
         {/* Conteúdo principal (título + breadcrumb) */}
         <div className="flex-1 min-w-0">
