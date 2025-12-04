@@ -1,12 +1,12 @@
 "use client;";
 import { User, Menu, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ThemeToggle } from "@/components/atoms/theme-toggle";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useEffect, useState } from "react";
+import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggler";
 
 const dashboardNavItems = [
   { label: "Overview", path: "/" },
@@ -128,7 +128,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       </nav>
 
       <div className="hidden md:flex items-center gap-3">
-        <ThemeToggle />
+        <ThemeTogglerButton className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" />
 
         <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors relative">
           <Bell className="w-5 h-5" />
