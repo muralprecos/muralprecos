@@ -51,7 +51,7 @@ export default function ItemHistoricoCotacao({ item }: IProps) {
   };
 
   const handleViewDetails = () => {
-    router.push(`/cotacoes/validacao/${item.hashValidacao}`);
+    router.push(`/cotacoes/validar-cotacao/${item.hashValidacao}`);
   };
 
   return (

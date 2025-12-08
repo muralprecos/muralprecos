@@ -1,20 +1,17 @@
-"use client;";
-import { User, Menu, Bell } from "lucide-react";
+"use client";
+import { User, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useEffect, useState } from "react";
 import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggler";
-import { TTLogo } from "../atoms/TTLogo";
-import Image from "next/image";
 
 const dashboardNavItems = [
   { label: "Overview", path: "/" },
   { label: "Atividade", path: "/atividade" },
-  { label: "Analytics", path: "/analytics" },
-  { label: "Performance", path: "/performance" },
+  { label: "Analytics", path: "#Analytics" },
+  { label: "Performance", path: "#Performance" },
 ];
 
 const cotacaoNavItems = [
@@ -24,7 +21,7 @@ const cotacaoNavItems = [
   { label: "Validar Cotação", path: "/cotacoes/validar-cotacao" },
 ];
 
-const cotacaoRoutes = [
+const cotacaoBaseRoutes = [
   "/cotacoes/realizar-cotacao",
   "/cotacoes/carrinho",
   "/cotacoes/historico",
@@ -37,62 +34,32 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const { data: session, status } = useSession();
-  const pathname = usePathname();
-  const isCotacaoSection = cotacaoRoutes.includes(pathname);
+  const pathname = usePathname(); // <- AGORA NO LUGAR CERTO
+
+  const isCotacaoSection = cotacaoBaseRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
   const navItems = isCotacaoSection ? cotacaoNavItems : dashboardNavItems;
 
   const STR_LOADING = "Carregando...";
 
   const [name, setName] = useState(STR_LOADING);
   const [org, setOrg] = useState(STR_LOADING);
-  const [email, setEmail] = useState(STR_LOADING);
-  const [initials, setInitials] = useState("..");
 
-  const changeUserInfo = (
-    name: string,
-    org: string,
-    email: string,
-    initials?: string
-  ) => {
-    //console.log("Changing user info to:", { name, org, email, initials });
-    setName(name);
-    setOrg(org);
-    setEmail(email);
-    setInitials(
-      initials ||
-        name
-          .split(" ")
-          .slice(0, 2)
-          .map((n) => n[0])
-          .join("")
-          .toUpperCase()
-    );
-  };
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    console.log("Session status:", status);
+    setMounted(true);
+  }, []);
 
+  useEffect(() => {
     if (status === "authenticated" && session?.userInfo) {
-      sessionStorage.removeItem("forceRefresh");
       const userInfo = session.userInfo;
-      changeUserInfo(
-        userInfo.name || "Usuário",
-        userInfo.organizacao?.nome || "Sem Organização",
-        userInfo.email || "user@example.com"
-      );
-    }
-
-    if (status === "unauthenticated") {
-      console.log("Force re-render...");
-      const forceRefresh = sessionStorage.getItem("forceRefresh");
-      if (!forceRefresh) {
-        sessionStorage.setItem("forceRefresh", "true");
-        window.location.reload();
-      }
+      setName(userInfo.name || "Usuário");
+      setOrg(userInfo.organizacao?.nome || "Sem Organização");
     }
   }, [session, status]);
-
-  const image = session?.user?.image ?? "";
 
   return (
     <header className="flex items-center justify-between mb-8 animate-fade-in relative bg-transparent">
@@ -103,31 +70,41 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         <Menu className="w-5 h-5" />
       </button>
 
-      <div className="hidden lg:flex items-center gap-3 bg-card rounded-full pl-1 pr-4 py-1">
+      <Link
+        href="/"
+        className="hidden lg:flex items-center gap-3 bg-card rounded-full pl-1 pr-4 py-1"
+      >
         <div className="w-8 h-8 rounded-xl items-center justify-center">
           <img src="/assets/logo-tt.png" alt="Logo TT" />
         </div>
         <span className="text-foreground font-semibold text-lg">
           Mural de Preços
         </span>
-      </div>
+      </Link>
 
-      <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-muted rounded-full p-1">
-        {navItems.map((item) => (
-          <Link
-            key={item.path}
-            href={item.path}
-            className={cn(
-              "px-4 py-2 rounded-full text-sm transition-all whitespace-nowrap",
-              pathname === item.path
-                ? "bg-sidebar text-sidebar-foreground"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      {/* NAV CENTRAL */}
+      {mounted && (
+        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-muted rounded-full p-1">
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={cn(
+                "px-4 py-2 rounded-full text-sm transition-all whitespace-nowrap",
+                (
+                  item.path === "/"
+                    ? pathname === "/"
+                    : pathname.startsWith(item.path)
+                )
+                  ? "bg-sidebar text-sidebar-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      )}
 
       <div className="hidden md:flex items-center gap-3">
         <ThemeTogglerButton
