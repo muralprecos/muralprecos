@@ -14,8 +14,6 @@ interface SearchButtonsProps {
 }
 
 export function SearchButtons({
-  showAdvancedForm,
-  handleAdvancedFormClick,
   setIsModalOpen,
   isModalOpen,
   clearForm,
@@ -24,7 +22,7 @@ export function SearchButtons({
   return (
     <div className="flex flex-col items-end gap-4 md:flex-row md:justify-end">
       {/* Botão Busca Avançada */}
-      <Button
+      {/* <Button
         type="button"
         onClick={handleAdvancedFormClick}
         aria-pressed={showAdvancedForm}
@@ -40,7 +38,7 @@ export function SearchButtons({
         <span>
           {showAdvancedForm ? "Busca Simplificada" : "Busca Avançada"}
         </span>
-      </Button>
+      </Button> */}
 
       {/* Botão Limpar com Modal */}
       <Button

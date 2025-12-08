@@ -6,7 +6,6 @@ import {
   IItemSelect,
   ISimpleObjetoAPI,
 } from "@/interfaces/types";
-import { ReadonlyURLSearchParams, useRouter } from "next/navigation";
 import { AsyncListData } from "@react-stately/data";
 import { Session } from "next-auth";
 
@@ -73,8 +72,6 @@ export type FieldFormTypes =
 export type FieldsForms = {
   [K in keyof FormDataCotacao]: FieldFormTypes;
 };
-
-
 
 export function isFieldSelect(obj: FieldFormTypes | undefined): obj is FieldFormSelect {
   return !!obj && obj.type === "select";
