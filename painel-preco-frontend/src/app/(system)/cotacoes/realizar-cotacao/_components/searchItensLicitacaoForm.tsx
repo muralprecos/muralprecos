@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import { FIELDS_COTACOES_LIST } from "@/hooks/api";
 import { objToParamSearch } from "@/utils/searchParamUtils";
@@ -81,7 +81,7 @@ export default function SearchItensLicitacaoForm({
     setValue,
     formState: { errors },
   } = useForm<FormDataCotacao>({
-    resolver: yupResolver(schema),
+    resolver: zodResolver(schema),
     defaultValues: initialFormData,
   });
 
@@ -137,7 +137,8 @@ export default function SearchItensLicitacaoForm({
     };
 
     runAsync();
-  }, [_initialFormDataLocalStorage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_initialFormDataLocalStorage, setValue, getValues]);
 
   const onSubmit: SubmitHandler<FormDataCotacao> = async (data) => {
     if (!doingRequest) {

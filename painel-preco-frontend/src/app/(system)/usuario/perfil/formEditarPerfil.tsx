@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useSnackbar } from "notistack";
 import { SubmitHandler, SubmitErrorHandler, useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { Save, User, Lock, Eye, EyeOff } from "lucide-react";
-
 import {
   Card,
   CardContent,
@@ -20,48 +16,49 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
-
 import { apiClientPostUserUpdate } from "@/hooks/apiclient";
 import { IUserInfo } from "@/interfaces/types";
 import { messages } from "@/utils/messages";
-import yupStrings from "@/utils/yupStrings";
 import { notify } from "@/components/molecules/NotifyToast";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import ZodStrings from "@/utils/ZodStrings";
+const schema = z.object({
+  firstName: z.string().min(1, ZodStrings.required || "Campo obrigatório"),
+  lastName: z.string().min(1, ZodStrings.required || "Campo obrigatório"),
+  email: z
+    .string()
+    .min(1, ZodStrings.required || "Campo obrigatório")
+    .email("E-mail inválido"),
 
-const schema = yup.object({
-  firstName: yup.string().required(yupStrings.required),
-  lastName: yup.string().required(yupStrings.required),
-  email: yup.string().required(yupStrings.required).email("E-mail inválido"),
-  password: yup.string(),
-  passwordConfirm: yup.string(),
+  password: z.string().optional(),
+  passwordConfirm: z.string().optional(),
 });
 
-type FormData = yup.InferType<typeof schema>;
-
-const initialForm: FormData = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  password: "",
-  passwordConfirm: "",
-};
+type FormData = z.infer<typeof schema>;
 
 export interface IPageValidacaoClient {
   usuario: IUserInfo;
 }
 
-const FormEditarPerfil: React.FC<IPageValidacaoClient> = ({ usuario }) => {
+export function FormEditarPerfil({ usuario }: IPageValidacaoClient) {
   const router = useRouter();
   const { update } = useSession();
-  const { enqueueSnackbar } = useSnackbar();
   const [doingRequest, setDoingRequest] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  if (usuario != null) {
-    initialForm.firstName = usuario.given_name;
-    initialForm.lastName = usuario.family_name;
-    initialForm.email = usuario.email;
-  }
+  const defaultValues: FormData = useMemo(
+    () => ({
+      firstName: usuario?.given_name || "",
+      lastName: usuario?.family_name || "",
+      email: usuario?.email || "",
+      password: "",
+      passwordConfirm: "",
+    }),
+    [usuario]
+  );
 
   const {
     register,
@@ -69,13 +66,15 @@ const FormEditarPerfil: React.FC<IPageValidacaoClient> = ({ usuario }) => {
     formState: { errors },
     reset,
   } = useForm<FormData>({
-    resolver: yupResolver(schema),
-    defaultValues: initialForm,
+    resolver: zodResolver(schema),
+    defaultValues,
   });
 
   useEffect(() => {
-    if (usuario) reset(initialForm);
-  }, [reset, usuario]);
+    if (usuario) {
+      reset(defaultValues);
+    }
+  }, [reset, usuario, defaultValues]);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     setDoingRequest(true);
@@ -92,7 +91,7 @@ const FormEditarPerfil: React.FC<IPageValidacaoClient> = ({ usuario }) => {
         firstName,
         lastName,
         email,
-        newPassword: password || undefined,
+        newPassword: password || undefined, // Envia undefined se estiver vazio
       });
 
       if (res.success) {
@@ -109,7 +108,7 @@ const FormEditarPerfil: React.FC<IPageValidacaoClient> = ({ usuario }) => {
     }
   };
 
-  const onSubmitError: SubmitErrorHandler<FormData> = () => {
+  const onSubmitError: SubmitErrorHandler<FormData> = (errors) => {
     notify("error", messages.REQUEST_ERROR);
   };
 
@@ -118,7 +117,6 @@ const FormEditarPerfil: React.FC<IPageValidacaoClient> = ({ usuario }) => {
       className="container flex flex-col gap-6 p-6"
       onSubmit={handleSubmit(onSubmit, onSubmitError)}
     >
-      {/* Seção Dados Pessoais */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -191,7 +189,6 @@ const FormEditarPerfil: React.FC<IPageValidacaoClient> = ({ usuario }) => {
         </CardContent>
       </Card>
 
-      {/* Seção Credenciais */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -279,6 +276,4 @@ const FormEditarPerfil: React.FC<IPageValidacaoClient> = ({ usuario }) => {
       </Card>
     </form>
   );
-};
-
-export default FormEditarPerfil;
+}

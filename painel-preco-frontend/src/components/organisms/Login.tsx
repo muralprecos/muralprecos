@@ -13,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import {
@@ -28,11 +27,19 @@ import {
 import { cn } from "@/lib/utils";
 import { Session } from "next-auth";
 
-import { FormData, schema } from "@/app/schemas/loginSchema";
 import { messages } from "@/utils/messages";
 import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
 import { loginAction } from "@/app/action/loginActions";
 import { notify } from "@/components/molecules/NotifyToast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
+
+const schema = z.object({
+  login: z.string().min(1, "O login é obrigatório"),
+  password: z.string().min(1, "A senha é obrigatória"),
+});
+
+type FormData = z.infer<typeof schema>;
 
 const initialForm: FormData = {
   login: "",
@@ -55,11 +62,12 @@ export default function Login(props: Props) {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
     setError,
   } = useForm<FormData>({
-    resolver: yupResolver(schema),
+    resolver: zodResolver(schema),
     defaultValues: initialForm,
   });
 
@@ -77,6 +85,7 @@ export default function Login(props: Props) {
       if (!res?.success) {
         if (res?.error === messages.LOGIN_WRONG) {
           notify("error", "Credenciais inválidas", res.error);
+
           setError("login", { type: "manual", message: res.error });
           setError("password", { type: "manual", message: res.error });
         } else {
@@ -102,8 +111,9 @@ export default function Login(props: Props) {
     }
   };
 
-  const onSubmitError: SubmitErrorHandler<FormData> = (data) => {
-    notify("error", "Erro no formulário", messages.LOGIN_ERROR);
+  const onSubmitError: SubmitErrorHandler<FormData> = (errors) => {
+    const firstError = Object.values(errors)[0]?.message;
+    notify("error", "Erro no formulário", firstError || messages.LOGIN_ERROR);
   };
 
   useEffect(() => {
@@ -115,7 +125,6 @@ export default function Login(props: Props) {
   const handleShowPass = () => {
     setShowPass((prev) => !prev);
   };
-
   return (
     <div className="min-h-screen bg-primary-gradient-custom flex items-center justify-center p-4 relative overflow-hidden">
       <div className="relative z-10 w-full max-w-md">
@@ -128,7 +137,6 @@ export default function Login(props: Props) {
           </p>
         </div>
 
-        {/* Card do formulário */}
         <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl">
           <CardHeader className="pb-6">
             <CardTitle className="text-xl text-white font-semibold text-center">

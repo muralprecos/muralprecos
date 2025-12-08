@@ -1,8 +1,8 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronUp, ChevronDown, Trash2, Search } from "lucide-react";
-import ModalConfirm from "@/components/molecules/ModalConfirm";
+import { Trash2, Search } from "lucide-react";
 import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
+import { ModalConfirm } from "@/components/molecules/ModalConfirm";
 
 interface SearchButtonsProps {
   showAdvancedForm: boolean;
@@ -21,26 +21,6 @@ export function SearchButtons({
 }: SearchButtonsProps) {
   return (
     <div className="flex flex-col items-end gap-4 md:flex-row md:justify-end">
-      {/* Botão Busca Avançada */}
-      {/* <Button
-        type="button"
-        onClick={handleAdvancedFormClick}
-        aria-pressed={showAdvancedForm}
-        aria-label={
-          showAdvancedForm
-            ? "Alternar para busca simplificada"
-            : "Alternar para busca avançada"
-        }
-        variant="outline"
-        className="flex items-center gap-2 text-sm font-semibold transition-colors duration-200 w-full md:w-auto"
-      >
-        {showAdvancedForm ? <ChevronUp /> : <ChevronDown />}
-        <span>
-          {showAdvancedForm ? "Busca Simplificada" : "Busca Avançada"}
-        </span>
-      </Button> */}
-
-      {/* Botão Limpar com Modal */}
       <Button
         type="button"
         className="w-full md:w-auto"
@@ -51,7 +31,6 @@ export function SearchButtons({
         Limpar
       </Button>
 
-      {/* Botão Pesquisar */}
       <Button
         type="submit"
         disabled={doingRequest}
