@@ -1,4 +1,4 @@
-import FormValidateItem from "@/app/(system)/cotacoes/validar-cotacao/components/formValidateItem";
+import { FormValidateItem } from "@/app/(system)/cotacoes/validar-cotacao/components/formValidateItem";
 import ValidaItens from "@/app/(system)/cotacoes/validar-cotacao/components/validaItem";
 import { PageHeader } from "@/components/molecules/page-header";
 import {

@@ -27,17 +27,17 @@ const menuItems = [
   {
     icon: Gavel,
     label: "Licitações",
-    path: "#",
+    path: "/licitacoes",
   },
   {
     icon: FileText,
     label: "Documentos",
-    path: "#",
+    path: "https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos",
   },
   {
     icon: Award,
     label: "Certidões",
-    path: "#",
+    path: "https://certidoes-apf.apps.tcu.gov.br",
   },
 ];
 
@@ -85,7 +85,6 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
     return pathname === path;
   };
 
-  // Função de Logout
   const onClickLogout = async () => {
     try {
       await logoutAction();

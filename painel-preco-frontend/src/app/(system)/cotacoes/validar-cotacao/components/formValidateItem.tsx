@@ -85,5 +85,3 @@ export function FormValidateItem({ params, basePath }: IPageValidacaoClient) {
     </form>
   );
 }
-
-export default FormValidateItem;

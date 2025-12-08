@@ -105,12 +105,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
       <div className="hidden lg:flex items-center gap-3 bg-card rounded-full pl-1 pr-4 py-1">
         <div className="w-8 h-8 rounded-xl items-center justify-center">
-          <Image
-            src="/assets/logo-tt.png"
-            alt="Logo TT"
-            width={32}
-            height={32}
-          />
+          <img src="/assets/logo-tt.png" alt="Logo TT" />
         </div>
         <span className="text-foreground font-semibold text-lg">
           Mural de Preços

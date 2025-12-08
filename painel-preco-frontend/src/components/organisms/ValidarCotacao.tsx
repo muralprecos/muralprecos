@@ -1,4 +1,3 @@
-import FormValidateItem from "@/app/(system)/cotacoes/validar-cotacao/components/formValidateItem";
 import {
   Card,
   CardHeader,
@@ -8,6 +7,7 @@ import {
 } from "../ui/card";
 import { Shield } from "lucide-react";
 import ValidaItens from "@/app/(system)/cotacoes/validar-cotacao/components/validaItem";
+import { FormValidateItem } from "@/app/(system)/cotacoes/validar-cotacao/components/formValidateItem";
 export default function ValidarCotacao({
   params,
 }: {
