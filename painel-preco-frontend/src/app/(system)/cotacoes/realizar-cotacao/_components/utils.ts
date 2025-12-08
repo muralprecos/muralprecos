@@ -77,7 +77,7 @@ export type FieldFormTypes =
   | FieldFormAutocompleteStatic
   | FieldFormAutocompleteAsync;
 export type FieldsForms = {
-  [K in keyof FormDataCotacao]: FieldFormTypes;
+  [K in keyof Omit<FormDataCotacao, "descricao" | "descricaoComplementar" | "objeto">]: FieldFormTypes;
 };
 
 export function isFieldSelect(obj: FieldFormTypes | undefined): obj is FieldFormSelect {

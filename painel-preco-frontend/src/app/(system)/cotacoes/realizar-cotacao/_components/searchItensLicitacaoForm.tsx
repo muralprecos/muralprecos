@@ -110,7 +110,8 @@ export default function SearchItensLicitacaoForm({
     initializedRef.current = true;
 
     const changeVal = async (attr: keyof FormDataCotacao, val: string) => {
-      const f = fields[attr];
+      const f = (fields as any)[attr];
+
       if (!isFieldAutocompleteAsync(f)) {
         setValue(attr, val, {
           shouldValidate: true,
@@ -139,7 +140,6 @@ export default function SearchItensLicitacaoForm({
     runAsync();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_initialFormDataLocalStorage, setValue, getValues]);
-
   const onSubmit: SubmitHandler<FormDataCotacao> = async (data) => {
     if (!doingRequest) {
       try {

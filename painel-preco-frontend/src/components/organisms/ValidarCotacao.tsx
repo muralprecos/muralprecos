@@ -1,4 +1,4 @@
-import FormValidateItem from "@/app/(system)/cotacoes/validacao/components/formValidateItem";
+import FormValidateItem from "@/app/(system)/cotacoes/validar-cotacao/components/formValidateItem";
 import {
   Card,
   CardHeader,
@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Shield } from "lucide-react";
-import ValidaItens from "@/app/(system)/cotacoes/validacao/components/validaItem";
+import ValidaItens from "@/app/(system)/cotacoes/validar-cotacao/components/validaItem";
 export default function ValidarCotacao({
   params,
 }: {
@@ -18,7 +18,9 @@ export default function ValidarCotacao({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Shield className="h-5 w-5 text-primary" />
+            </div>
             Validação de Cotação
           </CardTitle>
           <CardDescription>
@@ -28,7 +30,10 @@ export default function ValidarCotacao({
         </CardHeader>
 
         <CardContent>
-          <FormValidateItem params={params} />
+          <FormValidateItem
+            params={params}
+            basePath="/cotacoes/validar-cotacao/"
+          />
           {!!params.itens && <ValidaItens itens={params.itens} />}
         </CardContent>
       </Card>

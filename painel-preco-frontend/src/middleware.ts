@@ -34,5 +34,5 @@ export default auth((req) => {
 
 export const config = {
   // O matcher está perfeito, sem necessidade de alteração.
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|validar-cotacao).*)"],
 };

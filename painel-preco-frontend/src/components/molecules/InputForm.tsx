@@ -20,6 +20,7 @@ interface IProps<P extends FieldValues> extends UseControllerProps<P> {
   className?: string;
   inputClassName?: string;
   as?: "input" | "textarea";
+  icon?: React.ReactNode;
 }
 export default function InputForm<P extends FieldValues>({
   name,
@@ -30,6 +31,7 @@ export default function InputForm<P extends FieldValues>({
   type = "text",
   className = "w-full",
   inputClassName,
+  icon,
   as = "input",
   ...opts
 }: IProps<P>) {
