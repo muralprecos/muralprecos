@@ -14,7 +14,7 @@ export default function ValidarCotacao({
   params: { itens: string[] };
 }) {
   return (
-    <div className="p-6">
+    <div>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

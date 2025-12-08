@@ -62,10 +62,7 @@ export function FormValidateItem({ params, basePath }: IPageValidacaoClient) {
   };
 
   return (
-    <form
-      className="space-y-2"
-      onSubmit={handleSubmit(onSubmit, onSubmitError)}
-    >
+    <form onSubmit={handleSubmit(onSubmit, onSubmitError)}>
       <div className="flex w-full items-center gap-2">
         <InputForm
           name="cotacao"

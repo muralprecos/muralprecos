@@ -8,14 +8,15 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
-import { MailboxIcon, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 
-interface PageProps {
-  params: { itens?: string[] };
-}
-
-export default function ValidarCotacaoPublica({ params }: PageProps) {
-  const itens = params.itens || [];
+export default async function ValidarCotacaoPublica({
+  params,
+}: {
+  params: Promise<{ itens: string[] }>;
+}) {
+  const resolvedParams = await params;
+  const itens = resolvedParams.itens ?? [];
 
   return (
     <div className="space-y-6">
