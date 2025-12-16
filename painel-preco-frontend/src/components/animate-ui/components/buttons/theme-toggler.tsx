@@ -57,6 +57,25 @@ function ThemeTogglerButton({
 }: ThemeTogglerButtonProps) {
   const { theme, resolvedTheme, setTheme } = useTheme();
 
+  // 🟢 FIX: evitar SSR hydration mismatch
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    // evita renderizar Sun/Moon no SSR → hydration seguro
+    return (
+      <button
+        data-slot="theme-toggler-button"
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      >
+        <span className="opacity-0">
+          <Sun />
+        </span>
+      </button>
+    );
+  }
+
   return (
     <ThemeTogglerPrimitive
       theme={theme as ThemeSelection}

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { IRetornoPesquisaItensLicitacao, type ICart } from "@/interfaces/types";
 import { clear, remove } from "@/store/features/cart-slice";
-import ModalConfirm from "@/components/molecules/ModalConfirm";
 import { DATE_PATTERN, convertTZptBR, datePattern } from "@/utils/dateUtils";
 import { downloadFile, mountUrl } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
@@ -15,14 +14,7 @@ import { Session } from "next-auth";
 import { apiClientPostGerarPDFCotacao } from "@/hooks/apiclient";
 import { useAppSelector } from "@/store/store";
 import { useDispatch } from "react-redux";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ItemListLicitacao from "@/components/molecules/ItemListLicitacao";
 import { Button } from "@/components/ui/button";
@@ -31,6 +23,7 @@ import { AlertMessage, type IAlertMessage } from "@/components/molecules/Alert";
 import LoadingList from "@/components/molecules/LoadingList";
 import FormTitle from "@/components/atoms/FormTitle";
 import { notify } from "@/components/molecules/NotifyToast";
+import { ModalConfirm } from "@/components/molecules/ModalConfirm";
 
 export interface IPropsCartPge {
   session: Session | null;
@@ -43,7 +36,6 @@ export default function ViewCart({ session }: IPropsCartPge) {
   const [isLoading, setIsLoading] = useState(true);
   const [doingRequest, setDoingRequest] = useState(false);
 
-  // Controle do modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalConfirmText, setModalConfirmText] = useState("");

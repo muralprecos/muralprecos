@@ -11,6 +11,8 @@ import {
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { logoutAction } from "@/app/action/logoutActions";
+
 const menuItems = [
   {
     icon: LayoutDashboard,
@@ -25,19 +27,20 @@ const menuItems = [
   {
     icon: Gavel,
     label: "Licitações",
-    path: "#",
+    path: "/licitacoes",
   },
   {
     icon: FileText,
     label: "Documentos",
-    path: "#",
+    path: "https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos",
   },
   {
     icon: Award,
     label: "Certidões",
-    path: "#",
+    path: "https://certidoes-apf.apps.tcu.gov.br",
   },
 ];
+
 const bottomItems = [
   {
     icon: Settings,
@@ -55,6 +58,7 @@ const bottomItems = [
     path: "#",
   },
 ];
+
 const dashboardRoutes = ["/", "/atividade", "/analytics", "/performance"];
 const cotacaoRoutes = [
   "/cotacoes/realizar-cotacao",
@@ -62,12 +66,15 @@ const cotacaoRoutes = [
   "/cotacoes/historico",
   "/cotacoes/validar-cotacao",
 ];
+
 interface DashboardSidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
+
 export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
+
   const isActiveItem = (path: string) => {
     if (path === "/") {
       return dashboardRoutes.includes(pathname);
@@ -77,6 +84,18 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
     }
     return pathname === path;
   };
+
+  const onClickLogout = async () => {
+    try {
+      await logoutAction();
+    } catch (error) {
+      console.error("Erro ao sair", error);
+    }
+  };
+
+  const commonItemClasses =
+    "h-10 mx-3 rounded-xl flex items-center gap-3 px-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 lg:w-10 lg:mx-auto lg:justify-center lg:px-0 lg:group-hover:w-auto lg:group-hover:mx-3 lg:group-hover:justify-start lg:group-hover:px-3 w-full";
+
   return (
     <>
       {isOpen && (
@@ -129,18 +148,35 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
           </nav>
 
           <div className="flex flex-col gap-2 py-4 border-t border-sidebar-border/30 my-[40px]">
-            {bottomItems.map((item, index) => (
-              <Link
-                key={index}
-                href={item.path}
-                className="h-10 mx-3 rounded-xl flex items-center gap-3 px-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 lg:w-10 lg:mx-auto lg:justify-center lg:px-0 lg:group-hover:w-auto lg:group-hover:mx-3 lg:group-hover:justify-start lg:group-hover:px-3"
-              >
-                <item.icon className="w-5 h-5 min-w-5" />
-                <span className="whitespace-nowrap lg:hidden lg:group-hover:block transition-opacity duration-300">
-                  {item.label}
-                </span>
-              </Link>
-            ))}
+            {bottomItems.map((item, index) => {
+              if (item.label === "Sair") {
+                return (
+                  <button
+                    key={index}
+                    onClick={onClickLogout}
+                    className={commonItemClasses}
+                  >
+                    <item.icon className="w-5 h-5 min-w-5" />
+                    <span className="whitespace-nowrap lg:hidden lg:group-hover:block transition-opacity duration-300">
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              }
+
+              return (
+                <Link
+                  key={index}
+                  href={item.path}
+                  className={commonItemClasses}
+                >
+                  <item.icon className="w-5 h-5 min-w-5" />
+                  <span className="whitespace-nowrap lg:hidden lg:group-hover:block transition-opacity duration-300">
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </aside>
       </div>

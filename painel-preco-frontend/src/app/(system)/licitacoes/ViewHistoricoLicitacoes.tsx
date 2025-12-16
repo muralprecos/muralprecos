@@ -64,7 +64,7 @@ export default function ViewLicitacoes() {
   const hasItems = licitacoes.length > 0;
 
   return (
-    <div className="p-6">
+    <div>
       <Card>
         <CardHeader>
           <CardTitle>

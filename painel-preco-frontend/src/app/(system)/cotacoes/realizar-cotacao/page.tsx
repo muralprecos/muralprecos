@@ -111,7 +111,7 @@ export default async function CotacaoHome() {
   return (
     <>
       <PageHeader
-        title="Cotação"
+        title="Realizar Cotação"
         breadcrumbItems={[
           {
             label: "Cotações",
