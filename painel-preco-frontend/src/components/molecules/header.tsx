@@ -10,8 +10,8 @@ import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggl
 const dashboardNavItems = [
   { label: "Overview", path: "/" },
   { label: "Atividade", path: "/atividade" },
-  { label: "Analytics", path: "#Analytics" },
-  { label: "Performance", path: "#Performance" },
+  // { label: "Analytics", path: "#Analytics" },
+  // { label: "Performance", path: "#Performance" },
 ];
 
 const cotacaoNavItems = [
@@ -34,7 +34,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const { data: session, status } = useSession();
-  const pathname = usePathname(); // <- AGORA NO LUGAR CERTO
+  const pathname = usePathname();
 
   const isCotacaoSection = cotacaoBaseRoutes.some((route) =>
     pathname.startsWith(route)
@@ -82,7 +82,6 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         </span>
       </Link>
 
-      {/* NAV CENTRAL */}
       {mounted && (
         <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 bg-muted rounded-full p-1">
           {navItems.map((item) => (

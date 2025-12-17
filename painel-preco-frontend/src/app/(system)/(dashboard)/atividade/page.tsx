@@ -4,16 +4,16 @@ import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/molecules/page-header";
 import { notify } from "@/components/molecules/NotifyToast";
 import { dashboardMock } from "@/lib/mock";
-import type { DashboardResumo } from "@/utils/dashboard";
-import LineChartDashboard from "../_components/LineChart";
+import type { DashboardData, Licitacao, Cotacao } from "@/utils/dashboard";
 import { RecentActivities } from "../_components/atividade-recetes";
 
 export default function DashboardLayout() {
   const [loading, setLoading] = useState(true);
-  const [resumoData, setResumoData] = useState<DashboardResumo | null>(null);
-  const [chartData, setChartData] = useState<
-    { mes: string; volumeLicitacoes: number; valorCotacoes: number }[]
-  >([]);
+  const [resumoData, setResumoData] = useState<DashboardData["resumo"] | null>(
+    null
+  );
+  const [recentLicitacoes, setRecentLicitacoes] = useState<Licitacao[]>([]);
+  const [recentCotacoes, setRecentCotacoes] = useState<Cotacao[]>([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -22,11 +22,11 @@ export default function DashboardLayout() {
         const res = await fetch("/api/dashboard");
         if (!res.ok) throw new Error("Erro ao buscar dados do dashboard");
 
-        const data = await res.json();
+        const data: DashboardData = await res.json();
         handleDashboardData(data);
       } catch (error) {
         console.warn("API falhou, usando dados mockados.");
-        handleDashboardData(dashboardMock);
+        handleDashboardData(dashboardMock as DashboardData);
 
         notify(
           "warning",
@@ -38,19 +38,11 @@ export default function DashboardLayout() {
       }
     };
 
-    const handleDashboardData = (data: typeof dashboardMock) => {
-      // Setando os dados diretamente no formato que o componente espera
-      setResumoData({
-        licitacoesMes: data.resumo.licitacoesMes ?? 0,
-        licitacoesMesComparacao: data.resumo.licitacoesMesComparacao ?? 0,
-        cotacoesCriadas: data.resumo.cotacoesCriadas ?? 0,
-        cotacoesCriadasComparacao: data.resumo.cotacoesCriadasComparacao ?? 0,
-        valorMedioCotacao: data.resumo.valorMedioCotacao ?? 0,
-        valorMedioCotacaoComparacao:
-          data.resumo.valorMedioCotacaoComparacao ?? 0,
-      });
+    const handleDashboardData = (data: DashboardData) => {
+      setResumoData(data.resumo);
 
-      setChartData(data.graficos.dadosMensais || []);
+      setRecentLicitacoes(data.ultimasLicitacoes.content);
+      setRecentCotacoes(data.ultimasCotacoes.content);
     };
 
     fetchDashboardData();
@@ -64,7 +56,10 @@ export default function DashboardLayout() {
       />
 
       <main className="space-y-8">
-        <RecentActivities licitacoes={[]} cotacoes={[]} />
+        <RecentActivities
+          licitacoes={recentLicitacoes}
+          cotacoes={recentCotacoes}
+        />
       </main>
     </div>
   );

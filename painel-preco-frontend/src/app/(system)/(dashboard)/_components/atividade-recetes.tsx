@@ -1,5 +1,14 @@
 import { Search, Filter, FileText, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { Cotacao, Licitacao } from "@/utils/dashboard";
 
 interface RecentActivitiesProps {
@@ -8,11 +17,11 @@ interface RecentActivitiesProps {
 }
 
 const statusStyles: Record<string, string> = {
-  "Divulgada no PNCP": "text-success",
-  Aberta: "text-success",
-  Concluída: "text-success",
-  "Em andamento": "text-warning",
-  Pendente: "text-warning",
+  "Divulgada no PNCP": "text-emerald-600 dark:text-emerald-400",
+  Aberta: "text-emerald-600 dark:text-emerald-400",
+  Concluída: "text-emerald-600 dark:text-emerald-400",
+  "Em andamento": "text-amber-600 dark:text-amber-400",
+  Pendente: "text-amber-600 dark:text-amber-400",
   Finalizada: "text-muted-foreground",
   "Em análise": "text-primary",
 };
@@ -35,17 +44,23 @@ export function RecentActivities({
   cotacoes,
 }: RecentActivitiesProps) {
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-      {/* Licitações Table */}
-      <div
-        className="bg-card rounded-2xl p-6 shadow-card animate-fade-in"
-        style={{ animationDelay: "300ms" }}
-      >
+    <div
+      className="bg-card rounded-2xl p-6 shadow-card animate-fade-in"
+      style={{ animationDelay: "300ms" }}
+    >
+      <Tabs defaultValue="licitacoes" className="w-full">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold text-foreground">Licitações</h3>
-          </div>
+          <TabsList className="grid w-full max-w-xs grid-cols-2">
+            <TabsTrigger value="licitacoes" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Licitações
+            </TabsTrigger>
+            <TabsTrigger value="cotacoes" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Cotações
+            </TabsTrigger>
+          </TabsList>
+
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -61,46 +76,29 @@ export function RecentActivities({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                  Nº
-                </th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                  Objeto
-                </th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                  Valor
-                </th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+        <TabsContent value="licitacoes" className="mt-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nº</TableHead>
+                <TableHead>Objeto</TableHead>
+                <TableHead>Valor</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {licitacoes.map((licitacao) => (
-                <tr
-                  key={licitacao.uuid}
-                  className="border-b border-border/50 hover:bg-muted/30 transition-colors"
-                >
-                  <td className="py-4 px-2">
-                    <span className="text-foreground font-medium">
-                      {truncateText(licitacao.numero, 15)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-2">
-                    <span className="text-foreground" title={licitacao.objeto}>
-                      {truncateText(licitacao.objeto, 40)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-2">
-                    <span className="text-foreground font-medium">
-                      {formatCurrency(licitacao.valor)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-2">
+                <TableRow key={licitacao.uuid}>
+                  <TableCell className="font-medium">
+                    {truncateText(licitacao.numero, 15)}
+                  </TableCell>
+                  <TableCell title={licitacao.objeto}>
+                    {truncateText(licitacao.objeto, 40)}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {formatCurrency(licitacao.valor)}
+                  </TableCell>
+                  <TableCell>
                     <span
                       className={cn(
                         "flex items-center gap-1 text-sm",
@@ -111,95 +109,40 @@ export function RecentActivities({
                       <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
                       {truncateText(licitacao.status, 20)}
                     </span>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </TabsContent>
 
-      {/* Cotações Table */}
-      <div
-        className="bg-card rounded-2xl p-6 shadow-card animate-fade-in"
-        style={{ animationDelay: "400ms" }}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-success" />
-            <h3 className="font-semibold text-foreground">Cotações</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Buscar"
-                className="pl-9 pr-4 py-2 text-sm bg-muted rounded-lg border-none outline-none focus:ring-2 focus:ring-primary/20 w-32"
-              />
-            </div>
-            <button className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground bg-muted rounded-lg hover:text-foreground transition-colors">
-              <Filter className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                  Nome
-                </th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                  Criado em
-                </th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                  Valor
-                </th>
-                <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+        <TabsContent value="cotacoes" className="mt-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Criado em</TableHead>
+                <TableHead>Valor</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {cotacoes.map((cotacao) => (
-                <tr
-                  key={cotacao.uuid}
-                  className="border-b border-border/50 hover:bg-muted/30 transition-colors"
-                >
-                  <td className="py-4 px-2">
-                    <span className="text-foreground" title={cotacao.nome}>
-                      {truncateText(cotacao.nome, 35)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-2">
-                    <span className="text-muted-foreground">
-                      {cotacao.criadoEm}
-                    </span>
-                  </td>
-                  <td className="py-4 px-2">
-                    <span className="text-foreground font-medium">
-                      {formatCurrency(cotacao.valor)}
-                    </span>
-                  </td>
-                  <td className="py-4 px-2">
-                    <span
-                      className={cn(
-                        "flex items-center gap-1 text-sm",
-                        statusStyles[cotacao.status || "Pendente"]
-                      )}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                      {cotacao.status || "Pendente"}
-                    </span>
-                  </td>
-                </tr>
+                <TableRow key={cotacao.uuid}>
+                  <TableCell title={cotacao.nome}>
+                    {truncateText(cotacao.nome, 35)}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {cotacao.criadoEm}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {formatCurrency(cotacao.valor)}
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

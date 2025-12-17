@@ -7,6 +7,7 @@ import {
   HelpCircle,
   LogOut,
   X,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
@@ -38,6 +39,11 @@ const menuItems = [
     icon: Award,
     label: "Certidões",
     path: "https://certidoes-apf.apps.tcu.gov.br",
+  },
+  {
+    icon: Users,
+    label: "Gestão de Usuários",
+    path: "/gestao-usuarios",
   },
 ];
 
