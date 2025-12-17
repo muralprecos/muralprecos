@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
+
 import br.com.tt.painelpreco.util.StringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -25,6 +27,7 @@ public class ModalidadeCompra {
 	private Integer id;
 	
 	@EqualsAndHashCode.Include
+	@KeywordField
 	private UUID uuid;
 	
 	private Integer codigo;
