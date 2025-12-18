@@ -10,9 +10,9 @@ import {
 import { isClientNextjs } from "@/utils/validateUtils";
 import { useSnackbar } from "notistack";
 import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
-import LoadingList from "@/components/molecules/LoadingList";
+import LoadingList from "@/components/atoms/LoadingList";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
-import ItemHistoricoCotacao from "@/components/molecules/ItemHistoricoCotacao";
+import ItemHistoricoCotacao from "@/components/atoms/ItemHistoricoCotacao";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import { apiClientPostSearchHistoricoCotacoes } from "@/hooks/apiclient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

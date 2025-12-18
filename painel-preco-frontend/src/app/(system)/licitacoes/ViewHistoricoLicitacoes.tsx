@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText } from "lucide-react";
-import LoadingList from "@/components/molecules/LoadingList";
+import LoadingList from "@/components/atoms/LoadingList";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import FormTitle from "@/components/atoms/FormTitle";
 import { dashboardMock } from "@/lib/mock";
 import { notify } from "@/components/molecules/NotifyToast";
-import ItemLicitacao from "@/components/molecules/item-licitacao";
+import ItemLicitacao from "@/components/atoms/item-licitacao";
 
 type Licitacao = {
   uuid: string;

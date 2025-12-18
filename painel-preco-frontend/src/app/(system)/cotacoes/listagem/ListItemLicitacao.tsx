@@ -14,9 +14,9 @@ import { useSnackbar } from "notistack";
 import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
 import { isClientNextjs } from "@/utils/validateUtils";
 import { apiClientPostSearchListItens } from "@/hooks/apiclient";
-import ItemListLicitacao from "@/components/molecules/ItemListLicitacao";
+import ItemListLicitacao from "@/components/atoms/ItemListLicitacao";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
-import LoadingList from "@/components/molecules/LoadingList";
+import LoadingList from "@/components/atoms/LoadingList";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import {
   Card,

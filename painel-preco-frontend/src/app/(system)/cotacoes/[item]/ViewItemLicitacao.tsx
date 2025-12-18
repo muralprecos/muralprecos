@@ -13,7 +13,7 @@ import {
   calcUnityValueByQuantity,
 } from "@/utils/formatCurrency";
 import { useSnackbar } from "notistack";
-import LoadingItem from "@/components/molecules/LoadingItem";
+import LoadingItem from "@/components/atoms/LoadingItem";
 import { strIfNotNull } from "@/utils/convertData";
 import { catchErrorFromFetch } from "@/utils/requestUtils";
 import { apiClientGetItemCotacao } from "@/hooks/apiclient";

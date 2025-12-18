@@ -2,15 +2,13 @@
 
 import { useState } from "react";
 import FloatingButton from "../molecules/FloatingButton";
-import ChatWindow from "../molecules/ChatWindow";
+import ChatWindow from "../chat/ChatWindow";
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <div className="h-20 sm:h-0" />
-
       <FloatingButton
         onClick={() => (isOpen ? setIsOpen(false) : setIsOpen(true))}
       />

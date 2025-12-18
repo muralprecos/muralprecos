@@ -25,7 +25,7 @@ import {
 import { useCotacaoFields } from "@/hooks/useCotacaoFields";
 import DynamicFormField from "./DynamicFormField";
 import { useDispatch } from "react-redux";
-import LoadingForm from "@/components/molecules/LoadingForm";
+import LoadingForm from "@/components/atoms/LoadingForm";
 import { SearchButtons } from "./SearchButtons";
 import {
   Card,

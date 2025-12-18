@@ -1,5 +1,3 @@
-import * as React from "react";
-
 export const TTLogo = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg
     width="1000"
