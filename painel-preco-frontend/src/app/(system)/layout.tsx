@@ -31,7 +31,7 @@ export default function DashboardLayout({
             onClose={() => setSidebarOpen(false)}
           />
 
-          <main className="flex-1 p-4 pt-0 sm:p-6 sm:pt-0 pb-20 md:pb-6 relative">
+          <main className="flex-1 p-4 pt-0 sm:p-6 sm:pt-6 pb-20 md:pb-6 relative">
             {children}
             <ChatWidget />
           </main>

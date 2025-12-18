@@ -6,7 +6,6 @@ import { FileText } from "lucide-react";
 import LoadingList from "@/components/molecules/LoadingList";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import FormTitle from "@/components/atoms/FormTitle";
-import { useSnackbar } from "notistack";
 import { dashboardMock } from "@/lib/mock";
 import { notify } from "@/components/molecules/NotifyToast";
 import ItemLicitacao from "@/components/molecules/item-licitacao";
@@ -23,8 +22,6 @@ type Licitacao = {
 type DashboardData = typeof dashboardMock;
 
 export default function ViewLicitacoes() {
-  const { enqueueSnackbar } = useSnackbar();
-
   const [isLoading, setIsLoading] = useState(true);
   const [licitacoes, setLicitacoes] = useState<Licitacao[]>([]);
 
@@ -87,7 +84,7 @@ export default function ViewLicitacoes() {
           ) : !hasItems ? (
             <EmptyListText>Nenhuma licitação encontrada.</EmptyListText>
           ) : (
-            <div className="max-h-[650px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent">
+            <div className="max-h-[380px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent">
               {licitacoes.map((item) => (
                 <ItemLicitacao
                   key={item.uuid}

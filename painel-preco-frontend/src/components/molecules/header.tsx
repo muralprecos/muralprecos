@@ -62,7 +62,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   }, [session, status]);
 
   return (
-    <header className="flex items-center justify-between mb-8 animate-fade-in relative bg-transparent">
+    <header className="flex items-center justify-between animate-fade-in relative bg-transparent">
       <button
         onClick={onMenuClick}
         className="lg:hidden w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"

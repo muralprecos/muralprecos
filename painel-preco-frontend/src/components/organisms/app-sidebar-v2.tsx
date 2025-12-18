@@ -25,6 +25,7 @@ const menuItems = [
     label: "Cotação",
     path: "/cotacoes/realizar-cotacao",
   },
+
   {
     icon: Gavel,
     label: "Licitações",
@@ -40,14 +41,14 @@ const menuItems = [
     label: "Certidões",
     path: "https://certidoes-apf.apps.tcu.gov.br",
   },
+];
+
+const bottomItems = [
   {
     icon: Users,
     label: "Gestão de Usuários",
     path: "/gestao-usuarios",
   },
-];
-
-const bottomItems = [
   {
     icon: Settings,
     label: "Configurações",

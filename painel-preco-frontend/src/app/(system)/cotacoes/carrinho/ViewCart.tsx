@@ -111,8 +111,8 @@ export default function ViewCart({ session }: IPropsCartPge) {
   };
 
   return (
-    <div className="p-6">
-      <Card className="min-h-[600px] flex flex-col">
+    <div>
+      <Card className="min-h-[500px] flex flex-col">
         <CardHeader>
           <CardTitle>
             <FormTitle
