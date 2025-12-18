@@ -169,9 +169,7 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
                     </div>
                   </div>
 
-                  {/* Main Content */}
                   <div className="flex flex-col items-start justify-start lg:basis-3/4 w-full space-y-8">
-                    {/* Item Information */}
                     {hasSelectedValue([INFO_TYPE.TODOS, INFO_TYPE.ITEM]) && (
                       <section className="w-full">
                         <InfoTitle>Informações Gerais do Item</InfoTitle>
@@ -245,7 +243,6 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
                       </section>
                     )}
 
-                    {/* Bidding Information */}
                     {hasSelectedValue([
                       INFO_TYPE.TODOS,
                       INFO_TYPE.LICITACAO,
@@ -384,7 +381,6 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
                       </section>
                     )}
 
-                    {/* Useful Links */}
                     {hasSelectedValue([INFO_TYPE.TODOS, INFO_TYPE.LINKS]) &&
                       itemLicitacao?.links != undefined &&
                       itemLicitacao?.links.length > 0 && (

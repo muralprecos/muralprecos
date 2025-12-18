@@ -36,7 +36,6 @@ const Icon: React.FC<IconProps> = ({
           svg.setAttribute("width", width.toString());
           svg.setAttribute("height", height.toString());
 
-          // aplicar classes data-* (opcional)
           const classes = className?.split(" ") || [];
 
           const svgClasses = classes

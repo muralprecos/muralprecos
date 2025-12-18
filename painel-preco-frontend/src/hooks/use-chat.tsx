@@ -50,7 +50,6 @@ export const useChat = () => {
     async (content: string) => {
       if (!content.trim()) return;
 
-      // Add user message
       const userMessageId = addMessage({
         content: content.trim(),
         role: "user",
@@ -61,8 +60,7 @@ export const useChat = () => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
-        // Simulate API call to OpenAI
-        await new Promise((resolve) => setTimeout(resolve, 1500)); // Typing animation duration
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
         const assistantMessage = await simulateOpenAIResponse(content);
 
@@ -103,7 +101,6 @@ export const useChat = () => {
   };
 };
 
-// Simulate OpenAI API response for demonstration
 const simulateOpenAIResponse = async (userMessage: string): Promise<string> => {
   const responses = [
     "Entendi sua solicitação sobre licitações. Como posso ajudá-lo especificamente com esse processo?",

@@ -88,7 +88,6 @@ export default function ViewHistoricoCotacao() {
             </EmptyListText>
           ) : (
             <>
-              {/* Lista com rolagem interna */}
               <div className="max-h-[300px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent">
                 {cotacoes.map((item) => (
                   <ItemHistoricoCotacao key={item.uuid} item={item} />

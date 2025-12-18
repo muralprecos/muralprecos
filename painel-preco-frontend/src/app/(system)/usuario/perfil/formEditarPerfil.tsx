@@ -91,7 +91,7 @@ export function FormEditarPerfil({ usuario }: IPageValidacaoClient) {
         firstName,
         lastName,
         email,
-        newPassword: password || undefined, // Envia undefined se estiver vazio
+        newPassword: password || undefined,
       });
 
       if (res.success) {

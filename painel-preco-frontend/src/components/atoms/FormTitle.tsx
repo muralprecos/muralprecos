@@ -56,14 +56,17 @@ export default function FormTitle({
         </div>
       </div>
 
-      {/* Botões */}
       <div className="flex w-full sm:w-auto flex-wrap gap-2 justify-between sm:justify-end mt-2 sm:mt-0">
-        {backButton && <BackButton className="flex-1 sm:flex-none" onClick={backButtonOnClick ?? undefined} />}
+        {backButton && (
+          <BackButton
+            className="flex-1 sm:flex-none"
+            onClick={backButtonOnClick ?? undefined}
+          />
+        )}
         {newQuoteButton && <ButtonNewQuote className="flex-1 sm:flex-none" />}
         {cartButton && <CartButton className="flex-1 sm:flex-none" />}
       </div>
 
-      {/* Children abaixo */}
       {children && <div className="w-full mt-2">{children}</div>}
     </div>
   );

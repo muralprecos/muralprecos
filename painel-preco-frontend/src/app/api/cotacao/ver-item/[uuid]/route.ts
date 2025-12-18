@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ uuid: string }> } // ou usar 'any' se quiser evitar typings manuais
+  context: { params: Promise<{ uuid: string }> }
 ) {
   const { uuid } = await context.params;
 
@@ -14,9 +14,12 @@ export async function GET(
     info.push({ param: "uuid", val: uuid });
   }
 
-  const accessToken = await getAccessToken() || '';
+  const accessToken = (await getAccessToken()) || "";
   if (!accessToken) {
-    return NextResponse.json({ message: "Wrong Access, please login!" }, { status: 401 });
+    return NextResponse.json(
+      { message: "Wrong Access, please login!" },
+      { status: 401 }
+    );
   }
 
   const data = await getItemLicitacao({ info, accessToken });

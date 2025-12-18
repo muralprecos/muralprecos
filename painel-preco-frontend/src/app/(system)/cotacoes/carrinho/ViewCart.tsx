@@ -126,7 +126,6 @@ export default function ViewCart({ session }: IPropsCartPge) {
         </CardHeader>
 
         <CardContent className="flex-1 flex flex-col justify-between">
-          {/* Conteúdo principal */}
           <div className="flex-1">
             {alertMsg && (
               <AlertMessage type={alertMsg.type} message={alertMsg.message} />
@@ -156,7 +155,6 @@ export default function ViewCart({ session }: IPropsCartPge) {
             )}
           </div>
 
-          {/* Rodapé com botões */}
           <div className="mt-6">
             <Separator className="my-4" />
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

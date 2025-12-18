@@ -110,8 +110,6 @@ const ListItemLicitacao: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* Lista de itens com rolagem interna */}
-              {/* <div className="max-h-[600px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent"> */}
               {itensLicitacao.map((item) => (
                 <ItemListLicitacao
                   key={item.uuid}
@@ -120,9 +118,7 @@ const ListItemLicitacao: React.FC = () => {
                   mode="list"
                 />
               ))}
-              {/* </div> */}
-
-              {/* Paginação fora da rolagem */}
+              s
               <div className="">
                 <PaginationFooter
                   setIsLoading={setIsLoading}
