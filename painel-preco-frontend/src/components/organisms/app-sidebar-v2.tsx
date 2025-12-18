@@ -14,7 +14,14 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { logoutAction } from "@/app/action/logoutActions";
 
-const menuItems = [
+interface MenuItem {
+  icon: typeof LayoutDashboard;
+  label: string;
+  path: string;
+  external?: boolean;
+}
+
+const menuItems: MenuItem[] = [
   {
     icon: LayoutDashboard,
     label: "Dashboard",
@@ -35,11 +42,13 @@ const menuItems = [
     icon: FileText,
     label: "Documentos",
     path: "https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos",
+    external: true,
   },
   {
     icon: Award,
     label: "Certidões",
     path: "https://certidoes-apf.apps.tcu.gov.br",
+    external: true,
   },
 ];
 
@@ -138,6 +147,8 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                 key={index}
                 href={item.path}
                 onClick={onClose}
+                target={item.external ? "_blank" : undefined}
+                rel={item.external ? "noopener noreferrer" : undefined}
                 className={cn(
                   "h-10 mx-3 rounded-xl flex items-center gap-3 px-3 transition-all duration-200",
                   "lg:w-10 lg:mx-auto lg:justify-center lg:px-0 lg:group-hover:w-auto lg:group-hover:mx-3 lg:group-hover:justify-start lg:group-hover:px-3",
