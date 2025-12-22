@@ -162,6 +162,12 @@ export const postDownloadItensCotacoes = async (
 export const postLogin = async (
   userAuth: IUserAuth) => {
     const URL = `${process.env.GET_TOKEN_URL}`;
+
+    if (!URL) {
+      // console.error("❌ GET_TOKEN_URL não configurada");
+      throw new Error("GET_TOKEN_URL não configurada");
+    }
+
     const b = new URLSearchParams();
     b.append('client_id', `${process.env.KEYCLOAK_ID}`);
     b.append('client_secret', `${process.env.KEYCLOAK_SECRET}`);
@@ -169,11 +175,20 @@ export const postLogin = async (
     b.append('scope', 'openid');
     b.append('username', userAuth.username);
     b.append('password', userAuth.password);
-    return fetch(URL, { 
-      method: "POST",
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: b
-    });
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+    try {
+      return await fetch(URL, { 
+        method: "POST",
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: b,
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 }
 
 export const postLogout = async (idToken: string) => {
