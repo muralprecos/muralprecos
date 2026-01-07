@@ -148,6 +148,11 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 								.matching(filtro.getPorteFornecedorId()));
 					}
 
+					if (filtro.getUnidadeFornecimentoId() != null) {
+						bool.must(f.match().field("unidadeFornecimento.uuid")
+								.matching(filtro.getUnidadeFornecimentoId()));
+					}
+
 					return bool;
 				})
 				.sort(f -> f.field("licitacao.dataResultadoCompra").desc()

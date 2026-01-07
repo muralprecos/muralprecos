@@ -65,6 +65,8 @@ public class ItemLicitacao {
 	/** Unidade de Fornecimento **/
 	@ManyToOne
 	@JoinColumn(name = "unidade_fornecimento_id")
+	@IndexedEmbedded(includeDepth = 1)
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private UnidadeFornecimento unidadeFornecimento;
 
 	private Integer quantidade;
