@@ -72,7 +72,7 @@ const SearchItensLicitacao: React.FC<IPropsSearchItensLicitacaoForm> = ({
   ]);
 
   return (
-    <main className="p-6">
+    <main>
       <SearchItensLicitacaoForm
         session={session}
         empresaPorte={empresaPorte}

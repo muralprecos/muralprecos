@@ -49,5 +49,3 @@ export function ModalConfirm({
     </Dialog>
   );
 }
-
-export default ModalConfirm;

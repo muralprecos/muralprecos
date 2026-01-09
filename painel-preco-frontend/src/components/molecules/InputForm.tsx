@@ -10,6 +10,7 @@ import {
   UseControllerProps,
 } from "react-hook-form";
 import { cn } from "@/lib/utils";
+import { Input } from "../ui/input";
 
 interface IProps<P extends FieldValues> extends UseControllerProps<P> {
   errors?: FieldErrors;
@@ -17,6 +18,9 @@ interface IProps<P extends FieldValues> extends UseControllerProps<P> {
   placeholder?: string;
   type?: string;
   className?: string;
+  inputClassName?: string;
+  as?: "input" | "textarea";
+  icon?: React.ReactNode;
 }
 export default function InputForm<P extends FieldValues>({
   name,
@@ -26,6 +30,9 @@ export default function InputForm<P extends FieldValues>({
   placeholder,
   type = "text",
   className = "w-full",
+  inputClassName,
+  icon,
+  as = "input",
   ...opts
 }: IProps<P>) {
   const err: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined =
@@ -43,28 +50,35 @@ export default function InputForm<P extends FieldValues>({
           {label}
         </label>
       )}
+
       <Controller
         name={name}
         control={control}
-        render={({ field }) => (
-          <input
-            {...field}
-            id={name}
-            type={type}
-            placeholder={placeholder}
-            className={cn(
-              "w-full px-3 py-2 text-sm rounded-md outline-none transition-all",
-              "bg-background text-foreground",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "placeholder:text-muted-foreground placeholder:text-sm placeholder:font-medium",
-              isValid
-                ? "border border-input focus:ring-2 focus:ring-primary"
-                : "border border-destructive focus:ring-2 focus:ring-destructive"
-            )}
-            {...opts}
-          />
-        )}
+        render={({ field }) => {
+          const Component = as === "textarea" ? "textarea" : "input";
+
+          return (
+            <Component
+              {...field}
+              id={name}
+              type={type}
+              placeholder={placeholder}
+              className={cn(
+                "w-full px-3 py-2 text-sm rounded-md outline-none transition-all",
+                "bg-background text-foreground",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                "placeholder:text-muted-foreground placeholder:text-sm placeholder:font-medium",
+                isValid
+                  ? "border border-input focus:ring-2 focus:ring-primary"
+                  : "border border-destructive focus:ring-2 focus:ring-destructive",
+                inputClassName
+              )}
+              {...opts}
+            />
+          );
+        }}
       />
+
       {!isValid && <p className="text-xs text-destructive mt-1">{errMsg}</p>}
     </div>
   );

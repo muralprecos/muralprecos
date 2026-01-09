@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { Button, type ButtonProps } from "../ui/button";
 
-export const ROUTE_NOVA_COTACAO : string = "/cotacoes/realizar-cotacao";
-export const ROUTE_CARRINHO : string = "/carrinho";
+export const ROUTE_NOVA_COTACAO: string = "/cotacoes/realizar-cotacao";
+export const ROUTE_CARRINHO: string = "/cotacoes/carrinho";
 
 export function ButtonNewQuote({ variant = "default", ...props }: ButtonProps) {
   const router = useRouter();
@@ -44,9 +44,10 @@ export function CartButton({ variant = "default", ...props }: ButtonProps) {
   );
 }
 
-export function BackButton({ 
-  variant = "secondary", 
-  onClick, ...props 
+export function BackButton({
+  variant = "secondary",
+  onClick,
+  ...props
 }: ButtonProps & { onClick?: () => void }) {
   const router = useRouter();
 

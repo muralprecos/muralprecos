@@ -1,14 +1,13 @@
 "use client";
 
-import * as yup from "yup";
-import yupStrings from "@/utils/yupStrings";
+import { z } from "zod";
 import {
   IItemSelect,
   ISimpleObjetoAPI,
 } from "@/interfaces/types";
-import { ReadonlyURLSearchParams, useRouter } from "next/navigation";
 import { AsyncListData } from "@react-stately/data";
 import { Session } from "next-auth";
+import ZodStrings from "@/utils/ZodStrings";
 
 export interface IPropsSearchItensLicitacaoForm {
   session: Session | null;
@@ -22,29 +21,36 @@ export interface IPropsSearchItensLicitacaoForm {
   unidadesFederativas: IItemSelect[];
 }
 
-export const schema = yup.object({
-  ano: yup.string().nullable(),
-  porteFornecedor: yup.string().nullable(),
-  esferaId: yup.string().nullable(),
-  formaCompraId: yup.string().nullable(),
-  modalidadeCompraId: yup.string().nullable(),
-  periodoCompraId: yup.string().required(yupStrings.required),
+const optionalString = z.string().nullable().optional();
 
-  ufId: yup.string().nullable(),
-  municipioId: yup.string().nullable(),
-  orgaoSuperiorId: yup.string().nullable(),
-  orgaoId: yup.string().nullable(),
-  fornecedorId: yup.string().nullable(),
-  materialId: yup.string().nullable(),
-  ugId: yup.string().nullable(),
-  objeto: yup.string().nullable(),
-  descricao: yup.string().nullable(),
-  descricaoComplementar: yup.string().nullable(),
+export const schema = z.object({
+  ano: optionalString,
+  porteFornecedor: optionalString,
+  esferaId: optionalString,
+  formaCompraId: optionalString,
+  modalidadeCompraId: optionalString,
+  
+  periodoCompraId: z.string().min(1, ZodStrings.required || "Campo obrigatório"),
 
-  situacao_licitacao: yup.string(),
-  unidade_fornecimento: yup.string().nullable(),
+  descricao: z.string().min(1, ZodStrings.required || "Campo obrigatório"), 
+
+  ufId: optionalString,
+  municipioId: optionalString,
+  orgaoSuperiorId: optionalString,
+  orgaoId: optionalString,
+  fornecedorId: optionalString,
+  materialId: optionalString,
+  ugId: optionalString,
+  objeto: optionalString,
+  
+  descricaoComplementar: optionalString,
+
+  situacao_licitacao: z.string().optional(),
+  unidade_fornecimento: optionalString,
 });
-export type FormDataCotacao = yup.InferType<typeof schema>;
+
+export type FormDataCotacao = z.infer<typeof schema>;
+
 export type FieldAutocompleteAsync<T extends ISimpleObjetoAPI> = {
   async: AsyncListData<T>;
   attrVal: "uuid" | "nome";
@@ -71,10 +77,8 @@ export type FieldFormTypes =
   | FieldFormAutocompleteStatic
   | FieldFormAutocompleteAsync;
 export type FieldsForms = {
-  [K in keyof FormDataCotacao]: FieldFormTypes;
+  [K in keyof Omit<FormDataCotacao, "descricao" | "descricaoComplementar" | "objeto">]: FieldFormTypes;
 };
-
-
 
 export function isFieldSelect(obj: FieldFormTypes | undefined): obj is FieldFormSelect {
   return !!obj && obj.type === "select";

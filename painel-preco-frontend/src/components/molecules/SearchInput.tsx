@@ -9,7 +9,6 @@ export function SearchInput() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
 
-  // Mantém o input sincronizado com o valor da URL
   useEffect(() => {
     const nomeParam = searchParams.get("nome");
     if (nomeParam) setSearch(nomeParam);

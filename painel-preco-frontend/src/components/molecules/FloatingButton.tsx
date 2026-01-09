@@ -1,4 +1,3 @@
-// components/FloatingButton.tsx
 "use client";
 
 import { BotMessageSquare } from "lucide-react";

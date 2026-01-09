@@ -93,7 +93,7 @@ export function AutocompleteAsyncForm<
                     {field.value && (
                       <a
                         onClick={(e) => {
-                          e.stopPropagation(); // impede abrir o popover
+                          e.stopPropagation();
                           field.onChange("");
                         }}
                         className="ml-2 h-4 w-4 shrink-0 opacity-50 hover:opacity-100"
