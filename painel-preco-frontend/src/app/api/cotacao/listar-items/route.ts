@@ -1,18 +1,20 @@
 import { getPesquisarCotacoes } from "@/hooks/api";
-import { IRetornoPesquisaItensLicitacao, IReturnRequestAPI } from "@/interfaces/types";
+import {
+  IRetornoPesquisaItensLicitacao,
+  IReturnRequestAPI,
+} from "@/interfaces/types";
 import { getAccessToken } from "@/utils/sessionTokenAccessor";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const req = await request.json();
 
-  //validar acesso
-  const accessToken = await getAccessToken() || '';
+  const accessToken = (await getAccessToken()) || "";
   if (!accessToken) {
     return NextResponse.json({ message: "Wrong Access, please login!" });
   }
 
-  //consultar API
-  const apiReq: IReturnRequestAPI<IRetornoPesquisaItensLicitacao>|null = await getPesquisarCotacoes({ info: req.info, accessToken });
+  const apiReq: IReturnRequestAPI<IRetornoPesquisaItensLicitacao> | null =
+    await getPesquisarCotacoes({ info: req.info, accessToken });
   return NextResponse.json(apiReq);
 }

@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ISimpleObjetoAPI } from "@/interfaces/types";
 import { AsyncListData } from "@react-stately/data";
@@ -88,7 +88,21 @@ export function AutocompleteAsyncForm<
                   )}
                 >
                   {selectedItem?.nome || placeholder}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  <div className="flex items-center">
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    {field.value && (
+                      <a
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          field.onChange("");
+                        }}
+                        className="ml-2 h-4 w-4 shrink-0 opacity-50 hover:opacity-100"
+                        aria-label="Limpar seleção"
+                      >
+                        <X className="h-4 w-4" />
+                      </a>
+                    )}
+                  </div>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0 max-h-60 overflow-y-auto">

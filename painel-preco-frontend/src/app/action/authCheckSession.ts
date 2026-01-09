@@ -2,12 +2,11 @@
 
 import { JWT } from "next-auth/jwt";
 
-// this will refresh an expired access token, when needed
-async function checkAccessToken(token: JWT) : Promise<boolean> {
-  try{
+async function checkAccessToken(token: JWT): Promise<boolean> {
+  try {
     const resp = await fetch(`${process.env.CHECK_SESSION_URL}`, {
-      headers: { 
-        Authorization: `Bearer ${token.access_token}`
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
       },
       method: "GET",
     });
@@ -19,5 +18,5 @@ async function checkAccessToken(token: JWT) : Promise<boolean> {
 }
 
 export async function authCheckSession(token: JWT) {
-  return await checkAccessToken(token)
+  return await checkAccessToken(token);
 }

@@ -5,25 +5,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ uuid: string; }> }
+  { params }: { params: Promise<{ uuid: string }> }
 ) {
-  //parametros enviados
   const resolvedParams = await params;
   const info: IAPISearchInfo[] = [];
   if (!!resolvedParams.uuid) {
-    info.push({ param: 'uuid', val: resolvedParams.uuid })
+    info.push({ param: "uuid", val: resolvedParams.uuid });
   }
 
-  //validar acesso
-  const accessToken = await getAccessToken() || '';
+  const accessToken = (await getAccessToken()) || "";
   if (!accessToken) {
-  return NextResponse.json(
-    { message: "Wrong Access, please login!" },
-    { status: 401 }
-  );
-}
+    return NextResponse.json(
+      { message: "Wrong Access, please login!" },
+      { status: 401 }
+    );
+  }
 
-  //consultar API
-  const data = await getHistoricoCotacao({info, accessToken});
+  const data = await getHistoricoCotacao({ info, accessToken });
   return NextResponse.json(data);
 }

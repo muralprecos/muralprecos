@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/molecules/page-header";
-import LoadingForm from "@/components/molecules/LoadingForm";
+import LoadingForm from "@/components/atoms/LoadingForm";
 
 export default function Loading() {
   return (
