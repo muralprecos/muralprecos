@@ -61,6 +61,7 @@ export default function Login(props: Props) {
   const { data: session, status } = useSession();
   const [showPass, setShowPass] = useState<boolean>(false);
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
+  const appVersion = process.env.NEXT_PUBLIC_APP_VERSION || "dev";
 
   const {
     register,
@@ -302,6 +303,9 @@ export default function Login(props: Props) {
               <div className="flex items-center justify-center text-purple-300/70 text-xs pt-2">
                 <Shield className="w-3.5 h-3.5 text-emerald-400 mr-2" />
                 Conexão segura e criptografada
+              </div>
+              <div className="flex items-center justify-center text-purple-300/60 text-[10px]">
+                Versão {appVersion}
               </div>
             </CardFooter>
           </form>
