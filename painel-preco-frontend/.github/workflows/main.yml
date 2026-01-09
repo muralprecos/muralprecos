@@ -37,6 +37,8 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64
+          provenance: false
+          sbom: false
           tags: |
             ghcr.io/ttsolutionspi/painel-precos-frontend:${{ steps.get_version.outputs.VERSION }}
             ghcr.io/ttsolutionspi/painel-precos-frontend:latest
