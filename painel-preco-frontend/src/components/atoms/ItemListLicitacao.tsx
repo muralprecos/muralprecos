@@ -10,7 +10,7 @@ import {
   parseCurrency,
   calcUnityValueByQuantity,
 } from "@/utils/formatCurrency";
-import CartButton from "./CartButton";
+import CartButton from "../molecules/CartButton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { parseNumber } from "@/utils/stringUtils";
 

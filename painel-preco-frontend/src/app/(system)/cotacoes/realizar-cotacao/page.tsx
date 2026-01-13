@@ -110,17 +110,6 @@ export default async function CotacaoHome() {
       getSettledValuePageable<IAnoCompra>(settledAnosCompras);
   return (
     <>
-      <PageHeader
-        title="Realizar Cotação"
-        breadcrumbItems={[
-          {
-            label: "Cotações",
-            href: "/cotacoes/realizar-cotacao",
-            hiddenOnMobile: true,
-          },
-          { label: "Realizar Cotacão" },
-        ]}
-      />
       <SearchItensLicitacao
         session={session}
         empresaPorte={reqDataListToSelect<IPorteFornecedor>(

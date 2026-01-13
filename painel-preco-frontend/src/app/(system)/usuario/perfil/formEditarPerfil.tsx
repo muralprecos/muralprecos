@@ -91,7 +91,7 @@ export function FormEditarPerfil({ usuario }: IPageValidacaoClient) {
         firstName,
         lastName,
         email,
-        newPassword: password || undefined, // Envia undefined se estiver vazio
+        newPassword: password || undefined,
       });
 
       if (res.success) {
@@ -114,7 +114,7 @@ export function FormEditarPerfil({ usuario }: IPageValidacaoClient) {
 
   return (
     <form
-      className="container flex flex-col gap-6 p-6"
+      className="container flex flex-col gap-6"
       onSubmit={handleSubmit(onSubmit, onSubmitError)}
     >
       <Card>

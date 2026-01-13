@@ -56,7 +56,6 @@ export default function ItemHistoricoCotacao({ item }: IProps) {
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors gap-4">
-      {/* Coluna esquerda: Ícone + Detalhes */}
       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 flex-1 text-center sm:text-left">
         <div className="p-3 bg-primary/10 rounded-lg flex-shrink-0">
           <ClipboardList className="h-8 w-8 text-primary" />
@@ -85,9 +84,7 @@ export default function ItemHistoricoCotacao({ item }: IProps) {
         </div>
       </div>
 
-      {/* Coluna direita: Botões */}
       <div className="flex items-center justify-center sm:justify-end gap-2 mt-4 sm:mt-0">
-        {/* Botão de Detalhes com Tooltip */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -104,7 +101,6 @@ export default function ItemHistoricoCotacao({ item }: IProps) {
           </TooltipContent>
         </Tooltip>
 
-        {/* Botão de Download com Tooltip */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

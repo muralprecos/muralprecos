@@ -44,7 +44,6 @@ export function PageHeader({
   return (
     <div className="mb-6 animate-fade-in">
       <div className="flex items-center justify-between gap-4">
-        {/* Conteúdo principal (título + breadcrumb) */}
         <div className="flex-1 min-w-0">
           {hasTitle && (
             <>
@@ -88,7 +87,6 @@ export function PageHeader({
           )}
         </div>
 
-        {/* Children + Buttons no lado oposto */}
         <div className="flex items-center gap-2 shrink-0">
           {children}
           {newQuoteButton && <ButtonNewQuote />}

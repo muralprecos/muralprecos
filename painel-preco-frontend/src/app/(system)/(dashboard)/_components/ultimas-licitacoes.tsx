@@ -1,4 +1,4 @@
-import ItemLicitacao from "@/components/molecules/item-licitacao";
+import ItemLicitacao from "@/components/atoms/item-licitacao";
 import { Button } from "@/components/ui/button";
 import {
   Card,

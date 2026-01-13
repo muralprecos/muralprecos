@@ -45,7 +45,6 @@ export default function LineChartDashboard({
     cotacoes: item.valorCotacoes,
   }));
 
-  // Helper para garantir que o valor seja numérico antes de usar em cálculos
   const licitacoesCompValue = Number(resumo?.licitacoesMesComparacao);
   const safeLicitacoesComp = isNaN(licitacoesCompValue)
     ? 0
@@ -84,22 +83,7 @@ export default function LineChartDashboard({
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
         <h3 className="font-semibold text-foreground text-lg">Volume Mensal</h3>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-            {/* {periods.map((period) => (
-              <button
-                key={period}
-                onClick={() => setActivePeriod(period)}
-                className={cn(
-                  "px-3 py-1 text-sm rounded-md transition-all",
-                  activePeriod === period
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {period}
-              </button>
-            ))} */}
-          </div>
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1"></div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>2024 - 2025</span>
             <Calendar className="w-4 h-4" />
@@ -108,7 +92,6 @@ export default function LineChartDashboard({
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Stats Column */}
         <div className="flex flex-row lg:flex-col gap-3 lg:min-w-[180px]">
           {summaryStats.map((stat, index) => (
             <div
@@ -142,7 +125,6 @@ export default function LineChartDashboard({
                   {stat.value}
                 </span>
 
-                {/* PARTE ALTERADA AQUI 👇 */}
                 {stat.change && (
                   <span
                     className={cn(
@@ -160,7 +142,6 @@ export default function LineChartDashboard({
           ))}
         </div>
 
-        {/* Chart */}
         <div className="flex-1 h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
@@ -196,8 +177,8 @@ export default function LineChartDashboard({
                   border: "1px solid hsl(var(--border))",
                   borderRadius: "8px",
                 }}
-                formatter={(value: number) => [
-                  formatLargeNumber(value),
+                formatter={(value) => [
+                  formatLargeNumber(Number(value ?? 0)),
                   "Volume",
                 ]}
               />

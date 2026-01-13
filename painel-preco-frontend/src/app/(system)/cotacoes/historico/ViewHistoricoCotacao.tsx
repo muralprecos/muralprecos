@@ -10,9 +10,9 @@ import {
 import { isClientNextjs } from "@/utils/validateUtils";
 import { useSnackbar } from "notistack";
 import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
-import LoadingList from "@/components/molecules/LoadingList";
+import LoadingList from "@/components/atoms/LoadingList";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
-import ItemHistoricoCotacao from "@/components/molecules/ItemHistoricoCotacao";
+import ItemHistoricoCotacao from "@/components/atoms/ItemHistoricoCotacao";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import { apiClientPostSearchHistoricoCotacoes } from "@/hooks/apiclient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,7 +63,7 @@ export default function ViewHistoricoCotacao() {
 
   return (
     <div>
-      <Card className="min-h-[500px] flex flex-col">
+      <Card className="min-h-[560px] flex flex-col">
         <CardHeader>
           <CardTitle>
             <FormTitle
@@ -88,8 +88,7 @@ export default function ViewHistoricoCotacao() {
             </EmptyListText>
           ) : (
             <>
-              {/* Lista com rolagem interna */}
-              <div className="max-h-[300px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent">
+              <div className="max-h-[360px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent">
                 {cotacoes.map((item) => (
                   <ItemHistoricoCotacao key={item.uuid} item={item} />
                 ))}

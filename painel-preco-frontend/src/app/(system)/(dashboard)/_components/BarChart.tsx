@@ -65,9 +65,7 @@ export default function BarChartDashboard({
                 tickFormatter={formatYAxis}
                 domain={[0, "auto"]}
               />
-              {/* <Tooltip
-                formatter={(value) => formatCurrency(Number(value))}
-              /> */}
+
               <Bar
                 dataKey="valorCotacoes"
                 fill="hsl(var(--primary))"

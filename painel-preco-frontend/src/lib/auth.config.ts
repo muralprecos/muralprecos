@@ -2,7 +2,6 @@ import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { jwtDecode } from "jwt-decode";
 import type { JWT } from "next-auth/jwt";
-
 import { postLogin } from "@/hooks/api";
 import { IUserInfo } from "@/interfaces/types";
 import { loginRefreshToken } from "@/app/action/loginRefreshTokenActions";
@@ -27,10 +26,10 @@ const credentialsConfig = CredentialsProvider({
       if (!res.ok) {
         throw new Error("Credenciais inválidas.");
       }
-      
+
       const usr = await res.json();
       if (res.ok && usr) return usr;
-      
+
       return null;
     } catch (error) {
       console.error("Authorize Error:", error);
@@ -59,7 +58,9 @@ export const authConfig = {
       if (trigger === "update" && session) {
         token.updateFirstName = session.firstName ?? "";
         token.updateLastName = session.lastName ?? "";
-        token.updateName = `${session.firstName ?? ""} ${session.lastName ?? ""}`;
+        token.updateName = `${session.firstName ?? ""} ${
+          session.lastName ?? ""
+        }`;
         token.updateEmail = session.email ?? "";
       }
 

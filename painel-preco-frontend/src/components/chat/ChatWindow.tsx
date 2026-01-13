@@ -49,11 +49,9 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
     setLoading(true);
 
     try {
-      // Adiciona a mensagem do usuário localmente
       setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
       setTimeout(() => scrollDown(), 100);
 
-      // Envia apenas a última mensagem para o backend
       const response = await fetch("/api/ia/openai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -62,7 +60,6 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
 
       const data = await response.json();
 
-      // Atualiza threadId se foi criado um novo
       if (data.threadId) setThreadId(data.threadId);
 
       setMessages((prev) => [

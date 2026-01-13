@@ -25,7 +25,7 @@ import {
 import { useCotacaoFields } from "@/hooks/useCotacaoFields";
 import DynamicFormField from "./DynamicFormField";
 import { useDispatch } from "react-redux";
-import LoadingForm from "@/components/molecules/LoadingForm";
+import LoadingForm from "@/components/atoms/LoadingForm";
 import { SearchButtons } from "./SearchButtons";
 import {
   Card,
@@ -191,11 +191,11 @@ export default function SearchItensLicitacaoForm({
 
   return (
     <>
-      <Card>
+      <Card className="min-h-[560px]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon icon="mdi:file-document-edit-outline" className="w-6 h-6" />
-            <FormTitle title={"Nova Cotação"} />
+            <FormTitle title={"Realizar Cotação"} />
           </CardTitle>
           <CardDescription>
             Preencha os dados abaixo para filtrar as cotações desejadas.

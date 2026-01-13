@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth.config"; // <-- Importa a config segura
+import { authConfig } from "@/lib/auth.config";
 import { NextResponse } from "next/server";
 
 const publicRoutes = [
@@ -18,7 +18,7 @@ export default auth((req) => {
 
   const isLoggedIn = !!req.auth;
 
-  const publicRouteConfig = publicRoutes.find(route => route.path === path);
+  const publicRouteConfig = publicRoutes.find((route) => route.path === path);
   const isPublicRoute = !!publicRouteConfig;
 
   if (isLoggedIn && publicRouteConfig?.whenAuthenticated === "redirect") {
@@ -33,6 +33,7 @@ export default auth((req) => {
 });
 
 export const config = {
-  // O matcher está perfeito, sem necessidade de alteração.
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|validar-cotacao).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|validar-cotacao).*)",
+  ],
 };

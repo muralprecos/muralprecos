@@ -14,7 +14,7 @@ const nextConfig = {
     CHECK_SESSION_URL: process.env.CHECK_SESSION_URL,
     KEYCLOAK_SECRET: process.env.KEYCLOAK_SECRET,
   },
-  turbopack: {}, // habilita Turbopack oficialmente no Next 15
+  turbopack: {},
   compiler: {
     styledComponents: true,
   },

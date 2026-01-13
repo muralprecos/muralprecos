@@ -42,7 +42,6 @@ export default function DashboardLayout() {
     };
 
     const handleDashboardData = (data: typeof dashboardMock) => {
-      // Setando os dados diretamente no formato que o componente espera
       setResumoData({
         licitacoesMes: data.resumo.licitacoesMes ?? 0,
         licitacoesMesComparacao: data.resumo.licitacoesMesComparacao ?? 0,

@@ -72,7 +72,6 @@ export function downloadFile(blob: Blob, filename: string) {
     const a = document.createElement("a");
     a.style.display = "none";
     a.href = url;
-    // the filename you want
     a.download = filename;
     document.body.appendChild(a);
     a.click();

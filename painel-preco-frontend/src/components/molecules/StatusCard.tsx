@@ -110,7 +110,6 @@ export default function StatusCard({
               </p>
             </div>
 
-            {/* Botões */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4 w-full sm:w-auto">
               <button
                 onClick={() => router.back()}
@@ -142,7 +141,6 @@ export default function StatusCard({
           </div>
         </Card>
 
-        {/* Código de erro */}
         <div className="text-center mt-6">
           <p className="text-sm text-slate-500">
             Código de Erro:{" "}

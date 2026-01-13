@@ -14,7 +14,14 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { logoutAction } from "@/app/action/logoutActions";
 
-const menuItems = [
+interface MenuItem {
+  icon: typeof LayoutDashboard;
+  label: string;
+  path: string;
+  external?: boolean;
+}
+
+const menuItems: MenuItem[] = [
   {
     icon: LayoutDashboard,
     label: "Dashboard",
@@ -35,25 +42,17 @@ const menuItems = [
     icon: FileText,
     label: "Documentos",
     path: "https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos",
+    external: true,
   },
   {
     icon: Award,
     label: "Certidões",
     path: "https://certidoes-apf.apps.tcu.gov.br",
+    external: true,
   },
 ];
 
 const bottomItems = [
-  {
-    icon: Users,
-    label: "Gestão de Usuários",
-    path: "/gestao-usuarios",
-  },
-  {
-    icon: Settings,
-    label: "Configurações",
-    path: "#",
-  },
   {
     icon: HelpCircle,
     label: "Ajuda",
@@ -114,14 +113,14 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
 
       <div
         className={cn(
-          "fixed lg:sticky top-0 h-auto lg:h-auto p-4 z-50 transition-transform duration-300",
+          "fixed lg:sticky top-0 self-start h-auto p-4 z-50 transition-transform duration-300",
           "lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         <aside
           className={cn(
-            "group h-auto lg:max-h-[calc(100vh-140px)] bg-sidebar rounded-2xl flex flex-col py-4 overflow-hidden shadow-lg transition-all duration-300 ease-in-out",
+            "group min-h-[580px] bg-sidebar rounded-2xl flex flex-col py-4 overflow-hidden shadow-lg transition-all duration-300 ease-in-out",
             "w-56 lg:w-16 lg:hover:w-56"
           )}
         >
@@ -138,6 +137,8 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                 key={index}
                 href={item.path}
                 onClick={onClose}
+                target={item.external ? "_blank" : undefined}
+                rel={item.external ? "noopener noreferrer" : undefined}
                 className={cn(
                   "h-10 mx-3 rounded-xl flex items-center gap-3 px-3 transition-all duration-200",
                   "lg:w-10 lg:mx-auto lg:justify-center lg:px-0 lg:group-hover:w-auto lg:group-hover:mx-3 lg:group-hover:justify-start lg:group-hover:px-3",

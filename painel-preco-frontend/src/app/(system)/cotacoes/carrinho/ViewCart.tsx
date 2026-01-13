@@ -16,11 +16,11 @@ import { useAppSelector } from "@/store/store";
 import { useDispatch } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import ItemListLicitacao from "@/components/molecules/ItemListLicitacao";
+import ItemListLicitacao from "@/components/atoms/ItemListLicitacao";
 import { Button } from "@/components/ui/button";
 import { FileDown, ShoppingCart, Trash2 } from "lucide-react";
 import { AlertMessage, type IAlertMessage } from "@/components/molecules/Alert";
-import LoadingList from "@/components/molecules/LoadingList";
+import LoadingList from "@/components/atoms/LoadingList";
 import FormTitle from "@/components/atoms/FormTitle";
 import { notify } from "@/components/molecules/NotifyToast";
 import { ModalConfirm } from "@/components/molecules/ModalConfirm";
@@ -111,53 +111,43 @@ export default function ViewCart({ session }: IPropsCartPge) {
   };
 
   return (
-    <div>
-      <Card className="min-h-[500px] flex flex-col">
-        <CardHeader>
-          <CardTitle>
-            <FormTitle
-              icon={<ShoppingCart className="h-5 w-5" />}
-              title="Carrinho de Cotações"
-              description="Gerencie seus itens selecionados"
-              uppercase={false}
-              newQuoteButton={true}
-            />
-          </CardTitle>
-        </CardHeader>
+    <Card className="min-h-[560px] flex flex-col">
+      <CardHeader>
+        <CardTitle>
+          <FormTitle
+            icon={<ShoppingCart className="h-5 w-5" />}
+            title="Carrinho de Cotações"
+            description={`${hastItens() ? cart.length : 0} Itens encontradas.`}
+            uppercase={false}
+            newQuoteButton={true}
+          />
+        </CardTitle>
+      </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col justify-between">
-          {/* Conteúdo principal */}
-          <div className="flex-1">
-            {alertMsg && (
-              <AlertMessage type={alertMsg.type} message={alertMsg.message} />
-            )}
-            {isLoading && <LoadingList />}
+      <CardContent>
+        {isLoading && <LoadingList />}
 
-            {!hastItens() && !isLoading && (
-              <div className="flex flex-1 flex-col gap-2 items-center justify-center text-center ">
-                <EmptyListText>
-                  Sem itens no carrinho... Realize cotações para adicionar
-                  itens.
-                </EmptyListText>
-              </div>
-            )}
+        {!hastItens() && !isLoading && (
+          <EmptyListText>
+            Sem itens no carrinho... Realize cotações para adicionar itens.
+          </EmptyListText>
+        )}
 
-            {hastItens() && !isLoading && (
-              <div className="max-h-[500px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent">
-                {cart.map((item) => (
-                  <ItemListLicitacao
-                    key={item.uuid}
-                    item={item}
-                    mode="cart"
-                    onRemoveFromCart={openModalRemoveItem}
-                  />
-                ))}
-              </div>
-            )}
+        {hastItens() && !isLoading && (
+          <div className="max-h-[360px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent">
+            {cart.map((item) => (
+              <ItemListLicitacao
+                key={item.uuid}
+                item={item}
+                mode="cart"
+                onRemoveFromCart={openModalRemoveItem}
+              />
+            ))}
           </div>
+        )}
 
-          {/* Rodapé com botões */}
-          <div className="mt-6">
+        {hastItens() && !isLoading && (
+          <div className="mt-4">
             <Separator className="my-4" />
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <p className="text-sm text-muted-foreground">
@@ -200,8 +190,8 @@ export default function ViewCart({ session }: IPropsCartPge) {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
