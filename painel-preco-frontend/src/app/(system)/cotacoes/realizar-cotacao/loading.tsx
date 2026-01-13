@@ -1,4 +1,3 @@
-import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/molecules/page-header";
 import LoadingForm from "@/components/atoms/LoadingForm";
 
@@ -16,9 +15,7 @@ export default function Loading() {
           { label: "Realizar Cotação" },
         ]}
       />
-      <main className="p-6">
-        <LoadingForm />
-      </main>
+      <LoadingForm />
     </>
   );
 }
