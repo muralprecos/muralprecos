@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation";
 
 const dashboardNavItems = [
   { label: "Overview", icon: LayoutDashboard, path: "/" },
-  { label: "Atividade", icon: FileText, path: "/atividade" },
+  { label: "Atividades", icon: FileText, path: "/atividades" },
 ];
 
 const cotacaoNavItems = [

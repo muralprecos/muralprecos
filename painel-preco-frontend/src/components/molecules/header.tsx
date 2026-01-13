@@ -12,7 +12,7 @@ import { ProfileDropdown } from "../atoms/mobile-dropwdown";
 
 const dashboardNavItems = [
   { label: "Overview", path: "/" },
-  { label: "Atividade", path: "/atividade" },
+  { label: "Atividades", path: "/atividades" },
   // { label: "Analytics", path: "#Analytics" },
   // { label: "Performance", path: "#Performance" },
 ];

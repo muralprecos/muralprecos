@@ -123,7 +123,6 @@ export default function ListItemLicitacao() {
                   mode="list"
                 />
               ))}
-              s
               <div className="">
                 <PaginationFooter
                   setIsLoading={setIsLoading}
