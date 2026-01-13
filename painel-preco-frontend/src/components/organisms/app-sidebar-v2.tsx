@@ -54,16 +54,6 @@ const menuItems: MenuItem[] = [
 
 const bottomItems = [
   {
-    icon: Users,
-    label: "Gestão de Usuários",
-    path: "/gestao-usuarios",
-  },
-  {
-    icon: Settings,
-    label: "Configurações",
-    path: "#",
-  },
-  {
     icon: HelpCircle,
     label: "Ajuda",
     path: "#",
@@ -123,14 +113,14 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
 
       <div
         className={cn(
-          "fixed lg:sticky top-0 h-auto lg:h-auto p-4 z-50 transition-transform duration-300",
+          "fixed lg:sticky top-0 self-start h-auto p-4 z-50 transition-transform duration-300",
           "lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         <aside
           className={cn(
-            "group h-auto lg:max-h-[calc(100vh-140px)] bg-sidebar rounded-2xl flex flex-col py-4 overflow-hidden shadow-lg transition-all duration-300 ease-in-out",
+            "group min-h-[580px] bg-sidebar rounded-2xl flex flex-col py-4 overflow-hidden shadow-lg transition-all duration-300 ease-in-out",
             "w-56 lg:w-16 lg:hover:w-56"
           )}
         >
