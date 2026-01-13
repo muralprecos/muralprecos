@@ -175,8 +175,6 @@ export default function SearchItensLicitacaoForm({
       errorMessage ||
         "Por favor, verifique os campos obrigatórios antes de continuar."
     );
-
-    console.error("Erros de validação:", errors);
   };
   const handleTrashClick = (
     e?: React.MouseEvent<HTMLButtonElement, MouseEvent>
