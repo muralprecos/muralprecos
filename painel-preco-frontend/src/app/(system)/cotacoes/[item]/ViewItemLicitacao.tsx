@@ -114,7 +114,7 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
   };
 
   return (
-    <div className="p-6">
+    <div>
       <Card className="w-full">
         <CardContent className="p-6">
           <div className="flex flex-col items-start justify-start">

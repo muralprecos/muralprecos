@@ -25,10 +25,12 @@ const cotacaoNavItems = [
 ];
 
 const cotacaoBaseRoutes = [
+  "/cotacoes",
   "/cotacoes/realizar-cotacao",
   "/cotacoes/carrinho",
   "/cotacoes/historico",
   "/cotacoes/validar-cotacao",
+  "/cotacoes/listagem",
 ];
 
 const hiddenNavRoutes = ["/gestao-usuarios", "/usuario/perfil"];
