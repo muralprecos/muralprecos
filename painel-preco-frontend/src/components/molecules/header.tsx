@@ -12,7 +12,7 @@ import { ProfileDropdown } from "../atoms/mobile-dropwdown";
 
 const dashboardNavItems = [
   { label: "Overview", path: "/" },
-  { label: "Atividade", path: "/atividade" },
+  { label: "Atividades", path: "/atividades" },
   // { label: "Analytics", path: "#Analytics" },
   // { label: "Performance", path: "#Performance" },
 ];
@@ -100,7 +100,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
               href={item.path}
               className={cn(
                 "px-4 py-2 rounded-full text-sm transition-all whitespace-nowrap",
-                pathname === item.path
+                pathname === item.path || pathname.startsWith(item.path + "/")
                   ? "bg-sidebar text-sidebar-foreground"
                   : "text-muted-foreground hover:text-foreground"
               )}

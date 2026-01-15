@@ -10,10 +10,6 @@ export default async function PageValidacao({
 
   return (
     <div>
-      <PageHeader
-        title="Validar Cotação"
-        subtitle="Verifique a autenticidade de uma cotação"
-      />
       <ValidarCotacao params={resolvedParams} />
     </div>
   );
