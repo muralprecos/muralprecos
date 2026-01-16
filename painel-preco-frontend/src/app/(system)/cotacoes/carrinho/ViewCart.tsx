@@ -120,6 +120,7 @@ export default function ViewCart({ session }: IPropsCartPge) {
             description={`${hastItens() ? cart.length : 0} Itens encontradas.`}
             uppercase={false}
             newQuoteButton={true}
+            backButton={true}
           />
         </CardTitle>
       </CardHeader>

@@ -25,11 +25,24 @@ import FormTitle from "@/components/atoms/FormTitle";
 import { parseNumber } from "@/utils/stringUtils";
 import { ROUTE_NOVA_COTACAO } from "@/components/atoms/Buttons";
 import { PageHeader } from "@/components/molecules/page-header";
+import TabelaItensLicitacao from "@/components/atoms/tabela-itens";
 
 export default function ListItemLicitacao() {
   const router = useRouter();
   const searchParams: ReadonlyURLSearchParams = useSearchParams();
   const isInitialLoad = useRef(true);
+
+  const [ordenador, setOrdenador] = useState<{
+    campo: string;
+    direcao: "asc" | "desc";
+  } | null>(null);
+
+  const handleOrdenar = (campo: string) => {
+    setOrdenador((prev) => {
+      if (!prev || prev.campo !== campo) return { campo, direcao: "asc" };
+      return { campo, direcao: prev.direcao === "asc" ? "desc" : "asc" };
+    });
+  };
 
   const [isLoading, setIsLoading] = useState(true);
   const [itensLicitacao, setItensLicitacao] = useState<
@@ -115,14 +128,13 @@ export default function ListItemLicitacao() {
             </div>
           ) : (
             <>
-              {itensLicitacao.map((item) => (
-                <ItemListLicitacao
-                  key={item.uuid}
-                  item={item}
-                  setIsLoading={setIsLoading}
-                  mode="list"
-                />
-              ))}
+              <TabelaItensLicitacao
+                itens={itensLicitacao}
+                ordenador={ordenador}
+                onOrdenar={handleOrdenar}
+                onSelectItem={(uuid) => router.push(`/cotacoes/${uuid}`)}
+                setIsLoading={setIsLoading}
+              />
               <div className="">
                 <PaginationFooter
                   setIsLoading={setIsLoading}
