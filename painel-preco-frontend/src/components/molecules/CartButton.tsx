@@ -49,10 +49,10 @@ export default function CartButton({
   return (
     <Button
       onClick={handleToggle}
-      variant={isInCart ? "default" : "outline"}
+      variant={isInCart ? "destructive" : "ghost"}
       size={isCompact ? "icon" : "sm"}
       className={cn(
-        "transition-all",
+        "transition-all rounded-full border",
         isCompact ? "rounded-full h-10 w-10" : "w-full"
       )}
       aria-label={isInCart ? "Remover do carrinho" : "Adicionar ao carrinho"}

@@ -12,7 +12,6 @@ import {
   parseCurrency,
   calcUnityValueByQuantity,
 } from "@/utils/formatCurrency";
-import { useSnackbar } from "notistack";
 import LoadingItem from "@/components/atoms/LoadingItem";
 import { strIfNotNull } from "@/utils/convertData";
 import { catchErrorFromFetch } from "@/utils/requestUtils";
@@ -42,7 +41,6 @@ const INFO_TYPE = {
 
 export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
   const { uuidItem } = props;
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState(true);
   const [itemLicitacao, setItemLicitacao] = useState<IItemLicitacao | null>();
 
@@ -114,7 +112,7 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
   };
 
   return (
-    <div className="p-6">
+    <div>
       <Card className="w-full">
         <CardContent className="p-6">
           <div className="flex flex-col items-start justify-start">
