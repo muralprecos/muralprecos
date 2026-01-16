@@ -143,7 +143,7 @@ export default function TabelaItensLicitacao({
                   setSortOrder(sortOrder === "asc" ? "desc" : "asc");
                 }}
               >
-                Qtd <SortIcon field="quantidade" />
+                Quantidade <SortIcon field="quantidade" />
               </TableHead>
 
               <TableHead
@@ -221,7 +221,9 @@ export default function TabelaItensLicitacao({
                     </Badge>
                   </TableCell>
 
-                  <TableCell>{parseNumber(item.quantidade)}</TableCell>
+                  <TableCell className="text-center">
+                    {parseNumber(item.quantidade)}
+                  </TableCell>
 
                   <TableCell className="text-right font-semibold text-primary">
                     {formatCurrency(unitValue)}
@@ -278,7 +280,6 @@ export default function TabelaItensLicitacao({
         </Table>
       </div>
 
-      {/* Mobile Cards */}
       <div className="md:hidden divide-y divide-border">
         {exibidos.map((item) => {
           const unitValue = calcUnityValueByQuantity(
@@ -288,14 +289,11 @@ export default function TabelaItensLicitacao({
 
           return (
             <div key={item.uuid} className="p-4 space-y-3">
-              {/* Header */}
               <div>
                 <p className="font-medium text-foreground line-clamp-2">
                   {item.descricao}
                 </p>
               </div>
-
-              {/* Badges */}
               <div className="flex flex-wrap gap-2">
                 <Badge variant="outline">
                   {item.unidadeFornecimento?.nome || "-"}
@@ -306,8 +304,6 @@ export default function TabelaItensLicitacao({
                   {item.licitacao?.municipio?.nome}
                 </Badge>
               </div>
-
-              {/* Preços + Ação */}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-lg font-semibold text-primary">
@@ -319,7 +315,6 @@ export default function TabelaItensLicitacao({
                     </span>
                   </p>
                 </div>
-
                 <div className="flex items-center gap-2">
                   <Button
                     size="icon"
@@ -333,8 +328,6 @@ export default function TabelaItensLicitacao({
                   <CartButton itemRetornoLicitacao={item} isCompact />
                 </div>
               </div>
-
-              {/* Rodapé */}
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Calendar className="w-3 h-3" />
                 <span>Ref.: {item.licitacao?.dataResultadoCompra}</span>
