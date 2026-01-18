@@ -17,7 +17,7 @@ const nextConfig = {
     KEYCLOAK_SECRET: process.env.KEYCLOAK_SECRET,
     NEXT_PUBLIC_APP_VERSION: version,
   },
-  turbopack: {}, // habilita Turbopack oficialmente no Next 15
+  turbopack: {},
   compiler: {
     styledComponents: true,
   },
