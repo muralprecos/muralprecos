@@ -1,3 +1,5 @@
+const { version } = require('./package.json');
+
 const nextConfig = {
   output: "standalone",
   generateBuildId: async () => {
@@ -13,6 +15,7 @@ const nextConfig = {
     END_SESSION_URL: process.env.END_SESSION_URL,
     CHECK_SESSION_URL: process.env.CHECK_SESSION_URL,
     KEYCLOAK_SECRET: process.env.KEYCLOAK_SECRET,
+    NEXT_PUBLIC_APP_VERSION: version,
   },
   turbopack: {},
   compiler: {

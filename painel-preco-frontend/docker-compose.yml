@@ -5,8 +5,8 @@ volumes:
 
 services:
   app-front:
-    # image: painelpreco-frontend-test:latest
-    image: ghcr.io/ttsolutionspi/painel-precos-frontend:latest
+    image: painel-precos-frontend-local:latest
+    # image: ghcr.io/ttsolutionspi/painel-precos-frontend:latest
     container_name: painel_precos_app_front
     # build:
     #   context: ./
@@ -15,7 +15,7 @@ services:
         - /app/public
         - /app/node_modules
         - /app/.next
-        - ./logs:/appserverlogs
-        - ./.env.local:/app/.env.local
+        # - ./logs:/appserverlogs
+        - ./.env:/app/.env
     ports:
       - "3000:3000"

@@ -18,13 +18,22 @@ const credentialsConfig = CredentialsProvider({
     if (!credentials?.username || !credentials?.password) return null;
 
     try {
-      const res = await postLogin({
+      const tokenUrl = process.env.GET_TOKEN_URL;
+      // console.log("🔐 [AUTH] Tentando autenticar em:", tokenUrl);
+      // console.log("🔐 [AUTH] Keycloak ID:", process.env.KEYCLOAK_ID);
+
+    const res = await postLogin({
         username: `${credentials.username}`,
         password: `${credentials.password}`,
       });
 
+    // console.log("🔐 [AUTH] Status da resposta:", res.status);
+    // console.log("🔐 [AUTH] Headers:", Object.fromEntries(res.headers.entries()));
+
       if (!res.ok) {
-        throw new Error("Credenciais inválidas.");
+        const text = await res.text();
+        // console.error("❌ [AUTH] Resposta não OK:", res.status, text);
+        throw new Error(`HTTP ${res.status}: ${text}`);
       }
 
       const usr = await res.json();
@@ -32,7 +41,7 @@ const credentialsConfig = CredentialsProvider({
 
       return null;
     } catch (error) {
-      console.error("Authorize Error:", error);
+      // console.error("❌ [AUTH] Erro:", error);
       return null;
     }
   },

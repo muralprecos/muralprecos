@@ -46,8 +46,9 @@ npm run dev
 Check configs in docker-compose.yml file. Default target is production, but can be "dev" or "builder" (only generate the build files, without execute the server). You can change the exposed ports too, by default uses port number 3000.
 
 ```bash
-docker build . -t ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
-docker push ghcr.io/ttsolutionspi/docker-images/painel-precos-frontend:latest
+docker build . -t painel-precos-frontend-local:latest
+docker build . -t ghcr.io/ttsolutionspi/painel-precos-frontend:latest
+docker push ghcr.io/ttsolutionspi/painel-precos-frontend:latest
 docker-compose up
 ```
 

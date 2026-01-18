@@ -14,12 +14,15 @@ export async function loginAction(
       redirect: false,
     });
 
+    // Se houve erro (ex: senha incorreta)
     if (res?.error) {
+      //console.error("❌ [LOGIN_ACTION] Erro:", res.error);
       return { error: res.error };
     }
 
     return { success: true };
   } catch (error) {
+    //console.error("❌ [LOGIN_ACTION] Exceção:", error);
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
