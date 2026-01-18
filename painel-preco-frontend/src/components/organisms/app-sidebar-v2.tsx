@@ -38,7 +38,7 @@ const menuItems: MenuItem[] = [
   //   path: "/licitacoes",
   // },
   {
-    icon: FileText,
+    icon: Gavel,
     label: "Documentos",
     path: "https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos",
     external: true,
