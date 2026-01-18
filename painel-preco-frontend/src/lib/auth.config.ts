@@ -2,7 +2,6 @@ import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { jwtDecode } from "jwt-decode";
 import type { JWT } from "next-auth/jwt";
-
 import { postLogin } from "@/hooks/api";
 import { IUserInfo } from "@/interfaces/types";
 import { loginRefreshToken } from "@/app/action/loginRefreshTokenActions";
@@ -36,11 +35,11 @@ const credentialsConfig = CredentialsProvider({
         // console.error("❌ [AUTH] Resposta não OK:", res.status, text);
         throw new Error(`HTTP ${res.status}: ${text}`);
       }
-      
+
       const usr = await res.json();
-      
-      // console.log("✅ [AUTH] Autenticado:", usr.sub || usr.preferred_username);
-      return usr;
+      if (res.ok && usr) return usr;
+
+      return null;
     } catch (error) {
       // console.error("❌ [AUTH] Erro:", error);
       return null;
@@ -68,7 +67,9 @@ export const authConfig = {
       if (trigger === "update" && session) {
         token.updateFirstName = session.firstName ?? "";
         token.updateLastName = session.lastName ?? "";
-        token.updateName = `${session.firstName ?? ""} ${session.lastName ?? ""}`;
+        token.updateName = `${session.firstName ?? ""} ${
+          session.lastName ?? ""
+        }`;
         token.updateEmail = session.email ?? "";
       }
 
