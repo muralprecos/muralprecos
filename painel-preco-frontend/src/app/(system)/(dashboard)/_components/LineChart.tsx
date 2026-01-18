@@ -177,8 +177,8 @@ export default function LineChartDashboard({
                   border: "1px solid hsl(var(--border))",
                   borderRadius: "8px",
                 }}
-                formatter={(value: number) => [
-                  formatLargeNumber(value),
+                formatter={(value) => [
+                  formatLargeNumber(Number(value ?? 0)),
                   "Volume",
                 ]}
               />

@@ -13,7 +13,6 @@ import { useAppSelector } from "@/store/store";
 import { getUserCartBySession } from "@/utils/cartUtils";
 import type { IPropsSearchItensLicitacaoForm } from "./utils";
 import SearchItensLicitacaoForm from "./searchItensLicitacaoForm";
-import { Card, CardContent } from "@/components/ui/card";
 import { notify } from "@/components/molecules/NotifyToast";
 
 const SearchItensLicitacao: React.FC<IPropsSearchItensLicitacaoForm> = ({

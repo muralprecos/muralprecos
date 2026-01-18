@@ -32,14 +32,13 @@ const menuItems: MenuItem[] = [
     label: "Cotação",
     path: "/cotacoes/realizar-cotacao",
   },
-
+  // {
+  //   icon: Gavel,
+  //   label: "Licitações",
+  //   path: "/licitacoes",
+  // },
   {
     icon: Gavel,
-    label: "Licitações",
-    path: "/licitacoes",
-  },
-  {
-    icon: FileText,
     label: "Documentos",
     path: "https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos",
     external: true,
@@ -52,21 +51,12 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-const bottomItems = [
-  {
-    icon: Users,
-    label: "Gestão de Usuários",
-    path: "/gestao-usuarios",
-  },
-  {
-    icon: Settings,
-    label: "Configurações",
-    path: "#",
-  },
+const bottomItems: MenuItem[] = [
   {
     icon: HelpCircle,
     label: "Ajuda",
-    path: "#",
+    path: "https://cal.com/ttsolucoes",
+    external: true,
   },
   {
     icon: LogOut,
@@ -120,17 +110,16 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
           onClick={onClose}
         />
       )}
-
       <div
         className={cn(
-          "fixed lg:sticky top-0 h-auto lg:h-auto p-4 z-50 transition-transform duration-300",
+          "fixed lg:sticky top-0 self-start h-auto p-4 z-50 transition-transform duration-300",
           "lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         <aside
           className={cn(
-            "group h-auto lg:max-h-[calc(100vh-140px)] bg-sidebar rounded-2xl flex flex-col py-4 overflow-hidden shadow-lg transition-all duration-300 ease-in-out",
+            "group min-h-[580px] bg-sidebar rounded-2xl flex flex-col py-4 overflow-hidden shadow-lg transition-all duration-300 ease-in-out",
             "w-56 lg:w-16 lg:hover:w-56"
           )}
         >
@@ -140,7 +129,6 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
           >
             <X className="w-4 h-4" />
           </button>
-
           <nav className="flex-1 flex flex-col gap-2 py-4">
             {menuItems.map((item, index) => (
               <Link
@@ -164,7 +152,6 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
               </Link>
             ))}
           </nav>
-
           <div className="flex flex-col gap-2 py-4 border-t border-sidebar-border/30 my-[40px]">
             {bottomItems.map((item, index) => {
               if (item.label === "Sair") {
@@ -172,7 +159,10 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                   <button
                     key={index}
                     onClick={onClickLogout}
-                    className={commonItemClasses}
+                    className={cn(
+                      commonItemClasses,
+                      " hover:bg-red-500/10 hover:text-red-600"
+                    )}
                   >
                     <item.icon className="w-5 h-5 min-w-5" />
                     <span className="whitespace-nowrap lg:hidden lg:group-hover:block transition-opacity duration-300">
@@ -182,6 +172,24 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                 );
               }
 
+              if (item.external) {
+                return (
+                  <Link
+                    key={index}
+                    href={item.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={commonItemClasses}
+                  >
+                    <item.icon className="w-5 h-5 min-w-5" />
+                    <span className="whitespace-nowrap lg:hidden lg:group-hover:block transition-opacity duration-300">
+                      {item.label}
+                    </span>
+                  </Link>
+                );
+              }
+
+              // Default interno
               return (
                 <Link
                   key={index}

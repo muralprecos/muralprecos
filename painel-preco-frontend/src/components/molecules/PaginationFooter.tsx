@@ -129,8 +129,8 @@ function PaginationFooter<T>({
         <span className="text-sm text-muted-foreground">Página</span>
         <Badge variant="outline">{pageSelected}</Badge>
         <span className="text-sm text-muted-foreground">
-          de {parseNumber(paginationInfo?.totalPages)} ({parseNumber(paginationInfo?.totalElements)}{" "}
-          itens)
+          de {parseNumber(paginationInfo?.totalPages)} (
+          {parseNumber(paginationInfo?.totalElements)} itens)
         </span>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
@@ -174,7 +174,7 @@ function PaginationFooter<T>({
               variant={
                 page === paginationInfo!.number + 1 ? "default" : "outline"
               }
-              size="sm"
+              size="lg"
               className="w-8 h-8"
               disabled={page === "..."}
               onClick={() => typeof page === "number" && changeToPage(page - 1)}

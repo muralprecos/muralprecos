@@ -69,16 +69,6 @@ export default async function ValidaItens({ itens }: { itens: string[] }) {
 
         return (
           <div key={val.uuid} className="space-y-4 max-w-[600px] w-full mt-4">
-            {isOk && (
-              <Alert className={`${colors.border} ${colors.bg}`}>
-                <div className="flex items-center gap-2 justify-center">
-                  {colors.icon}
-                  <AlertDescription className={colors.text}>
-                    {val.message}
-                  </AlertDescription>
-                </div>
-              </Alert>
-            )}
             <Card>
               <CardContent className="pt-6 space-y-4 text-center">
                 <div
