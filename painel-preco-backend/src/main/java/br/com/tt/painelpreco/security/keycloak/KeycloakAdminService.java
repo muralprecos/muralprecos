@@ -592,4 +592,198 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
+  public JSONObject buscarUsuarioPorId(String userId) {
+    log.debug("Buscando usuário no Keycloak por ID: {}", userId);
+
+    try {
+      String token = obterAccessTokenAdmin();
+
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      String url = usersUrl + "/" + userId;
+
+      HttpResponse response = super.requestGet(header, Body.DEFAULT, QueryParam.NONE, url);
+
+      JSONObject user = response.getResponse();
+      log.debug("Usuário encontrado: {}", user.getString("username"));
+      return user;
+
+    } catch (HttpException e) {
+      if (e.getStatusCode() == 404) {
+        return null;
+      }
+      log.error("Erro ao buscar usuário no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao buscar usuário no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  public void atualizarUsuario(String userId, String email, String firstName, String lastName,
+      Boolean enabled) {
+    log.info("Atualizando usuário {} no Keycloak", userId);
+
+    try {
+      String token = obterAccessTokenAdmin();
+
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      JSONObject userJson = new JSONObject();
+      if (email != null) {
+        userJson.put("email", email);
+      }
+      if (firstName != null) {
+        userJson.put("firstName", firstName);
+      }
+      if (lastName != null) {
+        userJson.put("lastName", lastName);
+      }
+      if (enabled != null) {
+        userJson.put("enabled", enabled);
+      }
+
+      Body body = new Body(userJson);
+
+      String url = usersUrl + "/" + userId;
+
+      super.requestPut(header, body, QueryParam.NONE, url);
+
+      log.info("Usuário atualizado com sucesso");
+
+    } catch (HttpException e) {
+      log.error("Erro ao atualizar usuário no Keycloak. Status: {}, Mensagem: {}", e.getStatusCode(),
+          e.getMessage());
+
+      if (e.getStatusCode() == 409) {
+        String mensagemErro = extrairMensagemErroKeycloak(e.getMessage());
+        if (mensagemErro.contains("email")) {
+          throw new ArchException("Email já cadastrado no sistema: " + email);
+        } else {
+          throw new ArchException("Erro ao atualizar usuário: " + mensagemErro);
+        }
+      }
+
+      throw new ArchException("Falha ao atualizar usuário no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  public void deletarUsuario(String userId) {
+    log.info("Deletando usuário {} no Keycloak", userId);
+
+    try {
+      String token = obterAccessTokenAdmin();
+
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      String url = usersUrl + "/" + userId;
+
+      super.requestDelete(header, Body.DEFAULT, QueryParam.NONE, url);
+
+      log.info("Usuário deletado com sucesso");
+
+    } catch (HttpException e) {
+      log.error("Erro ao deletar usuário no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao deletar usuário no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  public void removerUsuarioDoGroup(String userId, String groupId) {
+    log.info("Removendo usuário {} do group {}", userId, groupId);
+
+    try {
+      String token = obterAccessTokenAdmin();
+
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      String url = usersUrl + "/" + userId + "/groups/" + groupId;
+
+      super.requestDelete(header, Body.DEFAULT, QueryParam.NONE, url);
+
+      log.info("Usuário removido do group com sucesso");
+
+    } catch (HttpException e) {
+      log.error("Erro ao remover usuário do group no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao remover usuário do group no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  public void atualizarSenhaUsuario(String userId, String novaSenha) {
+    log.info("Atualizando senha do usuário {} no Keycloak", userId);
+
+    try {
+      String token = obterAccessTokenAdmin();
+
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      JSONObject credentialsJson = new JSONObject();
+      credentialsJson.put("type", "password");
+      credentialsJson.put("value", novaSenha);
+      credentialsJson.put("temporary", false);
+
+      JSONArray credentialsArray = new JSONArray();
+      credentialsArray.put(credentialsJson);
+
+      JSONObject userJson = new JSONObject();
+      userJson.put("credentials", credentialsArray);
+
+      Body body = new Body(userJson);
+
+      String url = usersUrl + "/" + userId + "/reset-password";
+
+      super.requestPut(header, body, QueryParam.NONE, url);
+
+      log.info("Senha do usuário atualizada com sucesso");
+
+    } catch (HttpException e) {
+      log.error("Erro ao atualizar senha do usuário no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao atualizar senha do usuário no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  public List<JSONObject> listarUsuarios(Integer first, Integer max) {
+    log.debug("Listando usuários do Keycloak - first: {}, max: {}", first, max);
+
+    try {
+      String token = obterAccessTokenAdmin();
+
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      QueryParam queryParam = new QueryParam();
+      if (first != null) {
+        queryParam.add("first", first.toString());
+      }
+      if (max != null) {
+        queryParam.add("max", max.toString());
+      }
+
+      HttpResponse response = super.requestGet(header, Body.DEFAULT, queryParam, usersUrl);
+
+      String responseStr = response.getResponse().toString();
+      JSONArray usersArray = new JSONArray(responseStr);
+
+      log.debug("Encontrados {} usuários", usersArray.length());
+
+      java.util.List<JSONObject> users = new java.util.ArrayList<>();
+      for (int i = 0; i < usersArray.length(); i++) {
+        users.add(usersArray.getJSONObject(i));
+      }
+
+      return users;
+
+    } catch (HttpException e) {
+      log.error("Erro ao listar usuários no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao listar usuários no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
 }
