@@ -534,4 +534,62 @@ public class KeycloakAdminService extends HttpClientController {
     return buscarUsuarioPorUsername(username) != null;
   }
 
+  public void deletarGroup(String groupId) {
+    log.info("Deletando group {} no Keycloak", groupId);
+
+    try {
+      String token = obterAccessTokenAdmin();
+
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      String url = groupsUrl + "/" + groupId;
+
+      super.requestDelete(header, Body.DEFAULT, QueryParam.NONE, url);
+
+      log.info("Group deletado com sucesso");
+
+    } catch (HttpException e) {
+      log.error("Erro ao deletar group no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao deletar group no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  public List<JSONObject> buscarUsuariosDoGroup(String groupId) {
+    log.debug("Buscando usuários do group {} no Keycloak", groupId);
+
+    try {
+      String token = obterAccessTokenAdmin();
+
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      String url = groupsUrl + "/" + groupId + "/members";
+
+      HttpResponse response = super.requestGet(header, Body.DEFAULT, QueryParam.NONE, url);
+
+      String responseStr = response.getResponse().toString();
+      JSONArray usersArray = new JSONArray(responseStr);
+
+      log.debug("Encontrados {} usuários no group", usersArray.length());
+
+      java.util.List<JSONObject> users = new java.util.ArrayList<>();
+      for (int i = 0; i < usersArray.length(); i++) {
+        users.add(usersArray.getJSONObject(i));
+      }
+
+      return users;
+
+    } catch (HttpException e) {
+      if (e.getStatusCode() == 404) {
+        log.debug("Group não encontrado ou sem usuários");
+        return new java.util.ArrayList<>();
+      }
+      log.error("Erro ao buscar usuários do group no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao buscar usuários do group no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
 }
