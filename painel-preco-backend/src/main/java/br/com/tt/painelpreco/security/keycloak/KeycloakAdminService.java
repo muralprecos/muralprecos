@@ -354,10 +354,14 @@ public class KeycloakAdminService extends HttpClientController {
       QueryParam queryParam = new QueryParam();
       queryParam.add("search", name);
 
-      HttpResponse response = super.requestGet(header, Body.DEFAULT, queryParam, groupsUrl);
+      String responseRaw = obterRespostaRawGet(header, queryParam, groupsUrl);
 
-      String responseStr = response.getResponse().toString();
-      JSONArray groupsArray = new JSONArray(responseStr);
+      if (responseRaw == null || responseRaw.trim().isEmpty()) {
+        log.debug("Resposta vazia do Keycloak");
+        return null;
+      }
+
+      JSONArray groupsArray = new JSONArray(responseRaw);
 
       // Busca exata pelo nome
       for (int i = 0; i < groupsArray.length(); i++) {
@@ -372,12 +376,18 @@ public class KeycloakAdminService extends HttpClientController {
       log.debug("Group não encontrado");
       return null;
 
+    } catch (org.json.JSONException e) {
+      log.debug("Erro ao parsear resposta como JSONArray: {}", e.getMessage());
+      return null;
     } catch (HttpException e) {
       if (e.getStatusCode() == 404) {
         return null;
       }
       log.error("Erro ao buscar group no Keycloak: {}", e.getMessage());
       throw new ArchException("Falha ao buscar group no Keycloak: " + e.getMessage(), e);
+    } catch (Exception e) {
+      log.error("Erro ao processar resposta do Keycloak: {}", e.getMessage());
+      return null;
     }
   }
 
