@@ -30,7 +30,7 @@ export function ProfileDropdown({
             <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
               <User className="w-4 h-4 text-muted-foreground" />
             </div>
-            <div className="text-sm text-left">
+            <div className="text-sm text-left lg:block hidden">
               <p className="font-medium text-foreground">{userName}</p>
               <p className="text-xs text-muted-foreground">{userOrg}</p>
             </div>

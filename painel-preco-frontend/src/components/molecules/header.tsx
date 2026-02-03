@@ -45,7 +45,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const [mounted, setMounted] = useState(false);
 
   const isCotacaoSection = cotacaoBaseRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   const showNav = !hiddenNavRoutes.includes(pathname);
@@ -78,7 +78,11 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         <Menu className="w-5 h-5" />
       </button>
 
-      <div className="md:hidden">
+      <div className="flex md:hidden items-center gap-3">
+        <ThemeTogglerButton
+          variant="link"
+          className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+        />
         <ProfileDropdown variant="mobile" userName={name} userOrg={org} />
       </div>
 
@@ -104,7 +108,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
                 "px-4 py-2 rounded-full text-sm transition-all whitespace-nowrap",
                 pathname === item.path || pathname.startsWith(item.path + "/")
                   ? "bg-sidebar text-sidebar-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {item.label}
