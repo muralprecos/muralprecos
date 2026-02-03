@@ -173,7 +173,7 @@ export function useCotacaoFields({
       },
       ugId: {
         type: "autocompleteAsync",
-        label: "Unidade",
+        label: "Unidade Gestora (UASG)",
         auto: {
           async: autoUG,
           attrVal: "uuid",
@@ -207,7 +207,7 @@ export function useCotacaoFields({
       autoUG,
       autoUnidadeFornecimento,
       hasUF,
-    ]
+    ],
   );
 
   return fields;
