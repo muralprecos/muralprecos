@@ -15,7 +15,15 @@ import {
   getUASGDesc,
   getUnidadeFornecimentoDesc,
 } from "@/hooks/api";
-import { IItemSelect, IMunicipio, IOrgao, IFornecedor, INomeMaterial, IUnidadeGestora, IObjetoAPI } from "@/interfaces/types";
+import {
+  IItemSelect,
+  IMunicipio,
+  IOrgao,
+  IFornecedor,
+  INomeMaterial,
+  IUnidadeGestora,
+  IObjetoAPI,
+} from "@/interfaces/types";
 
 export function useFieldsCotacaoForm({
   anosCompras,
@@ -73,14 +81,42 @@ export function useFieldsCotacaoForm({
   });
 
   return {
-    ano: { type: "autocompletStatic", label: "Ano da Compra", items: anosCompras },
-    porteFornecedor: { type: "autocompletStatic", label: "Porte da Empresa", items: empresaPorte },
+    ano: {
+      type: "autocompletStatic",
+      label: "Ano da Compra",
+      items: anosCompras,
+    },
+    porteFornecedor: {
+      type: "autocompletStatic",
+      label: "Porte da Empresa",
+      items: empresaPorte,
+    },
     esferaId: { type: "autocompletStatic", label: "Esfera", items: esferas },
-    formaCompraId: { type: "autocompletStatic", label: "Modo de Disputa", items: compraFormas },
-    modalidadeCompraId: { type: "autocompletStatic", label: "Modalidade Compra", items: compraModalidades },
-    periodoCompraId: { type: "autocompletStatic", label: "Período da Compra", items: compraPeriodos },
-    situacao_licitacao: { type: "autocompletStatic", label: "Situação da Licitação", items: situacoesLicitacoes },
-    ufId: { type: "autocompletStatic", label: "Unidade Federativa", items: unidadesFederativas },
+    formaCompraId: {
+      type: "autocompletStatic",
+      label: "Modo de Disputa",
+      items: compraFormas,
+    },
+    modalidadeCompraId: {
+      type: "autocompletStatic",
+      label: "Modalidade Compra",
+      items: compraModalidades,
+    },
+    periodoCompraId: {
+      type: "autocompletStatic",
+      label: "Período da Compra",
+      items: compraPeriodos,
+    },
+    situacao_licitacao: {
+      type: "autocompletStatic",
+      label: "Situação da Licitação",
+      items: situacoesLicitacoes,
+    },
+    ufId: {
+      type: "autocompletStatic",
+      label: "Unidade Federativa",
+      items: unidadesFederativas,
+    },
 
     municipioId: {
       type: "autocompleteAsync",
@@ -129,7 +165,7 @@ export function useFieldsCotacaoForm({
     },
     ugId: {
       type: "autocompleteAsync",
-      label: "Unidade",
+      label: "UASG",
       auto: {
         async: ugFilter,
         attrVal: "uuid",
@@ -138,7 +174,7 @@ export function useFieldsCotacaoForm({
     },
     unidade_fornecimento: {
       type: "autocompleteAsync",
-      label: "Unidade de Fornecimento",
+      label: "Unidade de Medida",
       auto: {
         async: unidadeFornecimentoFilter,
         attrVal: "uuid",

@@ -13,8 +13,6 @@ import { ProfileDropdown } from "../atoms/mobile-dropwdown";
 const dashboardNavItems = [
   { label: "Overview", path: "/" },
   { label: "Atividades", path: "/atividades" },
-  // { label: "Analytics", path: "#Analytics" },
-  // { label: "Performance", path: "#Performance" },
 ];
 
 const cotacaoNavItems = [
@@ -40,12 +38,12 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
   const isCotacaoSection = cotacaoBaseRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   const showNav = !hiddenNavRoutes.includes(pathname);
@@ -59,15 +57,53 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
   useEffect(() => {
     setMounted(true);
+
+    try {
+      const cached = localStorage.getItem("userSessionCache");
+      if (cached) {
+        const { name: cachedName, org: cachedOrg } = JSON.parse(cached);
+        setName(cachedName);
+        setOrg(cachedOrg);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar cache de sessão:", error);
+    }
+
+    if (
+      status === "loading" ||
+      (status === "authenticated" && !session?.userInfo)
+    ) {
+      update();
+    }
   }, []);
 
   useEffect(() => {
     if (status === "authenticated" && session?.userInfo) {
       const userInfo = session.userInfo;
-      setName(userInfo.name || "Usuário");
-      setOrg(userInfo.organizacao?.nome || "Sem Organização");
+      const userName = userInfo.name || "Usuário";
+      const userOrg = userInfo.organizacao?.nome || "Sem Organização";
+
+      setName(userName);
+      setOrg(userOrg);
+
+      try {
+        localStorage.setItem(
+          "userSessionCache",
+          JSON.stringify({ name: userName, org: userOrg }),
+        );
+      } catch (error) {
+        console.error("Erro ao salvar cache de sessão:", error);
+      }
+    } else if (status === "unauthenticated") {
+      setName("");
+      setOrg("");
+      try {
+        localStorage.removeItem("userSessionCache");
+      } catch (error) {
+        console.error("Erro ao limpar cache de sessão:", error);
+      }
     }
-  }, [session, status]);
+  }, [session, status, update]);
 
   return (
     <header className="flex items-center justify-between mb-8 animate-fade-in relative bg-transparent">
@@ -78,8 +114,14 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         <Menu className="w-5 h-5" />
       </button>
 
-      <div className="md:hidden">
-        <ProfileDropdown variant="mobile" userName={name} userOrg={org} />
+      <div className="flex md:hidden items-center gap-3">
+        <ThemeTogglerButton
+          variant="link"
+          className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+        />
+        {mounted && (
+          <ProfileDropdown variant="mobile" userName={name} userOrg={org} />
+        )}
       </div>
 
       <Link
@@ -104,7 +146,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
                 "px-4 py-2 rounded-full text-sm transition-all whitespace-nowrap",
                 pathname === item.path || pathname.startsWith(item.path + "/")
                   ? "bg-sidebar text-sidebar-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {item.label}
@@ -119,7 +161,9 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
         />
 
-        <ProfileDropdown variant="desktop" userName={name} userOrg={org} />
+        {mounted && (
+          <ProfileDropdown variant="desktop" userName={name} userOrg={org} />
+        )}
       </div>
     </header>
   );

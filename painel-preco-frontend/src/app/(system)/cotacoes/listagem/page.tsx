@@ -43,7 +43,7 @@ export default function ListItemLicitacao() {
         setIsLoading(true);
 
         const req = await apiClientPostSearchListItens(
-          searchParamsToInfo(searchParams)
+          searchParamsToInfo(searchParams),
         );
         setIsLoading(false);
 
@@ -56,7 +56,7 @@ export default function ListItemLicitacao() {
           notify(
             "success",
             "Itens encontrados com sucesso!",
-            "As informações dos itens foram carregadas."
+            "As informações dos itens foram carregadas.",
           );
           isInitialLoad.current = false;
         }
@@ -79,7 +79,7 @@ export default function ListItemLicitacao() {
               icon={<Package className="h-5 w-5" />}
               title={"Listagem de Itens"}
               description={`${parseNumber(
-                paginationInfo?.totalElements ?? 0
+                paginationInfo?.totalElements ?? 0,
               )} Itens encontrados`}
               cartButton={true}
               backButton={true}
@@ -107,7 +107,7 @@ export default function ListItemLicitacao() {
                 setIsLoading={setIsLoading}
               />
               <div className="w-full">
-                <div className="hidden md:block">
+                <div className="hidden xl:block">
                   <PaginationFooter
                     setIsLoading={setIsLoading}
                     isLoading={isLoading}
@@ -116,7 +116,7 @@ export default function ListItemLicitacao() {
                   />
                 </div>
 
-                <div className="block md:hidden">
+                <div className="block xl:hidden">
                   <PaginationFooterMobile
                     setIsLoading={setIsLoading}
                     isLoading={isLoading}

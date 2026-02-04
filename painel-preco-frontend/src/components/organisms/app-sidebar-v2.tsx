@@ -114,13 +114,13 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
         className={cn(
           "fixed lg:sticky top-0 self-start h-auto p-4 z-50 transition-transform duration-300",
           "lg:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         )}
       >
         <aside
           className={cn(
             "group min-h-[580px] bg-sidebar rounded-2xl flex flex-col py-4 overflow-hidden shadow-lg transition-all duration-300 ease-in-out",
-            "w-56 lg:w-16 lg:hover:w-56"
+            "w-56 lg:w-16 lg:hover:w-56",
           )}
         >
           <button
@@ -142,7 +142,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                   "lg:w-10 lg:mx-auto lg:justify-center lg:px-0 lg:group-hover:w-auto lg:group-hover:mx-3 lg:group-hover:justify-start lg:group-hover:px-3",
                   isActiveItem(item.path)
                     ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                 )}
               >
                 <item.icon className="w-5 h-5 min-w-5" />
@@ -161,7 +161,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                     onClick={onClickLogout}
                     className={cn(
                       commonItemClasses,
-                      " hover:bg-red-500/10 hover:text-red-600"
+                      " hover:bg-red-500/10 hover:text-red-600",
                     )}
                   >
                     <item.icon className="w-5 h-5 min-w-5" />
