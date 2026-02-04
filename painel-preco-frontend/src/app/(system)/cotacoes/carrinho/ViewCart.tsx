@@ -8,7 +8,6 @@ import { downloadFile, mountUrl } from "@/utils/requestUtils";
 import { useSnackbar } from "notistack";
 import { useRouter } from "next/navigation";
 import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
-import EmptyListText from "@/components/atoms/EmptyListText";
 import { getUserCartBySession, getUsernameBySession } from "@/utils/cartUtils";
 import { Session } from "next-auth";
 import { apiClientPostGerarPDFCotacao } from "@/hooks/apiclient";
@@ -40,7 +39,7 @@ export default function ViewCart({ session }: IPropsCartPge) {
   const [modalTitle, setModalTitle] = useState("");
   const [modalConfirmText, setModalConfirmText] = useState("");
   const [modalConfirmFn, setModalConfirmFn] = useState<() => void>(
-    () => () => {}
+    () => () => {},
   );
 
   const [alertMsg, setAlertMsg] = useState<IAlertMessage | null>(null);
@@ -59,7 +58,7 @@ export default function ViewCart({ session }: IPropsCartPge) {
       remove({
         item,
         user: getUsernameBySession(session),
-      })
+      }),
     );
   };
 
@@ -95,7 +94,7 @@ export default function ViewCart({ session }: IPropsCartPge) {
   const openModalLimpar = () => {
     setModalTitle("Limpar Carrinho");
     setModalConfirmText(
-      "Você deseja limpar o carrinho de itens de licitações?"
+      "Você deseja limpar o carrinho de itens de licitações?",
     );
     setModalConfirmFn(() => clearCart);
     setIsModalOpen(true);
@@ -104,14 +103,14 @@ export default function ViewCart({ session }: IPropsCartPge) {
   const openModalRemoveItem = (item: IRetornoPesquisaItensLicitacao) => {
     setModalTitle("Remover Item do Carrinho");
     setModalConfirmText(
-      `Você deseja remover o item ${item.descricao} do carrinho?`
+      `Você deseja remover o item ${item.descricao} do carrinho?`,
     );
     setModalConfirmFn(() => () => onClickRemoveCart(item));
     setIsModalOpen(true);
   };
 
   return (
-    <Card className="min-h-[560px] flex flex-col">
+    <Card className="flex flex-col">
       <CardHeader>
         <CardTitle>
           <FormTitle
@@ -125,17 +124,25 @@ export default function ViewCart({ session }: IPropsCartPge) {
         </CardTitle>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="flex-1">
         {isLoading && <LoadingList />}
 
         {!hastItens() && !isLoading && (
-          <EmptyListText>
-            Sem itens no carrinho... Realize cotações para adicionar itens.
-          </EmptyListText>
+          <div className="flex items-center justify-center min-h-[320px] w-full">
+            <div className="text-center">
+              <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+              <p className="text-lg font-medium text-muted-foreground">
+                Carrinho vazio
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Realize cotações para adicionar itens
+              </p>
+            </div>
+          </div>
         )}
 
         {hastItens() && !isLoading && (
-          <div className="max-h-[360px] overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-muted-foreground/40 scrollbar-track-transparent">
+          <div className="space-y-4">
             {cart.map((item) => (
               <ItemListLicitacao
                 key={item.uuid}

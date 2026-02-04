@@ -54,7 +54,7 @@ export default function SearchItensLicitacaoForm({
   const dispatch = useDispatch();
 
   const _initialFormDataLocalStorage: FormDataCotacao = useAppSelector(
-    (state) => state.cotacaoSearchReducer.value
+    (state) => state.cotacaoSearchReducer.value,
   );
 
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
@@ -100,7 +100,7 @@ export default function SearchItensLicitacaoForm({
   });
 
   function isFieldAutocompleteAsync(
-    obj: FieldFormTypes | undefined
+    obj: FieldFormTypes | undefined,
   ): obj is FieldFormAutocompleteAsync {
     return !!obj && obj.type === "autocompleteAsync";
   }
@@ -154,7 +154,7 @@ export default function SearchItensLicitacaoForm({
             size: 10,
             info,
             filterFields: FIELDS_COTACOES_LIST,
-          })
+          }),
         );
       } catch (e) {
         setDoingRequest(false);
@@ -173,11 +173,11 @@ export default function SearchItensLicitacaoForm({
       "error",
       "Campos inválidos",
       errorMessage ||
-        "Por favor, verifique os campos obrigatórios antes de continuar."
+        "Por favor, verifique os campos obrigatórios antes de continuar.",
     );
   };
   const handleTrashClick = (
-    e?: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    e?: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     if (e) e.preventDefault();
     setIsModalOpen(true);
@@ -229,8 +229,8 @@ export default function SearchItensLicitacaoForm({
                 errors={errors}
               />
               <DynamicFormField
-                name="ano"
-                attr={fields.ano}
+                name="ugId"
+                attr={fields.ugId}
                 control={control}
                 errors={errors}
               />
@@ -242,8 +242,15 @@ export default function SearchItensLicitacaoForm({
                 errors={errors}
               />
               <DynamicFormField
-                name="ugId"
-                attr={fields.ugId}
+                name="ano"
+                attr={fields.ano}
+                control={control}
+                errors={errors}
+              />
+
+              <DynamicFormField
+                name="unidade_fornecimento"
+                attr={fields.unidade_fornecimento}
                 control={control}
                 errors={errors}
               />
