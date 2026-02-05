@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.DocumentId;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
@@ -86,11 +87,11 @@ public class ItemLicitacao {
 	private Fornecedor fornecedor;
 
 	@Column(name = "numero_item")
-	@GenericField
+	@GenericField(sortable = Sortable.YES)
 	private Integer numeroItem;
 
 	@Column(name = "numero_controle_pncp")
-	@KeywordField
+	@KeywordField(sortable = Sortable.YES)
 	private String numeroPncp;
 
 	@Transient
