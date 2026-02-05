@@ -1,9 +1,13 @@
 package br.com.tt.painelpreco.domain.repository;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
+import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 
 public interface ItemLicitacaoSearchRepository {
 	
-	List<Long> searchByDescricao(String descricao);
+	Page<ItemLicitacao> searchByDescricao(ItemLicitacaoFilter filtro, Pageable pageable);
 
 }
