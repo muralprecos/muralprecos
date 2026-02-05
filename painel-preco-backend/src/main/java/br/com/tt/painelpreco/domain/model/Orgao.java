@@ -14,6 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -27,23 +29,24 @@ public class Orgao {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_orgao")
 	private Integer id;
-	
+
 	@EqualsAndHashCode.Include
+	@KeywordField
 	private UUID uuid;
-	
+
 	private Integer codigo;
-	
+
 	private String nome;
-	
+
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "superior_id")
 	private Orgao superior;
-	
+
 	@OneToMany(mappedBy = "superior", fetch = FetchType.LAZY)
 	private List<Orgao> subOrgaos;
-	
+
 	public boolean getEhSuperior() {
 		return superior == null;
 	}
-	
+
 }

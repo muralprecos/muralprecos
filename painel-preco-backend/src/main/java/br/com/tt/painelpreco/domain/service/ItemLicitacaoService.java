@@ -17,38 +17,40 @@ import br.com.tt.painelpreco.util.JPAUtil;
 
 @Service
 public class ItemLicitacaoService {
-	
+
 	@Autowired
 	private ItemLicitacaoRepository itemLicitacaoRepository;
-	
+
 	@Autowired
 	private ItemLicitacaoSearchRepository itemLicitacaoSearchRepository;
 
 	public ItemLicitacao findByUuid(UUID uuid) {
 		return itemLicitacaoRepository.findByUuid(uuid);
 	}
-	
+
 	public List<ItemLicitacao> findAllByUuid(List<UUID> uuids) {
 		return itemLicitacaoRepository.findAllByUuidIn(uuids);
 	}
-	
+
 	public Page<ItemLicitacao> listaByFilter(Specification<ItemLicitacao> filtro, Pageable pageable) {
 		return itemLicitacaoRepository.findAll(filtro, pageable);
 	}
-	
+
 	public Page<ItemLicitacao> listaByFilter(ItemLicitacaoFilter filter, Pageable pageable) {
-		return itemLicitacaoSearchRepository.searchByDescricao(filter, pageable);
-//		List<Long> ids = itemLicitacaoSearchRepository.searchByDescricao(filter.getDescricao());
-//		Specification<ItemLicitacao> spec = ItemLicitacaoSpecs.filtroGeral(filter);		
-//		return itemLicitacaoRepository.findAll(spec.and((root, query, builder) -> builder.and(root.get("id").in(ids))), pageable);
+		if (filter.isOnly() && filter.isDescricaoOnly()) {
+			return itemLicitacaoSearchRepository.searchByDescricao(filter, pageable);
+		} else {
+			return itemLicitacaoSearchRepository.searchByFilter(filter, pageable);
+		}
 	}
 
 	public Page<ItemLicitacao> listaByDescricao(String descricao, Pageable pageable) {
 		return itemLicitacaoRepository.findAllByDescricao(JPAUtil.likeExpression(descricao), pageable);
 	}
-	
+
 	public Page<ItemLicitacao> listaByDescricaoComplementar(String descricaoComplementar, Pageable pageable) {
-		return itemLicitacaoRepository.findAllByDescricaoComplementar(JPAUtil.likeExpression(descricaoComplementar), pageable);
+		return itemLicitacaoRepository.findAllByDescricaoComplementar(JPAUtil.likeExpression(descricaoComplementar),
+				pageable);
 	}
 
 }

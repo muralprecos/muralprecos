@@ -14,9 +14,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.search.engine.backend.types.Sortable;
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.DocumentId;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
 
 import br.com.tt.painelpreco.domain.model.vo.Link;
 import br.com.tt.painelpreco.util.StringUtil;
@@ -29,62 +35,76 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "item_licitacao", schema = "mural")
 public class ItemLicitacao {
-	
+
 	@EqualsAndHashCode.Include
 	@DocumentId
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_item_licitacao")
 	private Long id;
-	
+
+	@KeywordField
 	private UUID uuid;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "licitacao_id")
+	@IndexedEmbedded(includeDepth = 3)
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private Licitacao licitacao;
-	
+
+	@KeywordField
 	private String codigo;
 
 	/** Descrição do Item **/
 	@FullTextField
 	private String descricao;
-	
+
 	/** Descrição Complementar **/
+	@FullTextField
 	private String descricaoComplementar;
-	
+
 	/** Unidade de Fornecimento **/
 	@ManyToOne
 	@JoinColumn(name = "unidade_fornecimento_id")
+	@IndexedEmbedded(includeDepth = 1)
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private UnidadeFornecimento unidadeFornecimento;
-	
+
 	private Integer quantidade;
-	
+
 	private Double valor;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "material_id")
+	@IndexedEmbedded(includeDepth = 1)
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private Material material;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "fornecedor_id")
+	@IndexedEmbedded(includeDepth = 1)
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private Fornecedor fornecedor;
-	
+
 	@Column(name = "numero_item")
+	@GenericField(sortable = Sortable.YES)
 	private Integer numeroItem;
-	
+
 	@Column(name = "numero_controle_pncp")
+	@KeywordField(sortable = Sortable.YES)
 	private String numeroPncp;
 
 	@Transient
 	private List<Link> links = new ArrayList<>();
-	
+
 	public ItemLicitacao(String descricao) {
 		this.descricao = descricao;
 		this.descricaoComplementar = descricao;
 	}
-	
-	public ItemLicitacao() {}
-	
+
+	public ItemLicitacao() {
+	}
+
 	public Integer getCatMat() {
 		try {
 			return this.getMaterial().getCodigo();
@@ -92,7 +112,7 @@ public class ItemLicitacao {
 			return null;
 		}
 	}
-	
+
 	public List<Link> getLinks() {
 		String url = null;
 		if (licitacao.isFederal()) {
@@ -100,7 +120,8 @@ public class ItemLicitacao {
 			String codModalidade = licitacao.getCodigoModalidadeComprasNet();
 			String numLicitacao = licitacao.getNumero();
 			String anoNumeroPncp = licitacao.getAnoNumeroPncp();
-			url = "https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=" + uasg + codModalidade + numLicitacao + anoNumeroPncp;
+			url = "https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra="
+					+ uasg + codModalidade + numLicitacao + anoNumeroPncp;
 		} else {
 			String numeroPncp = licitacao.getNumeroPncp();
 			String param1 = StringUtil.substring(numeroPncp, 0, 14);
@@ -109,7 +130,7 @@ public class ItemLicitacao {
 			url = String.format("https://pncp.gov.br/app/editais/%s/%s/%s", param1, param2, param3);
 		}
 		links.add(new Link(licitacao.getNumeroFormatado(), url));
-		
+
 		return links;
 	}
 

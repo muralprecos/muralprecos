@@ -21,7 +21,7 @@ public class PainelPrecoApplication {
 	@Bean
     public CommandLineRunner initIndexes(StartupIndexer initializer) {
         return args -> {
-            initializer.init(true);
+            initializer.init(false);
         };
     }
 	

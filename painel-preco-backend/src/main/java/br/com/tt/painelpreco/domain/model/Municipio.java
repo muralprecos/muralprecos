@@ -11,6 +11,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexedEmbedded;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDependency;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -26,12 +31,15 @@ public class Municipio {
 	@Column(name = "id_municipio")
 	private Integer id;
 	
+	@KeywordField
 	private UUID uuid;
 	
 	private String nome;
 	
 	@ManyToOne
 	@JoinColumn(name = "unidade_federativa_id")
+	@IndexedEmbedded(includeDepth = 1)
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private UnidadeFederativa uf;
 
 }

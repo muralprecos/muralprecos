@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -29,6 +31,7 @@ public class FormaCompra {
 	private Integer id;
 	
 	@EqualsAndHashCode.Include
+	@KeywordField
 	private UUID uuid;
 	
 	private String nome;

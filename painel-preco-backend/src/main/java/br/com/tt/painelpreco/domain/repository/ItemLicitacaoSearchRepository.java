@@ -9,5 +9,7 @@ import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 public interface ItemLicitacaoSearchRepository {
 	
 	Page<ItemLicitacao> searchByDescricao(ItemLicitacaoFilter filtro, Pageable pageable);
+	
+	Page<ItemLicitacao> searchByFilter(ItemLicitacaoFilter filtro, Pageable pageable);
 
 }

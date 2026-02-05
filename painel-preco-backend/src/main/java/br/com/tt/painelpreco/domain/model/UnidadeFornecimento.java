@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -24,6 +26,7 @@ public class UnidadeFornecimento {
 	@Column(name = "id_unidade_fornecimento")
 	private Integer id;
 	
+	@KeywordField
 	private UUID uuid;
 	
 	/** Nome da Unidade de Fornecimento **/
