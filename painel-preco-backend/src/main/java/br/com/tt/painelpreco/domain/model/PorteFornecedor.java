@@ -9,28 +9,32 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
  * 
- * Porte da Empresa (Micro Empresa, Pequena Empresa, Não Informado, Não se Aplica, Outros)
+ * Porte da Empresa (Micro Empresa, Pequena Empresa, Não Informado, Não se
+ * Aplica, Outros)
  * 
- * **/
+ **/
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
 @Entity
 @Table(name = "porte_fornecedor", schema = "mural")
 public class PorteFornecedor {
-	
+
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_porte_fornecedor")
 	private Integer id;
-	
+
+	@KeywordField
 	private UUID uuid;
-	
+
 	private String nome;
 
 }
