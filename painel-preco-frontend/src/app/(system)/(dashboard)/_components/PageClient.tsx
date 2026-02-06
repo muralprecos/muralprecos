@@ -31,11 +31,11 @@ export default function DashboardLayout() {
         console.warn("API falhou, usando dados mockados.");
         handleDashboardData(dashboardMock);
 
-        // notify(
-        //   "warning",
-        //   "Usando dados mockados",
-        //   "A API não respondeu. Exibindo dados ilustrativos locais."
-        // );
+        notify(
+          "warning",
+          "Usando dados mockados",
+          "A API não respondeu. Exibindo dados ilustrativos locais.",
+        );
       } finally {
         setLoading(false);
       }
