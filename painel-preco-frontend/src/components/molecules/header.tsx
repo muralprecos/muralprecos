@@ -68,14 +68,13 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     } catch (error) {
       console.error("Erro ao carregar cache de sessão:", error);
     }
+  }, []);
 
-    if (
-      status === "loading" ||
-      (status === "authenticated" && !session?.userInfo)
-    ) {
+  useEffect(() => {
+    if (status === "authenticated" && !session?.userInfo) {
       update();
     }
-  }, []);
+  }, [status, session, update]);
 
   useEffect(() => {
     if (status === "authenticated" && session?.userInfo) {
