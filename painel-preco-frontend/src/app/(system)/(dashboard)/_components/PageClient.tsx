@@ -34,7 +34,7 @@ export default function DashboardLayout() {
         notify(
           "warning",
           "Usando dados mockados",
-          "A API não respondeu. Exibindo dados ilustrativos locais."
+          "A API não respondeu. Exibindo dados ilustrativos locais.",
         );
       } finally {
         setLoading(false);
