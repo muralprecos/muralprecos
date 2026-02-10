@@ -41,6 +41,7 @@ public class UnidadeFederativa {
 	private Integer id;
 	
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
 	private String nome;

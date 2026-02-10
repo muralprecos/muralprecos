@@ -1,6 +1,6 @@
-package br.com.tt.painelpreco.pncp.api;
+package br.com.tt.painelpreco.pncp.domain.model;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,13 +25,13 @@ public class LogErro {
     private Long id;
 
     @Column(name = "criadoEm")
-    private LocalDateTime criadoEm;
+    private Date criadoEm;
 
     private String tipo;
     
     private String detalhes;
 
-    public LogErro(LocalDateTime criadoEm, String tipo, String detalhes) {
+    public LogErro(Date criadoEm, String tipo, String detalhes) {
         this.criadoEm = criadoEm;
         this.tipo = tipo;
         this.detalhes = detalhes;

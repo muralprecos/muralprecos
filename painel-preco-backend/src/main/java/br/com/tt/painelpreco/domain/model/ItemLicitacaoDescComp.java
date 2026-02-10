@@ -24,6 +24,7 @@ public class ItemLicitacaoDescComp {
 	@Column(name = "id_item_licitacao_desc_comp")
 	private Long id;
 	
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 
 	/** Descrição do Item **/

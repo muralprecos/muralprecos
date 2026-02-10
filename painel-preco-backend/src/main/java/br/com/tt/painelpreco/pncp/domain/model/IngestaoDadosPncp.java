@@ -1,4 +1,4 @@
-package br.com.tt.painelpreco.pncp.api;
+package br.com.tt.painelpreco.pncp.domain.model;
 
 import java.time.LocalDateTime;
 
@@ -38,12 +38,14 @@ public class IngestaoDadosPncp {
 
     private String detalhes;
     
-    private Integer status; 
+    private Integer status;
+    
+    public IngestaoDadosPncp() {}
 
     public IngestaoDadosPncp(LocalDateTime dataInicio, String detalhes) {
         this.dataInicio = dataInicio;
         this.detalhes = detalhes;
-        this.status = 1; // Default
+        this.status = 0; // Default
     }
 
 }

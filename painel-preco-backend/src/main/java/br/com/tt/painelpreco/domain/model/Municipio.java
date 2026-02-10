@@ -32,6 +32,7 @@ public class Municipio {
 	private Integer id;
 	
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
 	private String nome;
@@ -41,5 +42,7 @@ public class Municipio {
 	@IndexedEmbedded(includeDepth = 1)
 	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private UnidadeFederativa uf;
+	
+	private String codigoIbge;
 
 }

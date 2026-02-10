@@ -17,5 +17,19 @@ public class SituacaoLicitacaoService {
 	public List<SituacaoLicitacao> listaTodas() {
 		return situacaoLicitacaoRepository.findAll();
 	}
+	
+	public void save(SituacaoLicitacao situacaoLicitacao) {
+		if (!situacaoLicitacaoRepository.existsById(situacaoLicitacao.getId())) {
+			situacaoLicitacaoRepository.save(situacaoLicitacao);
+		}
+	}
+
+	public SituacaoLicitacao findById(Integer id) {
+		return situacaoLicitacaoRepository.findById(id).orElse(null);
+	}
+
+	public List<SituacaoLicitacao> findAll() {
+		return situacaoLicitacaoRepository.findAll();
+	}
 
 }

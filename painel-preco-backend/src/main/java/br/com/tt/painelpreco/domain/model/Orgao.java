@@ -32,11 +32,21 @@ public class Orgao {
 
 	@EqualsAndHashCode.Include
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 
 	private Integer codigo;
 
 	private String nome;
+	
+	private String cnpj;
+	
+	@Column(name = "poder_id")
+	private String poder;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "esfera_id")
+	private Esfera esfera;
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "superior_id")

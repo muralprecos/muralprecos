@@ -6,5 +6,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import br.com.tt.painelpreco.domain.model.UnidadeGestora;
 
 public interface UnidadeGestoraRepository extends JpaRepository<UnidadeGestora, Integer>, JpaSpecificationExecutor<UnidadeGestora> {
+
+	boolean existsByCnpjAndCodigo(String cnpj, String codigo);
+
+	UnidadeGestora findByCnpjAndCodigo(String cnpj, String codigo);
 	
 }

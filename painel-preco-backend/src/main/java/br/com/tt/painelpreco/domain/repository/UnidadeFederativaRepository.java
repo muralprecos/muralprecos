@@ -9,5 +9,7 @@ import br.com.tt.painelpreco.domain.model.UnidadeFederativa;
 public interface UnidadeFederativaRepository extends JpaRepository<UnidadeFederativa, Integer> {
 	
 	List<UnidadeFederativa> findAllByOrderByNome();
+
+	boolean existsBySigla(String sigla);
 	
 }

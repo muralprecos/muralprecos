@@ -36,7 +36,6 @@ import lombok.EqualsAndHashCode;
 @Table(name = "item_licitacao", schema = "mural")
 public class ItemLicitacao {
 
-	@EqualsAndHashCode.Include
 	@DocumentId
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +43,7 @@ public class ItemLicitacao {
 	private Long id;
 
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 
 	@ManyToOne
@@ -86,10 +86,12 @@ public class ItemLicitacao {
 	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private Fornecedor fornecedor;
 
+	@EqualsAndHashCode.Include
 	@Column(name = "numero_item")
 	@GenericField(sortable = Sortable.YES)
 	private Integer numeroItem;
 
+	@EqualsAndHashCode.Include
 	@Column(name = "numero_controle_pncp")
 	@KeywordField(sortable = Sortable.YES)
 	private String numeroPncp;
@@ -132,6 +134,11 @@ public class ItemLicitacao {
 		links.add(new Link(licitacao.getNumeroFormatado(), url));
 
 		return links;
+	}
+	
+	@Override
+	public String toString() {
+		return "Item Licitação: " + numeroPncp + " / " + numeroItem; 
 	}
 
 }

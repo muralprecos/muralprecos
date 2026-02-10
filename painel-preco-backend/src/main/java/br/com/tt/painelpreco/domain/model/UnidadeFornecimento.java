@@ -20,16 +20,23 @@ import lombok.EqualsAndHashCode;
 @Table(name = "unidade_fornecimento", schema = "mural")
 public class UnidadeFornecimento {
 	
-	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_unidade_fornecimento")
 	private Integer id;
 	
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
 	/** Nome da Unidade de Fornecimento **/
+	@EqualsAndHashCode.Include
 	private String nome;
+	
+	public UnidadeFornecimento() {}
+	
+	public UnidadeFornecimento(String nome) {
+		this.nome = nome;
+	}
 
 }

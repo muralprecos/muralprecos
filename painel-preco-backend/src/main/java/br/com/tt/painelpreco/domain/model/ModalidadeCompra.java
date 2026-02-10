@@ -28,6 +28,7 @@ public class ModalidadeCompra {
 	
 	@EqualsAndHashCode.Include
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
 	private Integer codigo;
@@ -45,7 +46,7 @@ public class ModalidadeCompra {
 	}
 	
 	public String getCodigoComprasNet() {
-		return StringUtil.lpad(codigoComprasNet.toString(), 2, '0');
+		return codigoComprasNet != null ? StringUtil.lpad(codigoComprasNet.toString(), 2, '0') : null;
 	}
 
 }

@@ -32,6 +32,7 @@ public class FormaCompra {
 	
 	@EqualsAndHashCode.Include
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
 	private String nome;

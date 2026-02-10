@@ -32,6 +32,7 @@ public class Fornecedor {
 	private Integer id;
 
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 
 	/** CNPJ/CPF/NOME do Fornecedor **/

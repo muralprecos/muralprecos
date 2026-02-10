@@ -14,5 +14,9 @@ public interface OrgaoRepository extends JpaRepository<Orgao, Integer>, JpaSpeci
 	
 	@Query("SELECT o FROM Orgao o WHERE o.superior.uuid = :uuid")
 	List<Orgao> findAllSubOrgaos(UUID uuid, Pageable pageable);
+
+	boolean existsByCnpj(String cnpj);
+
+	Orgao findByCnpj(String cnpj);
 	
 }

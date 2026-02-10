@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>br.com.tt</groupId>
 	<artifactId>painel-preco</artifactId>
-	<version>1.0.28</version>
+	<version>1.0.29</version>
 	<name>painel-preco</name>
 	<description>Painel de Preços da TT Solutions</description>
 	<properties>
@@ -21,6 +21,7 @@
 		<jasperreports.version>6.20.0</jasperreports.version>
 		<squiggly.version>1.3.18</squiggly.version>
 		<spring-cloud.version>2021.0.9</spring-cloud.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
 		<dependency>

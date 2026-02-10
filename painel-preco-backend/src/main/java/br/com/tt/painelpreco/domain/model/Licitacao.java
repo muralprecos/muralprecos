@@ -36,13 +36,13 @@ import lombok.EqualsAndHashCode;
 @Table(name = "licitacao", schema = "mural")
 public class Licitacao {
 
-	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_licitacao")
 	private Long id;
 
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 
 	@KeywordField
@@ -122,6 +122,7 @@ public class Licitacao {
 	@GenericField
 	private Double valor;
 
+	@EqualsAndHashCode.Include
 	@Column(name = "numero_controle_pncp")
 	@KeywordField(sortable = Sortable.YES)
 	private String numeroPncp;
@@ -163,6 +164,11 @@ public class Licitacao {
 
 	public String getCodigoModalidadeComprasNet() {
 		return modalidadeCompra.getCodigoComprasNet();
+	}
+	
+	@Override
+	public String toString() {
+		return "Licitacao: " + numeroPncp;
 	}
 
 }

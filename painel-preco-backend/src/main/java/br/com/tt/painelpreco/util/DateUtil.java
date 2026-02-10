@@ -2,6 +2,8 @@ package br.com.tt.painelpreco.util;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
@@ -112,6 +114,15 @@ public abstract class DateUtil {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
+    }
+    
+    public static Date convert(String dateString) {
+    	try {
+	    	LocalDateTime localDateTime = LocalDateTime.parse(dateString);
+	    	return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    	} catch (Exception e) {
+    		return null;
+		}
     }
 
 }

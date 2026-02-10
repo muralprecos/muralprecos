@@ -5,11 +5,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import br.com.tt.painelpreco.config.StartupIndexer;
-import br.com.tt.painelpreco.pncp.api.PncpService;
+import br.com.tt.painelpreco.pncp.domain.service.ColetaDadosPncpService;
 
 //@EnableCaching
+@EnableScheduling
 @EnableFeignClients
 @SpringBootApplication
 public class PainelPrecoApplication {
@@ -26,9 +28,9 @@ public class PainelPrecoApplication {
     }
 	
 	@Bean
-    public CommandLineRunner run(PncpService pncpService) {
+    public CommandLineRunner run(ColetaDadosPncpService pncpService) {
         return args -> {
-            pncpService.obterDadosLicitacao();
+            pncpService.getDados(true);
         };
     }
 

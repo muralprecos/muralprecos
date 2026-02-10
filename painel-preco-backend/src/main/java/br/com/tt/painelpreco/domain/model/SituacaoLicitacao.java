@@ -24,6 +24,7 @@ public class SituacaoLicitacao {
 	@Column(name = "id_situacao_licitacao")
 	private Integer id;
 	
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
 	private String nome;
