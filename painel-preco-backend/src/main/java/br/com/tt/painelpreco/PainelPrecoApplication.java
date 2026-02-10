@@ -1,5 +1,6 @@
 package br.com.tt.painelpreco;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +16,12 @@ import br.com.tt.painelpreco.pncp.domain.service.ColetaDadosPncpService;
 @EnableFeignClients
 @SpringBootApplication
 public class PainelPrecoApplication {
+	
+	@Value("${pncp.api.coletor.startup}")
+    private Boolean coletorStartup;
+	
+	@Value("${lucene.startup}")
+    private Boolean luceneStartup;
 
 	public static void main(String[] args) {
 		SpringApplication.run(PainelPrecoApplication.class, args);
@@ -23,14 +30,14 @@ public class PainelPrecoApplication {
 	@Bean
     public CommandLineRunner initIndexes(StartupIndexer initializer) {
         return args -> {
-            initializer.init(false);
+            initializer.init(luceneStartup);
         };
     }
 	
 	@Bean
     public CommandLineRunner run(ColetaDadosPncpService pncpService) {
         return args -> {
-            pncpService.getDados(true);
+            pncpService.getDados(coletorStartup);
         };
     }
 
