@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>br.com.tt</groupId>
 	<artifactId>painel-preco</artifactId>
-	<version>1.0.29</version>
+	<version>1.0.30</version>
 	<name>painel-preco</name>
 	<description>Painel de Preços da TT Solutions</description>
 	<properties>
