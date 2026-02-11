@@ -25,10 +25,10 @@ const optionalString = z.string().nullable().optional();
 
 export const schema = z.object({
   ano: optionalString,
-  porteFornecedor: optionalString,
+  porteFornecedorId: optionalString,
   esferaId: optionalString,
   formaCompraId: optionalString,
-  modalidadeCompraId: optionalString,
+  modalidadeId: optionalString,
   
   periodoCompraId: z.string().min(1, ZodStrings.required || "Campo obrigatório"),
 
@@ -45,8 +45,8 @@ export const schema = z.object({
   
   descricaoComplementar: optionalString,
 
-  situacao_licitacao: z.string().optional(),
-  unidade_fornecimento: optionalString,
+  situacaoId: optionalString,
+  unidadeFornecimentoId: optionalString,
 });
 
 export type FormDataCotacao = z.infer<typeof schema>;

@@ -34,6 +34,8 @@ interface IProps<T extends ISimpleObjetoAPI, P extends FieldValues>
   label?: string;
   className?: string;
   placeholder?: string;
+  selectedLabel?: string;
+  onLabelResolved?: (id: string, label: string) => void;
 }
 
 export function AutocompleteAsyncForm<
@@ -48,6 +50,8 @@ export function AutocompleteAsyncForm<
   label,
   className,
   placeholder = "Digite para buscar...",
+  selectedLabel,
+  onLabelResolved,
 }: IProps<T, P>) {
   const [open, setOpen] = useState(false);
 
@@ -74,6 +78,11 @@ export function AutocompleteAsyncForm<
             (i) => i[attrVal] + "" === field.value + ""
           );
 
+          const displayLabel =
+            field.value && (selectedItem?.nome || selectedLabel)
+              ? selectedItem?.nome || selectedLabel
+              : placeholder;
+
           return (
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
@@ -87,7 +96,7 @@ export function AutocompleteAsyncForm<
                     !isValid && "border-destructive"
                   )}
                 >
-                  {selectedItem?.nome || placeholder}
+                  {displayLabel}
                   <div className="flex items-center">
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     {field.value && (
@@ -123,6 +132,7 @@ export function AutocompleteAsyncForm<
                           key={itemId}
                           onSelect={() => {
                             field.onChange(itemId);
+                            onLabelResolved?.(itemId, item.nome);
                             setOpen(false);
                           }}
                         >

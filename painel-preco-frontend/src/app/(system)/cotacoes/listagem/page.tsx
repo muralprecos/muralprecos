@@ -4,31 +4,41 @@ import {
   IRetornoPesquisaItensLicitacao,
   IReturnRequestAPI,
 } from "@/interfaces/types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ReadonlyURLSearchParams,
+  usePathname,
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import { catchErrorFromFetch, searchParamsToInfo } from "@/utils/requestUtils";
+import { catchErrorFromFetch } from "@/utils/requestUtils";
 import { isClientNextjs } from "@/utils/validateUtils";
 import { apiClientPostSearchListItens } from "@/hooks/apiclient";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
 import LoadingList from "@/components/atoms/LoadingList";
 import EmptyListText from "@/components/atoms/EmptyListText";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Package, Search } from "lucide-react";
+import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { notify } from "@/components/molecules/NotifyToast";
 import FormTitle from "@/components/atoms/FormTitle";
 import { parseNumber } from "@/utils/stringUtils";
 import TabelaItensLicitacao from "@/components/atoms/tabela-itens";
 import PaginationFooterMobile from "@/components/molecules/PaginationFooterMobile";
+import { FIELDS_COTACOES_LIST } from "@/hooks/api";
+import {
+  buildBackendParams,
+  normalizeLegacySearchParams,
+} from "@/app/(system)/cotacoes/realizar-cotacao/_components/buildBackendParams";
+import { paramsToInfo } from "@/app/(system)/cotacoes/realizar-cotacao/_components/paramsToInfo";
+import { useCotacaoQueryStates } from "@/app/(system)/cotacoes/realizar-cotacao/_components/cotacaoQuery";
 
 export default function ListItemLicitacao() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams: ReadonlyURLSearchParams = useSearchParams();
   const isInitialLoad = useRef(true);
+  const [queryState] = useCotacaoQueryStates();
 
   const [isLoading, setIsLoading] = useState(true);
   const [itensLicitacao, setItensLicitacao] = useState<
@@ -37,13 +47,32 @@ export default function ListItemLicitacao() {
   const [paginationInfo, setPaginationInfo] =
     useState<IReturnRequestAPI<IRetornoPesquisaItensLicitacao> | null>(null);
 
+  const legacyNormalization = useMemo(
+    () => normalizeLegacySearchParams(searchParams),
+    [searchParams]
+  );
+
   useEffect(() => {
+    if (legacyNormalization.changed) {
+      const query = legacyNormalization.params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname);
+    }
+  }, [legacyNormalization, router, pathname]);
+
+  useEffect(() => {
+    if (legacyNormalization.changed) return;
+
     const fetchData = async () => {
       if (isClientNextjs()) {
         setIsLoading(true);
 
+        const page = queryState.page ?? 0;
+        const size = queryState.size ?? 5;
+        const backendParams = buildBackendParams({ ...queryState, page, size });
+        backendParams.set("fields", FIELDS_COTACOES_LIST);
+
         const req = await apiClientPostSearchListItens(
-          searchParamsToInfo(searchParams),
+          paramsToInfo(backendParams),
         );
         setIsLoading(false);
 
@@ -66,7 +95,7 @@ export default function ListItemLicitacao() {
     fetchData().catch((e) => {
       catchErrorFromFetch(e, "carregar item");
     });
-  }, [searchParams, router]);
+  }, [queryState, legacyNormalization.changed]);
 
   const hasItens = itensLicitacao?.length > 0;
 

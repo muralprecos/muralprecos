@@ -91,7 +91,7 @@ export function useCotacaoFields({
         label: "Ano da Compra",
         items: anosCompras,
       },
-      porteFornecedor: {
+      porteFornecedorId: {
         type: "autocompletStatic",
         label: "Porte da Empresa",
         items: empresaPorte,
@@ -106,7 +106,7 @@ export function useCotacaoFields({
         label: "Modo de Disputa",
         items: compraFormas,
       },
-      modalidadeCompraId: {
+      modalidadeId: {
         type: "autocompletStatic",
         label: "Modalidade Compra",
         items: compraModalidades,
@@ -116,7 +116,7 @@ export function useCotacaoFields({
         label: "Período da Compra",
         items: compraPeriodos,
       },
-      situacao_licitacao: {
+      situacaoId: {
         type: "autocompletStatic",
         label: "Situação da Licitação",
         items: situacoesLicitacoes,
@@ -180,7 +180,7 @@ export function useCotacaoFields({
           apiFindDesc: getUASGDesc,
         },
       },
-      unidade_fornecimento: {
+      unidadeFornecimentoId: {
         type: "autocompleteAsync",
         label: "Unidade de Fornecimento",
         auto: {
