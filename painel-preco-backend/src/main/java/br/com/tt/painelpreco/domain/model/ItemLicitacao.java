@@ -116,21 +116,12 @@ public class ItemLicitacao {
 	}
 
 	public List<Link> getLinks() {
-		String url = null;
-		if (licitacao.isFederal()) {
-			String uasg = licitacao.getUnidadeGestora().getCodigo();
-			String codModalidade = licitacao.getCodigoModalidadeComprasNet();
-			String numLicitacao = licitacao.getNumero();
-			String anoNumeroPncp = licitacao.getAnoNumeroPncp();
-			url = "https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra="
-					+ uasg + codModalidade + numLicitacao + anoNumeroPncp;
-		} else {
-			String numeroPncp = licitacao.getNumeroPncp();
-			String param1 = StringUtil.substring(numeroPncp, 0, 14);
-			String param2 = StringUtil.substring(numeroPncp, 24, 4);
-			String param3 = StringUtil.substring(numeroPncp, 17, 6);
-			url = String.format("https://pncp.gov.br/app/editais/%s/%s/%s", param1, param2, param3);
-		}
+		String numeroPncp = licitacao.getNumeroPncp();
+		String param1 = StringUtil.substring(numeroPncp, 0, 14);
+		String param2 = StringUtil.substring(numeroPncp, 24, 4);
+		String param3 = StringUtil.substring(numeroPncp, 17, 6);
+		String url = String.format("https://pncp.gov.br/app/editais/%s/%s/%s", param1, param2, param3);
+
 		links.add(new Link(licitacao.getNumeroFormatado(), url));
 
 		return links;

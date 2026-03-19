@@ -33,6 +33,7 @@ public class OrgaoService {
 	
 	public void save(Orgao orgao) {
 		if (!orgaoRepository.existsByCnpj(orgao.getCnpj())) {
+			//orgao.setEsfera(esferaRepository.findByCodigo(orgao.getEsfera().getCodigo()));
 			orgaoRepository.save(orgao);
 		}
 	}

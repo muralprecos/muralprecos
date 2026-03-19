@@ -1,7 +1,9 @@
 package br.com.tt.painelpreco.pncp.domain.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,7 +16,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,8 +28,9 @@ import br.com.tt.painelpreco.domain.repository.LicitacaoRepository;
 import br.com.tt.painelpreco.domain.service.UnidadeFornecimentoService;
 import br.com.tt.painelpreco.pncp.domain.model.IngestaoDadosPncp;
 import br.com.tt.painelpreco.pncp.domain.model.LogErro;
-import br.com.tt.painelpreco.pncp.domain.repository.LogErroRepository;
 import br.com.tt.painelpreco.pncp.domain.repository.IngestaoDadosPncpRepository;
+import br.com.tt.painelpreco.pncp.domain.repository.LogErroRepository;
+import br.com.tt.painelpreco.util.IOUtil;
 
 @Service
 public class IngestaoItemLicitacaoService {
@@ -134,10 +136,26 @@ public class IngestaoItemLicitacaoService {
         pncpRepository.save(ingestaoDadosPncp);
         
         //limpa diretorio
-        FileSystemUtils.deleteRecursively(new File(jsonDir));
+        //FileSystemUtils.deleteRecursively(new File(jsonDir));
+        try {
+			IOUtil.zipDirectory(jsonDir, getFileZipName());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
         double tempoTotal = (System.currentTimeMillis() - inicio) / 1000.0;
         System.out.println(String.format("Tempo de processamento: %.6f segundos", tempoTotal));
     }
+	
+	private String getFileZipName() {
+		// 1. Defina o padrão (ex: 2023-10-27_14-30-05)
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+
+		// 2. Obtenha a data/hora atual e formate
+		String timestamp = dtf.format(LocalDateTime.now());
+
+		// 3. Monte o nome do arquivo
+		return "backup_" + timestamp + ".zip";
+	}
 
 }

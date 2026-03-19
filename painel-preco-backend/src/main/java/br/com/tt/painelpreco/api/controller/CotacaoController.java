@@ -39,7 +39,7 @@ import br.com.tt.painelpreco.util.ModelConverter;
 @RequestMapping(ApiVersion.LATEST + "/cotacoes")
 public class CotacaoController extends AbstractController {
 	
-	private static final String LINK_VALIDACAO_COTACAO = "/cotacao/validacao/%s";
+	private static final String LINK_VALIDACAO_COTACAO = "/validar-cotacao/%s";
 
 	private static final Object DATA_SOURCE = "https://pncp.gov.br/";
 

@@ -2,6 +2,8 @@ package br.com.tt.painelpreco.domain.repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 
@@ -29,16 +31,16 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 	@Override
 	public Page<ItemLicitacao> searchByDescricao(ItemLicitacaoFilter filtro, Pageable pageable) {
 		SearchSession searchSession = Search.session(em);
-		String descricao = filtro.getDescricao();
+		String descricao = parseQuery(filtro.getDescricao());
 		List<ItemLicitacao> hits = searchSession.search(ItemLicitacao.class)
-				.where(f -> f.match().field("descricao").matching(descricao))
+				.where(f -> f.simpleQueryString().field("descricao").matching(descricao))
 				// .sort(f -> f.field("numeroPncp").desc()
 				// .then().field("numeroItem").asc())
 				.fetch((int) pageable.getOffset(), pageable.getPageSize())
 				.hits();
 
 		long totalHits = searchSession.search(ItemLicitacao.class)
-				.where(f -> f.match().field("descricao").matching(descricao))
+				.where(f -> f.simpleQueryString().field("descricao").matching(descricao))
 				.fetchTotalHitCount();
 
 		return new PageImpl<>(hits, pageable, totalHits);
@@ -66,8 +68,8 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 					}
 
 					if (!StringUtil.isEmpty(filtro.getObjeto())) {
-						bool.must(f.match().field("licitacao.objeto")
-								.matching(filtro.getObjeto()).fuzzy());
+						bool.must(f.simpleQueryString().field("licitacao.objeto")
+								.matching(parseQuery(filtro.getObjeto())));
 					}
 
 					if (filtro.getOrgaoSuperiorId() != null) {
@@ -118,19 +120,28 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 					}
 
 					if (filtro.getUfId() != null) {
-						bool.must(f.match().field("licitacao.municipio.uf.uuid")
-								.matching(filtro.getUfId()));
+						Integer[] idsUFsRegiao = br.com.tt.painelpreco.domain.model.UnidadeFederativa.getUFsRegiao(filtro.getUfId());
+						if (idsUFsRegiao != null && idsUFsRegiao.length > 0) {
+							bool.must(f.terms().field("licitacao.municipio.uf.id").matchingAny(idsUFsRegiao));
+						} else {
+							bool.must(f.match().field("licitacao.municipio.uf.uuid").matching(filtro.getUfId()));
+						}
 					}
 
 					// Filtros do ItemLicitacao
 					if (!StringUtil.isEmpty(filtro.getDescricao())) {
-						bool.must(f.match().field("descricao")
-								.matching(filtro.getDescricao()).fuzzy());
+						bool.must(f.simpleQueryString().field("descricao")
+								.matching(parseQuery(filtro.getDescricao())));
 					}
 
+					// Boost para itens recentes considerando data de abertura
+					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(30)).boost(5.0f));
+					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(90)).boost(3.0f));
+					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(365)).boost(1.5f));
+
 					if (!StringUtil.isEmpty(filtro.getDescricaoComplementar())) {
-						bool.must(f.match().field("descricaoComplementar")
-								.matching(filtro.getDescricaoComplementar()).fuzzy());
+						bool.must(f.simpleQueryString().field("descricaoComplementar")
+								.matching(parseQuery(filtro.getDescricaoComplementar())));
 					}
 
 					if (filtro.getMaterialId() != null) {
@@ -155,8 +166,8 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 
 					return bool;
 				})
-				.sort(f -> f.field("licitacao.dataResultadoCompra").desc()
-						.then().field("licitacao.dataAbertura").desc()
+				.sort(f -> f.score().desc().then().field("licitacao.dataAbertura").desc()
+						.then().field("licitacao.dataResultadoCompra").desc()
 						.then().field("licitacao.numeroPncp").desc()
 						.then().field("numeroItem").desc())
 				.fetch((int) pageable.getOffset(), pageable.getPageSize());
@@ -165,6 +176,35 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 		long totalHits = searchQuery.total().hitCount();
 
 		return new PageImpl<>(hits, pageable, totalHits);
+	}
+
+	private String parseQuery(String query) {
+		if (StringUtil.isEmpty(query)) {
+			return query;
+		}
+
+		// Regex que captura conteúdo entre aspas ou conector lógico AND
+		Pattern pattern = Pattern.compile("\"[^\"]*\"|\\b(AND)\\b", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(query);
+		StringBuilder sb = new StringBuilder();
+
+		while (matcher.find()) {
+			String match = matcher.group();
+			if (match.startsWith("\"")) {
+				// Se começa com aspas, mantemos o conteúdo literal como está
+				matcher.appendReplacement(sb, Matcher.quoteReplacement(match));
+			} else {
+				// Caso contrário, é um conector fora de aspas; substituímos pelo símbolo correspondente
+				String upperMatch = match.toUpperCase();
+				String replacement = "";
+				if (upperMatch.equals("AND")) {
+					replacement = "+";
+				}
+				matcher.appendReplacement(sb, replacement);
+			}
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
 	}
 
 }

@@ -23,5 +23,9 @@ public class UnidadeFederativaService {
 			unidadeFederativaRepository.save(unidadeFederativa);
 		}
 	}
+	
+	public List<UnidadeFederativa> findAll() {
+		return unidadeFederativaRepository.findAll();
+	}
 
 }
