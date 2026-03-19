@@ -276,12 +276,19 @@ public class ColetaDadosPncpService {
     }
     
     @Transactional
-    public void getDados(boolean startup) {
+    public void getDados(boolean startup, boolean licitacoesOnly) {
     	if (startup) {
 	    	this.getDadosLicitacao();
-	    	this.getDadosItemLicitacao();
+	    	
+	    	if (!licitacoesOnly) {
+	    		this.getDadosItemLicitacao();
+	    	}
+	    	
 	        pncpLicitacaoService.carregaLicitacoesBaixadasNoBanco();
-	    	pncpItemLicitacaoService.carregaItensLicitacaoBaixadosNoBanco();
+	        
+	        if (!licitacoesOnly) {
+	        	pncpItemLicitacaoService.carregaItensLicitacaoBaixadosNoBanco();
+	        }
     	}
     }
 
