@@ -21,6 +21,9 @@ public class PainelPrecoApplication {
 	@Value("${pncp.api.coletor.startup}")
     private Boolean coletorStartup;
 	
+	@Value("${pncp.api.coletor.licitacoesOnly}")
+    private Boolean licitacoesOnly;
+	
 	@Value("${lucene.startup}")
     private Boolean luceneStartup;
 
@@ -32,7 +35,7 @@ public class PainelPrecoApplication {
 	@Order(1) // Executará primeiro
 	public CommandLineRunner initColetor(ColetaDadosPncpService pncpService) {
 		return args -> {
-			pncpService.getDados(coletorStartup);
+			pncpService.getDados(coletorStartup, licitacoesOnly);
 		};
 	}
 	
