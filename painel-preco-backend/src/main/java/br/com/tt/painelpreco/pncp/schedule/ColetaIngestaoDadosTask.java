@@ -14,7 +14,7 @@ public class ColetaIngestaoDadosTask {
 	
 	@Scheduled(cron = "${PNCP_API_CRON_EXPRESSION}")
 	public void run() {
-		pncpService.getDados(true);
+		pncpService.getDados(true, false);
 	}
 
 }
