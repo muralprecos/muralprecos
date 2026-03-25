@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
+import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.DocumentId;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
@@ -56,6 +57,7 @@ public class ItemLicitacao {
 
 	/** Descrição do Item **/
 	@FullTextField
+	@KeywordField(name = "descricao_sort", sortable = Sortable.YES)
 	private String descricao;
 
 	/** Descrição Complementar **/
@@ -69,6 +71,7 @@ public class ItemLicitacao {
 
 	private Integer quantidade;
 
+	@GenericField
 	private Double valor;
 
 	@ManyToOne

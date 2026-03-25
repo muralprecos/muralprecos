@@ -5,11 +5,16 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.hibernate.search.engine.search.common.SortOrder;
+import org.hibernate.search.engine.search.sort.dsl.CompositeSortComponentsStep;
+import org.hibernate.search.engine.search.sort.dsl.SearchSortFactory;
+import org.hibernate.search.engine.search.sort.dsl.SortFinalStep;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
@@ -32,8 +37,7 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 		String descricao = filtro.getDescricao();
 		List<ItemLicitacao> hits = searchSession.search(ItemLicitacao.class)
 				.where(f -> f.match().field("descricao").matching(descricao))
-				// .sort(f -> f.field("numeroPncp").desc()
-				// .then().field("numeroItem").asc())
+				.sort(f -> itemSort(f, pageable))
 				.fetch((int) pageable.getOffset(), pageable.getPageSize())
 				.hits();
 
@@ -150,16 +154,64 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 
 					return bool;
 				})
-				.sort(f -> f.field("licitacao.dataResultadoCompra").desc()
-						.then().field("licitacao.dataAbertura").desc()
-						.then().field("licitacao.numeroPncp").desc()
-						.then().field("numeroItem").desc())
+				.sort(f -> itemSort(f, pageable))
 				.fetch((int) pageable.getOffset(), pageable.getPageSize());
 
 		List<ItemLicitacao> hits = searchQuery.hits();
 		long totalHits = searchQuery.total().hitCount();
 
 		return new PageImpl<>(hits, pageable, totalHits);
+	}
+
+	private SortFinalStep itemSort(SearchSortFactory f, Pageable pageable) {
+		if (pageable.getSort() == null || !pageable.getSort().isSorted()) {
+			return defaultItemSort(f);
+		}
+		CompositeSortComponentsStep<?> composite = f.composite();
+		int added = 0;
+		for (Sort.Order order : pageable.getSort()) {
+			String path = mapSortField(order.getProperty());
+			if (path == null) {
+				continue;
+			}
+			SortOrder direction = order.isAscending() ? SortOrder.ASC : SortOrder.DESC;
+			composite = composite.add(f.field(path).order(direction));
+			added++;
+		}
+		if (added == 0) {
+			return defaultItemSort(f);
+		}
+		return composite.add(f.field("id").order(SortOrder.ASC));
+	}
+
+	private SortFinalStep defaultItemSort(SearchSortFactory f) {
+		return f.field("licitacao.dataResultadoCompra").desc()
+				.then().field("licitacao.dataAbertura").desc()
+				.then().field("licitacao.numeroPncp").desc()
+				.then().field("numeroItem").desc()
+				.then().field("id").asc();
+	}
+
+	private static String mapSortField(String property) {
+		if (property == null) {
+			return null;
+		}
+		switch (property) {
+		case "descricao":
+			return "descricao_sort";
+		case "valor":
+			return "valor";
+		case "dataResultadoCompra":
+		case "licitacao.dataResultadoCompra":
+			return "licitacao.dataResultadoCompra";
+		case "dataAbertura":
+		case "licitacao.dataAbertura":
+			return "licitacao.dataAbertura";
+		case "data":
+			return "licitacao.dataResultadoCompra";
+		default:
+			return null;
+		}
 	}
 
 }
