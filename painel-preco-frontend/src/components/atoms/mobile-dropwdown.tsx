@@ -6,6 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import pkg from "../../../package.json";
 
@@ -21,6 +22,7 @@ export function ProfileDropdown({
   userOrg,
 }: ProfileDropdownProps) {
   const isDesktop = variant === "desktop";
+  const isLoading = !userName || !userOrg;
 
   return (
     <DropdownMenu>
@@ -31,8 +33,17 @@ export function ProfileDropdown({
               <User className="w-4 h-4 text-muted-foreground" />
             </div>
             <div className="text-sm text-left lg:block hidden">
-              <p className="font-medium text-foreground">{userName}</p>
-              <p className="text-xs text-muted-foreground">{userOrg}</p>
+              {isLoading ? (
+                <div className="space-y-1">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+              ) : (
+                <>
+                  <p className="font-medium text-foreground">{userName}</p>
+                  <p className="text-xs text-muted-foreground">{userOrg}</p>
+                </>
+              )}
             </div>
           </button>
         ) : (
@@ -48,8 +59,17 @@ export function ProfileDropdown({
         {!isDesktop && (
           <>
             <div className="px-2 py-1.5 text-sm">
-              <p className="font-medium text-foreground">{userName}</p>
-              <p className="text-xs text-muted-foreground">{userOrg}</p>
+              {isLoading ? (
+                <div className="space-y-1">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+              ) : (
+                <>
+                  <p className="font-medium text-foreground">{userName}</p>
+                  <p className="text-xs text-muted-foreground">{userOrg}</p>
+                </>
+              )}
             </div>
             <DropdownMenuSeparator />
           </>

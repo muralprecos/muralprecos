@@ -224,16 +224,16 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
 
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <InfoText label="Fornecedor">
-                              {strIfNotNull(itemLicitacao?.fornecedor.nome)}
+                              {strIfNotNull(itemLicitacao?.fornecedor?.nome)}
                             </InfoText>
                             <InfoText label="Porte">
                               {strIfNotNull(
-                                itemLicitacao?.fornecedor.porte?.nome
+                                itemLicitacao?.fornecedor?.porte?.nome
                               )}
                             </InfoText>
                             <InfoText label="Documento">
                               {strIfNotNull(
-                                itemLicitacao?.fornecedor.documento
+                                itemLicitacao?.fornecedor?.documento
                               )}
                             </InfoText>
                           </div>
@@ -342,11 +342,11 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
 
                           <InfoText label="Unidade" orientation="row">
                             {strIfNotNull(
-                              itemLicitacao?.licitacao.unidadeGestora.nome
+                              itemLicitacao?.licitacao.unidadeGestora?.nome
                             )}{" "}
                             (
                             {strIfNotNull(
-                              itemLicitacao?.licitacao.unidadeGestora.codigo
+                              itemLicitacao?.licitacao.unidadeGestora?.codigo
                             )}
                             )
                           </InfoText>
@@ -370,7 +370,7 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
                                   orientation="row"
                                 >
                                   {strIfNotNull(
-                                    itemLicitacao?.licitacao.orgaoSuperior.nome
+                                    itemLicitacao?.licitacao.orgaoSuperior?.nome
                                   )}
                                 </InfoText>
                               </>
