@@ -33,6 +33,7 @@ public class PorteFornecedor {
 	private Integer id;
 
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 
 	private String nome;

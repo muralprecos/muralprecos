@@ -17,5 +17,19 @@ public class ModalidadeCompraService {
 	public List<ModalidadeCompra> listaTodas() {
 		return modalidadeCompraRepository.findAll();
 	}
+	
+	public void save(ModalidadeCompra modalidadeCompra) {
+		if (!modalidadeCompraRepository.existsByCodigo(modalidadeCompra.getCodigo())) {
+			modalidadeCompraRepository.save(modalidadeCompra);
+		}
+	}
+	
+	public ModalidadeCompra findByCodigo(Integer codigo) {
+		return modalidadeCompraRepository.findByCodigo(codigo);
+	}
+
+	public List<ModalidadeCompra> findAll() {
+		return modalidadeCompraRepository.findAll();
+	}
 
 }

@@ -1,5 +1,7 @@
 package br.com.tt.painelpreco.domain.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,20 @@ public class MunicipioService {
 
 	public Page<Municipio> listaByFilter(Specification<Municipio> filtro, Pageable pageable) {
 		return municipioRepository.findAll(filtro, pageable);
+	}
+	
+	public void save(Municipio municipio) {
+		if (!municipioRepository.existsByCodigoIbge(municipio.getCodigoIbge())) {
+			municipioRepository.save(municipio);
+		}
+	}
+
+	public Municipio findByCodigoIbge(String codigoIbge) {
+		return municipioRepository.findByCodigoIbge(codigoIbge);
+	}
+
+	public List<Municipio> findAll() {
+		return municipioRepository.findAll();
 	}
 
 }

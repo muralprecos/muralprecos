@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
@@ -35,13 +36,13 @@ import lombok.EqualsAndHashCode;
 @Table(name = "licitacao", schema = "mural")
 public class Licitacao {
 
-	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_licitacao")
 	private Long id;
 
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 
 	@KeywordField
@@ -109,20 +110,21 @@ public class Licitacao {
 
 	@Temporal(TemporalType.DATE)
 	@JoinColumn(name = "data_abertura")
-	@GenericField
+	@GenericField(sortable = Sortable.YES)
 	private Date dataAbertura;
 
 	/** Ano da Compra **/
 	@Temporal(TemporalType.DATE)
 	@JoinColumn(name = "data_resultado_compra")
-	@GenericField
+	@GenericField(sortable = Sortable.YES)
 	private Date dataResultadoCompra;
 
 	@GenericField
 	private Double valor;
 
+	@EqualsAndHashCode.Include
 	@Column(name = "numero_controle_pncp")
-	@KeywordField
+	@KeywordField(sortable = Sortable.YES)
 	private String numeroPncp;
 
 	@OneToMany(mappedBy = "licitacao")
@@ -162,6 +164,11 @@ public class Licitacao {
 
 	public String getCodigoModalidadeComprasNet() {
 		return modalidadeCompra.getCodigoComprasNet();
+	}
+	
+	@Override
+	public String toString() {
+		return "Licitacao: " + numeroPncp;
 	}
 
 }

@@ -46,4 +46,12 @@ public interface LicitacaoRepository extends JpaRepository<Licitacao, Integer>, 
             @Param("inicioPeriodo") Date inicioPeriodo,
             @Param("fimPeriodo") Date fimPeriodo
     );
+
+	boolean existsByNumeroPncp(String numeroPncp);
+
+	@Query(value = "SELECT l FROM Licitacao l WHERE NOT EXISTS (SELECT 1 FROM ItemLicitacao il WHERE il.licitacao = l)")
+	List<Licitacao> findPendentesImportacaoItens();
+
+	@Query(value = "SELECT l.* FROM mural.licitacao l WHERE l.numero_controle_pncp = ANY(:numerosPncp)", nativeQuery = true)
+	List<Licitacao> findAllByNumeroPncpIn(@Param("numerosPncp") String[] numerosPncp);
 }

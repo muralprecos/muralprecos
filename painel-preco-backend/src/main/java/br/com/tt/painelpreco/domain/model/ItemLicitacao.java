@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.DocumentId;
@@ -36,7 +37,6 @@ import lombok.EqualsAndHashCode;
 @Table(name = "item_licitacao", schema = "mural")
 public class ItemLicitacao {
 
-	@EqualsAndHashCode.Include
 	@DocumentId
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +44,7 @@ public class ItemLicitacao {
 	private Long id;
 
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 
 	@ManyToOne
@@ -67,6 +68,8 @@ public class ItemLicitacao {
 	/** Unidade de Fornecimento **/
 	@ManyToOne
 	@JoinColumn(name = "unidade_fornecimento_id")
+	@IndexedEmbedded(includeDepth = 1)
+	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private UnidadeFornecimento unidadeFornecimento;
 
 	private Integer quantidade;
@@ -86,12 +89,14 @@ public class ItemLicitacao {
 	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private Fornecedor fornecedor;
 
+	@EqualsAndHashCode.Include
 	@Column(name = "numero_item")
-	@GenericField
+	@GenericField(sortable = Sortable.YES)
 	private Integer numeroItem;
 
+	@EqualsAndHashCode.Include
 	@Column(name = "numero_controle_pncp")
-	@KeywordField
+	@KeywordField(sortable = Sortable.YES)
 	private String numeroPncp;
 
 	@Transient
@@ -114,24 +119,20 @@ public class ItemLicitacao {
 	}
 
 	public List<Link> getLinks() {
-		String url = null;
-		if (licitacao.isFederal()) {
-			String uasg = licitacao.getUnidadeGestora().getCodigo();
-			String codModalidade = licitacao.getCodigoModalidadeComprasNet();
-			String numLicitacao = licitacao.getNumero();
-			String anoNumeroPncp = licitacao.getAnoNumeroPncp();
-			url = "https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra="
-					+ uasg + codModalidade + numLicitacao + anoNumeroPncp;
-		} else {
-			String numeroPncp = licitacao.getNumeroPncp();
-			String param1 = StringUtil.substring(numeroPncp, 0, 14);
-			String param2 = StringUtil.substring(numeroPncp, 24, 4);
-			String param3 = StringUtil.substring(numeroPncp, 17, 6);
-			url = String.format("https://pncp.gov.br/app/editais/%s/%s/%s", param1, param2, param3);
-		}
+		String numeroPncp = licitacao.getNumeroPncp();
+		String param1 = StringUtil.substring(numeroPncp, 0, 14);
+		String param2 = StringUtil.substring(numeroPncp, 24, 4);
+		String param3 = StringUtil.substring(numeroPncp, 17, 6);
+		String url = String.format("https://pncp.gov.br/app/editais/%s/%s/%s", param1, param2, param3);
+
 		links.add(new Link(licitacao.getNumeroFormatado(), url));
 
 		return links;
+	}
+	
+	@Override
+	public String toString() {
+		return "Item Licitação: " + numeroPncp + " / " + numeroItem; 
 	}
 
 }

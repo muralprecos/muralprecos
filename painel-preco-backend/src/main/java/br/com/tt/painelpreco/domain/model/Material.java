@@ -27,6 +27,7 @@ public class Material {
 	private Integer id;
 
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 
 	/** Código Material - CATMAT **/

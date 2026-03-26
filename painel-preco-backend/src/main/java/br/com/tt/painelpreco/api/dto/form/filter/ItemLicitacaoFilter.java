@@ -31,6 +31,7 @@ public class ItemLicitacaoFilter {
 	private UUID fornecedorId;
 	private UUID ufId;
 	private UUID municipioId;
+	private UUID unidadeFornecimentoId;
 	/** ============== LICITACAO ============== **/
 	
 	private boolean only = false;

@@ -1,7 +1,10 @@
 package br.com.tt.painelpreco.domain.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,6 +36,23 @@ public class LicitacaoService {
 	
 	public List<Integer> listaAllAnos() {
 		return licitacaoRepository.findAllAnos();
+	}
+	
+	public void save(Licitacao licitacao) {
+		if (!licitacaoRepository.existsByNumeroPncp(licitacao.getNumeroPncp())) {
+			licitacaoRepository.save(licitacao);
+		}
+	}
+
+	public void saveAll(Collection<Licitacao> licitacoes) {
+		licitacaoRepository.saveAll(licitacoes);
+	}
+
+	public List<Licitacao> findAllByNumeroPncpIn(List<String> numerosPncp) {
+		if (numerosPncp == null)
+			return new ArrayList<Licitacao>();
+		
+		return licitacaoRepository.findAllByNumeroPncpIn(numerosPncp.toArray(new String[0]));
 	}
 
 }

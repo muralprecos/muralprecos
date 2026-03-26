@@ -17,5 +17,15 @@ public class UnidadeFederativaService {
 	public List<UnidadeFederativa> listaTodas() {
 		return unidadeFederativaRepository.findAllByOrderByNome();
 	}
+	
+	public void save(UnidadeFederativa unidadeFederativa) {
+		if (!unidadeFederativaRepository.existsBySigla(unidadeFederativa.getSigla())) {
+			unidadeFederativaRepository.save(unidadeFederativa);
+		}
+	}
+	
+	public List<UnidadeFederativa> findAll() {
+		return unidadeFederativaRepository.findAll();
+	}
 
 }

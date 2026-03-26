@@ -1,5 +1,6 @@
 package br.com.tt.painelpreco.domain.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,21 @@ public class OrgaoService {
 	
 	public Page<Orgao> listaTodosSubOrgaos(UUID uuid, Pageable pageable) {
 		return new PageImpl<Orgao>(orgaoRepository.findAllSubOrgaos(uuid, pageable));
+	}
+	
+	public void save(Orgao orgao) {
+		if (!orgaoRepository.existsByCnpj(orgao.getCnpj())) {
+			//orgao.setEsfera(esferaRepository.findByCodigo(orgao.getEsfera().getCodigo()));
+			orgaoRepository.save(orgao);
+		}
+	}
+
+	public Orgao findByCnpj(String cnpj) {
+		return orgaoRepository.findByCnpj(cnpj);
+	}
+
+	public List<Orgao> findAll() {
+		return orgaoRepository.findAll();
 	}
 
 }

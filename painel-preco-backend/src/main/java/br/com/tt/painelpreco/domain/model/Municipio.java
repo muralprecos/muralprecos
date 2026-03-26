@@ -25,21 +25,26 @@ import lombok.EqualsAndHashCode;
 @Table(name = "municipio", schema = "mural")
 public class Municipio {
 	
-	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_municipio")
 	private Integer id;
 	
+	@EqualsAndHashCode.Include
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
+	@EqualsAndHashCode.Include
 	private String nome;
 	
+	@EqualsAndHashCode.Include
 	@ManyToOne
 	@JoinColumn(name = "unidade_federativa_id")
 	@IndexedEmbedded(includeDepth = 1)
 	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private UnidadeFederativa uf;
+	
+	private String codigoIbge;
 
 }

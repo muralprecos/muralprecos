@@ -38,8 +38,10 @@ public class Esfera {
 	
 	@EqualsAndHashCode.Include
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
+	@EqualsAndHashCode.Include
 	@Enumerated(EnumType.STRING)
 	private EsferaEnum codigo;
 	

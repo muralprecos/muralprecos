@@ -27,11 +27,31 @@ public class UnidadeGestora {
 	
 	@EqualsAndHashCode.Include
 	@KeywordField
+	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
 	/** UASG */
+	@EqualsAndHashCode.Include
 	private String codigo;
 	
 	private String nome;
+	
+	@EqualsAndHashCode.Include
+	private String cnpj;
+	
+	@Column(name = "nome_entidade")
+	private String nomeEntidade;
+	
+	@Column(name = "uf_sigla")
+	private String ufSigla;
+	
+	@Column(name = "uf_nome")
+	private String ufNome;
+	
+	@Column(name = "municipio_nome")
+	private String municipioNome;
+	
+	@Column(name = "codigo_ibge")
+	private String codigoIbge;
 
 }
