@@ -228,6 +228,8 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 			return "descricao_sort";
 		case "valor":
 			return "valor";
+		case "quantidade":
+			return "quantidade";
 		case "dataResultadoCompra":
 		case "licitacao.dataResultadoCompra":
 			return "licitacao.dataResultadoCompra";

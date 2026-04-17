@@ -73,9 +73,10 @@ public class ItemLicitacao {
 	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private UnidadeFornecimento unidadeFornecimento;
 
+	@GenericField(sortable = Sortable.YES)
 	private Integer quantidade;
 
-	@GenericField
+	@GenericField(sortable = Sortable.YES)
 	private Double valor;
 
 	@ManyToOne
