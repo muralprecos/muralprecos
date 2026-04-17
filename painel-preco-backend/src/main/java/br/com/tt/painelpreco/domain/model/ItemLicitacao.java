@@ -41,6 +41,7 @@ public class ItemLicitacao {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_item_licitacao")
+	@GenericField(sortable = Sortable.YES)
 	private Long id;
 
 	@KeywordField

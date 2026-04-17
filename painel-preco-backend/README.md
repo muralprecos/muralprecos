@@ -143,6 +143,12 @@ Em seguida, execute o Spring Boot Application no próprio Eclipse STS, por meio 
 
 OBS: alguns parâmetros precisarão ser ajustados no application.properties no ambiente de desenvolvimento, como SSO_AUTH_SERVER (se for usar o Keycloak de produção) e SSO_SECRET;
 
+Caso deseje realizar o clean package local via docker, é possível pelo comando:
+
+```bash
+docker run --rm -v "$PWD":/app -v ~/.m2:/root/.m2 -w /app maven:3.9-eclipse-temurin-11 mvn clean package -DskipTests && docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up --build
+```
+
   
 
 ### 7. Restaure o backup do banco:
