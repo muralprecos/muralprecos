@@ -41,6 +41,18 @@ npm install
 npm run dev
 ```
 
+Ou com docker:
+
+```bash
+docker compose -f docker-compose.dev.yml up
+```
+
+Forçar recriar com docker:
+
+```bash
+docker compose -f docker-compose.dev.yml down -v && docker compose -f docker-compose.dev.yml up
+```
+
 ## Deploy
 
 Check configs in docker-compose.yml file. Default target is production, but can be "dev" or "builder" (only generate the build files, without execute the server). You can change the exposed ports too, by default uses port number 3000.

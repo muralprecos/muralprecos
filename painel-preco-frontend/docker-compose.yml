@@ -5,17 +5,31 @@ volumes:
 
 services:
   app-front:
-    image: painel-precos-frontend-local:latest
+    # image: painel-precos-frontend-local:latest
     # image: ghcr.io/ttsolutionspi/painel-precos-frontend:latest
     container_name: painel_precos_app_front
-    # build:
-    #   context: ./
-    #   dockerfile: Dockerfile
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - HOSTNAME=${HOSTNAME}
+      - API_URL=${API_URL}
+      - API_URL_PREFIX=${API_URL_PREFIX}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - KEYCLOAK_ID=${KEYCLOAK_ID}
+      - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
+      - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER}
+      - GET_TOKEN_URL=${GET_TOKEN_URL}
+      - REFRESH_TOKEN_URL=${REFRESH_TOKEN_URL}
+      - END_SESSION_URL=${END_SESSION_URL}
+      - CHECK_SESSION_URL=${CHECK_SESSION_URL}
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID}
     volumes:
         - /app/public
         - /app/node_modules
         - /app/.next
         # - ./logs:/appserverlogs
-        - ./.env:/app/.env
     ports:
       - "3000:3000"
