@@ -8,12 +8,16 @@ interface IProps {
   itens: IRetornoPesquisaItensLicitacao[];
   onSelectItem: (uuid: string) => void;
   setIsLoading?: (v: boolean) => void;
+  currentSort?: string;
+  onSortChange?: (sort: string) => void;
 }
 
 export default function TabelaItensLicitacao({
   itens,
   onSelectItem,
   setIsLoading,
+  currentSort,
+  onSortChange,
 }: IProps) {
   if (itens.length === 0) {
     return (
@@ -30,6 +34,8 @@ export default function TabelaItensLicitacao({
           itens={itens}
           onSelectItem={onSelectItem}
           setIsLoading={setIsLoading}
+          currentSort={currentSort}
+          onSortChange={onSortChange}
         />
       </div>
 

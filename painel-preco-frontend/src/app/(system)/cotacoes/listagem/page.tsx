@@ -11,7 +11,8 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import { catchErrorFromFetch } from "@/utils/requestUtils";
+import { catchErrorFromFetch, mountUrl, searchParamsToInfo } from "@/utils/requestUtils";
+
 import { isClientNextjs } from "@/utils/validateUtils";
 import { apiClientPostSearchListItens } from "@/hooks/apiclient";
 import PaginationFooter from "@/components/molecules/PaginationFooter";
@@ -25,6 +26,7 @@ import FormTitle from "@/components/atoms/FormTitle";
 import { parseNumber } from "@/utils/stringUtils";
 import TabelaItensLicitacao from "@/components/atoms/tabela-itens";
 import PaginationFooterMobile from "@/components/molecules/PaginationFooterMobile";
+
 import { FIELDS_COTACOES_LIST } from "@/hooks/api";
 import {
   buildBackendParams,
@@ -33,12 +35,27 @@ import {
 import { paramsToInfo } from "@/app/(system)/cotacoes/realizar-cotacao/_components/paramsToInfo";
 import { useCotacaoQueryStates } from "@/app/(system)/cotacoes/realizar-cotacao/_components/cotacaoQuery";
 
+import { forceParamSearch, extractParamSearch } from "@/utils/searchParamUtils";
+
+
 export default function ListItemLicitacao() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams: ReadonlyURLSearchParams = useSearchParams();
   const isInitialLoad = useRef(true);
   const [queryState] = useCotacaoQueryStates();
+
+  const currentSort = searchParams.get("sort") ?? "";
+
+  const handleSortChange = (newSort: string) => {
+    let info = searchParamsToInfo(searchParams);
+    info = extractParamSearch(info, "sort");
+    if (newSort) {
+      info = forceParamSearch(info, "sort", newSort);
+    }
+    info = forceParamSearch(info, "page", "0");
+    router.push(mountUrl({ host: "", path: pathname, info }));
+  };
 
   const [isLoading, setIsLoading] = useState(true);
   const [itensLicitacao, setItensLicitacao] = useState<
@@ -134,6 +151,8 @@ export default function ListItemLicitacao() {
                 itens={itensLicitacao}
                 onSelectItem={(uuid) => router.push(`/cotacoes/${uuid}`)}
                 setIsLoading={setIsLoading}
+                currentSort={currentSort}
+                onSortChange={handleSortChange}
               />
               <div className="w-full">
                 <div className="hidden xl:block">
