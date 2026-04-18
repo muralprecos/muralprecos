@@ -14,9 +14,6 @@ import {
   ClipboardList,
   MapPin,
   Calendar,
-  SlidersHorizontal,
-  EyeOff,
-  Eye,
 } from "lucide-react";
 import {
   Tooltip,
@@ -32,15 +29,8 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import SortSelect from "@/components/atoms/SortSelect";
+import ColumnsDropdown from "@/components/atoms/ColumnsDropdown";
 
 interface IProps {
   itens: IRetornoPesquisaItensLicitacao[];
@@ -71,42 +61,14 @@ export default function TabelaItensLicitacaoDesktop({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Eye className="h-4 w-4" />
-              Colunas
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Colunas visíveis</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={showUnidade}
-              onCheckedChange={setShowUnidade}
-            >
-              Unidade
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showQuantidade}
-              onCheckedChange={setShowQuantidade}
-            >
-              Quantidade
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showValorTotal}
-              onCheckedChange={setShowValorTotal}
-            >
-              Valor Total
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showLocalizacao}
-              onCheckedChange={setShowLocalizacao}
-            >
-              Localização
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ColumnsDropdown
+          columns={[
+            { label: "Unidade", checked: showUnidade, onCheckedChange: setShowUnidade },
+            { label: "Quantidade", checked: showQuantidade, onCheckedChange: setShowQuantidade },
+            { label: "Valor Total", checked: showValorTotal, onCheckedChange: setShowValorTotal },
+            { label: "Localização", checked: showLocalizacao, onCheckedChange: setShowLocalizacao },
+          ]}
+        />
         {onSortChange && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground whitespace-nowrap">Ordenar por:</span>
