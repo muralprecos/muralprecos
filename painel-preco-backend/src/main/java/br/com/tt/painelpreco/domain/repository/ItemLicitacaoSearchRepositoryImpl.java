@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 
+import org.hibernate.search.engine.search.predicate.SearchPredicate;
+import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.sort.dsl.SortOrder;
 import org.hibernate.search.engine.search.sort.dsl.CompositeSortComponentsStep;
 import org.hibernate.search.engine.search.sort.dsl.SearchSortFactory;
@@ -37,18 +39,20 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 	public Page<ItemLicitacao> searchByDescricao(ItemLicitacaoFilter filtro, Pageable pageable) {
 		SearchSession searchSession = Search.session(em);
 		String descricao = parseQuery(filtro.getDescricao());
-		List<ItemLicitacao> hits = searchSession.search(ItemLicitacao.class)
-				.where(f -> f.match().field("descricao").matching(descricao))
-				.sort(f -> itemSort(f, pageable))
-				//.where(f -> f.simpleQueryString().field("descricao").matching(descricao))
-				// .sort(f -> f.field("numeroPncp").desc()
-				// .then().field("numeroItem").asc())
+		Date hoje = new Date();
 
+		List<ItemLicitacao> hits = searchSession.search(ItemLicitacao.class)
+				.where(f -> f.bool()
+						.must(f.match().field("descricao").matching(descricao))
+						.must(filtrosBase(f, hoje)))
+				.sort(f -> itemSort(f, pageable))
 				.fetch((int) pageable.getOffset(), pageable.getPageSize())
 				.hits();
 
 		long totalHits = searchSession.search(ItemLicitacao.class)
-				.where(f -> f.simpleQueryString().field("descricao").matching(descricao))
+				.where(f -> f.bool()
+						.must(f.simpleQueryString().field("descricao").matching(descricao))
+						.must(filtrosBase(f, hoje)))
 				.fetchTotalHitCount();
 
 		return new PageImpl<>(hits, pageable, totalHits);
@@ -58,9 +62,13 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 	public Page<ItemLicitacao> searchByFilter(ItemLicitacaoFilter filtro, Pageable pageable) {
 		SearchSession searchSession = Search.session(em);
 
+		Date hoje = new Date();
 		var searchQuery = searchSession.search(ItemLicitacao.class)
 				.where(f -> {
 					var bool = f.bool();
+
+					// Filtros base: excluir datas futuras e quantidade/valor zerados
+					bool.must(filtrosBase(f, hoje));
 
 					// Filtro por UUID
 					if (filtro.getUuid() != null) {
@@ -188,6 +196,15 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 		long totalHits = searchQuery.total().hitCount();
 
 		return new PageImpl<>(hits, pageable, totalHits);
+	}
+
+	private SearchPredicate filtrosBase(SearchPredicateFactory f, Date hoje) {
+		return f.bool()
+				.must(f.range().field("licitacao.dataAbertura").atMost(hoje))
+				.must(f.range().field("licitacao.dataResultadoCompra").atMost(hoje))
+				.must(f.range().field("quantidade").greaterThan(0))
+				.must(f.range().field("valor").greaterThan(0.0))
+				.toPredicate();
 	}
 
 	private SortFinalStep itemSort(SearchSortFactory f, Pageable pageable) {
