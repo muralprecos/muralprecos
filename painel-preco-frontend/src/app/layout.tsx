@@ -29,7 +29,7 @@ export default async function RootLayout({
   return (
     <html lang="pt-br" suppressHydrationWarning>
       <body className={`${inter.className} min-h-svh flex flex-col`}>
-        <Providers>
+        <Providers session={session}>
           <NotifyToaster />
           <main className="flex-1 flex flex-col">
             {children}
