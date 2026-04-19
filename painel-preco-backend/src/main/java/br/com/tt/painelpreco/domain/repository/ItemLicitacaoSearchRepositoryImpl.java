@@ -2,6 +2,7 @@ package br.com.tt.painelpreco.domain.repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +14,7 @@ import org.hibernate.search.engine.search.sort.dsl.SortOrder;
 import org.hibernate.search.engine.search.sort.dsl.CompositeSortComponentsStep;
 import org.hibernate.search.engine.search.sort.dsl.SearchSortFactory;
 import org.hibernate.search.engine.search.sort.dsl.SortFinalStep;
+import org.hibernate.graph.GraphSemantic;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.data.domain.Page;
@@ -33,6 +35,16 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 
 	public ItemLicitacaoSearchRepositoryImpl(EntityManager em) {
 		this.em = em;
+	}
+
+	@Override
+	public ItemLicitacao searchByUuid(UUID uuid) {
+		SearchSession searchSession = Search.session(em);
+		List<ItemLicitacao> hits = searchSession.search(ItemLicitacao.class)
+				.where(f -> f.match().field("uuid").matching(uuid))
+				.loading(o -> o.graph("itemLicitacao.withDetails", GraphSemantic.FETCH))
+				.fetchHits(1);
+		return hits.isEmpty() ? null : hits.get(0);
 	}
 
 	@Override
