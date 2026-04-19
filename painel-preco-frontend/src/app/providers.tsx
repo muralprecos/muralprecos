@@ -2,14 +2,15 @@
 
 import { SnackbarProvider } from "notistack";
 import { SessionProvider } from "next-auth/react";
+import { Session } from "next-auth";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReduxProvider } from "@/store/reduxProvider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({ children, session }: { children: React.ReactNode; session?: Session | null }) {
   return (
-    <SessionProvider>
+    <SessionProvider session={session}>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
