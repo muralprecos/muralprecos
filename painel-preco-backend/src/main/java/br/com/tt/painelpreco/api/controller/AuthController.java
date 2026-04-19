@@ -17,6 +17,8 @@ import br.com.tt.painelpreco.api.dto.AuthDTO;
 import br.com.tt.painelpreco.api.dto.CadastroDTO;
 import br.com.tt.painelpreco.api.dto.form.AuthForm;
 import br.com.tt.painelpreco.api.dto.form.CadastroForm;
+import br.com.tt.painelpreco.api.dto.form.LogoutForm;
+import br.com.tt.painelpreco.api.dto.form.RefreshForm;
 import br.com.tt.painelpreco.arch.api.controller.HttpClientController;
 import br.com.tt.painelpreco.arch.exception.ArchException;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
@@ -29,12 +31,15 @@ import br.com.tt.painelpreco.arch.view.http.QueryParam;
 import br.com.tt.painelpreco.arch.view.http.exception.HttpException;
 import br.com.tt.painelpreco.domain.service.UsuarioService;
 import br.com.tt.painelpreco.util.ApiVersion;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping(ApiVersion.LATEST + "/auth")
 public class AuthController extends HttpClientController {
 
 	public static final String KEYCLOAK_AUTHETICATE_URL = "%s/realms/%s/protocol/openid-connect/token";
+	public static final String KEYCLOAK_REVOKE_URL = "%s/realms/%s/protocol/openid-connect/revoke";
 
 	@Value("${keycloak.resource}")
 	private String clientId;
@@ -52,10 +57,12 @@ public class AuthController extends HttpClientController {
 	private UsuarioService usuarioService;
 
 	private String authenticationUrl;
+	private String revokeUrl;
 
 	@PostConstruct
 	public void init() {
 		this.authenticationUrl = String.format(AuthController.KEYCLOAK_AUTHETICATE_URL, authServerUrl, realm);
+		this.revokeUrl = String.format(AuthController.KEYCLOAK_REVOKE_URL, authServerUrl, realm);
 	}
 
 	@PostMapping(value = "/logon", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -117,4 +124,55 @@ public class AuthController extends HttpClientController {
 		return authDTO;
 	}
 
+	@PostMapping(value = "/refresh", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ResponseEntity<AuthDTO> refresh(RefreshForm refreshForm) {
+		log.debug("Renovando token via refresh_token");
+		try {
+			Header header = new Header();
+			header.setContentType(ContentType.APPLICATION_FORM_URLENCODED);
+
+			Body body = new Body();
+			body.add(Body.GRANT_TYPE_KEY, "refresh_token")
+					.add(Body.CLIENT_ID_KEY, clientId)
+					.add(Body.CLIENT_SECRET, clientSecret)
+					.add("refresh_token", refreshForm.getRefresh_token());
+
+			HttpResponse response = super.requestPost(header, body, QueryParam.NONE, authenticationUrl);
+			AuthDTO authDTO = response.toDTO(AuthDTO.class);
+			return ResponseEntity.ok(authDTO);
+		} catch (HttpException e) {
+			log.warn("Refresh token inválido ou expirado: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		} catch (Exception e) {
+			throw new ArchException("Falha ao renovar token: " + e.getMessage(), e);
+		}
+	}
+
+	@PostMapping(value = "/logout", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	public ResponseEntity<Void> logout(LogoutForm logoutForm) {
+		log.debug("Revogando refresh_token no Keycloak");
+		try {
+			Header header = new Header();
+			header.setContentType(ContentType.APPLICATION_FORM_URLENCODED);
+
+			Body body = new Body();
+			body.add("token", logoutForm.getRefresh_token())
+					.add("token_type_hint", "refresh_token")
+					.add(Body.CLIENT_ID_KEY, clientId)
+					.add(Body.CLIENT_SECRET, clientSecret);
+
+			try {
+				super.requestPost(header, body, QueryParam.NONE, revokeUrl);
+			} catch (Exception e) {
+				// Keycloak retorna 200 com body vazio para revogação bem-sucedida;
+				// o parser pode lançar exceção ao tentar processar body vazio — ignoramos.
+				log.debug("Revogação concluída (resposta pode estar vazia): {}", e.getMessage());
+			}
+		} catch (Exception e) {
+			log.warn("Erro ao revogar token no Keycloak: {}", e.getMessage());
+		}
+		return ResponseEntity.ok().build();
+	}
+
 }
+
