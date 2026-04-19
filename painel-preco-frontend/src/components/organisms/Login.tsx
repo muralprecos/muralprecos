@@ -102,9 +102,8 @@ export default function Login(props: Props) {
         return;
       }
 
-      router.refresh();
-      router.push(props.callbackUrl || INITIAL_PAGE_LOGGED);
       notify("success", "Login realizado com sucesso", messages.LOGIN_SUCCESS);
+      window.location.assign(props.callbackUrl || INITIAL_PAGE_LOGGED);
     } catch (e) {
       setDoingRequest(false);
       notify(
