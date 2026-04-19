@@ -11,6 +11,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -30,6 +33,42 @@ import br.com.tt.painelpreco.util.StringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@NamedEntityGraph(
+		name = "itemLicitacao.withDetails",
+		attributeNodes = {
+				@NamedAttributeNode("unidadeFornecimento"),
+				@NamedAttributeNode("material"),
+				@NamedAttributeNode(value = "fornecedor", subgraph = "fornecedor.withPorte"),
+				@NamedAttributeNode(value = "licitacao", subgraph = "licitacao.withDetails")
+		},
+		subgraphs = {
+				@NamedSubgraph(
+						name = "licitacao.withDetails",
+						attributeNodes = {
+								@NamedAttributeNode("unidadeGestora"),
+								@NamedAttributeNode("modalidadeCompra"),
+								@NamedAttributeNode("orgao"),
+								@NamedAttributeNode("orgaoSuperior"),
+								@NamedAttributeNode(value = "municipio", subgraph = "municipio.withUf"),
+								@NamedAttributeNode("formaCompra"),
+								@NamedAttributeNode("esfera"),
+								@NamedAttributeNode("situacao")
+						}
+				),
+				@NamedSubgraph(
+						name = "municipio.withUf",
+						attributeNodes = {
+								@NamedAttributeNode("uf")
+						}
+				),
+				@NamedSubgraph(
+						name = "fornecedor.withPorte",
+						attributeNodes = {
+								@NamedAttributeNode("porte")
+						}
+				)
+		}
+)
 @Indexed
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
@@ -41,6 +80,7 @@ public class ItemLicitacao {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_item_licitacao")
+	@GenericField(sortable = Sortable.YES)
 	private Long id;
 
 	@KeywordField
@@ -72,9 +112,10 @@ public class ItemLicitacao {
 	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private UnidadeFornecimento unidadeFornecimento;
 
+	@GenericField(sortable = Sortable.YES)
 	private Integer quantidade;
 
-	@GenericField
+	@GenericField(sortable = Sortable.YES)
 	private Double valor;
 
 	@ManyToOne

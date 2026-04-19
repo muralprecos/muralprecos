@@ -15,6 +15,7 @@ import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 
 public interface ItemLicitacaoRepository extends JpaRepository<ItemLicitacao, Integer>, JpaSpecificationExecutor<ItemLicitacao> {
 	
+	@EntityGraph("itemLicitacao.withDetails")
 	ItemLicitacao findByUuid(UUID uuid);
 	
 	List<ItemLicitacao> findAllByUuidIn(List<UUID> uuids);
