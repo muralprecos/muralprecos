@@ -29,53 +29,82 @@ import {
 import { toast } from "sonner";
 import type { Organizacao, Usuario } from "@/interfaces/gestao";
 
+interface CreateUserData {
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  organizacaoId: string;
+}
+
+interface EditUserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  organizacaoId: string;
+}
+
 interface UsuariosTableProps {
   usuarios: Usuario[];
   organizacoes: Organizacao[];
-  onUpdate: (usuarios: Usuario[]) => void;
+  onSave: (data: CreateUserData | EditUserData, id?: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 }
 
-const emptyUser: Omit<Usuario, "id" | "criadoEm" | "organizacaoNome"> = {
-  nome: "",
+const emptyCreateForm: CreateUserData = {
+  username: "",
+  firstName: "",
+  lastName: "",
   email: "",
-  cargo: "",
+  password: "",
   organizacaoId: "",
-  status: "ativo",
+};
+
+const emptyEditForm: EditUserData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  organizacaoId: "",
 };
 
 export function UsuariosTable({
   usuarios,
   organizacoes,
-  onUpdate,
+  onSave,
+  onDelete,
 }: UsuariosTableProps) {
   const [search, setSearch] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<Usuario | null>(null);
   const [deletingUser, setDeletingUser] = useState<Usuario | null>(null);
-  const [formData, setFormData] = useState(emptyUser);
+  const [createForm, setCreateForm] = useState<CreateUserData>(emptyCreateForm);
+  const [editForm, setEditForm] = useState<EditUserData>(emptyEditForm);
+  const [saving, setSaving] = useState(false);
 
   const filteredUsers = usuarios.filter(
     (user) =>
       user.nome.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase()) ||
-      user.organizacaoNome.toLowerCase().includes(search.toLowerCase())
+      (user.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (user.organizacaoNome ?? "").toLowerCase().includes(search.toLowerCase())
   );
 
   const handleOpenCreate = () => {
     setEditingUser(null);
-    setFormData(emptyUser);
+    setCreateForm(emptyCreateForm);
     setIsDialogOpen(true);
   };
 
   const handleOpenEdit = (user: Usuario) => {
     setEditingUser(user);
-    setFormData({
-      nome: user.nome,
-      email: user.email,
-      cargo: user.cargo,
-      organizacaoId: user.organizacaoId,
-      status: user.status,
+    const [firstName = "", ...rest] = (user.nome ?? "").split(" ");
+    const lastName = rest.join(" ");
+    setEditForm({
+      firstName,
+      lastName,
+      email: user.email ?? "",
+      organizacaoId: user.organizacaoId ?? "",
     });
     setIsDialogOpen(true);
   };
@@ -85,50 +114,48 @@ export function UsuariosTable({
     setIsDeleteDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (!formData.nome || !formData.email || !formData.organizacaoId) {
-      toast.error("Preencha todos os campos obrigatórios");
-      return;
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      if (editingUser) {
+        if (!editForm.firstName || !editForm.email) {
+          toast.error("Nome e email são obrigatórios");
+          return;
+        }
+        await onSave(editForm, editingUser.id);
+        toast.success("Usuário atualizado com sucesso");
+      } else {
+        if (!createForm.username || !createForm.firstName || !createForm.email || !createForm.password || !createForm.organizacaoId) {
+          toast.error("Preencha todos os campos obrigatórios");
+          return;
+        }
+        await onSave(createForm);
+        toast.success("Usuário criado com sucesso");
+      }
+      setIsDialogOpen(false);
+    } catch {
+      toast.error("Erro ao salvar usuário");
+    } finally {
+      setSaving(false);
     }
-
-    const org = organizacoes.find((o) => o.id === formData.organizacaoId);
-    if (!org) {
-      toast.error("Selecione uma organização válida");
-      return;
-    }
-
-    if (editingUser) {
-      const updated = usuarios.map((user) =>
-        user.id === editingUser.id
-          ? { ...user, ...formData, organizacaoNome: org.nome }
-          : user
-      );
-      onUpdate(updated);
-      toast.success("Usuário atualizado com sucesso");
-    } else {
-      const newUser: Usuario = {
-        ...formData,
-        id: `user-${Date.now()}`,
-        organizacaoNome: org.nome,
-        criadoEm: new Date().toISOString().split("T")[0],
-      };
-      onUpdate([...usuarios, newUser]);
-      toast.success("Usuário criado com sucesso");
-    }
-    setIsDialogOpen(false);
   };
 
-  const handleDelete = () => {
-    if (deletingUser) {
-      const updated = usuarios.filter((user) => user.id !== deletingUser.id);
-      onUpdate(updated);
+  const handleDelete = async () => {
+    if (!deletingUser) return;
+    setSaving(true);
+    try {
+      await onDelete(deletingUser.id);
       toast.success("Usuário removido com sucesso");
+    } catch {
+      toast.error("Erro ao remover usuário");
+    } finally {
+      setSaving(false);
+      setIsDeleteDialogOpen(false);
+      setDeletingUser(null);
     }
-    setIsDeleteDialogOpen(false);
-    setDeletingUser(null);
   };
 
-  const activeOrgs = organizacoes.filter((org) => org.status === "ativa");
+  const activeOrgs = organizacoes.filter((org) => org.ativo);
 
   return (
     <div className="space-y-4">
@@ -153,9 +180,10 @@ export function UsuariosTable({
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead className="hidden sm:table-cell">Email</TableHead>
-              <TableHead className="hidden md:table-cell">Cargo</TableHead>
+              <TableHead className="hidden sm:table-cell">Login</TableHead>
+              <TableHead className="hidden md:table-cell">Email</TableHead>
               <TableHead>Organização</TableHead>
+              <TableHead className="hidden md:table-cell">Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -163,7 +191,7 @@ export function UsuariosTable({
             {filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="text-center py-8 text-muted-foreground"
                 >
                   <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -175,15 +203,19 @@ export function UsuariosTable({
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.nome}</TableCell>
                   <TableCell className="hidden sm:table-cell text-muted-foreground">
-                    {user.email}
+                    {user.login ?? "-"}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-muted-foreground">
-                    {user.cargo}
+                    {user.email ?? "-"}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {user.organizacaoNome}
+                    {user.organizacaoNome ?? "-"}
                   </TableCell>
-
+                  <TableCell className="hidden md:table-cell">
+                    <Badge variant={user.ativo ? "default" : "secondary"}>
+                      {user.ativo ? "Ativo" : "Inativo"}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
@@ -217,65 +249,83 @@ export function UsuariosTable({
             </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="nome">Nome *</Label>
-              <Input
-                id="nome"
-                value={formData.nome}
-                onChange={(e) =>
-                  setFormData({ ...formData, nome: e.target.value })
-                }
-                placeholder="Nome completo"
-              />
+            {!editingUser && (
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="username">Login *</Label>
+                  <Input
+                    id="username"
+                    value={createForm.username}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, username: e.target.value })
+                    }
+                    placeholder="nome.usuario"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Senha *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={createForm.password}
+                    onChange={(e) =>
+                      setCreateForm({ ...createForm, password: e.target.value })
+                    }
+                    placeholder="Mínimo 6 caracteres"
+                  />
+                </div>
+              </>
+            )}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="firstName">Nome *</Label>
+                <Input
+                  id="firstName"
+                  value={editingUser ? editForm.firstName : createForm.firstName}
+                  onChange={(e) =>
+                    editingUser
+                      ? setEditForm({ ...editForm, firstName: e.target.value })
+                      : setCreateForm({ ...createForm, firstName: e.target.value })
+                  }
+                  placeholder="Primeiro nome"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="lastName">Sobrenome</Label>
+                <Input
+                  id="lastName"
+                  value={editingUser ? editForm.lastName : createForm.lastName}
+                  onChange={(e) =>
+                    editingUser
+                      ? setEditForm({ ...editForm, lastName: e.target.value })
+                      : setCreateForm({ ...createForm, lastName: e.target.value })
+                  }
+                  placeholder="Sobrenome"
+                />
+              </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email *</Label>
               <Input
                 id="email"
                 type="email"
-                value={formData.email}
+                value={editingUser ? editForm.email : createForm.email}
                 onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
+                  editingUser
+                    ? setEditForm({ ...editForm, email: e.target.value })
+                    : setCreateForm({ ...createForm, email: e.target.value })
                 }
                 placeholder="email@empresa.com"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="cargo">Cargo</Label>
-                <Input
-                  id="cargo"
-                  value={formData.cargo}
-                  onChange={(e) =>
-                    setFormData({ ...formData, cargo: e.target.value })
-                  }
-                  placeholder="Ex: Analista"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="status">Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value: "ativo" | "inativo") =>
-                    setFormData({ ...formData, status: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ativo">Ativo</SelectItem>
-                    <SelectItem value="inativo">Inativo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
             <div className="grid gap-2">
               <Label htmlFor="organizacao">Organização *</Label>
               <Select
-                value={formData.organizacaoId}
+                value={editingUser ? editForm.organizacaoId : createForm.organizacaoId}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, organizacaoId: value })
+                  editingUser
+                    ? setEditForm({ ...editForm, organizacaoId: value })
+                    : setCreateForm({ ...createForm, organizacaoId: value })
                 }
               >
                 <SelectTrigger>
@@ -292,10 +342,12 @@ export function UsuariosTable({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={saving}>
               Cancelar
             </Button>
-            <Button onClick={handleSave}>Salvar</Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? "Salvando..." : "Salvar"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -314,11 +366,12 @@ export function UsuariosTable({
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={saving}
             >
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Excluir
+            <Button variant="destructive" onClick={handleDelete} disabled={saving}>
+              {saving ? "Excluindo..." : "Excluir"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -326,3 +379,4 @@ export function UsuariosTable({
     </div>
   );
 }
+

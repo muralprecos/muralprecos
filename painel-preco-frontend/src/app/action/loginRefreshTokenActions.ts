@@ -2,20 +2,11 @@
 
 import { JWT } from "next-auth/jwt";
 import { jwtDecode } from "jwt-decode";
+import { postRefreshToken } from "@/hooks/api";
 
 async function refreshAccessToken(token: JWT) {
   try {
-    const body = new URLSearchParams();
-    body.append("client_id", `${process.env.KEYCLOAK_ID}`);
-    body.append("client_secret", `${process.env.KEYCLOAK_SECRET}`);
-    body.append("grant_type", "refresh_token");
-    body.append("refresh_token", token.refresh_token + "");
-
-    const resp = await fetch(`${process.env.REFRESH_TOKEN_URL}`, {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(body),
-      method: "POST",
-    });
+    const resp = await postRefreshToken(token.refresh_token ?? "");
     const refreshToken = await resp.json();
     if (!resp.ok) throw refreshToken;
 

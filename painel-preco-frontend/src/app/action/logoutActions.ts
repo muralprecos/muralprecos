@@ -1,16 +1,15 @@
 "use server";
 
 import { postLogout } from "@/hooks/api";
-import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
-import { getIdToken } from "@/utils/sessionTokenAccessor";
+import { getRefreshToken } from "@/utils/sessionTokenAccessor";
 import { signOut } from "@/lib/auth";
 import { AuthError } from "next-auth";
 
 export async function logoutAction() {
   try {
-    const accessToken = await getIdToken();
-    if (accessToken) {
-      await postLogout(accessToken);
+    const refreshToken = await getRefreshToken();
+    if (refreshToken) {
+      await postLogout(refreshToken);
     }
     await signOut({
       redirectTo: '/'

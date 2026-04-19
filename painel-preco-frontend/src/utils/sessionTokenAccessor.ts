@@ -21,6 +21,15 @@ export async function getIdToken() {
   return null;
 }
 
+export async function getRefreshToken() {
+  const session = await auth();
+  if (session?.refresh_token && !session.error){
+    const refreshTokenDecrypted = decrypt(session.refresh_token);
+    return refreshTokenDecrypted;
+  }
+  return null;
+}
+
 function getAccessRoles(session: Session | null): string[] {
   return session?.roles ?? [];
 }

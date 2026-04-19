@@ -14,6 +14,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token) {
         session.access_token = encrypt(token.access_token ?? "");
         session.id_token = encrypt(token.id_token ?? "");
+        session.refresh_token = encrypt(token.refresh_token ?? "");
 
         session.userInfo = token.decoded;
         session.roles = token.decoded?.realm_access?.roles ?? [];
