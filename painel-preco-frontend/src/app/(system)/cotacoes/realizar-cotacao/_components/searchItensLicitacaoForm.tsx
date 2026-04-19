@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
+
+import { useForm, SubmitHandler, SubmitErrorHandler, Controller } from "react-hook-form";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import InputForm from "@/components/molecules/InputForm";
@@ -12,7 +13,10 @@ import {
   type IPropsSearchItensLicitacaoForm,
   isFieldAutocompleteAsync,
 } from "./utils";
+import { Label } from "@/components/ui/label";
+import { ArrowUpDown } from "lucide-react";
 import { useCotacaoFields } from "@/hooks/useCotacaoFields";
+import SortSelect from "@/components/atoms/SortSelect";
 import DynamicFormField from "./DynamicFormField";
 import LoadingForm from "@/components/atoms/LoadingForm";
 import { SearchButtons } from "./SearchButtons";
@@ -419,6 +423,26 @@ export default function SearchItensLicitacaoForm({
                 />
               </div>
             )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="flex flex-col gap-1.5 col-span-1 lg:col-start-3">
+                <Label className="flex items-center gap-1.5 text-sm font-medium">
+                  <ArrowUpDown className="w-4 h-4" />
+                  Ordenação
+                </Label>
+                <Controller
+                  name="sort"
+                  control={control}
+                  render={({ field }) => (
+                    <SortSelect
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
 
             <div className="pt-4 flex justify-end">
               <SearchButtons
