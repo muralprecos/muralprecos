@@ -39,6 +39,7 @@ public class Orgao {
 
 	private String nome;
 	
+	@EqualsAndHashCode.Include
 	private String cnpj;
 	
 	@Column(name = "poder_id")

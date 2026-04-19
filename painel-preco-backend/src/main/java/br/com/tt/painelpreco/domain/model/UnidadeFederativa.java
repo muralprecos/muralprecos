@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
 
 import br.com.tt.painelpreco.util.StringUtil;
@@ -34,6 +35,7 @@ public class UnidadeFederativa {
 		regioes.put(UUID.fromString("b08270cc-e25d-11ee-82aa-0242ac120003"), new Integer[]{19, 24, 25}); //Região Sul
 	}
 
+	@GenericField
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +48,7 @@ public class UnidadeFederativa {
 	
 	private String nome;
 	
+	@EqualsAndHashCode.Include
 	private String sigla;
 	
 	private String regiao;

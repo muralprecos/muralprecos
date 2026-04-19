@@ -18,15 +18,16 @@ import lombok.EqualsAndHashCode;
 @Table(name = "situacao_licitacao", schema = "mural")
 public class SituacaoLicitacao {
 	
-	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_situacao_licitacao")
 	private Integer id;
 	
+	@EqualsAndHashCode.Include
 	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
+	@EqualsAndHashCode.Include
 	private String nome;
 
 }

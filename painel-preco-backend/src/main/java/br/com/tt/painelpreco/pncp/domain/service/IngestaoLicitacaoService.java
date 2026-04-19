@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -181,7 +182,7 @@ public class IngestaoLicitacaoService {
                         licitacao.setOrgao(orgao);
                         licitacao.setSituacao(situacao);
                         licitacao.setUnidadeGestora(unidade);
-                        licitacao.setOrgao(orgao);
+//                        licitacao.setOrgao(orgao);
                         licitacao.setEsfera(esfera);
                         licitacao.setFormaCompra(forma);
                         
@@ -199,11 +200,9 @@ public class IngestaoLicitacaoService {
         // Inserções no Banco
         modalidades.forEach(modalidade -> {modalidadeCompraService.save(modalidade);});
         ufs.forEach(uf -> {unidadeFederativaService.save(uf);});
-        municipios.forEach(municipio -> {municipioService.save(municipio);});
         esferas.forEach(esfera -> {esferaService.save(esfera);});
         situacoes.forEach(situacao -> {situacaoLicitacaoService.save(situacao);});
         formas.forEach(forma -> {formaCompraService.save(forma);});
-        orgaos.forEach(orgao -> {orgaoService.save(orgao);});
         unidades.forEach(unidade -> {unidadeGestoraService.save(unidade);});
         
         Map<Integer, ModalidadeCompra> modalidadeMap = new HashMap<>();
@@ -212,9 +211,11 @@ public class IngestaoLicitacaoService {
         Map<String, Municipio> municipioMap = new HashMap<>();
         municipioService.findAll().forEach(municipio -> {municipioMap.put(municipio.getCodigoIbge(), municipio);});
         
+        Map<String, UnidadeFederativa> ufMap = new HashMap<>();
+        unidadeFederativaService.findAll().forEach(uf -> {ufMap.put(uf.getSigla(), uf);});
+        
         Map<EsferaEnum, Esfera> esferaMap = new HashMap<>();
         esferaService.findAll().forEach(esfera -> {esferaMap.put(esfera.getCodigo(), esfera);});
-        
         
         Map<Integer, SituacaoLicitacao> situacaoLicitacaoMap = new HashMap<>();
         situacaoLicitacaoService.findAll().forEach(situacao -> {situacaoLicitacaoMap.put(situacao.getId(), situacao);});
@@ -227,6 +228,16 @@ public class IngestaoLicitacaoService {
 
         Map<String, UnidadeGestora> unidadeGestoraMap = new HashMap<>();
         unidadeGestoraService.findAll().forEach(unidade -> {unidadeGestoraMap.put(unidade.getCnpj() + "|" + unidade.getCodigo(), unidade);});
+        
+        municipios.forEach(municipio -> {
+        	municipio.setUf(ufMap.get(municipio.getUf().getSigla()));
+        	municipioService.save(municipio);
+        });
+        
+        orgaos.forEach(orgao -> {
+        	orgao.setEsfera(esferaMap.get(orgao.getEsfera().getCodigo()));
+        	orgaoService.save(orgao);
+        });
         
         List<String> numerosPncp = new ArrayList<>();
         licitacoes.forEach(licitacao -> {
@@ -242,7 +253,25 @@ public class IngestaoLicitacaoService {
         });
         
         List<Licitacao> licitacoesJaExistem = licitacaoService.findAllByNumeroPncpIn(numerosPncp);
-        licitacoes.removeAll(licitacoesJaExistem);
+        
+        Map<String, Long> mapaIds = licitacoesJaExistem.stream()
+        	    .collect(Collectors.toMap(
+        	        item -> item.getNumeroPncp(),
+        	        item -> item.getId(),
+        	        (existente, novo) -> existente
+        	    ));
+
+        	// 2. Percorremos o Set e aplicamos o Setter do Lombok
+        	licitacoes.forEach(entidadeDoSet -> {
+        	    Long idEncontrado = mapaIds.get(entidadeDoSet.getNumeroPncp());
+        	    if (idEncontrado != null) {
+        	        entidadeDoSet.setId(idEncontrado);
+        	    }
+        	});
+        
+//        licitacaoService.saveAll(licitacoesJaExistem);
+//        
+//        licitacoes.removeAll(licitacoesJaExistem);
 
         licitacaoService.saveAll(licitacoes);
         

@@ -31,10 +31,12 @@ public class UnidadeGestora {
 	private UUID uuid;
 	
 	/** UASG */
+	@EqualsAndHashCode.Include
 	private String codigo;
 	
 	private String nome;
 	
+	@EqualsAndHashCode.Include
 	private String cnpj;
 	
 	@Column(name = "nome_entidade")

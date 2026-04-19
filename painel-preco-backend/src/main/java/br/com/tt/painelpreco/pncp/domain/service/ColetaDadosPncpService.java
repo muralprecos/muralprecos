@@ -115,7 +115,7 @@ public class ColetaDadosPncpService {
         //LocalDate dataFinal = LocalDate.of(2025, 2, 5); // Exemplo de data fixa
         
         // 3. Busca da última data de ingestão no DB
-        LocalDate dataParada = findUltimaIngestaoDadosPncp(); 
+        LocalDate dataParada = findUltimaIngestaoDadosPncp(); //LocalDate.of(2026, 3, 7); 
         // Você pode comentar a linha acima e usar a linha abaixo para testar o loop completo:
 //         LocalDate dataParada = LocalDate.of(2015, 1, 1);
 
@@ -276,12 +276,19 @@ public class ColetaDadosPncpService {
     }
     
     @Transactional
-    public void getDados(boolean startup) {
+    public void getDados(boolean startup, boolean licitacoesOnly) {
     	if (startup) {
 	    	this.getDadosLicitacao();
-	    	this.getDadosItemLicitacao();
+	    	
+	    	if (!licitacoesOnly) {
+	    		this.getDadosItemLicitacao();
+	    	}
+	    	
 	        pncpLicitacaoService.carregaLicitacoesBaixadasNoBanco();
-	    	pncpItemLicitacaoService.carregaItensLicitacaoBaixadosNoBanco();
+	        
+	        if (!licitacoesOnly) {
+	        	pncpItemLicitacaoService.carregaItensLicitacaoBaixadosNoBanco();
+	        }
     	}
     }
 

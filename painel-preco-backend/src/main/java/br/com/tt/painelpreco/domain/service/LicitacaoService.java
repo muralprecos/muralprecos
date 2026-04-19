@@ -2,6 +2,7 @@ package br.com.tt.painelpreco.domain.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class LicitacaoService {
 		}
 	}
 
-	public void saveAll(Set<Licitacao> licitacoes) {
+	public void saveAll(Collection<Licitacao> licitacoes) {
 		licitacaoRepository.saveAll(licitacoes);
 	}
 

@@ -31,6 +31,7 @@ public class ModalidadeCompra {
 	@Column(insertable = false, updatable = false)
 	private UUID uuid;
 	
+	@EqualsAndHashCode.Include
 	private Integer codigo;
 	
 	private String nome;
