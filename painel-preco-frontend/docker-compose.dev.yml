@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  app-front:
+    container_name: painel_precos_app_front_dev
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - HOSTNAME=${HOSTNAME}
+      - API_URL=${API_URL}
+      - API_URL_PREFIX=${API_URL_PREFIX}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID}

@@ -18,17 +18,11 @@ const credentialsConfig = CredentialsProvider({
     if (!credentials?.username || !credentials?.password) return null;
 
     try {
-      const tokenUrl = process.env.GET_TOKEN_URL;
-      // console.log("🔐 [AUTH] Tentando autenticar em:", tokenUrl);
-      // console.log("🔐 [AUTH] Keycloak ID:", process.env.KEYCLOAK_ID);
 
     const res = await postLogin({
         username: `${credentials.username}`,
         password: `${credentials.password}`,
       });
-
-    // console.log("🔐 [AUTH] Status da resposta:", res.status);
-    // console.log("🔐 [AUTH] Headers:", Object.fromEntries(res.headers.entries()));
 
       if (!res.ok) {
         const text = await res.text();

@@ -12,11 +12,8 @@ import { Button } from "@/components/ui/button";
 import CartButton from "@/components/molecules/CartButton";
 import {
   ClipboardList,
-  ChevronDown,
-  ChevronUp,
   MapPin,
   Calendar,
-  SlidersHorizontal,
 } from "lucide-react";
 import {
   Tooltip,
@@ -32,213 +29,88 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import SortSelect from "@/components/atoms/SortSelect";
+import ColumnsDropdown from "@/components/atoms/ColumnsDropdown";
 
 interface IProps {
   itens: IRetornoPesquisaItensLicitacao[];
   onSelectItem: (uuid: string) => void;
   setIsLoading?: (v: boolean) => void;
+  currentSort?: string;
+  onSortChange?: (sort: string) => void;
 }
-
-type SortField =
-  | "descricao"
-  | "quantidade"
-  | "valor-unitario"
-  | "valor-total"
-  | "localizacao"
-  | "data";
-
-type SortOrder = "asc" | "desc";
 
 export default function TabelaItensLicitacaoDesktop({
   itens,
   onSelectItem,
   setIsLoading,
+  currentSort = "",
+  onSortChange,
 }: IProps) {
-  const [sortField, setSortField] = useState<SortField>("descricao");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
-
   // Colunas opcionais
   const [showUnidade, setShowUnidade] = useState(false);
   const [showQuantidade, setShowQuantidade] = useState(false);
   const [showValorTotal, setShowValorTotal] = useState(false);
   const [showLocalizacao, setShowLocalizacao] = useState(false);
 
-  const parseDate = (str: string) => {
-    const [d, m, y] = str.split("/");
-    return new Date(+y, +m - 1, +d);
-  };
-
-  const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return null;
-    return sortOrder === "asc" ? (
-      <ChevronUp className="w-4 h-4 inline ml-1" />
-    ) : (
-      <ChevronDown className="w-4 h-4 inline ml-1" />
-    );
-  };
-
   const handleSelect = (uuid: string) => {
     if (setIsLoading) setIsLoading(true);
     onSelectItem(uuid);
   };
 
-  const sorted = [...itens].sort((a, b) => {
-    let comp = 0;
-    switch (sortField) {
-      case "descricao":
-        comp = a.descricao.localeCompare(b.descricao);
-        break;
-      case "quantidade":
-        comp = (a.quantidade || 0) - (b.quantidade || 0);
-        break;
-      case "valor-unitario":
-        comp = parseCurrency(a.valor) - parseCurrency(b.valor);
-        break;
-      case "valor-total":
-        comp = parseCurrency(a.valor) - parseCurrency(b.valor);
-        break;
-      case "localizacao":
-        comp = a.licitacao.municipio.nome.localeCompare(
-          b.licitacao.municipio.nome,
-        );
-        break;
-      case "data":
-        comp =
-          parseDate(a.licitacao.dataResultadoCompra).getTime() -
-          parseDate(b.licitacao.dataResultadoCompra).getTime();
-        break;
-    }
-    return sortOrder === "asc" ? comp : -comp;
-  });
-
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <SlidersHorizontal className="h-4 w-4 mr-2" />
-              Colunas
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Colunas visíveis</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={showUnidade}
-              onCheckedChange={setShowUnidade}
-            >
-              Unidade
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showQuantidade}
-              onCheckedChange={setShowQuantidade}
-            >
-              Quantidade
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showValorTotal}
-              onCheckedChange={setShowValorTotal}
-            >
-              Valor Total
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={showLocalizacao}
-              onCheckedChange={setShowLocalizacao}
-            >
-              Localização
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="flex items-center justify-between gap-2">
+        <ColumnsDropdown
+          columns={[
+            { label: "Unidade", checked: showUnidade, onCheckedChange: setShowUnidade },
+            { label: "Quantidade", checked: showQuantidade, onCheckedChange: setShowQuantidade },
+            { label: "Valor Total", checked: showValorTotal, onCheckedChange: setShowValorTotal },
+            { label: "Localização", checked: showLocalizacao, onCheckedChange: setShowLocalizacao },
+          ]}
+        />
+        {onSortChange && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Ordenar por:</span>
+            <SortSelect
+              value={currentSort}
+              onValueChange={onSortChange}
+              triggerClassName="w-[220px]"
+            />
+          </div>
+        )}
       </div>
 
       <div className="overflow-x-auto lg:overflow-x-visible">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => {
-                  setSortField("descricao");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Descrição <SortIcon field="descricao" />
-              </TableHead>
+              <TableHead>Descrição</TableHead>
 
               {showUnidade && <TableHead>Unidade</TableHead>}
 
               {showQuantidade && (
-                <TableHead
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => {
-                    setSortField("quantidade");
-                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                  }}
-                >
-                  Quantidade <SortIcon field="quantidade" />
-                </TableHead>
+                <TableHead>Quantidade</TableHead>
               )}
 
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50 transition-colors text-right"
-                onClick={() => {
-                  setSortField("valor-unitario");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Valor Unitário <SortIcon field="valor-unitario" />
-              </TableHead>
+              <TableHead className="text-right">Valor Unitário</TableHead>
 
               {showValorTotal && (
-                <TableHead
-                  className="cursor-pointer hover:bg-muted/50 text-right transition-colors"
-                  onClick={() => {
-                    setSortField("valor-total");
-                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                  }}
-                >
-                  Valor Total <SortIcon field="valor-total" />
-                </TableHead>
+                <TableHead className="text-right">Valor Total</TableHead>
               )}
 
               {showLocalizacao && (
-                <TableHead
-                  className="cursor-pointer hover:bg-muted/50 text-right transition-colors"
-                  onClick={() => {
-                    setSortField("localizacao");
-                    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                  }}
-                >
-                  Localização
-                  <SortIcon field="localizacao" />
-                </TableHead>
+                <TableHead className="text-right">Localização</TableHead>
               )}
 
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50 text-right transition-colors"
-                onClick={() => {
-                  setSortField("data");
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-                }}
-              >
-                Data <SortIcon field="data" />
-              </TableHead>
+              <TableHead className="text-right">Data</TableHead>
 
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {sorted.map((item) => {
+            {itens.map((item) => {
               const unitValue = calcUnityValueByQuantity(
                 parseCurrency(item.valor),
                 item.quantidade,
