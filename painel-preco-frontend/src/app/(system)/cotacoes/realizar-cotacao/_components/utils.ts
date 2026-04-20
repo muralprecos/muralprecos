@@ -20,11 +20,11 @@ export const SORT_OPTIONS: IItemSelect[] = [
   { value: "descricao,desc", label: "Descrição (Z-A)" },
 ];
 import { AsyncListData } from "@react-stately/data";
-import { Session } from "next-auth";
+import { ClientSession } from "@/interfaces/auth";
 import ZodStrings from "@/utils/ZodStrings";
 
 export interface IPropsSearchItensLicitacaoForm {
-  session: Session | null;
+  session: ClientSession | null;
   anosCompras: IItemSelect[];
   empresaPorte: IItemSelect[];
   esferas: IItemSelect[];

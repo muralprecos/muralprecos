@@ -1,6 +1,6 @@
 {
   "name": "painel-preco-frontend",
-  "version": "2.5.3",
+  "version": "2.5.4",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -33,6 +33,7 @@
     "cmdk": "^1.1.1",
     "cryptr": "^6.3.0",
     "framer-motion": "^12.23.9",
+    "jose": "^6.2.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.25",

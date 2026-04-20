@@ -6,7 +6,7 @@ import { useAppSelector } from "@/store/store";
 import { add, remove } from "@/store/features/cart-slice";
 import { IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
 import { ShoppingCart, ShoppingCartIcon, Trash2 } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useAuthSession } from "@/context/AuthContext";
 import { getUserCart, getUsernameBySession } from "@/utils/cartUtils";
 import { cn } from "@/lib/utils";
 import { useDispatch } from "react-redux";
@@ -21,7 +21,7 @@ export default function CartButton({
   isCompact = false,
 }: CartButtonProps) {
   const [mounted, setMounted] = useState(false);
-  const session = useSession();
+  const session = useAuthSession();
   const dispatch = useDispatch();
   const cartState = useAppSelector((state) => state.cartReducer);
 

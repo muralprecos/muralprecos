@@ -1,14 +1,17 @@
 "use server";
 
-import { JWT } from "next-auth/jwt";
+import { getAccessToken } from "@/utils/sessionTokenAccessor";
 
-async function checkAccessToken(token: JWT): Promise<boolean> {
+async function checkAccessToken(): Promise<boolean> {
   try {
+    const token = await getAccessToken();
+    if (!token) return false;
+
     const resp = await fetch(
       `${process.env.API_URL}${process.env.API_URL_PREFIX}/usuarios/me`,
       {
         headers: {
-          Authorization: `Bearer ${token.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
         method: "GET",
       }
@@ -16,11 +19,11 @@ async function checkAccessToken(token: JWT): Promise<boolean> {
     // 401 = token rejeitado pelo backend/Keycloak → sessão inválida
     // Qualquer outro status (200, 404, etc.) = token válido
     return resp.status !== 401;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
 
-export async function authCheckSession(token: JWT) {
-  return await checkAccessToken(token);
+export async function authCheckSession() {
+  return await checkAccessToken();
 }

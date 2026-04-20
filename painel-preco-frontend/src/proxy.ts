@@ -1,6 +1,5 @@
-import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth.config";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { COOKIE_NAME, decryptSession } from "@/lib/session-utils";
 
 const publicRoutes = [
   { path: "/login", whenAuthenticated: "redirect" },
@@ -11,12 +10,17 @@ const publicRoutes = [
 const ROOT_ROUTE = "/";
 const LOGIN_ROUTE = "/login";
 
-const { auth } = NextAuth(authConfig);
-export default auth((req) => {
+export default async function middleware(req: NextRequest) {
   const { nextUrl } = req;
   const path = nextUrl.pathname;
 
-  const isLoggedIn = !!req.auth;
+  const sessionCookie = req.cookies.get(COOKIE_NAME);
+  let isLoggedIn = false;
+
+  if (sessionCookie?.value) {
+    const session = await decryptSession(sessionCookie.value);
+    isLoggedIn = !!session && !session.error;
+  }
 
   const publicRouteConfig = publicRoutes.find((route) => route.path === path);
   const isPublicRoute = !!publicRouteConfig;
@@ -30,7 +34,7 @@ export default auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
