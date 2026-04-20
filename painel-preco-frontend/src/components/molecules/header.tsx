@@ -4,7 +4,7 @@ import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useAuthSession } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggler";
 
@@ -38,7 +38,7 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
-  const { data: session, status, update } = useSession();
+  const { data: session, status, update } = useAuthSession();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
@@ -74,7 +74,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     if (status === "authenticated" && !session?.userInfo) {
       update();
     }
-  }, [status, session, update]);
+  }, [status, session?.userInfo, update]);
 
   useEffect(() => {
     if (status === "authenticated" && session?.userInfo) {

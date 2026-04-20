@@ -7,7 +7,7 @@ import { logoutAction } from "@/app/action/logoutActions";
 import {
   CheckRolesStrategy,
   checkAccessRoles,
-} from "@/utils/sessionTokenAccessor";
+} from "@/utils/rolesUtils";
 import { messages } from "@/utils/messages";
 import { useAppSelector } from "@/store/store";
 import { getUserCartBySession } from "@/utils/cartUtils";

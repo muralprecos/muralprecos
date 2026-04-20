@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useAuthSession } from "@/context/AuthContext";
 import { SubmitHandler, SubmitErrorHandler, useForm } from "react-hook-form";
 import { Save, User, Lock, Eye, EyeOff } from "lucide-react";
 import {
@@ -43,7 +43,7 @@ export interface IPageValidacaoClient {
 
 export function FormEditarPerfil({ usuario }: IPageValidacaoClient) {
   const router = useRouter();
-  const { update } = useSession();
+  const { update } = useAuthSession();
   const [doingRequest, setDoingRequest] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);

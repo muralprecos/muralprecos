@@ -21,7 +21,7 @@ import {
   IUnidadeFederativa,
 } from "@/interfaces/types";
 import { redirect } from "next/navigation";
-import { CheckRolesStrategy } from "@/utils/sessionTokenAccessor";
+import { CheckRolesStrategy } from "@/utils/rolesUtils";
 import { auth } from "@/lib/auth";
 import { checkSession } from "@/utils/sessionCheckerServerUtils";
 import { PageHeader } from "@/components/molecules/page-header";
