@@ -30,11 +30,11 @@ import { Session } from "next-auth";
 
 import { messages } from "@/utils/messages";
 import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
-import { loginAction } from "@/app/action/loginActions";
 import { notify } from "@/components/molecules/NotifyToast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 const schema = z.object({
   login: z.string().min(1, "O login é obrigatório"),
@@ -79,31 +79,33 @@ export default function Login(props: Props) {
     try {
       setDoingRequest(true);
 
-      const res = await loginAction({
+      const res = await signIn("credentials", {
         username: data.login,
         password: data.password,
-        redirect: props.callbackUrl || INITIAL_PAGE_LOGGED,
+        redirect: false,
       });
 
-      if (!res?.success) {
-        if (res?.error === messages.LOGIN_WRONG) {
+      if (res?.error) {
+        if (res.error === messages.LOGIN_WRONG) {
           notify("error", "Credenciais inválidas", res.error);
-
           setError("login", { type: "manual", message: res.error });
           setError("password", { type: "manual", message: res.error });
         } else {
           notify(
             "error",
             "Erro no login",
-            res?.message || res?.error || "Erro desconhecido."
+            res?.error || "Erro desconhecido."
           );
         }
         setDoingRequest(false);
         return;
       }
+      
 
       notify("success", "Login realizado com sucesso", messages.LOGIN_SUCCESS);
-      window.location.assign(props.callbackUrl || INITIAL_PAGE_LOGGED);
+      // IMPORTANTE: forçar refresh da sessão
+      router.refresh();
+      router.push(props.callbackUrl || INITIAL_PAGE_LOGGED);
     } catch (e) {
       setDoingRequest(false);
       notify(
