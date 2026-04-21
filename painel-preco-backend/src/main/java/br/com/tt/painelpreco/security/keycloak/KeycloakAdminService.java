@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import br.com.tt.painelpreco.arch.view.http.Header;
 import br.com.tt.painelpreco.arch.view.http.HttpResponse;
 import br.com.tt.painelpreco.arch.view.http.QueryParam;
 import br.com.tt.painelpreco.arch.view.http.exception.HttpException;
+import br.com.tt.painelpreco.config.KeycloakProperties;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,11 +35,8 @@ public class KeycloakAdminService extends HttpClientController {
   private static final String ADMIN_USERS_URL = "%s/admin/realms/%s/users";
   private static final String ADMIN_GROUPS_URL = "%s/admin/realms/%s/groups";
 
-  @Value("${keycloak.auth-server-url}")
-  private String authServerUrl;
-
-  @Value("${keycloak.realm}")
-  private String realm;
+  @Autowired
+  private KeycloakProperties keycloakProperties;
 
   @Value("${keycloak-admin.username}")
   private String adminUsername;
@@ -56,9 +55,9 @@ public class KeycloakAdminService extends HttpClientController {
 
   @PostConstruct
   public void init() {
-    this.tokenUrl = String.format(ADMIN_TOKEN_URL, authServerUrl);
-    this.usersUrl = String.format(ADMIN_USERS_URL, authServerUrl, realm);
-    this.groupsUrl = String.format(ADMIN_GROUPS_URL, authServerUrl, realm);
+    this.tokenUrl = String.format(ADMIN_TOKEN_URL, keycloakProperties.getAuthServerUrl());
+    this.usersUrl = String.format(ADMIN_USERS_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
+    this.groupsUrl = String.format(ADMIN_GROUPS_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
   }
 
   public String obterAccessTokenAdmin() {
