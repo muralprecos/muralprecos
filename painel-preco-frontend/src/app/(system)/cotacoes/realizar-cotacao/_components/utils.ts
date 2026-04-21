@@ -8,8 +8,10 @@ import {
 
 export const SORT_OPTIONS: IItemSelect[] = [
   { value: "", label: "Relevância (padrão)" },
-  { value: "valor,asc", label: "Valor (menor primeiro)" },
-  { value: "valor,desc", label: "Valor (maior primeiro)" },
+  { value: "valorUnitario,asc", label: "Valor Unitário (menor primeiro)" },
+  { value: "valorUnitario,desc", label: "Valor Unitário (maior primeiro)" },
+  // { value: "valor,asc", label: "Valor Total (menor primeiro)" },
+  // { value: "valor,desc", label: "Valor Total (maior primeiro)" },
   { value: "quantidade,asc", label: "Quantidade (menor primeiro)" },
   { value: "quantidade,desc", label: "Quantidade (maior primeiro)" },
   { value: "dataResultadoCompra,desc", label: "Data Compra (mais recente)" },
