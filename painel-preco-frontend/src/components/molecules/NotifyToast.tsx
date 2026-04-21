@@ -45,7 +45,7 @@ export function notify(
 export function NotifyToaster() {
   return (
     <Toaster
-      position="top-center"
+      position="bottom-left"
       closeButton={true}
       toastOptions={{
         style: {

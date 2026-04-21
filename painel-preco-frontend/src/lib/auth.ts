@@ -1,19 +1,10 @@
 import "server-only";
 import { jwtDecode } from "jwt-decode";
 import { getSession, setSession, deleteSession } from "./session";
+import { isTokenExpired } from "./session-utils";
 import { ClientSession, SessionPayload } from "@/interfaces/auth";
 import { IUserInfo } from "@/interfaces/types";
 import { postRefreshToken } from "@/hooks/api";
-
-function isTokenExpired(token: string): boolean {
-  try {
-    const decoded = jwtDecode<{ exp: number }>(token);
-    // Treat token as expired 30 seconds before actual expiry
-    return Date.now() / 1000 > decoded.exp - 30;
-  } catch {
-    return true;
-  }
-}
 
 async function refreshSession(
   session: SessionPayload
@@ -48,7 +39,9 @@ export async function auth(): Promise<ClientSession | null> {
   if (isTokenExpired(session.access_token)) {
     const refreshed = await refreshSession(session);
     if (!refreshed) {
-      await deleteSession();
+      // deleteSession() cannot write cookies during Server Component rendering.
+      // The middleware handles cookie cleanup before the render reaches here.
+      try { await deleteSession(); } catch { /* ignore: running inside a render */ }
       return null;
     }
     session = refreshed;
@@ -72,7 +65,7 @@ export async function getAccessToken(): Promise<string | null> {
   if (isTokenExpired(session.access_token)) {
     const refreshed = await refreshSession(session);
     if (!refreshed) {
-      await deleteSession();
+      try { await deleteSession(); } catch { /* ignore: running inside a render */ }
       return null;
     }
     session = refreshed;
