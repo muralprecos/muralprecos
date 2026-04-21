@@ -1,7 +1,7 @@
 "use client";
 
 import { SnackbarProvider } from "notistack";
-import { SessionProvider } from "next-auth/react";
+import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReduxProvider } from "@/store/reduxProvider";
@@ -9,7 +9,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <SessionProvider>
+    <AuthProvider>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
@@ -32,6 +32,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           </ReduxProvider>
         </NuqsAdapter>
       </ThemeProvider>
-    </SessionProvider>
+    </AuthProvider>
   );
 }

@@ -1,27 +1,20 @@
 "use server";
 
+import { redirect } from "next/navigation";
+import { getRefreshToken } from "@/lib/auth";
+import { deleteSession } from "@/lib/session";
 import { postLogout } from "@/hooks/api";
-import { INITIAL_PAGE_LOGIN } from "@/utils/routesUtils";
-import { getIdToken } from "@/utils/sessionTokenAccessor";
-import { signOut } from "@/lib/auth";
-import { AuthError } from "next-auth";
 
 export async function logoutAction() {
   try {
-    const accessToken = await getIdToken();
-    if (accessToken) {
-      await postLogout(accessToken);
+    const refreshToken = await getRefreshToken();
+    if (refreshToken) {
+      await postLogout(refreshToken);
     }
-    await signOut({
-      redirectTo: '/'
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        default:
-          return {error: 'Ocorreu um problema ao deslogar!'}
-      }
-    }
-    throw error;
+  } catch {
+    // Continue with local logout even if backend call fails
   }
+
+  await deleteSession();
+  redirect("/login");
 }

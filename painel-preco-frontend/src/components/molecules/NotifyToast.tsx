@@ -28,6 +28,7 @@ export function notify(
 ) {
   toast[type](message, {
     description,
+    duration: type === "error" ? 5000 : 3000,
     style: {
       backgroundColor: background[type],
       color: color[type],

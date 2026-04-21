@@ -1,4 +1,4 @@
-import { Session } from "next-auth";
+import { ClientSession } from "@/interfaces/auth";
 import { INITIAL_PAGE_LOGIN, UNAUTH_PAGE } from "./routesUtils";
 import { CheckRolesStrategy, checkAccessRoles, getAccessToken } from "./sessionTokenAccessor";
 
@@ -9,7 +9,7 @@ export type SessionCheck = {
   redirectUrl: string | null
 }
 
-export async function checkSession(session: Session | null, rolesToCkeck: string[], rolesCheckStrategy: CheckRolesStrategy) : Promise<SessionCheck> {
+export async function checkSession(session: ClientSession | null, rolesToCkeck: string[], rolesCheckStrategy: CheckRolesStrategy) : Promise<SessionCheck> {
   const res : SessionCheck = {
     accessToken: null,
     redirectUrl: null,

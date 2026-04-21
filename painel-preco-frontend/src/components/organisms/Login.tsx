@@ -14,7 +14,6 @@ import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import {
   Eye,
   EyeOff,
@@ -26,11 +25,9 @@ import {
   FileCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Session } from "next-auth";
 
 import { messages } from "@/utils/messages";
 import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
-import { loginAction } from "@/app/action/loginActions";
 import { notify } from "@/components/molecules/NotifyToast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -49,7 +46,6 @@ const initialForm: FormData = {
 };
 
 type Props = {
-  session: Session | null;
   className?: string;
   callbackUrl?: string;
   error?: string;
@@ -58,7 +54,6 @@ type Props = {
 
 export default function Login(props: Props) {
   const router = useRouter();
-  const { data: session, status } = useSession();
   const [showPass, setShowPass] = useState<boolean>(false);
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
   const appVersion = process.env.NEXT_PUBLIC_APP_VERSION || "dev";
@@ -79,32 +74,30 @@ export default function Login(props: Props) {
     try {
       setDoingRequest(true);
 
-      const res = await loginAction({
-        username: data.login,
-        password: data.password,
-        redirect: props.callbackUrl || INITIAL_PAGE_LOGGED,
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: data.login, password: data.password }),
       });
 
-      if (!res?.success) {
-        if (res?.error === messages.LOGIN_WRONG) {
-          notify("error", "Credenciais inválidas", res.error);
-
-          setError("login", { type: "manual", message: res.error });
-          setError("password", { type: "manual", message: res.error });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Erro desconhecido." }));
+        const errorMsg = err?.error || "Credenciais inválidas";
+        if (res.status === 401) {
+          notify("error", "Credenciais inválidas", errorMsg);
+          setError("login", { type: "manual", message: messages.LOGIN_WRONG });
+          setError("password", { type: "manual", message: messages.LOGIN_WRONG });
         } else {
-          notify(
-            "error",
-            "Erro no login",
-            res?.message || res?.error || "Erro desconhecido."
-          );
+          notify("error", "Erro no login", errorMsg);
         }
         setDoingRequest(false);
         return;
       }
 
-      router.push(props.callbackUrl || INITIAL_PAGE_LOGGED);
       notify("success", "Login realizado com sucesso", messages.LOGIN_SUCCESS);
-    } catch (e) {
+      router.refresh();
+      router.push(props.callbackUrl || INITIAL_PAGE_LOGGED);
+    } catch {
       setDoingRequest(false);
       notify(
         "error",

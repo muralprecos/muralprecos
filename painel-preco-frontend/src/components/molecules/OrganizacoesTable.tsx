@@ -19,51 +19,39 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import type { Organizacao } from "@/interfaces/gestao";
 
 interface OrganizacoesTableProps {
   organizacoes: Organizacao[];
-  onUpdate: (organizacoes: Organizacao[]) => void;
+  onSave: (data: Partial<Organizacao>, id?: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
 }
 
-const emptyOrg: Omit<Organizacao, "id" | "criadoEm"> = {
-  nome: "",
-  cnpj: "",
-  email: "",
-  telefone: "",
-  endereco: "",
-  status: "ativa",
-};
+const emptyForm = { nome: "", cnpj: "", numero: "" };
 
 export function OrganizacoesTable({
   organizacoes,
-  onUpdate,
+  onSave,
+  onDelete,
 }: OrganizacoesTableProps) {
   const [search, setSearch] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingOrg, setEditingOrg] = useState<Organizacao | null>(null);
   const [deletingOrg, setDeletingOrg] = useState<Organizacao | null>(null);
-  const [formData, setFormData] = useState(emptyOrg);
+  const [formData, setFormData] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
 
   const filteredOrgs = organizacoes.filter(
     (org) =>
       org.nome.toLowerCase().includes(search.toLowerCase()) ||
-      org.cnpj.includes(search) ||
-      org.email.toLowerCase().includes(search.toLowerCase())
+      (org.cnpj ?? "").includes(search)
   );
 
   const handleOpenCreate = () => {
     setEditingOrg(null);
-    setFormData(emptyOrg);
+    setFormData(emptyForm);
     setIsDialogOpen(true);
   };
 
@@ -71,11 +59,8 @@ export function OrganizacoesTable({
     setEditingOrg(org);
     setFormData({
       nome: org.nome,
-      cnpj: org.cnpj,
-      email: org.email,
-      telefone: org.telefone,
-      endereco: org.endereco,
-      status: org.status,
+      cnpj: org.cnpj ?? "",
+      numero: org.numero ?? "",
     });
     setIsDialogOpen(true);
   };
@@ -85,38 +70,39 @@ export function OrganizacoesTable({
     setIsDeleteDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (!formData.nome || !formData.cnpj || !formData.email) {
-      toast.error("Preencha todos os campos obrigatórios");
+  const handleSave = async () => {
+    if (!formData.nome) {
+      toast.error("Nome é obrigatório");
       return;
     }
-
-    if (editingOrg) {
-      const updated = organizacoes.map((org) =>
-        org.id === editingOrg.id ? { ...org, ...formData } : org
+    setSaving(true);
+    try {
+      await onSave(
+        { nome: formData.nome, cnpj: formData.cnpj || undefined, numero: formData.numero || undefined },
+        editingOrg?.id
       );
-      onUpdate(updated);
-      toast.success("Organização atualizada com sucesso");
-    } else {
-      const newOrg: Organizacao = {
-        ...formData,
-        id: `org-${Date.now()}`,
-        criadoEm: new Date().toISOString().split("T")[0],
-      };
-      onUpdate([...organizacoes, newOrg]);
-      toast.success("Organização criada com sucesso");
+      toast.success(editingOrg ? "Organização atualizada com sucesso" : "Organização criada com sucesso");
+      setIsDialogOpen(false);
+    } catch {
+      toast.error("Erro ao salvar organização");
+    } finally {
+      setSaving(false);
     }
-    setIsDialogOpen(false);
   };
 
-  const handleDelete = () => {
-    if (deletingOrg) {
-      const updated = organizacoes.filter((org) => org.id !== deletingOrg.id);
-      onUpdate(updated);
+  const handleDelete = async () => {
+    if (!deletingOrg) return;
+    setSaving(true);
+    try {
+      await onDelete(deletingOrg.id);
       toast.success("Organização removida com sucesso");
+    } catch {
+      toast.error("Erro ao remover organização");
+    } finally {
+      setSaving(false);
+      setIsDeleteDialogOpen(false);
+      setDeletingOrg(null);
     }
-    setIsDeleteDialogOpen(false);
-    setDeletingOrg(null);
   };
 
   return (
@@ -143,8 +129,8 @@ export function OrganizacoesTable({
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>CNPJ</TableHead>
-              <TableHead className="hidden md:table-cell">Email</TableHead>
-              <TableHead className="hidden lg:table-cell">Telefone</TableHead>
+              <TableHead className="hidden md:table-cell">Número</TableHead>
+              <TableHead className="hidden md:table-cell">Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -164,15 +150,16 @@ export function OrganizacoesTable({
                 <TableRow key={org.id}>
                   <TableCell className="font-medium">{org.nome}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {org.cnpj}
+                    {org.cnpj ?? "-"}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-muted-foreground">
-                    {org.email}
+                    {org.numero ?? "-"}
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell text-muted-foreground">
-                    {org.telefone}
+                  <TableCell className="hidden md:table-cell">
+                    <Badge variant={org.ativo ? "default" : "secondary"}>
+                      {org.ativo ? "Ativa" : "Inativa"}
+                    </Badge>
                   </TableCell>
-
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
@@ -217,59 +204,38 @@ export function OrganizacoesTable({
                 placeholder="Nome da organização"
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="cnpj">CNPJ *</Label>
-              <Input
-                id="cnpj"
-                value={formData.cnpj}
-                onChange={(e) =>
-                  setFormData({ ...formData, cnpj: e.target.value })
-                }
-                placeholder="00.000.000/0001-00"
-              />
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email *</Label>
+                <Label htmlFor="cnpj">CNPJ</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
+                  id="cnpj"
+                  value={formData.cnpj}
                   onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
+                    setFormData({ ...formData, cnpj: e.target.value })
                   }
-                  placeholder="email@empresa.com"
+                  placeholder="00.000.000/0001-00"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="telefone">Telefone</Label>
+                <Label htmlFor="numero">Número</Label>
                 <Input
-                  id="telefone"
-                  value={formData.telefone}
+                  id="numero"
+                  value={formData.numero}
                   onChange={(e) =>
-                    setFormData({ ...formData, telefone: e.target.value })
+                    setFormData({ ...formData, numero: e.target.value })
                   }
-                  placeholder="(00) 00000-0000"
+                  placeholder="Número"
                 />
               </div>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="endereco">Endereço</Label>
-              <Input
-                id="endereco"
-                value={formData.endereco}
-                onChange={(e) =>
-                  setFormData({ ...formData, endereco: e.target.value })
-                }
-                placeholder="Endereço completo"
-              />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={saving}>
               Cancelar
             </Button>
-            <Button onClick={handleSave}>Salvar</Button>
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? "Salvando..." : "Salvar"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -288,11 +254,12 @@ export function OrganizacoesTable({
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={saving}
             >
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Excluir
+            <Button variant="destructive" onClick={handleDelete} disabled={saving}>
+              {saving ? "Excluindo..." : "Excluir"}
             </Button>
           </DialogFooter>
         </DialogContent>

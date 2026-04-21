@@ -1,21 +1,22 @@
 export interface Organizacao {
   id: string;
+  uuid?: string;
   nome: string;
-  cnpj: string;
-  email: string;
-  telefone: string;
-  endereco: string;
-  status: "ativa" | "inativa";
-  criadoEm: string;
+  cnpj?: string;
+  numero?: string;
+  ativo: boolean;
+  dataCriacao?: string;
 }
 
 export interface Usuario {
   id: string;
+  uuid?: string;
+  login?: string;
   nome: string;
-  email: string;
-  cargo: string;
-  organizacaoId: string;
-  organizacaoNome: string;
-  status: "ativo" | "inativo";
-  criadoEm: string;
+  email?: string;
+  organizacaoId?: string;
+  organizacaoNome?: string;
+  ativo: boolean;
+  dataCriacao?: string;
 }
+
