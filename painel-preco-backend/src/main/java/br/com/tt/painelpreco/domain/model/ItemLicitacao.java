@@ -19,8 +19,9 @@ import javax.persistence.Transient;
 
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
-import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.DocumentId;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.ObjectPath;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.PropertyValue;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
@@ -171,6 +172,18 @@ public class ItemLicitacao {
 		return links;
 	}
 	
+	@IndexingDependency(derivedFrom = {
+			@ObjectPath(@PropertyValue(propertyName = "valor")),
+			@ObjectPath(@PropertyValue(propertyName = "quantidade"))
+	})
+	@GenericField(name = "valorUnitario", sortable = Sortable.YES)
+	public Double getValorUnitario() {
+		if (valor == null || quantidade == null || quantidade == 0) {
+			return null;
+		}
+		return valor / quantidade;
+	}
+
 	@Override
 	public String toString() {
 		return "Item Licitação: " + numeroPncp + " / " + numeroItem; 
