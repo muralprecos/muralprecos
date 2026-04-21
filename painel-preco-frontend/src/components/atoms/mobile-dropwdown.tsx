@@ -1,4 +1,4 @@
-import { User, Settings, Users } from "lucide-react";
+import { User, Settings, Users, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import pkg from "../../../package.json";
+import { logoutAction } from "@/app/action/logoutActions";
 
 interface ProfileDropdownProps {
   variant?: "desktop" | "mobile";
@@ -86,6 +87,22 @@ export function ProfileDropdown({
             <Users className="mr-2 h-4 w-4" />
             <span>Gestão de Usuários</span>
           </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
+          className="cursor-pointer text-red-600 hover:!bg-red-500/10 hover:!text-red-600 focus:!bg-red-500/10 focus:!text-red-600"
+          onClick={async () => {
+            try {
+              await logoutAction();
+            } catch (error) {
+              console.error("Erro ao sair", error);
+            }
+          }}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Sair</span>
         </DropdownMenuItem>
 
         <div className="text-xs text-muted-foreground text-right">
