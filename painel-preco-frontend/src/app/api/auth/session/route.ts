@@ -10,7 +10,7 @@ import { getSession, setSession } from "@/lib/session";
 export async function GET() {
   const session = await auth();
   if (!session) {
-    return NextResponse.json(null, { status: 401 });
+    return NextResponse.json(null);
   }
   return NextResponse.json(session);
 }
