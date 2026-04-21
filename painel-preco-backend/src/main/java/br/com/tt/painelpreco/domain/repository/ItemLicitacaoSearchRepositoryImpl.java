@@ -255,6 +255,8 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 		switch (property) {
 		case "descricao":
 			return "descricao_sort";
+		case "valorUnitario":
+			return "valorUnitario";
 		case "valor":
 			return "valor";
 		case "quantidade":
