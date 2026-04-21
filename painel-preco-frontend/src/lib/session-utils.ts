@@ -1,8 +1,21 @@
 import { EncryptJWT, jwtDecrypt } from "jose";
+import { jwtDecode } from "jwt-decode";
 import { SessionPayload } from "@/interfaces/auth";
 
-const COOKIE_NAME = "__session";
-export { COOKIE_NAME };
+export const COOKIE_NAME = "__session";
+
+/**
+ * Returns true if the JWT access token is expired (or within 30-second buffer).
+ * Safe to use in both Node.js and Edge runtimes.
+ */
+export function isTokenExpired(token: string): boolean {
+  try {
+    const decoded = jwtDecode<{ exp: number }>(token);
+    return Date.now() / 1000 > decoded.exp - 30;
+  } catch {
+    return true;
+  }
+}
 
 /**
  * Returns a 32-byte Uint8Array key derived from AUTH_SECRET.
