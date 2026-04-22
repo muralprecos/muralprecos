@@ -12,8 +12,4 @@ ALTER TABLE mural.organizacao ADD COLUMN IF NOT EXISTS ativo BOOLEAN NOT NULL DE
 
 ALTER TABLE mural.organizacao ADD COLUMN IF NOT EXISTS data_criacao TIMESTAMP;
 
-ALTER TABLE mural.organizacao ADD COLUMN IF NOT EXISTS cnpj varchar(18) NULL;
-
-ALTER TABLE mural.organizacao ADD COLUMN IF NOT EXISTS numero varchar(15) NULL;
-
 

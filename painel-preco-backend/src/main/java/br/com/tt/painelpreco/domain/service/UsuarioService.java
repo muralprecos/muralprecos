@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import br.com.tt.painelpreco.api.dto.UsuarioDTO;
 import br.com.tt.painelpreco.api.dto.form.CadastroForm;
 import br.com.tt.painelpreco.api.dto.form.UsuarioForm;
 import br.com.tt.painelpreco.arch.exception.ArchException;
@@ -99,6 +100,7 @@ public class UsuarioService {
 		usuario.setNome(form.getFirstName() + " " + form.getLastName());
 		usuario.setEmail(form.getEmail());
 		usuario.setOrganizacao(organizacao);
+		usuario.setAtivo(true);
 
 		try {
 			usuario = usuarioRepository.save(usuario);
@@ -296,32 +298,91 @@ public class UsuarioService {
 	}
 
 	@Transactional
-	public void deletarUsuario(String usuarioId) {
-		log.info("Iniciando deleção de usuário: {}", usuarioId);
+	public Usuario desativarUsuario(String usuarioId) {
+		log.info("Iniciando desativação de usuário: {}", usuarioId);
 
-		// Buscar usuário existente
 		Usuario usuario = buscarUsuario(usuarioId);
 		if (usuario == null) {
 			throw new ArchException("Usuário não encontrado com identificador: " + usuarioId);
 		}
 
-		// Deletar usuário no Keycloak
+		usuario.setAtivo(false);
+		usuario = usuarioRepository.save(usuario);
+		log.info("Usuário desativado no banco de dados com ID: {}", usuario.getId());
+
 		try {
-			keycloakAdminService.deletarUsuario(usuario.getUuid().toString());
-			log.info("Usuário deletado no Keycloak: {}", usuario.getUuid());
+			keycloakAdminService.desativarUsuario(usuario.getUuid().toString());
+			log.info("Usuário desativado no Keycloak: {}", usuario.getUuid());
 		} catch (Exception e) {
-			log.error("Erro ao deletar usuário no Keycloak: {}", e.getMessage());
-			throw new ArchException("Falha ao deletar usuário no Keycloak: " + e.getMessage(), e);
+			log.warn("Erro ao desativar usuário no Keycloak (banco já atualizado): {}", e.getMessage());
 		}
 
-		// Deletar no banco local (hard delete)
-		try {
-			usuarioRepository.delete(usuario);
-			log.info("Usuário deletado do banco de dados com ID: {}", usuario.getId());
-		} catch (Exception e) {
-			log.error("Erro ao deletar usuário do banco de dados: {}", e.getMessage());
-			throw new ArchException("Falha ao deletar usuário do banco de dados: " + e.getMessage(), e);
+		return usuario;
+	}
+
+	@Transactional
+	public Usuario reativarUsuario(String usuarioId) {
+		log.info("Iniciando reativação de usuário: {}", usuarioId);
+
+		Usuario usuario = buscarUsuario(usuarioId);
+		if (usuario == null) {
+			throw new ArchException("Usuário não encontrado com identificador: " + usuarioId);
 		}
+
+		if (Boolean.TRUE.equals(usuario.getAtivo())) {
+			throw new ArchException("Usuário já está ativo: " + usuarioId);
+		}
+
+		usuario.setAtivo(true);
+		usuario = usuarioRepository.save(usuario);
+		log.info("Usuário reativado no banco de dados com ID: {}", usuario.getId());
+
+		try {
+			keycloakAdminService.ativarUsuario(usuario.getUuid().toString());
+			log.info("Usuário reativado no Keycloak: {}", usuario.getUuid());
+		} catch (Exception e) {
+			log.warn("Erro ao reativar usuário no Keycloak (banco já atualizado): {}", e.getMessage());
+		}
+
+		return usuario;
+	}
+
+	public UsuarioDTO buscarDetalhesUsuario(String usuarioId) {
+		log.debug("Buscando detalhes de usuário: {}", usuarioId);
+
+		Usuario usuario = buscarUsuario(usuarioId);
+		if (usuario == null) {
+			return null;
+		}
+
+		UsuarioDTO dto = new UsuarioDTO();
+		dto.setId(usuario.getId());
+		dto.setUuid(usuario.getUuid());
+		dto.setLogin(usuario.getLogin());
+		dto.setNome(usuario.getNome());
+		dto.setEmail(usuario.getEmail());
+		dto.setAtivo(usuario.getAtivo());
+		dto.setDataCriacao(usuario.getDataCriacao());
+		if (usuario.getOrganizacao() != null) {
+			dto.setOrganizacaoId(usuario.getOrganizacao().getId());
+			dto.setOrganizacaoNome(usuario.getOrganizacao().getNome());
+		}
+
+		// Verificar presença no Keycloak
+		try {
+			JSONObject keycloakUser = keycloakAdminService.buscarUsuarioPorId(usuario.getUuid().toString());
+			if (keycloakUser != null) {
+				dto.setKeycloakNaoEncontrado(false);
+			} else {
+				log.warn("Usuário do Keycloak não encontrado para o UUID: {}", usuario.getUuid());
+				dto.setKeycloakNaoEncontrado(true);
+			}
+		} catch (Exception e) {
+			log.warn("Erro ao buscar usuário no Keycloak: {}", e.getMessage());
+			dto.setKeycloakNaoEncontrado(true);
+		}
+
+		return dto;
 	}
 
 	private void validarDadosAtualizacao(UsuarioForm form, Usuario usuarioExistente) {

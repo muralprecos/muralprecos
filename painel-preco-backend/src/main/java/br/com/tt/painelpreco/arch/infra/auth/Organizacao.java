@@ -40,17 +40,20 @@ public class Organizacao {
 	@Type(type = "org.hibernate.type.BinaryType")
 	private byte[] logo;
 
-	@Column(length = 18)
-	private String cnpj;
-
-	@Column(length = 15)
-	private String numero;
-
 	@Column(name = "ativo")
 	private Boolean ativo = true;
 
 	@Column(name = "data_criacao")
 	private LocalDateTime dataCriacao;
+
+	@Column(name = "detalhes_ultima_sincronizacao", columnDefinition = "TEXT")
+	private String detalhesUltimaSincronizacao;
+
+	@Column(name = "data_ultima_sincronizacao")
+	private LocalDateTime dataUltimaSincronizacao;
+
+	@Column(name = "usuario_sincronizacao_id")
+	private Integer usuarioSincronizacaoId;
 
 	public Organizacao() {
 	}

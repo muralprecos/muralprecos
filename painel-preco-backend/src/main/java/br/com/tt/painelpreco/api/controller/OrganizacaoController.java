@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.tt.painelpreco.api.dto.OrganizacaoDTO;
+import br.com.tt.painelpreco.api.dto.OrganizacaoDetalhesDTO;
 import br.com.tt.painelpreco.api.dto.form.OrganizacaoForm;
 import br.com.tt.painelpreco.arch.exception.ArchException;
 import br.com.tt.painelpreco.arch.infra.auth.Organizacao;
@@ -56,6 +57,15 @@ public class OrganizacaoController {
     return ResponseEntity.ok(dto);
   }
 
+  @GetMapping("/{id}/detalhes")
+  public ResponseEntity<OrganizacaoDetalhesDTO> detalhes(@PathVariable String id) {
+    OrganizacaoDetalhesDTO dto = organizacaoService.buscarDetalhesOrganizacao(id);
+    if (dto == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(dto);
+  }
+
   @PostMapping
   public ResponseEntity<OrganizacaoDTO> criar(@Valid @RequestBody OrganizacaoForm form) {
     try {
@@ -86,18 +96,34 @@ public class OrganizacaoController {
     }
   }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletar(@PathVariable String id) {
+  @PutMapping("/{id}/reativar")
+  public ResponseEntity<OrganizacaoDTO> reativar(@PathVariable String id) {
     try {
-      organizacaoService.deletarOrganizacao(id);
+      Organizacao organizacao = organizacaoService.reativarOrganizacao(id);
+      OrganizacaoDTO dto = converter.toDTO(organizacao, OrganizacaoDTO.class);
+      return ResponseEntity.ok(dto);
+    } catch (ArchException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new ArchException(
+          "Erro ao reativar organização: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
+          e);
+    }
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> desativar(@PathVariable String id) {
+    try {
+      organizacaoService.desativarOrganizacao(id);
       return ResponseEntity.noContent().build();
     } catch (ArchException e) {
       throw e;
     } catch (Exception e) {
       throw new ArchException(
-          "Erro ao deletar organização: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
+          "Erro ao desativar organização: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
           e);
     }
   }
 
 }
+

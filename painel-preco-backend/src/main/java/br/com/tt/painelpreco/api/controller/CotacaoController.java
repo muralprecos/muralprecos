@@ -1,5 +1,6 @@
 package br.com.tt.painelpreco.api.controller;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,8 +64,8 @@ public class CotacaoController extends AbstractController {
 		return usuario;
 	}
 
-	@PostMapping
-	public ResponseEntity<?> imprimir(@RequestBody CotacaoForm cotacaoForm, HttpServletResponse response) {
+	@PostMapping(produces = MediaType.APPLICATION_PDF_VALUE)
+	public ResponseEntity<byte[]> imprimir(@RequestBody CotacaoForm cotacaoForm) {
 		UUID[] itens = cotacaoForm.getItens();
 		String ip = super.getRemoteAddress();
 		String stringBusca = cotacaoService.findStringBuscaByItens(itens);
@@ -74,6 +77,7 @@ public class CotacaoController extends AbstractController {
 		try {
 			Usuario usuario = this.getUsuarioLogado();
 			String nome = usuario.getLogin() + " - " + stringBusca + " - " + agoraStr;
+
 			cotacao.setCriadoPor(usuario);
 			cotacao.setIp(ip);
 			cotacao.setStringBusca(stringBusca);
@@ -85,7 +89,7 @@ public class CotacaoController extends AbstractController {
 			cotacao.setHashValidacao(hashValidacao);
 
 			Map<String, Object> params = new HashMap<>();
-			params.put("itens", itens);
+			params.put("itens", Arrays.asList(itens));
 			params.put("queryString", stringBusca);
 			params.put("nome", nome);
 			params.put("cabecalho", usuario.getCabecalho());
@@ -103,12 +107,15 @@ public class CotacaoController extends AbstractController {
 
 			cotacaoService.save(cotacao);
 
-			super.downloadPDF(pdf, response, nomeArquivo);
-		} catch (ArchException e) {
-			throw new ArchException("Usuário não pode criar contação. Motivo: " + e.getMessage());
-		}
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_PDF);
+			headers.setContentDispositionFormData("attachment", nomeArquivo);
+			headers.setContentLength(pdf.length);
 
-		return ResponseEntity.ok().build();
+			return ResponseEntity.ok().headers(headers).body(pdf);
+		} catch (ArchException e) {
+			throw new ArchException("Usuário não pode criar cotação. Motivo: " + e.getMessage());
+		}
 	}
 
 	@GetMapping("/validar-cotacao/{hash}")

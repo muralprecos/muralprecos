@@ -23,4 +23,6 @@ public interface OrganizacaoRepository
 
 	Organizacao findByUuid(UUID uuid);
 
+	Organizacao findByNome(String nome);
+
 }
