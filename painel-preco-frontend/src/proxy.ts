@@ -122,9 +122,10 @@ export default async function middleware(req: NextRequest) {
   }
 }
 
-// Rotas que não passam pelo middleware (ex: APIs, assets estáticos)
+// Rotas que não passam pelo middleware (ex: APIs, assets estáticos),
+// exceto /api/auth/session que precisa do refresh de cookie via middleware.
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|validar-cotacao).*)",
+    "/((?!api(?!/auth/session)|_next/static|_next/image|favicon.ico|validar-cotacao).*)",
   ],
 };

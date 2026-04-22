@@ -10,23 +10,46 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import pkg from "../../../package.json";
 import { logoutAction } from "@/app/action/logoutActions";
+import { useEffect, useState } from "react";
+import { getIdleRemainingMs } from "@/lib/session-idle-state";
 
 interface ProfileDropdownProps {
   variant?: "desktop" | "mobile";
   userName: string;
   userOrg: string;
+  sessionStart?: number;
+}
+
+function useIdleRemaining(active: boolean) {
+  const [remainingMs, setRemainingMs] = useState<number>(getIdleRemainingMs);
+
+  useEffect(() => {
+    if (!active) return;
+    setRemainingMs(getIdleRemainingMs()); // sync immediately on open
+    const id = setInterval(() => setRemainingMs(getIdleRemainingMs()), 1_000);
+    return () => clearInterval(id);
+  }, [active]);
+
+  if (remainingMs <= 0) return "expirando";
+  const totalSeconds = Math.floor(remainingMs / 1_000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 export function ProfileDropdown({
   variant = "desktop",
   userName,
   userOrg,
+  sessionStart,
 }: ProfileDropdownProps) {
   const isDesktop = variant === "desktop";
   const isLoading = !userName || !userOrg;
+  const [open, setOpen] = useState(false);
+  const idleRemaining = useIdleRemaining(open);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         {isDesktop ? (
           <button className="flex items-center gap-3 bg-card rounded-full pl-1 pr-3 py-1 hover:bg-card/80 transition-colors cursor-pointer">
@@ -105,8 +128,15 @@ export function ProfileDropdown({
           <span>Sair</span>
         </DropdownMenuItem>
 
-        <div className="text-xs text-muted-foreground text-right">
-          v{pkg.version}
+        <div className="px-2 py-1 text-xs text-muted-foreground space-y-0.5">
+          <div className="text-right">v{pkg.version}</div>
+        </div>
+        
+        <div className="hidden px-2 py-1 text-xs text-muted-foreground space-y-0.5">
+          {sessionStart && (
+            <div>Sessão desde {new Date(sessionStart).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
+          )}
+          <div>Expira por inatividade em <span className="font-medium">{idleRemaining}</span></div>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

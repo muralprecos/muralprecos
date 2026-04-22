@@ -51,6 +51,7 @@ export async function auth(): Promise<ClientSession | null> {
     userInfo: session.decoded,
     roles: session.decoded?.realm_access?.roles ?? [],
     error: session.error,
+    session_start: session.session_start,
   };
 }
 

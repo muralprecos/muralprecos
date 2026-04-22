@@ -11,7 +11,8 @@ export const COOKIE_NAME = "__session";
 export function isTokenExpired(token: string): boolean {
   try {
     const decoded = jwtDecode<{ exp: number }>(token);
-    return Date.now() / 1000 > decoded.exp - 30;
+    // 120-second buffer: refresh proactively 2 min before actual expiry
+    return Date.now() / 1000 > decoded.exp - 120;
   } catch {
     return true;
   }

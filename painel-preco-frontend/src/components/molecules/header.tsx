@@ -138,7 +138,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
         />
         {mounted && (
-          <ProfileDropdown variant="mobile" userName={name} userOrg={org} />
+          <ProfileDropdown variant="mobile" userName={name} userOrg={org} sessionStart={session?.session_start ?? undefined} />
         )}
       </div>
 
@@ -180,7 +180,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         />
 
         {mounted && (
-          <ProfileDropdown variant="desktop" userName={name} userOrg={org} />
+          <ProfileDropdown variant="desktop" userName={name} userOrg={org} sessionStart={session?.session_start ?? undefined} />
         )}
       </div>
     </header>

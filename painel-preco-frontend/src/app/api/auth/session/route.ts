@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getSession, setSession } from "@/lib/session";
 
+// Garante que a rota nunca seja cacheada e que Set-Cookie seja sempre enviado
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/auth/session
  * Returns sanitized session data for client consumption (no raw tokens).

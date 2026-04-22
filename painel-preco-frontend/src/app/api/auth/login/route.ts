@@ -26,11 +26,15 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      const status = res.status === 401 ? 401 : 500;
-      return NextResponse.json(
-        { error: text || "Credenciais inválidas" },
-        { status }
-      );
+      let errorMsg = "Credenciais inválidas";
+      try {
+        const parsed = JSON.parse(text);
+        errorMsg = parsed?.message || parsed?.error || errorMsg;
+      } catch {
+        if (text) errorMsg = text;
+      }
+      const status = res.status === 401 ? 401 : res.status >= 400 && res.status < 500 ? res.status : 500;
+      return NextResponse.json({ error: errorMsg }, { status });
     }
 
     const data = await res.json();
@@ -41,6 +45,7 @@ export async function POST(req: NextRequest) {
       id_token: data.id_token ?? "",
       refresh_token: data.refresh_token,
       decoded,
+      session_start: Date.now(),
     };
 
     await setSession(session);
