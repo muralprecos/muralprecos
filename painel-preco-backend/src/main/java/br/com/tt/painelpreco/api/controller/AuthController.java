@@ -137,6 +137,7 @@ public class AuthController extends HttpClientController {
 
 			Body body = new Body();
 			body.add(Body.GRANT_TYPE_KEY, "refresh_token")
+				.add("refresh_token", refreshForm.getRefresh_token())
 				.add(Body.CLIENT_ID_KEY, keycloakProperties.getClientId())
 				.add(Body.CLIENT_SECRET, keycloakProperties.getClientSecret());
 
