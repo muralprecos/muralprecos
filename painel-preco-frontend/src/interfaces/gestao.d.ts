@@ -2,10 +2,22 @@ export interface Organizacao {
   id: string;
   uuid?: string;
   nome: string;
-  cnpj?: string;
-  numero?: string;
   ativo: boolean;
   dataCriacao?: string;
+}
+
+export interface OrganizacaoDetalhes extends Organizacao {
+  cnpj?: string;
+  telefone?: string;
+  membros?: MembroOrganizacao[];
+  keycloakNaoEncontrado?: boolean;
+}
+
+export interface MembroOrganizacao {
+  uuid?: string;
+  username?: string;
+  nome?: string;
+  email?: string;
 }
 
 export interface Usuario {
@@ -18,5 +30,6 @@ export interface Usuario {
   organizacaoNome?: string;
   ativo: boolean;
   dataCriacao?: string;
+  keycloakNaoEncontrado?: boolean;
 }
 

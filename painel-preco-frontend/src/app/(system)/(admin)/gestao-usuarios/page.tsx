@@ -7,6 +7,19 @@ import type { Organizacao, Usuario } from "@/interfaces/gestao";
 import { OrganizacoesTable } from "@/components/molecules/OrganizacoesTable";
 import { UsuariosTable } from "@/components/molecules/UsuariosTable";
 
+async function parseApiError(res: Response, fallback: string): Promise<string> {
+  try {
+    const body = await res.json();
+    const raw: string = body?.message ?? body?.error ?? fallback;
+    // Extract the meaningful part from Spring Boot exception wrappers
+    // e.g. "Request processing failed; nested exception is ...ArchException: Email já cadastrado"
+    const match = raw.match(/ArchException:\s*(.+)$/);
+    return match ? match[1].trim() : raw;
+  } catch {
+    return fallback;
+  }
+}
+
 export default function GestaoUsuarios() {
   const [organizacoes, setOrganizacoes] = useState<Organizacao[]>([]);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -42,13 +55,19 @@ export default function GestaoUsuarios() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await parseApiError(res, "Erro ao salvar organização"));
     await fetchData();
   };
 
   const handleDeleteOrg = async (id: string) => {
     const res = await fetch(`/api/organizacoes/${id}`, { method: "DELETE" });
-    if (!res.ok && res.status !== 204) throw new Error(await res.text());
+    if (!res.ok && res.status !== 204) throw new Error(await parseApiError(res, "Erro ao desativar organização"));
+    await fetchData();
+  };
+
+  const handleReativarOrg = async (id: string) => {
+    const res = await fetch(`/api/organizacoes/${id}/reativar`, { method: "PUT" });
+    if (!res.ok) throw new Error(await parseApiError(res, "Erro ao reativar organização"));
     await fetchData();
   };
 
@@ -64,13 +83,19 @@ export default function GestaoUsuarios() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await parseApiError(res, "Erro ao salvar usuário"));
     await fetchData();
   };
 
   const handleDeleteUser = async (id: string) => {
     const res = await fetch(`/api/usuarios/${id}`, { method: "DELETE" });
-    if (!res.ok && res.status !== 204) throw new Error(await res.text());
+    if (!res.ok && res.status !== 204) throw new Error(await parseApiError(res, "Erro ao desativar usuário"));
+    await fetchData();
+  };
+
+  const handleReativarUser = async (id: string) => {
+    const res = await fetch(`/api/usuarios/${id}/reativar`, { method: "PUT" });
+    if (!res.ok) throw new Error(await parseApiError(res, "Erro ao reativar usuário"));
     await fetchData();
   };
 
@@ -98,6 +123,7 @@ export default function GestaoUsuarios() {
             organizacoes={organizacoes}
             onSave={handleSaveOrg}
             onDelete={handleDeleteOrg}
+            onReativar={handleReativarOrg}
           />
         </TabsContent>
 
@@ -107,6 +133,7 @@ export default function GestaoUsuarios() {
             organizacoes={organizacoes}
             onSave={handleSaveUser}
             onDelete={handleDeleteUser}
+            onReativar={handleReativarUser}
           />
         </TabsContent>
       </Tabs>

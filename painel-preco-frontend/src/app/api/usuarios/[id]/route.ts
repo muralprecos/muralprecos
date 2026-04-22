@@ -1,8 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAccessToken } from "@/utils/sessionTokenAccessor";
 
-const backendUrl = (id: string) =>
-  `${process.env.API_URL}${process.env.API_URL_PREFIX}/usuarios/${id}`;
+const backendUrl = (id: string, suffix = "") =>
+  `${process.env.API_URL}${process.env.API_URL_PREFIX}/usuarios/${id}${suffix}`;
+
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const token = await getAccessToken();
+  if (!token)
+    return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+
+  const res = await fetch(backendUrl(id, "/detalhes"), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (res.status === 404) return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
+  const data = await res.json().catch(() => ({}));
+  return NextResponse.json(data, { status: res.status });
+}
 
 export async function PUT(
   req: NextRequest,
@@ -46,3 +64,4 @@ export async function DELETE(
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });
 }
+
