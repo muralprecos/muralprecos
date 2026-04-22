@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import br.com.tt.painelpreco.arch.view.http.Header;
 import br.com.tt.painelpreco.arch.view.http.HttpResponse;
 import br.com.tt.painelpreco.arch.view.http.QueryParam;
 import br.com.tt.painelpreco.arch.view.http.exception.HttpException;
+import br.com.tt.painelpreco.config.KeycloakProperties;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,11 +35,8 @@ public class KeycloakAdminService extends HttpClientController {
   private static final String ADMIN_USERS_URL = "%s/admin/realms/%s/users";
   private static final String ADMIN_GROUPS_URL = "%s/admin/realms/%s/groups";
 
-  @Value("${keycloak.auth-server-url}")
-  private String authServerUrl;
-
-  @Value("${keycloak.realm}")
-  private String realm;
+  @Autowired
+  private KeycloakProperties keycloakProperties;
 
   @Value("${keycloak-admin.username}")
   private String adminUsername;
@@ -56,9 +55,9 @@ public class KeycloakAdminService extends HttpClientController {
 
   @PostConstruct
   public void init() {
-    this.tokenUrl = String.format(ADMIN_TOKEN_URL, authServerUrl);
-    this.usersUrl = String.format(ADMIN_USERS_URL, authServerUrl, realm);
-    this.groupsUrl = String.format(ADMIN_GROUPS_URL, authServerUrl, realm);
+    this.tokenUrl = String.format(ADMIN_TOKEN_URL, keycloakProperties.getAuthServerUrl());
+    this.usersUrl = String.format(ADMIN_USERS_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
+    this.groupsUrl = String.format(ADMIN_GROUPS_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
   }
 
   public String obterAccessTokenAdmin() {
@@ -312,8 +311,8 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
-  public String criarGroup(String name) {
-    log.info("Criando group no Keycloak: {}", name);
+  public String criarGroup(String nome, String cnpj, String telefone) {
+    log.info("Criando group no Keycloak: {}", nome);
 
     try {
       String token = obterAccessTokenAdmin();
@@ -323,13 +322,14 @@ public class KeycloakAdminService extends HttpClientController {
       header.add("Authorization", "Bearer " + token);
 
       JSONObject groupJson = new JSONObject();
-      groupJson.put("name", name);
+      groupJson.put("name", nome);
+      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone));
 
       Body body = new Body(groupJson);
 
       super.requestPost(header, body, QueryParam.NONE, groupsUrl);
 
-      String groupId = buscarGroupPorNome(name);
+      String groupId = buscarGroupPorNome(nome);
 
       log.info("Group criado no Keycloak com sucesso. ID: {}", groupId);
 
@@ -448,7 +448,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
-  public void atualizarGroup(String groupId, String name) {
+  public void atualizarGroup(String groupId, String nome, String cnpj, String telefone) {
     log.info("Atualizando group {} no Keycloak", groupId);
 
     try {
@@ -459,7 +459,8 @@ public class KeycloakAdminService extends HttpClientController {
       header.add("Authorization", "Bearer " + token);
 
       JSONObject groupJson = new JSONObject();
-      groupJson.put("name", name);
+      groupJson.put("name", nome);
+      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone));
 
       Body body = new Body(groupJson);
 
@@ -473,6 +474,20 @@ public class KeycloakAdminService extends HttpClientController {
       log.error("Erro ao atualizar group no Keycloak: {}", e.getMessage());
       throw new ArchException("Falha ao atualizar group no Keycloak: " + e.getMessage(), e);
     }
+  }
+
+  private JSONObject construirAtributosOrganizacao(String nome, String cnpj, String telefone) {
+    JSONObject attributes = new JSONObject();
+    if (nome != null) {
+      attributes.put(OrganizacaoKeycloakAttributes.NOME, new JSONArray().put(nome));
+    }
+    if (cnpj != null && !cnpj.trim().isEmpty()) {
+      attributes.put(OrganizacaoKeycloakAttributes.CNPJ, new JSONArray().put(cnpj));
+    }
+    if (telefone != null && !telefone.trim().isEmpty()) {
+      attributes.put(OrganizacaoKeycloakAttributes.TELEFONE, new JSONArray().put(telefone));
+    }
+    return attributes;
   }
 
   public boolean emailExiste(String email) {
@@ -544,6 +559,16 @@ public class KeycloakAdminService extends HttpClientController {
     return buscarUsuarioPorUsername(username) != null;
   }
 
+  public void desativarUsuario(String userId) {
+    log.info("Desativando usuário {} no Keycloak", userId);
+    atualizarUsuario(userId, null, null, null, false);
+  }
+
+  public void ativarUsuario(String userId) {
+    log.info("Ativando usuário {} no Keycloak", userId);
+    atualizarUsuario(userId, null, null, null, true);
+  }
+
   public void deletarGroup(String groupId) {
     log.info("Deletando group {} no Keycloak", groupId);
 
@@ -578,9 +603,12 @@ public class KeycloakAdminService extends HttpClientController {
 
       String url = groupsUrl + "/" + groupId + "/members";
 
-      HttpResponse response = super.requestGet(header, Body.DEFAULT, QueryParam.NONE, url);
+      String responseStr = obterRespostaRawGet(header, QueryParam.NONE, url);
 
-      String responseStr = response.getResponse().toString();
+      if (responseStr == null || responseStr.trim().isEmpty()) {
+        return new java.util.ArrayList<>();
+      }
+
       JSONArray usersArray = new JSONArray(responseStr);
 
       log.debug("Encontrados {} usuários no group", usersArray.length());
@@ -793,6 +821,95 @@ public class KeycloakAdminService extends HttpClientController {
     } catch (HttpException e) {
       log.error("Erro ao listar usuários no Keycloak: {}", e.getMessage());
       throw new ArchException("Falha ao listar usuários no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  public List<JSONObject> listarTodosUsuarios() {
+    log.debug("Listando todos os usuários do Keycloak");
+    try {
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+      QueryParam queryParam = new QueryParam();
+      queryParam.add("first", "0");
+      queryParam.add("max", "10000");
+      String responseRaw = obterRespostaRawGet(header, queryParam, usersUrl);
+      if (responseRaw == null || responseRaw.trim().isEmpty()) {
+        return new java.util.ArrayList<>();
+      }
+      JSONArray usersArray = new JSONArray(responseRaw);
+      List<JSONObject> users = new java.util.ArrayList<>();
+      for (int i = 0; i < usersArray.length(); i++) {
+        users.add(usersArray.getJSONObject(i));
+      }
+      log.debug("Encontrados {} usuários no Keycloak", users.size());
+      return users;
+    } catch (HttpException e) {
+      log.error("Erro ao listar todos os usuários no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao listar todos os usuários no Keycloak: " + e.getMessage(), e);
+    } catch (Exception e) {
+      log.error("Erro ao processar resposta de usuários do Keycloak: {}", e.getMessage());
+      return new java.util.ArrayList<>();
+    }
+  }
+
+  public List<JSONObject> listarTodosGroups() {
+    log.debug("Listando todos os groups do Keycloak");
+    try {
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+      QueryParam queryParam = new QueryParam();
+      queryParam.add("max", "10000");
+      String responseRaw = obterRespostaRawGet(header, queryParam, groupsUrl);
+      if (responseRaw == null || responseRaw.trim().isEmpty()) {
+        return new java.util.ArrayList<>();
+      }
+      JSONArray groupsArray = new JSONArray(responseRaw);
+      List<JSONObject> groups = new java.util.ArrayList<>();
+      for (int i = 0; i < groupsArray.length(); i++) {
+        groups.add(groupsArray.getJSONObject(i));
+      }
+      log.debug("Encontrados {} groups no Keycloak", groups.size());
+      return groups;
+    } catch (HttpException e) {
+      log.error("Erro ao listar todos os groups no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao listar todos os groups no Keycloak: " + e.getMessage(), e);
+    } catch (Exception e) {
+      log.error("Erro ao processar resposta de groups do Keycloak: {}", e.getMessage());
+      return new java.util.ArrayList<>();
+    }
+  }
+
+  public List<JSONObject> buscarGroupsDoUsuario(String userId) {
+    log.debug("Buscando groups do usuário {} no Keycloak", userId);
+    try {
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+      String url = usersUrl + "/" + userId + "/groups";
+      String responseRaw = obterRespostaRawGet(header, QueryParam.NONE, url);
+      if (responseRaw == null || responseRaw.trim().isEmpty()) {
+        return new java.util.ArrayList<>();
+      }
+      JSONArray groupsArray = new JSONArray(responseRaw);
+      List<JSONObject> groups = new java.util.ArrayList<>();
+      for (int i = 0; i < groupsArray.length(); i++) {
+        groups.add(groupsArray.getJSONObject(i));
+      }
+      return groups;
+    } catch (HttpException e) {
+      if (e.getStatusCode() == 404) {
+        return new java.util.ArrayList<>();
+      }
+      log.error("Erro ao buscar groups do usuário {} no Keycloak: {}", userId, e.getMessage());
+      throw new ArchException("Falha ao buscar groups do usuário no Keycloak: " + e.getMessage(), e);
+    } catch (Exception e) {
+      log.warn("Erro ao processar grupos do usuário {} no Keycloak: {}", userId, e.getMessage());
+      return new java.util.ArrayList<>();
     }
   }
 

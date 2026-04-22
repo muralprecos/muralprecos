@@ -16,12 +16,14 @@ public class OrganizacaoDTO {
 
   private String nome;
 
-  private String cnpj;
-
-  private String numero;
-
   private Boolean ativo;
 
   private LocalDateTime dataCriacao;
+
+  private String detalhesUltimaSincronizacao;
+
+  private LocalDateTime dataUltimaSincronizacao;
+
+  private Integer usuarioSincronizacaoId;
 
 }

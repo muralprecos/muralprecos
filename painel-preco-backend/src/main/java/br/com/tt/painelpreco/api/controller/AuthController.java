@@ -4,7 +4,6 @@ import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +28,7 @@ import br.com.tt.painelpreco.arch.view.http.Header;
 import br.com.tt.painelpreco.arch.view.http.HttpResponse;
 import br.com.tt.painelpreco.arch.view.http.QueryParam;
 import br.com.tt.painelpreco.arch.view.http.exception.HttpException;
+import br.com.tt.painelpreco.config.KeycloakProperties;
 import br.com.tt.painelpreco.domain.service.UsuarioService;
 import br.com.tt.painelpreco.util.ApiVersion;
 import lombok.extern.slf4j.Slf4j;
@@ -41,17 +41,8 @@ public class AuthController extends HttpClientController {
 	public static final String KEYCLOAK_AUTHETICATE_URL = "%s/realms/%s/protocol/openid-connect/token";
 	public static final String KEYCLOAK_REVOKE_URL = "%s/realms/%s/protocol/openid-connect/revoke";
 
-	@Value("${keycloak.resource}")
-	private String clientId;
-
-	@Value("${keycloak.credentials.secret}")
-	private String clientSecret;
-
-	@Value("${keycloak.auth-server-url}")
-	private String authServerUrl;
-
-	@Value("${keycloak.realm}")
-	private String realm;
+	@Autowired
+	private KeycloakProperties keycloakProperties;
 
 	@Autowired
 	private UsuarioService usuarioService;
@@ -61,15 +52,28 @@ public class AuthController extends HttpClientController {
 
 	@PostConstruct
 	public void init() {
-		this.authenticationUrl = String.format(AuthController.KEYCLOAK_AUTHETICATE_URL, authServerUrl, realm);
-		this.revokeUrl = String.format(AuthController.KEYCLOAK_REVOKE_URL, authServerUrl, realm);
+		this.authenticationUrl = String.format(AuthController.KEYCLOAK_AUTHETICATE_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
+		this.revokeUrl = String.format(AuthController.KEYCLOAK_REVOKE_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
 	}
 
 	@PostMapping(value = "/logon", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<AuthDTO> auth(AuthForm authForm) {
 		String errorMsg = "Autenticação falhou. %s";
 		try {
-			return ResponseEntity.ok(authenticate(authForm));
+			AuthDTO authDTO = authenticate(authForm);
+
+			// Verificar status do usuário e da organização no banco local
+			br.com.tt.painelpreco.arch.infra.auth.Usuario usuario = usuarioService.findByLogin(authForm.getUsername());
+			if (usuario != null) {
+				if (Boolean.FALSE.equals(usuario.getAtivo())) {
+					throw new ArchException("Usuário desativado. Contate o administrador.");
+				}
+				if (usuario.getOrganizacao() != null && Boolean.FALSE.equals(usuario.getOrganizacao().getAtivo())) {
+					throw new ArchException("Organização desativada. Contate o administrador.");
+				}
+			}
+
+			return ResponseEntity.ok(authDTO);
 		} catch (HttpException e) {
 			if (e.isAcessoNegado())
 				throw new HttpException("Autenticação falhou. Usuário ou senha inválidos.");
@@ -113,8 +117,8 @@ public class AuthController extends HttpClientController {
 		header.setContentType(ContentType.APPLICATION_FORM_URLENCODED);
 
 		Body body = new Body();
-		body.add(Body.CLIENT_ID_KEY, clientId)
-				.add(Body.CLIENT_SECRET, clientSecret)
+		body.add(Body.CLIENT_ID_KEY, keycloakProperties.getClientId())
+				.add(Body.CLIENT_SECRET, keycloakProperties.getClientSecret())
 				.add(Body.GRANT_TYPE_KEY, GrantType.PASSWORD.getName())
 				.add(Body.USERNAME_KEY, authForm.getUsername())
 				.add(Body.PASSWORD_KEY, authForm.getPassword());
@@ -133,9 +137,9 @@ public class AuthController extends HttpClientController {
 
 			Body body = new Body();
 			body.add(Body.GRANT_TYPE_KEY, "refresh_token")
-					.add(Body.CLIENT_ID_KEY, clientId)
-					.add(Body.CLIENT_SECRET, clientSecret)
-					.add("refresh_token", refreshForm.getRefresh_token());
+				.add("refresh_token", refreshForm.getRefresh_token())
+				.add(Body.CLIENT_ID_KEY, keycloakProperties.getClientId())
+				.add(Body.CLIENT_SECRET, keycloakProperties.getClientSecret());
 
 			HttpResponse response = super.requestPost(header, body, QueryParam.NONE, authenticationUrl);
 			AuthDTO authDTO = response.toDTO(AuthDTO.class);
@@ -158,8 +162,8 @@ public class AuthController extends HttpClientController {
 			Body body = new Body();
 			body.add("token", logoutForm.getRefresh_token())
 					.add("token_type_hint", "refresh_token")
-					.add(Body.CLIENT_ID_KEY, clientId)
-					.add(Body.CLIENT_SECRET, clientSecret);
+					.add(Body.CLIENT_ID_KEY, keycloakProperties.getClientId())
+					.add(Body.CLIENT_SECRET, keycloakProperties.getClientSecret());
 
 			try {
 				super.requestPost(header, body, QueryParam.NONE, revokeUrl);

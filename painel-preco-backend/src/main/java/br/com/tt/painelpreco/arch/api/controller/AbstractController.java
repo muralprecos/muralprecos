@@ -129,20 +129,26 @@ public abstract class AbstractController {
 	
 	@SuppressWarnings("unchecked")
 	public Usuario getUsuario() {
+		AccessToken token = getAccessToken();
+		String username = token.getPreferredUsername();
+
+		Organizacao organizacao = null;
 		try {
-			AccessToken token = getAccessToken();
 			Map<String,Object> claims = token.getOtherClaims();
 			Map<String,Object> organizacaoMap = (Map<String, Object>) claims.get("organizacao");
-			String id = (String) organizacaoMap.get("uuid");
-			String nome = (String) organizacaoMap.get("nome");
-			
-			Organizacao organizacao = new Organizacao(id, nome);
-			
-			return new Usuario(getAccessToken().getPreferredUsername(), String.format("%s $s", getAccessToken().getGivenName(), getAccessToken().getFamilyName()), getAccessToken().getEmail(), organizacao);
-		} catch (NullPointerException e) {
-			return new Usuario();
-			// TODO: handle exception
+			if (organizacaoMap != null) {
+				String id = (String) organizacaoMap.get("uuid");
+				String nome = (String) organizacaoMap.get("nome");
+				organizacao = new Organizacao(id, nome);
+			}
+		} catch (Exception e) {
+			// organizacao claim ausente ou malformado — continua sem organização
 		}
+
+		return new Usuario(username,
+				String.format("%s %s", token.getGivenName(), token.getFamilyName()),
+				token.getEmail(),
+				organizacao);
 	}
 	
 	public String getRemoteAddress() {
