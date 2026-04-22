@@ -33,4 +33,10 @@ public class UsuarioDTO {
   /** true quando o usuário correspondente ao uuid não foi encontrado no Keycloak */
   private Boolean keycloakNaoEncontrado;
 
+  private String detalhesUltimaSincronizacao;
+
+  private java.time.LocalDateTime dataUltimaSincronizacao;
+
+  private Integer usuarioSincronizacaoId;
+
 }

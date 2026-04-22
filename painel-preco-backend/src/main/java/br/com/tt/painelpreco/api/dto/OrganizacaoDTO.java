@@ -20,4 +20,10 @@ public class OrganizacaoDTO {
 
   private LocalDateTime dataCriacao;
 
+  private String detalhesUltimaSincronizacao;
+
+  private LocalDateTime dataUltimaSincronizacao;
+
+  private Integer usuarioSincronizacaoId;
+
 }

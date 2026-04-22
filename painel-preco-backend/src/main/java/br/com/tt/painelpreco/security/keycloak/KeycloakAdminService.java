@@ -824,4 +824,93 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
+  public List<JSONObject> listarTodosUsuarios() {
+    log.debug("Listando todos os usuários do Keycloak");
+    try {
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+      QueryParam queryParam = new QueryParam();
+      queryParam.add("first", "0");
+      queryParam.add("max", "10000");
+      String responseRaw = obterRespostaRawGet(header, queryParam, usersUrl);
+      if (responseRaw == null || responseRaw.trim().isEmpty()) {
+        return new java.util.ArrayList<>();
+      }
+      JSONArray usersArray = new JSONArray(responseRaw);
+      List<JSONObject> users = new java.util.ArrayList<>();
+      for (int i = 0; i < usersArray.length(); i++) {
+        users.add(usersArray.getJSONObject(i));
+      }
+      log.debug("Encontrados {} usuários no Keycloak", users.size());
+      return users;
+    } catch (HttpException e) {
+      log.error("Erro ao listar todos os usuários no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao listar todos os usuários no Keycloak: " + e.getMessage(), e);
+    } catch (Exception e) {
+      log.error("Erro ao processar resposta de usuários do Keycloak: {}", e.getMessage());
+      return new java.util.ArrayList<>();
+    }
+  }
+
+  public List<JSONObject> listarTodosGroups() {
+    log.debug("Listando todos os groups do Keycloak");
+    try {
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+      QueryParam queryParam = new QueryParam();
+      queryParam.add("max", "10000");
+      String responseRaw = obterRespostaRawGet(header, queryParam, groupsUrl);
+      if (responseRaw == null || responseRaw.trim().isEmpty()) {
+        return new java.util.ArrayList<>();
+      }
+      JSONArray groupsArray = new JSONArray(responseRaw);
+      List<JSONObject> groups = new java.util.ArrayList<>();
+      for (int i = 0; i < groupsArray.length(); i++) {
+        groups.add(groupsArray.getJSONObject(i));
+      }
+      log.debug("Encontrados {} groups no Keycloak", groups.size());
+      return groups;
+    } catch (HttpException e) {
+      log.error("Erro ao listar todos os groups no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao listar todos os groups no Keycloak: " + e.getMessage(), e);
+    } catch (Exception e) {
+      log.error("Erro ao processar resposta de groups do Keycloak: {}", e.getMessage());
+      return new java.util.ArrayList<>();
+    }
+  }
+
+  public List<JSONObject> buscarGroupsDoUsuario(String userId) {
+    log.debug("Buscando groups do usuário {} no Keycloak", userId);
+    try {
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+      String url = usersUrl + "/" + userId + "/groups";
+      String responseRaw = obterRespostaRawGet(header, QueryParam.NONE, url);
+      if (responseRaw == null || responseRaw.trim().isEmpty()) {
+        return new java.util.ArrayList<>();
+      }
+      JSONArray groupsArray = new JSONArray(responseRaw);
+      List<JSONObject> groups = new java.util.ArrayList<>();
+      for (int i = 0; i < groupsArray.length(); i++) {
+        groups.add(groupsArray.getJSONObject(i));
+      }
+      return groups;
+    } catch (HttpException e) {
+      if (e.getStatusCode() == 404) {
+        return new java.util.ArrayList<>();
+      }
+      log.error("Erro ao buscar groups do usuário {} no Keycloak: {}", userId, e.getMessage());
+      throw new ArchException("Falha ao buscar groups do usuário no Keycloak: " + e.getMessage(), e);
+    } catch (Exception e) {
+      log.warn("Erro ao processar grupos do usuário {} no Keycloak: {}", userId, e.getMessage());
+      return new java.util.ArrayList<>();
+    }
+  }
+
 }

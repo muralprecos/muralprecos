@@ -46,6 +46,15 @@ public class Usuario {
 
 	@Column(name = "data_criacao")
 	private LocalDateTime dataCriacao;
+
+	@Column(name = "detalhes_ultima_sincronizacao", columnDefinition = "TEXT")
+	private String detalhesUltimaSincronizacao;
+
+	@Column(name = "data_ultima_sincronizacao")
+	private LocalDateTime dataUltimaSincronizacao;
+
+	@Column(name = "usuario_sincronizacao_id")
+	private Integer usuarioSincronizacaoId;
 	
 	@ManyToOne
 	@JoinColumn(name = "organizacao_id")
