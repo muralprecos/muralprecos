@@ -1,22 +1,27 @@
 package br.com.tt.painelpreco.domain.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import br.com.tt.painelpreco.api.dto.OrganizacaoDetalhesDTO;
 import br.com.tt.painelpreco.api.dto.form.OrganizacaoForm;
 import br.com.tt.painelpreco.arch.exception.ArchException;
 import br.com.tt.painelpreco.arch.infra.auth.Organizacao;
+import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.domain.repository.OrganizacaoRepository;
 import br.com.tt.painelpreco.domain.repository.UsuarioRepository;
 import br.com.tt.painelpreco.security.keycloak.KeycloakAdminService;
+import br.com.tt.painelpreco.security.keycloak.OrganizacaoKeycloakAttributes;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -52,7 +57,6 @@ public class OrganizacaoService {
         return org;
       }
     } catch (IllegalArgumentException e) {
-      // Não é um UUID válido, tenta como ID sequencial
       log.debug("Identificador '{}' não é um UUID válido, tentando como ID sequencial", organizacaoId);
     }
 
@@ -75,19 +79,17 @@ public class OrganizacaoService {
     // Criar group no Keycloak
     String keycloakGroupId;
     try {
-      keycloakGroupId = keycloakAdminService.criarGroup(form.getNome());
+      keycloakGroupId = keycloakAdminService.criarGroup(form.getNome(), form.getCnpj(), form.getNumero());
       log.info("Group criado no Keycloak com ID: {}", keycloakGroupId);
     } catch (Exception e) {
       log.error("Erro ao criar group no Keycloak: {}", e.getMessage());
       throw new ArchException("Falha ao criar organização no Keycloak: " + e.getMessage(), e);
     }
 
-    // Persistir no banco local
+    // Persistir no banco local (sem cnpj/numero — ficam apenas no Keycloak)
     Organizacao organizacao = new Organizacao();
     organizacao.setUuid(UUID.fromString(keycloakGroupId));
     organizacao.setNome(form.getNome());
-    organizacao.setCnpj(form.getCnpj());
-    organizacao.setNumero(form.getNumero());
     organizacao.setAtivo(true);
 
     try {
@@ -96,7 +98,6 @@ public class OrganizacaoService {
       return organizacao;
     } catch (Exception e) {
       log.error("Erro ao salvar organização no banco de dados: {}", e.getMessage());
-      // Tentar deletar o group no Keycloak para manter consistência
       try {
         keycloakAdminService.deletarGroup(keycloakGroupId);
         log.warn("Group deletado no Keycloak após falha ao salvar no banco");
@@ -118,20 +119,18 @@ public class OrganizacaoService {
 
     validarDadosOrganizacao(form, organizacao);
 
-    // Atualizar group no Keycloak
+    // Atualizar group no Keycloak (inclui cnpj/numero como atributos)
     try {
       String groupId = organizacao.getUuid().toString();
-      keycloakAdminService.atualizarGroup(groupId, form.getNome());
+      keycloakAdminService.atualizarGroup(groupId, form.getNome(), form.getCnpj(), form.getNumero());
       log.info("Group atualizado no Keycloak: {}", groupId);
     } catch (Exception e) {
       log.error("Erro ao atualizar group no Keycloak: {}", e.getMessage());
       throw new ArchException("Falha ao atualizar organização no Keycloak: " + e.getMessage(), e);
     }
 
-    // Atualizar no banco local
+    // Atualizar no banco local (apenas campos presentes na entidade)
     organizacao.setNome(form.getNome());
-    organizacao.setCnpj(form.getCnpj());
-    organizacao.setNumero(form.getNumero());
 
     try {
       organizacao = organizacaoRepository.save(organizacao);
@@ -144,34 +143,117 @@ public class OrganizacaoService {
   }
 
   @Transactional
-  public void deletarOrganizacao(String organizacaoId) {
-    log.info("Iniciando deleção de organização: {}", organizacaoId);
+  public Organizacao desativarOrganizacao(String organizacaoId) {
+    log.info("Iniciando desativação de organização: {}", organizacaoId);
 
     Organizacao organizacao = buscarOrganizacao(organizacaoId);
     if (organizacao == null) {
       throw new ArchException("Organização não encontrada com identificador: " + organizacaoId);
     }
 
-    validarPodeDeletar(organizacao);
-
-    // Deletar group no Keycloak
-    try {
-      String groupId = organizacao.getUuid().toString();
-      keycloakAdminService.deletarGroup(groupId);
-      log.info("Group deletado no Keycloak: {}", groupId);
-    } catch (Exception e) {
-      log.error("Erro ao deletar group no Keycloak: {}", e.getMessage());
-      throw new ArchException("Falha ao deletar organização no Keycloak: " + e.getMessage(), e);
+    // Desativar usuários ativos em cascata
+    List<Usuario> usuariosAtivos = usuarioRepository.findByOrganizacaoAndAtivo(organizacao, true);
+    for (Usuario usuario : usuariosAtivos) {
+      usuario.setAtivo(false);
+      usuarioRepository.save(usuario);
+      try {
+        keycloakAdminService.desativarUsuario(usuario.getUuid().toString());
+        log.info("Usuário {} desativado no Keycloak em cascata", usuario.getUuid());
+      } catch (Exception e) {
+        log.warn("Erro ao desativar usuário {} no Keycloak durante cascata: {}", usuario.getUuid(), e.getMessage());
+      }
     }
 
-    // Deletar no banco local (hard delete)
-    try {
-      organizacaoRepository.delete(organizacao);
-      log.info("Organização deletada do banco de dados com ID: {}", organizacao.getId());
-    } catch (Exception e) {
-      log.error("Erro ao deletar organização do banco de dados: {}", e.getMessage());
-      throw new ArchException("Falha ao deletar organização do banco de dados: " + e.getMessage(), e);
+    // Desativar organização no banco local
+    organizacao.setAtivo(false);
+    organizacao = organizacaoRepository.save(organizacao);
+    log.info("Organização desativada com sucesso. ID: {}", organizacao.getId());
+
+    return organizacao;
+  }
+
+  @Transactional
+  public Organizacao reativarOrganizacao(String organizacaoId) {
+    log.info("Iniciando reativação de organização: {}", organizacaoId);
+
+    Organizacao organizacao = buscarOrganizacao(organizacaoId);
+    if (organizacao == null) {
+      throw new ArchException("Organização não encontrada com identificador: " + organizacaoId);
     }
+
+    if (Boolean.TRUE.equals(organizacao.getAtivo())) {
+      throw new ArchException("Organização já está ativa: " + organizacaoId);
+    }
+
+    organizacao.setAtivo(true);
+    organizacao = organizacaoRepository.save(organizacao);
+    log.info("Organização reativada com sucesso. ID: {}", organizacao.getId());
+
+    return organizacao;
+  }
+
+  public OrganizacaoDetalhesDTO buscarDetalhesOrganizacao(String organizacaoId) {
+    log.debug("Buscando detalhes de organização: {}", organizacaoId);
+
+    Organizacao organizacao = buscarOrganizacao(organizacaoId);
+    if (organizacao == null) {
+      return null;
+    }
+
+    OrganizacaoDetalhesDTO dto = new OrganizacaoDetalhesDTO();
+    dto.setId(organizacao.getId());
+    dto.setUuid(organizacao.getUuid());
+    dto.setNome(organizacao.getNome());
+    dto.setAtivo(organizacao.getAtivo());
+    dto.setDataCriacao(organizacao.getDataCriacao());
+
+    // Buscar atributos extras do Keycloak (cnpj, telefone)
+    try {
+      JSONObject group = keycloakAdminService.buscarGroupPorId(organizacao.getUuid().toString());
+      if (group != null) {
+        dto.setKeycloakNaoEncontrado(false);
+        JSONObject attributes = group.optJSONObject("attributes");
+        if (attributes != null) {
+          JSONArray cnpjArr = attributes.optJSONArray(OrganizacaoKeycloakAttributes.CNPJ);
+          if (cnpjArr != null && cnpjArr.length() > 0) {
+            dto.setCnpj(cnpjArr.getString(0));
+          }
+          JSONArray telefArr = attributes.optJSONArray(OrganizacaoKeycloakAttributes.TELEFONE);
+          if (telefArr != null && telefArr.length() > 0) {
+            dto.setTelefone(telefArr.getString(0));
+          }
+        }
+      } else {
+        log.warn("Group do Keycloak não encontrado para o UUID: {}", organizacao.getUuid());
+        dto.setKeycloakNaoEncontrado(true);
+      }
+    } catch (Exception e) {
+      log.warn("Erro ao buscar atributos do group no Keycloak: {}", e.getMessage());
+      dto.setKeycloakNaoEncontrado(true);
+    }
+
+    // Buscar membros do group no Keycloak
+    List<OrganizacaoDetalhesDTO.MembroDTO> membros = new ArrayList<>();
+    try {
+      List<JSONObject> keycloakMembros = keycloakAdminService.buscarUsuariosDoGroup(organizacao.getUuid().toString());
+      if (keycloakMembros != null) {
+        for (JSONObject m : keycloakMembros) {
+          OrganizacaoDetalhesDTO.MembroDTO membro = new OrganizacaoDetalhesDTO.MembroDTO();
+          membro.setUuid(m.optString("id"));
+          membro.setUsername(m.optString("username"));
+          String firstName = m.optString("firstName", "");
+          String lastName = m.optString("lastName", "");
+          membro.setNome((firstName + " " + lastName).trim());
+          membro.setEmail(m.optString("email"));
+          membros.add(membro);
+        }
+      }
+    } catch (Exception e) {
+      log.warn("Erro ao buscar membros do group no Keycloak: {}", e.getMessage());
+    }
+    dto.setMembros(membros);
+
+    return dto;
   }
 
   private void validarDadosOrganizacao(OrganizacaoForm form, Organizacao organizacaoExistente) {
@@ -187,32 +269,12 @@ public class OrganizacaoService {
 
     String groupIdExistente = keycloakAdminService.buscarGroupPorNome(form.getNome());
     if (groupIdExistente != null) {
-      // Se estiver atualizando, verificar se é o mesmo group
       if (organizacaoExistente == null || !groupIdExistente.equals(organizacaoExistente.getUuid().toString())) {
         throw new ArchException("Já existe uma organização com o nome no sistema: " + form.getNome());
       }
     }
-
-    // ToDo: Validações adicionais de CNPJ podem ser adicionadas aqui
-  }
-
-  private void validarPodeDeletar(Organizacao organizacao) {
-    long countUsuarios = usuarioRepository.countByOrganizacao(organizacao);
-    if (countUsuarios > 0) {
-      throw new ArchException(
-          "Não é possível deletar a organização. Existem " + countUsuarios + " usuário(s) associado(s).");
-    }
-
-    try {
-      List<JSONObject> usuarios = keycloakAdminService.buscarUsuariosDoGroup(organizacao.getUuid().toString());
-      if (usuarios != null && !usuarios.isEmpty()) {
-        throw new ArchException(
-            "Não é possível deletar a organização. Existem " + usuarios.size()
-                + " usuário(s) no Keycloak associado(s).");
-      }
-    } catch (Exception e) {
-      log.warn("Erro ao verificar usuários do group no Keycloak: {}", e.getMessage());
-    }
   }
 
 }
+
+

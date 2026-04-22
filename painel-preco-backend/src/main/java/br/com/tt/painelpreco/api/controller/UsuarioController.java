@@ -156,6 +156,15 @@ public class UsuarioController {
     return ResponseEntity.ok(dto);
   }
 
+  @GetMapping("/{id}/detalhes")
+  public ResponseEntity<UsuarioDTO> detalhes(@PathVariable String id) {
+    UsuarioDTO dto = usuarioService.buscarDetalhesUsuario(id);
+    if (dto == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(dto);
+  }
+
   @PutMapping("/{id}")
   public ResponseEntity<UsuarioDTO> atualizar(@PathVariable String id, @Valid @RequestBody UsuarioForm form) {
     try {
@@ -175,16 +184,34 @@ public class UsuarioController {
     }
   }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletar(@PathVariable String id) {
+  @PutMapping("/{id}/reativar")
+  public ResponseEntity<UsuarioDTO> reativar(@PathVariable String id) {
     try {
-      usuarioService.deletarUsuario(id);
+      Usuario usuario = usuarioService.reativarUsuario(id);
+      UsuarioDTO dto = converter.toDTO(usuario, UsuarioDTO.class);
+      if (usuario.getOrganizacao() != null) {
+        dto.setOrganizacaoNome(usuario.getOrganizacao().getNome());
+        dto.setOrganizacaoId(usuario.getOrganizacao().getId());
+      }
+      return ResponseEntity.ok(dto);
+    } catch (ArchException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new ArchException(
+          "Erro ao reativar usuário: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()), e);
+    }
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> desativar(@PathVariable String id) {
+    try {
+      usuarioService.desativarUsuario(id);
       return ResponseEntity.noContent().build();
     } catch (ArchException e) {
       throw e;
     } catch (Exception e) {
       throw new ArchException(
-          "Erro ao deletar usuário: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()), e);
+          "Erro ao desativar usuário: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()), e);
     }
   }
 

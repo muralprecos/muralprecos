@@ -16,10 +16,6 @@ public class OrganizacaoDTO {
 
   private String nome;
 
-  private String cnpj;
-
-  private String numero;
-
   private Boolean ativo;
 
   private LocalDateTime dataCriacao;

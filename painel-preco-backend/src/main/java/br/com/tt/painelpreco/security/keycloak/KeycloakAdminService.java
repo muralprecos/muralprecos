@@ -311,8 +311,8 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
-  public String criarGroup(String name) {
-    log.info("Criando group no Keycloak: {}", name);
+  public String criarGroup(String nome, String cnpj, String telefone) {
+    log.info("Criando group no Keycloak: {}", nome);
 
     try {
       String token = obterAccessTokenAdmin();
@@ -322,13 +322,14 @@ public class KeycloakAdminService extends HttpClientController {
       header.add("Authorization", "Bearer " + token);
 
       JSONObject groupJson = new JSONObject();
-      groupJson.put("name", name);
+      groupJson.put("name", nome);
+      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone));
 
       Body body = new Body(groupJson);
 
       super.requestPost(header, body, QueryParam.NONE, groupsUrl);
 
-      String groupId = buscarGroupPorNome(name);
+      String groupId = buscarGroupPorNome(nome);
 
       log.info("Group criado no Keycloak com sucesso. ID: {}", groupId);
 
@@ -447,7 +448,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
-  public void atualizarGroup(String groupId, String name) {
+  public void atualizarGroup(String groupId, String nome, String cnpj, String telefone) {
     log.info("Atualizando group {} no Keycloak", groupId);
 
     try {
@@ -458,7 +459,8 @@ public class KeycloakAdminService extends HttpClientController {
       header.add("Authorization", "Bearer " + token);
 
       JSONObject groupJson = new JSONObject();
-      groupJson.put("name", name);
+      groupJson.put("name", nome);
+      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone));
 
       Body body = new Body(groupJson);
 
@@ -472,6 +474,20 @@ public class KeycloakAdminService extends HttpClientController {
       log.error("Erro ao atualizar group no Keycloak: {}", e.getMessage());
       throw new ArchException("Falha ao atualizar group no Keycloak: " + e.getMessage(), e);
     }
+  }
+
+  private JSONObject construirAtributosOrganizacao(String nome, String cnpj, String telefone) {
+    JSONObject attributes = new JSONObject();
+    if (nome != null) {
+      attributes.put(OrganizacaoKeycloakAttributes.NOME, new JSONArray().put(nome));
+    }
+    if (cnpj != null && !cnpj.trim().isEmpty()) {
+      attributes.put(OrganizacaoKeycloakAttributes.CNPJ, new JSONArray().put(cnpj));
+    }
+    if (telefone != null && !telefone.trim().isEmpty()) {
+      attributes.put(OrganizacaoKeycloakAttributes.TELEFONE, new JSONArray().put(telefone));
+    }
+    return attributes;
   }
 
   public boolean emailExiste(String email) {
@@ -543,6 +559,16 @@ public class KeycloakAdminService extends HttpClientController {
     return buscarUsuarioPorUsername(username) != null;
   }
 
+  public void desativarUsuario(String userId) {
+    log.info("Desativando usuário {} no Keycloak", userId);
+    atualizarUsuario(userId, null, null, null, false);
+  }
+
+  public void ativarUsuario(String userId) {
+    log.info("Ativando usuário {} no Keycloak", userId);
+    atualizarUsuario(userId, null, null, null, true);
+  }
+
   public void deletarGroup(String groupId) {
     log.info("Deletando group {} no Keycloak", groupId);
 
@@ -577,9 +603,12 @@ public class KeycloakAdminService extends HttpClientController {
 
       String url = groupsUrl + "/" + groupId + "/members";
 
-      HttpResponse response = super.requestGet(header, Body.DEFAULT, QueryParam.NONE, url);
+      String responseStr = obterRespostaRawGet(header, QueryParam.NONE, url);
 
-      String responseStr = response.getResponse().toString();
+      if (responseStr == null || responseStr.trim().isEmpty()) {
+        return new java.util.ArrayList<>();
+      }
+
       JSONArray usersArray = new JSONArray(responseStr);
 
       log.debug("Encontrados {} usuários no group", usersArray.length());

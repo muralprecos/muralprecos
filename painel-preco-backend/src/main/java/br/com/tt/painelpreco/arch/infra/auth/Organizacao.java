@@ -40,12 +40,6 @@ public class Organizacao {
 	@Type(type = "org.hibernate.type.BinaryType")
 	private byte[] logo;
 
-	@Column(length = 18)
-	private String cnpj;
-
-	@Column(length = 15)
-	private String numero;
-
 	@Column(name = "ativo")
 	private Boolean ativo = true;
 

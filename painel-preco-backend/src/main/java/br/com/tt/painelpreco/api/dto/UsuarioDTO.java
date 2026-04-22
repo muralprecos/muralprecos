@@ -16,6 +16,8 @@ public class UsuarioDTO {
 
   private String username;
 
+  private String login;
+
   private String email;
 
   private String nome;
@@ -27,5 +29,8 @@ public class UsuarioDTO {
   private Boolean ativo;
 
   private LocalDateTime dataCriacao;
+
+  /** true quando o usuário correspondente ao uuid não foi encontrado no Keycloak */
+  private Boolean keycloakNaoEncontrado;
 
 }

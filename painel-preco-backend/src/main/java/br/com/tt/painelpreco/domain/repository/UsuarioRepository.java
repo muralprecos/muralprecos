@@ -1,5 +1,7 @@
 package br.com.tt.painelpreco.domain.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import br.com.tt.painelpreco.arch.infra.auth.Organizacao;
@@ -14,5 +16,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 	Usuario findByUuid(java.util.UUID uuid);
 
 	long countByOrganizacao(Organizacao organizacao);
+
+	List<Usuario> findByOrganizacaoAndAtivo(Organizacao organizacao, Boolean ativo);
 
 }

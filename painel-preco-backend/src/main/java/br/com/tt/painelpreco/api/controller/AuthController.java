@@ -60,7 +60,20 @@ public class AuthController extends HttpClientController {
 	public ResponseEntity<AuthDTO> auth(AuthForm authForm) {
 		String errorMsg = "Autenticação falhou. %s";
 		try {
-			return ResponseEntity.ok(authenticate(authForm));
+			AuthDTO authDTO = authenticate(authForm);
+
+			// Verificar status do usuário e da organização no banco local
+			br.com.tt.painelpreco.arch.infra.auth.Usuario usuario = usuarioService.findByLogin(authForm.getUsername());
+			if (usuario != null) {
+				if (Boolean.FALSE.equals(usuario.getAtivo())) {
+					throw new ArchException("Usuário desativado. Contate o administrador.");
+				}
+				if (usuario.getOrganizacao() != null && Boolean.FALSE.equals(usuario.getOrganizacao().getAtivo())) {
+					throw new ArchException("Organização desativada. Contate o administrador.");
+				}
+			}
+
+			return ResponseEntity.ok(authDTO);
 		} catch (HttpException e) {
 			if (e.isAcessoNegado())
 				throw new HttpException("Autenticação falhou. Usuário ou senha inválidos.");
@@ -125,7 +138,7 @@ public class AuthController extends HttpClientController {
 			Body body = new Body();
 			body.add(Body.GRANT_TYPE_KEY, "refresh_token")
 				.add(Body.CLIENT_ID_KEY, keycloakProperties.getClientId())
-				.add(Body.CLIENT_SECRET, keycloakProperties.getClientSecret())
+				.add(Body.CLIENT_SECRET, keycloakProperties.getClientSecret());
 
 			HttpResponse response = super.requestPost(header, body, QueryParam.NONE, authenticationUrl);
 			AuthDTO authDTO = response.toDTO(AuthDTO.class);
