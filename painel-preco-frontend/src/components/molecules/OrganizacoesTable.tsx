@@ -5,6 +5,13 @@ import { KeycloakSyncWarning } from "@/components/atoms/KeycloakSyncWarning";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -41,6 +48,7 @@ export function OrganizacoesTable({
   onReativar,
 }: OrganizacoesTableProps) {
   const [search, setSearch] = useState("");
+  const [statusFiltro, setStatusFiltro] = useState<"ativo" | "inativo" | "todos">("ativo");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDetalhesDialogOpen, setIsDetalhesDialogOpen] = useState(false);
@@ -53,9 +61,13 @@ export function OrganizacoesTable({
   const [formData, setFormData] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  const filteredOrgs = organizacoes.filter((org) =>
-    org.nome.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredOrgs = organizacoes.filter((org) => {
+    const matchNome = org.nome.toLowerCase().includes(search.toLowerCase());
+    const matchStatus =
+      statusFiltro === "todos" ||
+      (statusFiltro === "ativo" ? org.ativo === true : org.ativo === false);
+    return matchNome && matchStatus;
+  });
 
   const handleOpenCreate = () => {
     setEditingOrg(null);
@@ -151,14 +163,26 @@ export function OrganizacoesTable({
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar organizações..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
+        <div className="flex flex-1 gap-2">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar organizações..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+            />
+          </div>
+          <Select value={statusFiltro} onValueChange={(v) => setStatusFiltro(v as "ativo" | "inativo" | "todos")}>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ativo">Ativas</SelectItem>
+              <SelectItem value="inativo">Inativas</SelectItem>
+              <SelectItem value="todos">Todas</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <Button onClick={handleOpenCreate}>
           <Plus className="h-4 w-4 mr-2" />
@@ -172,6 +196,8 @@ export function OrganizacoesTable({
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead className="hidden md:table-cell">Status</TableHead>
+              <TableHead className="hidden lg:table-cell">Últ. Sincronização</TableHead>
+              <TableHead className="hidden xl:table-cell">Detalhes Sincronização</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -179,7 +205,7 @@ export function OrganizacoesTable({
             {filteredOrgs.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={3}
+                  colSpan={5}
                   className="text-center py-8 text-muted-foreground"
                 >
                   <Building2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -194,6 +220,30 @@ export function OrganizacoesTable({
                     <Badge variant={org.ativo ? "default" : "secondary"}>
                       {org.ativo ? "Ativa" : "Inativa"}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
+                    {org.dataUltimaSincronizacao
+                      ? new Date(org.dataUltimaSincronizacao).toLocaleString("pt-BR")
+                      : "-"}
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell max-w-xs">
+                    {org.detalhesUltimaSincronizacao ? (
+                      <span
+                        title={org.detalhesUltimaSincronizacao}
+                        className={`text-xs px-2 py-0.5 rounded-full font-medium truncate block max-w-[200px] ${
+                          org.detalhesUltimaSincronizacao.toLowerCase().includes("sucesso")
+                            ? "bg-green-100 text-green-800"
+                            : org.detalhesUltimaSincronizacao.toLowerCase().includes("conflito") ||
+                              org.detalhesUltimaSincronizacao.toLowerCase().includes("não encontrada")
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {org.detalhesUltimaSincronizacao}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">-</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

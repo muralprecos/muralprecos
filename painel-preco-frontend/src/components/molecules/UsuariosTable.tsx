@@ -79,6 +79,7 @@ export function UsuariosTable({
   onReativar,
 }: UsuariosTableProps) {
   const [search, setSearch] = useState("");
+  const [statusFiltro, setStatusFiltro] = useState<"ativo" | "inativo" | "todos">("ativo");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<Usuario | null>(null);
@@ -89,12 +90,17 @@ export function UsuariosTable({
   const [editForm, setEditForm] = useState<EditUserData>(emptyEditForm);
   const [saving, setSaving] = useState(false);
 
-  const filteredUsers = usuarios.filter(
-    (user) =>
-      user.nome.toLowerCase().includes(search.toLowerCase()) ||
-      (user.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
-      (user.organizacaoNome ?? "").toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = usuarios.filter((user) => {
+    const term = search.toLowerCase();
+    const matchNome =
+      user.nome.toLowerCase().includes(term) ||
+      (user.email ?? "").toLowerCase().includes(term) ||
+      (user.organizacaoNome ?? "").toLowerCase().includes(term);
+    const matchStatus =
+      statusFiltro === "todos" ||
+      (statusFiltro === "ativo" ? user.ativo === true : user.ativo === false);
+    return matchNome && matchStatus;
+  });
 
   const handleOpenCreate = () => {
     setEditingUser(null);
@@ -188,14 +194,26 @@ export function UsuariosTable({
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar usuários..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
+        <div className="flex flex-1 gap-2">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar usuários..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select value={statusFiltro} onValueChange={(v) => setStatusFiltro(v as "ativo" | "inativo" | "todos")}>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ativo">Ativos</SelectItem>
+              <SelectItem value="inativo">Inativos</SelectItem>
+              <SelectItem value="todos">Todos</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <Button onClick={handleOpenCreate}>
           <Plus className="h-4 w-4 mr-2" />
@@ -212,6 +230,8 @@ export function UsuariosTable({
               <TableHead className="hidden md:table-cell">Email</TableHead>
               <TableHead>Organização</TableHead>
               <TableHead className="hidden md:table-cell">Status</TableHead>
+              <TableHead className="hidden lg:table-cell">Últ. Sincronização</TableHead>
+              <TableHead className="hidden xl:table-cell">Detalhes Sincronização</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -219,7 +239,7 @@ export function UsuariosTable({
             {filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={8}
                   className="text-center py-8 text-muted-foreground"
                 >
                   <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -243,6 +263,30 @@ export function UsuariosTable({
                     <Badge variant={user.ativo ? "default" : "secondary"}>
                       {user.ativo ? "Ativo" : "Inativo"}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
+                    {user.dataUltimaSincronizacao
+                      ? new Date(user.dataUltimaSincronizacao).toLocaleString("pt-BR")
+                      : "-"}
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell max-w-xs">
+                    {user.detalhesUltimaSincronizacao ? (
+                      <span
+                        title={user.detalhesUltimaSincronizacao}
+                        className={`text-xs px-2 py-0.5 rounded-full font-medium truncate block max-w-[200px] ${
+                          user.detalhesUltimaSincronizacao.toLowerCase().includes("sucesso")
+                            ? "bg-green-100 text-green-800"
+                            : user.detalhesUltimaSincronizacao.toLowerCase().includes("conflito") ||
+                              user.detalhesUltimaSincronizacao.toLowerCase().includes("não encontrado")
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {user.detalhesUltimaSincronizacao}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">-</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

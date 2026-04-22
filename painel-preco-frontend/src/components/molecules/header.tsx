@@ -80,18 +80,37 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     if (status === "authenticated" && session?.userInfo) {
       const userInfo = session.userInfo;
       const userName = userInfo.name || "Usuário";
-      const userOrg = userInfo.organizacao?.nome || "Sem Organização";
+      const tokenOrg = userInfo.organizacao?.nome;
 
       setName(userName);
-      setOrg(userOrg);
 
-      try {
-        localStorage.setItem(
-          "userSessionCache",
-          JSON.stringify({ name: userName, org: userOrg }),
-        );
-      } catch (error) {
-        console.error("Erro ao salvar cache de sessão:", error);
+      if (tokenOrg) {
+        setOrg(tokenOrg);
+        try {
+          localStorage.setItem(
+            "userSessionCache",
+            JSON.stringify({ name: userName, org: tokenOrg }),
+          );
+        } catch (error) {
+          console.error("Erro ao salvar cache de sessão:", error);
+        }
+      } else {
+        // org não está no token — busca no backend
+        fetch("/api/usuarios/me")
+          .then((res) => res.ok ? res.json() : null)
+          .then((data) => {
+            const orgName: string = data?.organizacaoNome || "Sem Organização";
+            setOrg(orgName);
+            try {
+              localStorage.setItem(
+                "userSessionCache",
+                JSON.stringify({ name: userName, org: orgName }),
+              );
+            } catch {
+              // silently ignore
+            }
+          })
+          .catch(() => setOrg("Sem Organização"));
       }
     } else if (status === "unauthenticated") {
       setName("");

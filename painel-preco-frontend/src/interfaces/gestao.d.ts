@@ -4,6 +4,9 @@ export interface Organizacao {
   nome: string;
   ativo: boolean;
   dataCriacao?: string;
+  detalhesUltimaSincronizacao?: string;
+  dataUltimaSincronizacao?: string;
+  usuarioSincronizacaoId?: number;
 }
 
 export interface OrganizacaoDetalhes extends Organizacao {
@@ -31,5 +34,22 @@ export interface Usuario {
   ativo: boolean;
   dataCriacao?: string;
   keycloakNaoEncontrado?: boolean;
+  detalhesUltimaSincronizacao?: string;
+  dataUltimaSincronizacao?: string;
+  usuarioSincronizacaoId?: number;
+}
+
+export interface SincronizacaoResultado {
+  usuariosDesativados: number;
+  usuariosReativados: number;
+  usuariosCriados: number;
+  usuariosComConflito: number;
+  usuariosNaoAlterados: number;
+  organizacoesDesativadas: number;
+  organizacoesReativadas: number;
+  organizacoesCriadas: number;
+  organizacoesComConflito: number;
+  organizacoesNaoAlteradas: number;
+  mensagens: string[];
 }
 
