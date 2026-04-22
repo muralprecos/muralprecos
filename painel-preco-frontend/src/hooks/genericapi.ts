@@ -170,19 +170,14 @@ export const postGenericBlob = async ({
   acceptType,
   accessToken,
 }: IAPISearchProps): Promise<Blob | ResponseError | null> => {
-  try {
-    const res = await reqBodyGeneric<Blob>({
-      path,
-      bodydata,
-      acceptType,
-      accessToken,
-      method: "POST",
-    });
-    return res.status ? (res.data ? res.data.blob() : null) : null;
-  } catch (e) {
-    throw new Error("Ocorreu um problema na requisição para o servidor.");
-  }
-  return null;
+  const res = await reqBodyGeneric<Blob>({
+    path,
+    bodydata,
+    acceptType,
+    accessToken,
+    method: "POST",
+  });
+  return res.status ? (res.data ? res.data.blob() : null) : null;
 };
 
 export const getObjectDesc = async <T extends ISimpleObjetoAPI>(
