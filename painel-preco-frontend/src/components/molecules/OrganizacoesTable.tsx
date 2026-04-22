@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Building2, Edit, Trash2, Plus, Search, Eye, RefreshCcw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KeycloakSyncWarning } from "@/components/atoms/KeycloakSyncWarning";
@@ -60,6 +60,28 @@ export function OrganizacoesTable({
   const [editKeycloakNaoEncontrado, setEditKeycloakNaoEncontrado] = useState(false);
   const [formData, setFormData] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [cnpjLoading, setCnpjLoading] = useState(false);
+
+  const handleCnpjChange = useCallback(async (raw: string, formatted: string) => {
+    setFormData((prev) => ({ ...prev, cnpj: formatted }));
+    if (raw.length !== 14) return;
+    setCnpjLoading(true);
+    try {
+      const res = await fetch(`/api/cnpj/${raw}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setFormData((prev) => ({
+        ...prev,
+        cnpj: formatted,
+        nome: prev.nome || data.nomeFantasia || data.razaoSocial || prev.nome,
+        numero: prev.numero || data.telefone || prev.numero,
+      }));
+    } catch {
+      // lookup falhou — mantém campos como estão
+    } finally {
+      setCnpjLoading(false);
+    }
+  }, []);
 
   const filteredOrgs = organizacoes.filter((org) => {
     const matchNome = org.nome.toLowerCase().includes(search.toLowerCase());
@@ -86,6 +108,11 @@ export function OrganizacoesTable({
       if (res.ok) {
         const data: OrganizacaoDetalhes = await res.json();
         setEditKeycloakNaoEncontrado(data.keycloakNaoEncontrado ?? false);
+        setFormData((prev) => ({
+          ...prev,
+          cnpj: data.cnpj ?? "",
+          numero: data.telefone ?? "",
+        }));
       }
     } catch {
       // silently ignore — warning simply won't be shown
@@ -170,11 +197,11 @@ export function OrganizacoesTable({
               placeholder="Buscar organizações..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
+              className="pl-9 bg-surface-plain"
             />
           </div>
           <Select value={statusFiltro} onValueChange={(v) => setStatusFiltro(v as "ativo" | "inativo" | "todos")}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36 bg-surface-plain">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -195,9 +222,9 @@ export function OrganizacoesTable({
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead className="hidden md:table-cell">Status</TableHead>
               <TableHead className="hidden lg:table-cell">Últ. Sincronização</TableHead>
               <TableHead className="hidden xl:table-cell">Detalhes Sincronização</TableHead>
+              <TableHead className="hidden md:table-cell">Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -216,11 +243,6 @@ export function OrganizacoesTable({
               filteredOrgs.map((org) => (
                 <TableRow key={org.id}>
                   <TableCell className="font-medium">{org.nome}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Badge variant={org.ativo ? "default" : "secondary"}>
-                      {org.ativo ? "Ativa" : "Inativa"}
-                    </Badge>
-                  </TableCell>
                   <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
                     {org.dataUltimaSincronizacao
                       ? new Date(org.dataUltimaSincronizacao).toLocaleString("pt-BR")
@@ -244,6 +266,11 @@ export function OrganizacoesTable({
                     ) : (
                       <span className="text-muted-foreground text-xs">-</span>
                     )}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Badge variant={org.ativo ? "default" : "secondary"}>
+                      {org.ativo ? "Ativa" : "Inativa"}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -322,29 +349,24 @@ export function OrganizacoesTable({
                 {editingOrg && editKeycloakNaoEncontrado && (
                   <KeycloakSyncWarning message="Organização desincronizada. Alterações podem não ser aplicadas no Keycloak." />
                 )}
-                <div className="grid gap-2">
-                  <Label htmlFor="nome">Nome *</Label>
-                  <Input
-                    id="nome"
-                    value={formData.nome}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nome: e.target.value })
-                    }
-                    placeholder="Nome da organização"
-                  />
-                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="cnpj">CNPJ</Label>
-                    <MaskedInput
-                      mask="cnpj"
-                      id="cnpj"
-                      value={formData.cnpj}
-                      onChange={(_raw, formatted) =>
-                        setFormData({ ...formData, cnpj: formatted })
-                      }
-                      placeholder="00.000.000/0001-00"
-                    />
+                    <div className="relative">
+                      <MaskedInput
+                        mask="cnpj"
+                        id="cnpj"
+                        value={formData.cnpj}
+                        onChange={handleCnpjChange}
+                        placeholder="00.000.000/0001-00"
+                        disabled={cnpjLoading}
+                      />
+                      {cnpjLoading && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground animate-pulse">
+                          Buscando...
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="numero">Telefone</Label>
@@ -358,6 +380,17 @@ export function OrganizacoesTable({
                       placeholder="(86) 99999-9999"
                     />
                   </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="nome">Nome *</Label>
+                  <Input
+                    id="nome"
+                    value={formData.nome}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nome: e.target.value })
+                    }
+                    placeholder="Nome da organização"
+                  />
                 </div>
               </>
             )}

@@ -201,11 +201,11 @@ export function UsuariosTable({
               placeholder="Buscar usuários..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+              className="pl-9 bg-surface-plain"
             />
           </div>
           <Select value={statusFiltro} onValueChange={(v) => setStatusFiltro(v as "ativo" | "inativo" | "todos")}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36 bg-surface-plain">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -227,11 +227,10 @@ export function UsuariosTable({
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead className="hidden sm:table-cell">Login</TableHead>
-              <TableHead className="hidden md:table-cell">Email</TableHead>
-              <TableHead>Organização</TableHead>
-              <TableHead className="hidden md:table-cell">Status</TableHead>
+              <TableHead className="hidden md:table-cell">Organização</TableHead>
               <TableHead className="hidden lg:table-cell">Últ. Sincronização</TableHead>
               <TableHead className="hidden xl:table-cell">Detalhes Sincronização</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -254,15 +253,7 @@ export function UsuariosTable({
                     {user.login ?? "-"}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-muted-foreground">
-                    {user.email ?? "-"}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
                     {user.organizacaoNome ?? "-"}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <Badge variant={user.ativo ? "default" : "secondary"}>
-                      {user.ativo ? "Ativo" : "Inativo"}
-                    </Badge>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
                     {user.dataUltimaSincronizacao
@@ -287,6 +278,11 @@ export function UsuariosTable({
                     ) : (
                       <span className="text-muted-foreground text-xs">-</span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={user.ativo ? "default" : "secondary"}>
+                      {user.ativo ? "Ativo" : "Inativo"}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

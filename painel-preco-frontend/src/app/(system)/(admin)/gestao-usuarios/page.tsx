@@ -33,6 +33,8 @@ export default function GestaoUsuarios() {
   const [resultadoModalOpen, setResultadoModalOpen] = useState(false);
   const [executadoEm, setExecutadoEm] = useState<string | null>(null);
 
+  const [activeTab, setActiveTab] = useState<"organizacoes" | "usuarios">("organizacoes");
+
   const fetchData = useCallback(async () => {
     const [orgsRes, usersRes] = await Promise.all([
       fetch("/api/organizacoes"),
@@ -130,7 +132,7 @@ export default function GestaoUsuarios() {
   return (
     <main>
       <PageHeader
-        title="Gestão de Usuários"
+        title={activeTab === "organizacoes" ? "Gestão de Organizações" : "Gestão de Usuários"}
         subtitle="Gerencie organizações e usuários do sistema"
       />
 
@@ -149,7 +151,7 @@ export default function GestaoUsuarios() {
         executadoEm={executadoEm}
       />
 
-      <Tabs defaultValue="organizacoes" className="w-full">
+      <Tabs defaultValue="organizacoes" className="w-full" onValueChange={(v) => setActiveTab(v as "organizacoes" | "usuarios")}>
         <div className="flex items-center justify-between mb-4">
           <TabsList className="grid max-w-md grid-cols-2">
             <TabsTrigger value="organizacoes" className="flex items-center gap-2">
@@ -165,9 +167,10 @@ export default function GestaoUsuarios() {
             onClick={() => setModalSincronizar(true)}
             disabled={sincronizando}
             variant="outline"
+            className="bg-surface-plain"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${sincronizando ? "animate-spin" : ""}`} />
-            {sincronizando ? "Sincronizando..." : "Sincronizar com Keycloak"}
+            {sincronizando ? "Sincronizando..." : "Sincronizara com Keycloak"}
           </Button>
         </div>
 
