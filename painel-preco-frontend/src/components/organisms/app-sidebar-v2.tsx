@@ -53,6 +53,11 @@ const menuItems: MenuItem[] = [
 
 const bottomItems: MenuItem[] = [
   {
+    icon: Users,
+    label: "Gestão de Usuários",
+    path: "/gestao-usuarios"
+  },
+  {
     icon: HelpCircle,
     label: "Ajuda",
     path: "https://cal.com/ttsolucoes",

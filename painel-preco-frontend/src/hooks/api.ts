@@ -311,10 +311,11 @@ export const postLogin = async (userAuth: IUserAuth) => {
   });
 };
 
-export const postLogout = async (refreshToken: string) => {
+export const postLogout = async (refreshToken: string, idToken?: string) => {
   const URL = `${process.env.API_URL}${process.env.API_URL_PREFIX}/auth/logout`;
   const b = new URLSearchParams();
   b.append("refresh_token", refreshToken);
+  if (idToken) b.append("id_token_hint", idToken);
   return fetch(URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },

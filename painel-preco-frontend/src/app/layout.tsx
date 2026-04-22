@@ -5,6 +5,7 @@ import Providers from "./providers";
 import { auth } from "@/lib/auth";
 import ChatWidget from "@/components/organisms/ChatWidget";
 import { NotifyToaster } from "@/components/molecules/NotifyToast";
+import { SessionKeepalive } from "@/components/atoms/SessionKeepalive";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -34,6 +35,7 @@ export default async function RootLayout({
           <main className="flex-1 flex flex-col">
             {children}
             {session && session?.userInfo && <ChatWidget />}
+            {session && <SessionKeepalive />}
           </main>
         </Providers>
       </body>

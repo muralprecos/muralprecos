@@ -11,6 +11,9 @@ import {
 
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
+// valores do whenAuthenticated:
+// "next" = permite acesso à rota mesmo estando autenticado
+// "redirect" = redireciona para / se o usuário já estiver logado
 const publicRoutes = [
   { path: "/login", whenAuthenticated: "redirect" },
   { path: "/unauthorized", whenAuthenticated: "redirect" },
@@ -119,8 +122,10 @@ export default async function middleware(req: NextRequest) {
   }
 }
 
+// Rotas que não passam pelo middleware (ex: APIs, assets estáticos),
+// exceto /api/auth/session que precisa do refresh de cookie via middleware.
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|validar-cotacao).*)",
+    "/((?!api(?!/auth/session)|_next/static|_next/image|favicon.ico|validar-cotacao).*)",
   ],
 };
