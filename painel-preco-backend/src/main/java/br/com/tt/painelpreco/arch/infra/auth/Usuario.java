@@ -1,5 +1,6 @@
 package br.com.tt.painelpreco.arch.infra.auth;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import br.com.tt.painelpreco.util.StringUtil;
@@ -38,6 +40,21 @@ public class Usuario {
 	private String nome;
 	
 	private String email;
+
+	@Column(name = "ativo")
+	private Boolean ativo = true;
+
+	@Column(name = "data_criacao")
+	private LocalDateTime dataCriacao;
+
+	@Column(name = "detalhes_ultima_sincronizacao", columnDefinition = "TEXT")
+	private String detalhesUltimaSincronizacao;
+
+	@Column(name = "data_ultima_sincronizacao")
+	private LocalDateTime dataUltimaSincronizacao;
+
+	@Column(name = "usuario_sincronizacao_id")
+	private Integer usuarioSincronizacaoId;
 	
 	@ManyToOne
 	@JoinColumn(name = "organizacao_id")
@@ -50,6 +67,16 @@ public class Usuario {
 		this.nome = nome;
 		this.email = email;
 		this.organizacao = organizacao;
+	}
+
+	@PrePersist
+	protected void onCreate() {
+		if (dataCriacao == null) {
+			dataCriacao = LocalDateTime.now();
+		}
+		if (ativo == null) {
+			ativo = true;
+		}
 	}
 
 	public String getCabecalho() {

@@ -143,6 +143,12 @@ Em seguida, execute o Spring Boot Application no próprio Eclipse STS, por meio 
 
 OBS: alguns parâmetros precisarão ser ajustados no application.properties no ambiente de desenvolvimento, como SSO_AUTH_SERVER (se for usar o Keycloak de produção) e SSO_SECRET;
 
+Caso deseje realizar o clean package local via docker, é possível pelo comando:
+
+```bash
+docker run --rm -v "$PWD":/app -v ~/.m2:/root/.m2 -w /app maven:3.9-eclipse-temurin-11 mvn clean package -DskipTests && docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up --build
+```
+
   
 
 ### 7. Restaure o backup do banco:
@@ -447,4 +453,89 @@ Antigamente o GHCR era "ghcr.io/ttsolutionspi/docker-images/painel-precos-backen
 
 * [GitHub Personal Access Tokens (APT)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens);
 
+---
+
+## Configuração de Tempos de Sessão e Refresh Token (Keycloak)
+
+A duração da sessão e o tempo de inatividade são controlados pelo **Keycloak**, não pela aplicação. O Spring Boot atua apenas como `bearer-only` — valida tokens, mas não os emite.
+
+### Onde configurar
+
+Acesse o Keycloak Admin Console e navegue até **Realm Settings → Tokens**:
+
+| Ambiente | URL |
+|---|---|
+| Local | http://localhost:8280 |
+| Produção | https://auth.muraldeprecos.com |
+
+### Parâmetros recomendados — Realm `ttsolutions`
+
+| Configuração | Valor recomendado | Descrição |
+|---|---|---|
+| **Access Token Lifespan** | 15 minutos | Tempo de vida do access token JWT. O frontend o renova automaticamente via refresh token a cada navegação. |
+| **SSO Session Idle** | 30 minutos | Sessão SSO encerra por inatividade. Deve ser **maior ou igual** ao `NEXT_PUBLIC_SESSION_IDLE_TIMEOUT_MINUTES` do frontend. |
+| **SSO Session Max** | 10 horas | Duração máxima absoluta de uma sessão, independente de atividade. |
+| **Client Session Idle** | 30 minutos | Tempo de vida do refresh token por inatividade. Deve ser **igual** ao SSO Session Idle. |
+| **Client Session Max** | 10 horas | Duração máxima absoluta do refresh token. |
+
+> **Importante:** `SSO Session Idle` e `Client Session Idle` devem ser **maiores ou iguais** ao valor de `NEXT_PUBLIC_SESSION_IDLE_TIMEOUT_MINUTES` configurado no frontend. Se forem menores, o Keycloak expira o refresh token antes do frontend detectar ociosidade, causando logout prematuro.
+>
+> Com a configuração atual (SSO Session Idle = 30 min), o frontend pode ser configurado com até 30 minutos de inatividade.
+
+### Variável de ambiente do frontend
+
+O tempo de inatividade exibido no dropdown e usado para logout automático é controlado pela variável no **frontend**:
+
+```env
+NEXT_PUBLIC_SESSION_IDLE_TIMEOUT_MINUTES=15
+```
+
+Ao alterar esse valor, certifique-se de que `SSO Session Idle` e `Client Session Idle` no Keycloak sejam maiores ou iguais ao novo valor.
+
 * [OpenID Connections and Oauth2](https://medium.com/semantixbr/oauth-2-openid-connect-c2429db6e996).
+
+## Autorização por Papéis (Keycloak)
+
+A API usa autenticação via Keycloak e autorização por papéis com Spring Security.
+Para recursos de gestão, é obrigatório o papel `ADMIN`.
+
+### Papéis suportados
+
+- `ADMIN` (ativo nesta etapa para gestão de usuários e organizações)
+- `GESTOR` * futuramente
+- `USUARIO` * futuramente
+
+### Como configurar no Keycloak
+
+1. Acesse o Admin Console do Keycloak no realm `ttsolutions`.
+2. Vá em **Realm Roles** e crie o papel `ADMIN` (maiúsculo).
+3. Atribua `ADMIN` aos usuários administradores em **Users -> Role Mappings**.
+4. Faça login com um usuário administrador e valide no access token se `realm_access.roles` contém `ADMIN`.
+
+### Recursos protegidos por ADMIN
+
+No backend, os recursos abaixo exigem `@PreAuthorize("hasRole('ADMIN')")`:
+
+- Gestão de usuários (`/serverapi/v1/usuarios` e sub-rotas administrativas)
+- Gestão de organizações (`/serverapi/v1/organizacoes` e sub-rotas)
+- Sincronização (`/serverapi/v1/sincronizacao`)
+- Cadastro de usuário (`/serverapi/v1/auth/cadastro`)
+
+### Rotas públicas de autenticação
+
+As rotas públicas de autenticação ficaram restritas a:
+
+- `/serverapi/v1/auth/logon`
+- `/serverapi/v1/auth/refresh`
+- `/serverapi/v1/auth/logout`
+
+O endpoint `/serverapi/v1/auth/cadastro` não é público e requer `ADMIN`.
+
+### Expansão futura (GESTOR e USUARIO por organização)
+
+O projeto já possui constantes centrais de papéis no backend e frontend para facilitar a evolução para `GESTOR` e `USUARIO`.
+Na próxima etapa, a autorização deve considerar escopo por organização (multi-tenant), por exemplo:
+
+- `ADMIN`: visão e gestão global
+- `GESTOR`: gestão da própria organização
+- `USUARIO`: operações limitadas à própria organização

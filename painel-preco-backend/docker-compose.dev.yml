@@ -1,25 +1,26 @@
 version: "3"
 
 services:
-#  app:
-##    build:
-##      context: ./
-##      dockerfile: Dockerfile
-##    image: painel-precos-backend:local
-#    image: ghcr.io/ttsolutionspi/painel-precos-backend:1.0.27-RC4
-#    environment:
-#      TZ: America/Fortaleza 
-#    ports:
-#      - "8080:8080"
-#    env_file: .env
-#    depends_on:
-#      - postgres
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+#    image: painel-precos-backend:local
+  #  image: ghcr.io/ttsolutionspi/painel-precos-backend:1.0.27
+  #  platform: linux/amd64
+    environment:
+      TZ: America/Fortaleza 
+    ports:
+      - "8080:8080"
+    env_file: .env
+    depends_on:
+      - postgres
       
   postgres:
     image: postgres:15.3
     shm_size: 1g
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - postgres-mural:/var/lib/postgresql/data
       # - ./docker-postgres-initdb.sql:/docker-entrypoint-initdb.d/docker-postgres-initdb.sql
     environment:
       POSTGRES_DB: muralpreco
@@ -28,22 +29,22 @@ services:
     ports:
       - '5432:5432'
       
-  keycloak:
-    image: keycloak/keycloak:22.0.1
-    command: start-dev
-    environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_SCHEMA: public
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    ports:
-      - 8280:8080
-    depends_on:
-      - postgres
+  # keycloak:
+  #   image: keycloak/keycloak:22.0.1
+  #   command: start-dev
+  #   environment:
+  #     DB_VENDOR: POSTGRES
+  #     DB_ADDR: postgres
+  #     DB_DATABASE: keycloak
+  #     DB_USER: postgres
+  #     DB_PASSWORD: postgres
+  #     DB_SCHEMA: public
+  #     KEYCLOAK_ADMIN: admin
+  #     KEYCLOAK_ADMIN_PASSWORD: admin
+  #   ports:
+  #     - 8280:8080
+  #   depends_on:
+  #     - postgres
       
 #  schedule-pncp:
 #    image: ghcr.io/ttsolutionspi/docker-images/schedule-pncp:1.0.0
@@ -62,7 +63,7 @@ services:
       - "6379:6379"
 
 volumes:
-  postgres:
+  postgres-mural:
     external: true
 #    driver: local
 #    driver_opts:

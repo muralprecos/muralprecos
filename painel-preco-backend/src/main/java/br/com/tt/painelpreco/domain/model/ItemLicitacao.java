@@ -11,12 +11,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.search.engine.backend.types.Sortable;
 import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.DocumentId;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.ObjectPath;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.PropertyValue;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.GenericField;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
@@ -29,6 +34,42 @@ import br.com.tt.painelpreco.util.StringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@NamedEntityGraph(
+		name = "itemLicitacao.withDetails",
+		attributeNodes = {
+				@NamedAttributeNode("unidadeFornecimento"),
+				@NamedAttributeNode("material"),
+				@NamedAttributeNode(value = "fornecedor", subgraph = "fornecedor.withPorte"),
+				@NamedAttributeNode(value = "licitacao", subgraph = "licitacao.withDetails")
+		},
+		subgraphs = {
+				@NamedSubgraph(
+						name = "licitacao.withDetails",
+						attributeNodes = {
+								@NamedAttributeNode("unidadeGestora"),
+								@NamedAttributeNode("modalidadeCompra"),
+								@NamedAttributeNode("orgao"),
+								@NamedAttributeNode("orgaoSuperior"),
+								@NamedAttributeNode(value = "municipio", subgraph = "municipio.withUf"),
+								@NamedAttributeNode("formaCompra"),
+								@NamedAttributeNode("esfera"),
+								@NamedAttributeNode("situacao")
+						}
+				),
+				@NamedSubgraph(
+						name = "municipio.withUf",
+						attributeNodes = {
+								@NamedAttributeNode("uf")
+						}
+				),
+				@NamedSubgraph(
+						name = "fornecedor.withPorte",
+						attributeNodes = {
+								@NamedAttributeNode("porte")
+						}
+				)
+		}
+)
 @Indexed
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Data
@@ -40,6 +81,7 @@ public class ItemLicitacao {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_item_licitacao")
+	@GenericField(sortable = Sortable.YES)
 	private Long id;
 
 	@KeywordField
@@ -48,6 +90,7 @@ public class ItemLicitacao {
 
 	@ManyToOne
 	@JoinColumn(name = "licitacao_id")
+	//TODO: avaliar necessidade de profundidade = 3
 	@IndexedEmbedded(includeDepth = 3)
 	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private Licitacao licitacao;
@@ -57,6 +100,7 @@ public class ItemLicitacao {
 
 	/** Descrição do Item **/
 	@FullTextField
+	@KeywordField(name = "descricao_sort", sortable = Sortable.YES)
 	private String descricao;
 
 	/** Descrição Complementar **/
@@ -70,8 +114,10 @@ public class ItemLicitacao {
 	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private UnidadeFornecimento unidadeFornecimento;
 
+	@GenericField(sortable = Sortable.YES)
 	private Integer quantidade;
 
+	@GenericField(sortable = Sortable.YES)
 	private Double valor;
 
 	@ManyToOne
@@ -127,6 +173,18 @@ public class ItemLicitacao {
 		return links;
 	}
 	
+	@IndexingDependency(derivedFrom = {
+			@ObjectPath(@PropertyValue(propertyName = "valor")),
+			@ObjectPath(@PropertyValue(propertyName = "quantidade"))
+	})
+	@GenericField(name = "valorUnitario", sortable = Sortable.YES)
+	public Double getValorUnitario() {
+		if (valor == null || quantidade == null || quantidade == 0) {
+			return null;
+		}
+		return valor / quantidade;
+	}
+
 	@Override
 	public String toString() {
 		return "Item Licitação: " + numeroPncp + " / " + numeroItem; 

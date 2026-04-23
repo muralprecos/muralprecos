@@ -3,16 +3,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>br.com.tt</groupId>
+	<artifactId>painel-preco</artifactId>
+	<version>1.0.36</version>
+	<name>painel-preco</name>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.7.14</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>br.com.tt</groupId>
-	<artifactId>painel-preco</artifactId>
-	<version>1.0.32</version>
-	<name>painel-preco</name>
 	<description>Painel de Preços da TT Solutions</description>
 	<properties>
 		<java.version>11</java.version>

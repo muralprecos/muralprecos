@@ -25,7 +25,12 @@ public class ItemLicitacaoService {
 	private ItemLicitacaoSearchRepository itemLicitacaoSearchRepository;
 
 	public ItemLicitacao findByUuid(UUID uuid) {
-		return itemLicitacaoRepository.findByUuid(uuid);
+		ItemLicitacao item = itemLicitacaoSearchRepository.searchByUuid(uuid);
+		if (item == null) {
+			// Fallback para JPA caso o índice Lucene ainda não tenha o item (ex: recém-inserido)
+			item = itemLicitacaoRepository.findByUuid(uuid);
+		}
+		return item;
 	}
 
 	public List<ItemLicitacao> findAllByUuid(List<UUID> uuids) {
