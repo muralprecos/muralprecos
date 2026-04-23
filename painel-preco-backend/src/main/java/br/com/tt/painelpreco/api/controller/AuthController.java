@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,7 @@ import br.com.tt.painelpreco.arch.view.http.QueryParam;
 import br.com.tt.painelpreco.arch.view.http.exception.HttpException;
 import br.com.tt.painelpreco.config.KeycloakProperties;
 import br.com.tt.painelpreco.domain.service.UsuarioService;
+import br.com.tt.painelpreco.security.SecurityRoles;
 import br.com.tt.painelpreco.util.ApiVersion;
 import lombok.extern.slf4j.Slf4j;
 
@@ -85,6 +87,7 @@ public class AuthController extends HttpClientController {
 	}
 
 	@PostMapping(value = "/cadastro", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
 	public ResponseEntity<CadastroDTO> cadastro(@Valid @RequestBody CadastroForm form) {
 		try {
 			// Validação adicional: verifica se organizacaoId foi informado

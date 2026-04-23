@@ -387,7 +387,7 @@ public class UsuarioService {
 
 	private void validarDadosAtualizacao(UsuarioForm form, Usuario usuarioExistente) {
 		// Validar email único (exceto o próprio usuário)
-		if (form.getEmail() != null && !form.getEmail().equals(usuarioExistente.getEmail())) {
+		if (form.getEmail() != null && !form.getEmail().equalsIgnoreCase(usuarioExistente.getEmail())) {
 			if (emailExiste(form.getEmail())) {
 				throw new ArchException("Email já cadastrado: " + form.getEmail());
 			}
