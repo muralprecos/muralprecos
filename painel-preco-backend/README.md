@@ -493,3 +493,49 @@ NEXT_PUBLIC_SESSION_IDLE_TIMEOUT_MINUTES=15
 Ao alterar esse valor, certifique-se de que `SSO Session Idle` e `Client Session Idle` no Keycloak sejam maiores ou iguais ao novo valor.
 
 * [OpenID Connections and Oauth2](https://medium.com/semantixbr/oauth-2-openid-connect-c2429db6e996).
+
+## Autorização por Papéis (Keycloak)
+
+A API usa autenticação via Keycloak e autorização por papéis com Spring Security.
+Para recursos de gestão, é obrigatório o papel `ADMIN`.
+
+### Papéis suportados
+
+- `ADMIN` (ativo nesta etapa para gestão de usuários e organizações)
+- `GESTOR` * futuramente
+- `USUARIO` * futuramente
+
+### Como configurar no Keycloak
+
+1. Acesse o Admin Console do Keycloak no realm `ttsolutions`.
+2. Vá em **Realm Roles** e crie o papel `ADMIN` (maiúsculo).
+3. Atribua `ADMIN` aos usuários administradores em **Users -> Role Mappings**.
+4. Faça login com um usuário administrador e valide no access token se `realm_access.roles` contém `ADMIN`.
+
+### Recursos protegidos por ADMIN
+
+No backend, os recursos abaixo exigem `@PreAuthorize("hasRole('ADMIN')")`:
+
+- Gestão de usuários (`/serverapi/v1/usuarios` e sub-rotas administrativas)
+- Gestão de organizações (`/serverapi/v1/organizacoes` e sub-rotas)
+- Sincronização (`/serverapi/v1/sincronizacao`)
+- Cadastro de usuário (`/serverapi/v1/auth/cadastro`)
+
+### Rotas públicas de autenticação
+
+As rotas públicas de autenticação ficaram restritas a:
+
+- `/serverapi/v1/auth/logon`
+- `/serverapi/v1/auth/refresh`
+- `/serverapi/v1/auth/logout`
+
+O endpoint `/serverapi/v1/auth/cadastro` não é público e requer `ADMIN`.
+
+### Expansão futura (GESTOR e USUARIO por organização)
+
+O projeto já possui constantes centrais de papéis no backend e frontend para facilitar a evolução para `GESTOR` e `USUARIO`.
+Na próxima etapa, a autorização deve considerar escopo por organização (multi-tenant), por exemplo:
+
+- `ADMIN`: visão e gestão global
+- `GESTOR`: gestão da própria organização
+- `USUARIO`: operações limitadas à própria organização

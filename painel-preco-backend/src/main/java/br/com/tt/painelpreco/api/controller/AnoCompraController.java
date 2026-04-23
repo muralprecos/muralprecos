@@ -35,13 +35,14 @@ public class AnoCompraController {
 	
 	@GetMapping
 	public Page<AnoCompraDTO> pesquisar(Pageable pageable, AnoCompraFilter filter) {
-		Page<BigDecimal> anosCompras = licitacaoService.listaAllAnos(filter.getAno(), pageable);
+		Pageable safePageable = pageable != null ? pageable : Pageable.unpaged();
+		Page<BigDecimal> anosCompras = licitacaoService.listaAllAnos(filter.getAno(), safePageable);
 		
 		List<AnoCompraDTO> anosComprasDTO = new LinkedList<>();
 		anosCompras.forEach(a -> {
 			anosComprasDTO.add(new AnoCompraDTO(a.intValue()));
 		});
-		return new PageImpl<>(anosComprasDTO, pageable, anosCompras.getTotalElements());
+		return new PageImpl<>(anosComprasDTO, safePageable, anosCompras.getTotalElements());
 	}
 
 

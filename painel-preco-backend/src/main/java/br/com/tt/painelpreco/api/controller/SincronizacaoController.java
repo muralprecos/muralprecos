@@ -7,6 +7,7 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import br.com.tt.painelpreco.api.dto.SincronizacaoResultadoDTO;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.domain.service.SincronizacaoService;
 import br.com.tt.painelpreco.domain.service.UsuarioService;
+import br.com.tt.painelpreco.security.SecurityRoles;
 import br.com.tt.painelpreco.util.ApiVersion;
 
 @RestController
@@ -29,6 +31,7 @@ public class SincronizacaoController {
   private UsuarioService usuarioService;
 
   @PostMapping
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<SincronizacaoResultadoDTO> sincronizar() {
     Integer executorId = obterExecutorId();
     SincronizacaoResultadoDTO resultado = sincronizacaoService.sincronizar(executorId);

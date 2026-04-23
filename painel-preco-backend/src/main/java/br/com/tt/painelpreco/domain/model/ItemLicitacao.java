@@ -90,6 +90,7 @@ public class ItemLicitacao {
 
 	@ManyToOne
 	@JoinColumn(name = "licitacao_id")
+	//TODO: avaliar necessidade de profundidade = 3
 	@IndexedEmbedded(includeDepth = 3)
 	@IndexingDependency(reindexOnUpdate = ReindexOnUpdate.SHALLOW)
 	private Licitacao licitacao;
