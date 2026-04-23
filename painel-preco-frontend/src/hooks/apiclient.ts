@@ -136,13 +136,17 @@ export const apiClientPostGerarPDFCotacao = async (
   const res = await fetch(`/api/carrinho/gerar-cotacao`, {
     method: "POST",
     headers: {
-      Accept: "application/json",
+      Accept: "application/pdf",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
       cart,
     }),
   });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody?.message || "Não foi possível gerar o arquivo da cotação");
+  }
   const data = await res.blob();
   return data;
 };

@@ -36,6 +36,8 @@
     --background: 220 14% 96%;
     --foreground: 220 20% 10%;
 
+    --surface-plain: 0 0% 100%;
+
     --card: 0 0% 100%;
     --card-foreground: 220 20% 10%;
 
@@ -95,6 +97,8 @@
     /* --- Dark Mode (Novo) --- */
     --background: 220 20% 8%;
     --foreground: 220 10% 95%;
+
+    --surface-plain: 0 0% 0%;
 
     --card: 220 20% 12%;
     --card-foreground: 220 10% 95%;
@@ -176,6 +180,10 @@
 }
 
 @layer utilities {
+  .bg-surface-plain {
+    background-color: hsl(var(--surface-plain));
+  }
+
   .gradient-primary {
     background: linear-gradient(
       135deg,

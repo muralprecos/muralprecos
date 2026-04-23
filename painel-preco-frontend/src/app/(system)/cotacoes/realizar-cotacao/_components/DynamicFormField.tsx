@@ -14,6 +14,8 @@ type Props = {
   attr: FieldFormTypes | undefined;
   control: any;
   errors: any;
+  selectedLabel?: string;
+  onLabelResolved?: (id: string, label: string) => void;
 };
 
 export default function DynamicFormField({
@@ -21,6 +23,8 @@ export default function DynamicFormField({
   attr,
   control,
   errors,
+  selectedLabel,
+  onLabelResolved,
 }: Props) {
   if (isFieldSelect(attr)) {
     return (
@@ -56,6 +60,8 @@ export default function DynamicFormField({
         disabled={attr.auto.isDisabled}
         errors={errors}
         autocompleteHook={attr.auto.async}
+        selectedLabel={selectedLabel}
+        onLabelResolved={onLabelResolved}
       />
     );
   }

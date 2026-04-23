@@ -1,7 +1,7 @@
 import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { add, clear, remove } from "./features/cart-slice";
-import { clearForm, doSearch } from "./features/cotacao-search-slice";
+import { setLabel } from "./features/cotacao-label-cache-slice";
 
 export const listenerMiddleware = createListenerMiddleware();
 
@@ -16,11 +16,11 @@ listenerMiddleware.startListening({
 });
 
 listenerMiddleware.startListening({
-  matcher: isAnyOf(clearForm, doSearch),
+  matcher: isAnyOf(setLabel),
   effect: (action, listenerApi) => {
     return localStorage.setItem(
-      "cotacaoSearch",
-      JSON.stringify((listenerApi.getState() as RootState).cotacaoSearchReducer)
+      "cotacaoLabelCache",
+      JSON.stringify((listenerApi.getState() as RootState).cotacaoLabelCacheReducer)
     )
   }
 });

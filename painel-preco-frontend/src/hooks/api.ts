@@ -298,30 +298,12 @@ export const postDownloadItensCotacoes = async (
 };
 
 export const postLogin = async (userAuth: IUserAuth) => {
-  const URL = process.env.GET_TOKEN_URL;
-
-  console.log(">>> POST LOGIN URL:", URL);
+  const URL = `${process.env.API_URL}${process.env.API_URL_PREFIX}/auth/logon`;
 
   const b = new URLSearchParams();
-  b.append("client_id", `${process.env.KEYCLOAK_ID}`);
-  b.append("client_secret", `${process.env.KEYCLOAK_SECRET}`);
-  b.append("grant_type", "password");
-  b.append("scope", "openid");
   b.append("username", userAuth.username);
   b.append("password", userAuth.password);
 
-  return fetch(URL!, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: b,
-  });
-};
-
-export const postLogout = async (idToken: string) => {
-  const URL = `${process.env.END_SESSION_URL}`;
-  const b = new URLSearchParams();
-  b.append("client_id", `${process.env.KEYCLOAK_ID}`);
-  b.append("id_token_hint", idToken);
   return fetch(URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -329,53 +311,25 @@ export const postLogout = async (idToken: string) => {
   });
 };
 
-export const postAuthGrantClientCredentialsKeycloak = async () => {
-  const GET_TOKEN_URL = `${process.env.GET_TOKEN_URL}`;
-  const KEYCLOAK_ID = `${process.env.KEYCLOAK_ID}`;
-  const KEYCLOAK_SECRET = `${process.env.KEYCLOAK_SECRET}`;
-  return fetch(`${GET_TOKEN_URL}`, {
+export const postLogout = async (refreshToken: string, idToken?: string) => {
+  const URL = `${process.env.API_URL}${process.env.API_URL_PREFIX}/auth/logout`;
+  const b = new URLSearchParams();
+  b.append("refresh_token", refreshToken);
+  if (idToken) b.append("id_token_hint", idToken);
+  return fetch(URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: KEYCLOAK_ID,
-      client_secret: KEYCLOAK_SECRET,
-      grant_type: "client_credentials",
-    }),
+    body: b,
   });
 };
 
-export const putChangeUserDataKeycloak = async (
-  userId: any,
-  adminToken: any,
-  userData: any
-) => {
-  const KEYCLOAK_URL_ADMIN = `${process.env.KEYCLOAK_ADMIN}`;
-  return fetch(`${KEYCLOAK_URL_ADMIN}/users/${userId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${adminToken}`,
-    },
-    body: JSON.stringify(userData),
-  });
-};
-
-export const putChangeUserPasswordKeycloak = async (
-  userId: any,
-  adminToken: any,
-  newPassword: string
-) => {
-  const KEYCLOAK_URL_ADMIN = `${process.env.KEYCLOAK_ADMIN}`;
-  return fetch(`${KEYCLOAK_URL_ADMIN}/users/${userId}/reset-password`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${adminToken}`,
-    },
-    body: JSON.stringify({
-      type: "password",
-      value: newPassword,
-      temporary: false,
-    }),
+export const postRefreshToken = async (refreshToken: string) => {
+  const URL = `${process.env.API_URL}${process.env.API_URL_PREFIX}/auth/refresh`;
+  const b = new URLSearchParams();
+  b.append("refresh_token", refreshToken);
+  return fetch(URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: b,
   });
 };

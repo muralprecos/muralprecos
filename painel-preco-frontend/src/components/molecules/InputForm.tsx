@@ -65,7 +65,7 @@ export default function InputForm<P extends FieldValues>({
               placeholder={placeholder}
               className={cn(
                 "w-full px-3 py-2 text-sm rounded-md outline-none transition-all",
-                "bg-background text-foreground",
+                "text-foreground bg-surface-plain",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 "placeholder:text-muted-foreground placeholder:text-sm placeholder:font-medium",
                 isValid

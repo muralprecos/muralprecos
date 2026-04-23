@@ -1,62 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtDecode } from "jwt-decode";
-import { IUserInfo } from "@/interfaces/types";
 import { getAccessToken } from "@/utils/sessionTokenAccessor";
-import {
-  postAuthGrantClientCredentialsKeycloak,
-  putChangeUserDataKeycloak,
-  putChangeUserPasswordKeycloak,
-} from "@/hooks/api";
 
 export async function POST(req: NextRequest) {
-  const token = (await getAccessToken()) || "";
+  const token = await getAccessToken();
   if (!token)
     return NextResponse.json(
       { error: "Usuário não autenticado" },
       { status: 401 }
     );
 
-  const decoded: any = jwtDecode<IUserInfo>(token);
-  const userId = decoded?.sub;
-  if (!userId)
-    return NextResponse.json(
-      { error: "Usuário não encontrado, logue novamente e repita a operação." },
-      { status: 400 }
-    );
-
   const { firstName, lastName, email, newPassword } = await req.json();
 
-  const tokenRes = await postAuthGrantClientCredentialsKeycloak();
-  const { access_token: adminToken } = await tokenRes.json();
+  const API_URL = `${process.env.API_URL}${process.env.API_URL_PREFIX}/usuarios/me`;
 
-  const userData = {
-    ...(firstName && { firstName }),
-    ...(lastName && { lastName }),
-    ...(email && { email }),
-  };
+  const body: Record<string, string> = {};
+  if (firstName) body.firstName = firstName;
+  if (lastName) body.lastName = lastName;
+  if (email) body.email = email;
+  if (newPassword) body.password = newPassword;
 
-  const res = await putChangeUserDataKeycloak(userId, adminToken, userData);
+  const res = await fetch(API_URL, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+
   if (!res.ok) {
     const err = await res.text();
     return NextResponse.json(
-      { error: "Erro ao atualizar dados do usuário.", details: err },
-      { status: 500 }
+      { error: "Erro ao atualizar perfil.", details: err },
+      { status: res.status }
     );
-  }
-
-  if (newPassword) {
-    const pwdRes = await putChangeUserPasswordKeycloak(
-      userId,
-      adminToken,
-      newPassword
-    );
-    if (!pwdRes.ok) {
-      const err = await pwdRes.text();
-      return NextResponse.json(
-        { error: "Erro ao alterar senha.", details: err },
-        { status: 500 }
-      );
-    }
   }
 
   return NextResponse.json({ success: true });

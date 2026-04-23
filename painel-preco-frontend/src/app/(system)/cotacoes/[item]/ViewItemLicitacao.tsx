@@ -120,6 +120,7 @@ export default function ViewItemLicitacao(props: IPropsViewItensLicitacao) {
               backButton={true}
               cartButton={true}
               title={showTitle()}
+              truncate={true}
             />
             <Separator className="my-4" />
 

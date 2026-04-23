@@ -1,10 +1,10 @@
 import { ICart, IRetornoPesquisaItensLicitacao } from "@/interfaces/types";
-import { Session } from "next-auth";
+import { ClientSession } from "@/interfaces/auth";
 
-export const getUsernameBySession = (session: Session | null) : string => {
-  return session?.userInfo?.preferred_username ?? "Usuário Anônimo"; 
+export const getUsernameBySession = (session: ClientSession | null): string => {
+  return session?.userInfo?.preferred_username ?? "Usuário Anônimo";
 }
-export const getUserCartBySession = (cartList: ICart, session: Session | null): IRetornoPesquisaItensLicitacao[] => {
+export const getUserCartBySession = (cartList: ICart, session: ClientSession | null): IRetornoPesquisaItensLicitacao[] => {
   return getUserCart(cartList, getUsernameBySession(session));
 }
 

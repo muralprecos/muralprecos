@@ -28,6 +28,7 @@ export function notify(
 ) {
   toast[type](message, {
     description,
+    duration: type === "error" ? 5000 : 3000,
     style: {
       backgroundColor: background[type],
       color: color[type],
@@ -44,7 +45,8 @@ export function notify(
 export function NotifyToaster() {
   return (
     <Toaster
-      position="top-right"
+      position="bottom-left"
+      closeButton={true}
       toastOptions={{
         style: {
           fontFamily: "Inter, sans-serif",

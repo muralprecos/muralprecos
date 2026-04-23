@@ -4,7 +4,7 @@ import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useAuthSession } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggler";
 
@@ -38,7 +38,7 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
-  const { data: session, status, update } = useSession();
+  const { data: session, status, update } = useAuthSession();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
@@ -74,24 +74,43 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     if (status === "authenticated" && !session?.userInfo) {
       update();
     }
-  }, [status, session, update]);
+  }, [status, session?.userInfo, update]);
 
   useEffect(() => {
     if (status === "authenticated" && session?.userInfo) {
       const userInfo = session.userInfo;
       const userName = userInfo.name || "Usuário";
-      const userOrg = userInfo.organizacao?.nome || "Sem Organização";
+      const tokenOrg = userInfo.organizacao?.nome;
 
       setName(userName);
-      setOrg(userOrg);
 
-      try {
-        localStorage.setItem(
-          "userSessionCache",
-          JSON.stringify({ name: userName, org: userOrg }),
-        );
-      } catch (error) {
-        console.error("Erro ao salvar cache de sessão:", error);
+      if (tokenOrg) {
+        setOrg(tokenOrg);
+        try {
+          localStorage.setItem(
+            "userSessionCache",
+            JSON.stringify({ name: userName, org: tokenOrg }),
+          );
+        } catch (error) {
+          console.error("Erro ao salvar cache de sessão:", error);
+        }
+      } else {
+        // org não está no token — busca no backend
+        fetch("/api/usuarios/me")
+          .then((res) => res.ok ? res.json() : null)
+          .then((data) => {
+            const orgName: string = data?.organizacaoNome || "Sem Organização";
+            setOrg(orgName);
+            try {
+              localStorage.setItem(
+                "userSessionCache",
+                JSON.stringify({ name: userName, org: orgName }),
+              );
+            } catch {
+              // silently ignore
+            }
+          })
+          .catch(() => setOrg("Sem Organização"));
       }
     } else if (status === "unauthenticated") {
       setName("");
@@ -119,7 +138,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
         />
         {mounted && (
-          <ProfileDropdown variant="mobile" userName={name} userOrg={org} />
+          <ProfileDropdown variant="mobile" userName={name} userOrg={org} sessionStart={session?.session_start ?? undefined} />
         )}
       </div>
 
@@ -161,7 +180,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         />
 
         {mounted && (
-          <ProfileDropdown variant="desktop" userName={name} userOrg={org} />
+          <ProfileDropdown variant="desktop" userName={name} userOrg={org} sessionStart={session?.session_start ?? undefined} />
         )}
       </div>
     </header>

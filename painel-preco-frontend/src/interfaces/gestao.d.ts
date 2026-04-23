@@ -1,21 +1,55 @@
 export interface Organizacao {
   id: string;
+  uuid?: string;
   nome: string;
-  cnpj: string;
-  email: string;
-  telefone: string;
-  endereco: string;
-  status: "ativa" | "inativa";
-  criadoEm: string;
+  ativo: boolean;
+  dataCriacao?: string;
+  detalhesUltimaSincronizacao?: string;
+  dataUltimaSincronizacao?: string;
+  usuarioSincronizacaoId?: number;
+}
+
+export interface OrganizacaoDetalhes extends Organizacao {
+  cnpj?: string;
+  telefone?: string;
+  membros?: MembroOrganizacao[];
+  keycloakNaoEncontrado?: boolean;
+}
+
+export interface MembroOrganizacao {
+  uuid?: string;
+  username?: string;
+  nome?: string;
+  email?: string;
 }
 
 export interface Usuario {
   id: string;
+  uuid?: string;
+  login?: string;
   nome: string;
-  email: string;
-  cargo: string;
-  organizacaoId: string;
-  organizacaoNome: string;
-  status: "ativo" | "inativo";
-  criadoEm: string;
+  email?: string;
+  organizacaoId?: string;
+  organizacaoNome?: string;
+  ativo: boolean;
+  dataCriacao?: string;
+  keycloakNaoEncontrado?: boolean;
+  detalhesUltimaSincronizacao?: string;
+  dataUltimaSincronizacao?: string;
+  usuarioSincronizacaoId?: number;
 }
+
+export interface SincronizacaoResultado {
+  usuariosDesativados: number;
+  usuariosReativados: number;
+  usuariosCriados: number;
+  usuariosComConflito: number;
+  usuariosNaoAlterados: number;
+  organizacoesDesativadas: number;
+  organizacoesReativadas: number;
+  organizacoesCriadas: number;
+  organizacoesComConflito: number;
+  organizacoesNaoAlteradas: number;
+  mensagens: string[];
+}
+

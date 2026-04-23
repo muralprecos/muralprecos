@@ -1,3 +1,4 @@
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { BackButton, ButtonNewQuote, CartButton } from "./Buttons";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,7 @@ type FormTitleProps = {
   gap?: number;
   addClassName?: string;
   uppercase?: boolean;
+  truncate?: boolean;
   backButtonOnClick?: () => void;
 } & React.AllHTMLAttributes<HTMLElement>;
 
@@ -27,6 +29,7 @@ export default function FormTitle({
   newQuoteButton = false,
   cartButton = false,
   uppercase = true,
+  truncate = false,
   icon,
   className,
   backButtonOnClick,
@@ -46,7 +49,27 @@ export default function FormTitle({
         <div>
           <div className="flex min-w-0 flex-1 items-center gap-2">
             {icon && <span className="flex-shrink-0">{icon}</span>}
-            <span>{title}</span>
+            { truncate ? (
+              <div className="max-w-sm md:max-w-lg lg:max-w-xl xl:max-w-3xl w-full">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="font-medium text-foreground truncate">
+                      {title}
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[400px]">
+                    <p className="font-medium">{title}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            ) : (
+              <span>
+                {title}
+              </span>
+            )}
+              {/* 
+              
+              */}
           </div>
           {description && (
             <span className="text-sm text-muted-foreground mt-1 sm:mt-0 sm:ml-2">

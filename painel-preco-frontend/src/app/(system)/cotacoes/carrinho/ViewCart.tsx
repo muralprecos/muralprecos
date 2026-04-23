@@ -9,7 +9,7 @@ import { useSnackbar } from "notistack";
 import { useRouter } from "next/navigation";
 import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
 import { getUserCartBySession, getUsernameBySession } from "@/utils/cartUtils";
-import { Session } from "next-auth";
+import { ClientSession } from "@/interfaces/auth";
 import { apiClientPostGerarPDFCotacao } from "@/hooks/apiclient";
 import { useAppSelector } from "@/store/store";
 import { useDispatch } from "react-redux";
@@ -25,7 +25,7 @@ import { notify } from "@/components/molecules/NotifyToast";
 import { ModalConfirm } from "@/components/molecules/ModalConfirm";
 
 export interface IPropsCartPge {
-  session: Session | null;
+  session: ClientSession | null;
 }
 export default function ViewCart({ session }: IPropsCartPge) {
   const router = useRouter();

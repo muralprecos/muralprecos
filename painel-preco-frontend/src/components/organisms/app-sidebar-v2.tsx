@@ -1,3 +1,5 @@
+"use client";
+
 import {
   LayoutDashboard,
   FileText,
@@ -13,6 +15,8 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { logoutAction } from "@/app/action/logoutActions";
+import { useAuthSession } from "@/context/AuthContext";
+import { ROLES, hasRole } from "@/lib/authorization/roles";
 
 interface MenuItem {
   icon: typeof LayoutDashboard;
@@ -53,6 +57,11 @@ const menuItems: MenuItem[] = [
 
 const bottomItems: MenuItem[] = [
   {
+    icon: Users,
+    label: "Gestão de Usuários",
+    path: "/gestao-usuarios"
+  },
+  {
     icon: HelpCircle,
     label: "Ajuda",
     path: "https://cal.com/ttsolucoes",
@@ -80,6 +89,8 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const { data: session } = useAuthSession();
+  const isAdmin = hasRole(session?.roles ?? [], ROLES.ADMIN);
 
   const isActiveItem = (path: string) => {
     if (path === "/") {
@@ -154,6 +165,10 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
           </nav>
           <div className="flex flex-col gap-2 py-4 border-t border-sidebar-border/30 my-[40px]">
             {bottomItems.map((item, index) => {
+              if (item.path === "/gestao-usuarios" && !isAdmin) {
+                return null;
+              }
+
               if (item.label === "Sair") {
                 return (
                   <button
