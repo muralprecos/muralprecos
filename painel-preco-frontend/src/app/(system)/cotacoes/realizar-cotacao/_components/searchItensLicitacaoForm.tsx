@@ -274,7 +274,7 @@ export default function SearchItensLicitacaoForm({
                 name="descricao"
                 control={control}
                 placeholder="Descreva o item ou serviço para cotação..."
-                inputClassName="min-h-[100px] resize-none"
+                inputClassName="min-h-[100px] resize-none bg-surface-plain"
                 label="Descrição"
               />
             </div>

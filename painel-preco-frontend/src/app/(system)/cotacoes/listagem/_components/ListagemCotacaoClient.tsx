@@ -73,12 +73,15 @@ export default function ListagemCotacaoClient({
   session,
   options,
 }: ListagemCotacaoClientProps) {
+  const EDIT_CARD_ANIMATION_MS = 300;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams: ReadonlyURLSearchParams = useSearchParams();
   const isInitialLoad = useRef(true);
+  const closeAnimationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [queryState, setQueryState] = useCotacaoQueryStates();
   const [isEditingFilters, setIsEditingFilters] = useState(false);
+  const [isClosingFilters, setIsClosingFilters] = useState(false);
 
   const currentSort = searchParams.get("sort") ?? "";
 
@@ -147,6 +150,14 @@ export default function ListagemCotacaoClient({
     });
   }, [queryState, legacyNormalization.changed]);
 
+  useEffect(() => {
+    return () => {
+      if (closeAnimationTimeoutRef.current) {
+        clearTimeout(closeAnimationTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const hasItens = itensLicitacao?.length > 0;
 
   const clearAllFilters = async () => {
@@ -169,6 +180,33 @@ export default function ListagemCotacaoClient({
     await setQueryState(nextQuery as any, { history: "replace" });
   };
 
+  const closeFilterEditor = () => {
+    if (!isEditingFilters) return;
+    setIsClosingFilters(true);
+    closeAnimationTimeoutRef.current = setTimeout(() => {
+      setIsEditingFilters(false);
+      setIsClosingFilters(false);
+      closeAnimationTimeoutRef.current = null;
+    }, EDIT_CARD_ANIMATION_MS);
+  };
+
+  const openFilterEditor = () => {
+    if (closeAnimationTimeoutRef.current) {
+      clearTimeout(closeAnimationTimeoutRef.current);
+      closeAnimationTimeoutRef.current = null;
+    }
+    setIsClosingFilters(false);
+    setIsEditingFilters(true);
+  };
+
+  const toggleFilterEditor = () => {
+    if (isEditingFilters) {
+      closeFilterEditor();
+      return;
+    }
+    openFilterEditor();
+  };
+
   return (
     <div>
       <Card>
@@ -186,24 +224,33 @@ export default function ListagemCotacaoClient({
             />
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-8">
           <AppliedCotacaoFilters
             queryState={queryState}
             options={options}
             onRemoveFilter={removeSingleFilter}
             onClearAll={clearAllFilters}
-            onEditFilters={() => setIsEditingFilters((prev) => !prev)}
+            onEditFilters={toggleFilterEditor}
             isEditing={isEditingFilters}
           />
 
-          {isEditingFilters && (
-            <Card className="bg-muted/20">
+          {(isEditingFilters || isClosingFilters) && (
+            <Card
+              className={`bg-muted/20 duration-300 !mb-12 ${
+                isClosingFilters
+                  ? "animate-out fade-out-0 slide-out-to-top-2"
+                  : "animate-in fade-in-0 slide-in-from-top-2"
+              }`}
+            >
               <CardContent className="pt-6">
-                <div className="mb-4 flex justify-end">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3 className="text-base font-semibold">
+                    Editar Filtros da Cotação
+                  </h3>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setIsEditingFilters(false)}
+                    onClick={closeFilterEditor}
                   >
                     Fechar edição
                   </Button>
@@ -212,7 +259,7 @@ export default function ListagemCotacaoClient({
                   session={session}
                   {...options}
                   variant="inline"
-                  onAfterSubmit={() => setIsEditingFilters(false)}
+                  onAfterSubmit={closeFilterEditor}
                 />
               </CardContent>
             </Card>
@@ -238,7 +285,7 @@ export default function ListagemCotacaoClient({
                 currentSort={currentSort}
                 onSortChange={handleSortChange}
               />
-              <div className="w-full">
+              <div className="w-full !mt-0">
                 <div className="hidden xl:block">
                   <PaginationFooter
                     setIsLoading={setIsLoading}

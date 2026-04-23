@@ -121,7 +121,7 @@ function PaginationFooter<T>({
 
   return (
     <div
-      className={`flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t mt-6 transition-opacity ${
+      className={`flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t mt-2 transition-opacity ${
         isLoading ? "opacity-50 pointer-events-none" : ""
       }`}
     >
