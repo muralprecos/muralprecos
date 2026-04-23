@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,7 @@ import br.com.tt.painelpreco.api.dto.form.UsuarioForm;
 import br.com.tt.painelpreco.arch.exception.ArchException;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.domain.service.UsuarioService;
+import br.com.tt.painelpreco.security.SecurityRoles;
 import br.com.tt.painelpreco.security.keycloak.KeycloakAdminService;
 import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.ModelConverter;
@@ -47,6 +49,7 @@ public class UsuarioController {
   private ModelConverter converter;
 
   @GetMapping
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public Page<UsuarioDTO> listar(@PageableDefault(size = 10) Pageable pageable) {
     Page<Usuario> usuarios = usuarioService.listarUsuarios(pageable);
     List<UsuarioDTO> usuariosDTO = converter.toDTOCollection(usuarios.getContent(), UsuarioDTO.class);
@@ -142,6 +145,7 @@ public class UsuarioController {
   }
 
   @GetMapping("/{id}")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<UsuarioDTO> buscar(@PathVariable String id) {
     Usuario usuario = usuarioService.buscarUsuario(id);
     if (usuario == null) {
@@ -157,6 +161,7 @@ public class UsuarioController {
   }
 
   @GetMapping("/{id}/detalhes")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<UsuarioDTO> detalhes(@PathVariable String id) {
     UsuarioDTO dto = usuarioService.buscarDetalhesUsuario(id);
     if (dto == null) {
@@ -166,6 +171,7 @@ public class UsuarioController {
   }
 
   @PutMapping("/{id}")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<UsuarioDTO> atualizar(@PathVariable String id, @Valid @RequestBody UsuarioForm form) {
     try {
       Usuario usuario = usuarioService.atualizarUsuario(id, form);
@@ -185,6 +191,7 @@ public class UsuarioController {
   }
 
   @PutMapping("/{id}/reativar")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<UsuarioDTO> reativar(@PathVariable String id) {
     try {
       Usuario usuario = usuarioService.reativarUsuario(id);
@@ -203,6 +210,7 @@ public class UsuarioController {
   }
 
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<Void> desativar(@PathVariable String id) {
     try {
       usuarioService.desativarUsuario(id);

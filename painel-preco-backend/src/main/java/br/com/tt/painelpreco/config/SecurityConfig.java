@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -25,6 +26,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
 	private class PublicResource {
@@ -59,7 +61,10 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) {
 		KeycloakAuthenticationProvider keycloakAuthenticationProvider = keycloakAuthenticationProvider();
-		keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
+		SimpleAuthorityMapper authorityMapper = new SimpleAuthorityMapper();
+		authorityMapper.setConvertToUpperCase(true);
+		authorityMapper.setPrefix("ROLE_");
+		keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(authorityMapper);
 		auth.authenticationProvider(keycloakAuthenticationProvider);
 	}
 

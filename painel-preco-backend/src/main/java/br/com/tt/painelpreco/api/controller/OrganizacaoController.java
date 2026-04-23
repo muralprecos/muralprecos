@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ import br.com.tt.painelpreco.api.dto.form.OrganizacaoForm;
 import br.com.tt.painelpreco.arch.exception.ArchException;
 import br.com.tt.painelpreco.arch.infra.auth.Organizacao;
 import br.com.tt.painelpreco.domain.service.OrganizacaoService;
+import br.com.tt.painelpreco.security.SecurityRoles;
 import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.ModelConverter;
 
@@ -40,6 +42,7 @@ public class OrganizacaoController {
   private ModelConverter converter;
 
   @GetMapping
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public Page<OrganizacaoDTO> listar(@PageableDefault(size = 10) Pageable pageable) {
     Page<Organizacao> organizacoes = organizacaoService.listarOrganizacoes(pageable);
     List<OrganizacaoDTO> organizacoesDTO = converter.toDTOCollection(organizacoes.getContent(),
@@ -48,6 +51,7 @@ public class OrganizacaoController {
   }
 
   @GetMapping("/{id}")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<OrganizacaoDTO> buscar(@PathVariable String id) {
     Organizacao organizacao = organizacaoService.buscarOrganizacao(id);
     if (organizacao == null) {
@@ -58,6 +62,7 @@ public class OrganizacaoController {
   }
 
   @GetMapping("/{id}/detalhes")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<OrganizacaoDetalhesDTO> detalhes(@PathVariable String id) {
     OrganizacaoDetalhesDTO dto = organizacaoService.buscarDetalhesOrganizacao(id);
     if (dto == null) {
@@ -67,6 +72,7 @@ public class OrganizacaoController {
   }
 
   @PostMapping
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<OrganizacaoDTO> criar(@Valid @RequestBody OrganizacaoForm form) {
     try {
       Organizacao organizacao = organizacaoService.criarOrganizacao(form);
@@ -81,6 +87,7 @@ public class OrganizacaoController {
   }
 
   @PutMapping("/{id}")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<OrganizacaoDTO> atualizar(@PathVariable String id,
       @Valid @RequestBody OrganizacaoForm form) {
     try {
@@ -97,6 +104,7 @@ public class OrganizacaoController {
   }
 
   @PutMapping("/{id}/reativar")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<OrganizacaoDTO> reativar(@PathVariable String id) {
     try {
       Organizacao organizacao = organizacaoService.reativarOrganizacao(id);
@@ -112,6 +120,7 @@ public class OrganizacaoController {
   }
 
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
   public ResponseEntity<Void> desativar(@PathVariable String id) {
     try {
       organizacaoService.desativarOrganizacao(id);
