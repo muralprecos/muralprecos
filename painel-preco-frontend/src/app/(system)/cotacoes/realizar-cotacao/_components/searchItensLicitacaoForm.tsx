@@ -69,7 +69,8 @@ export default function SearchItensLicitacaoForm({
   compraPeriodos,
   situacoesLicitacoes,
   unidadesFederativas,
-  ...opts
+  variant = "page",
+  onAfterSubmit,
 }: IPropsSearchItensLicitacaoForm) {
   const router = useRouter();
   const pathname = usePathname();
@@ -186,12 +187,17 @@ export default function SearchItensLicitacaoForm({
       lastAppliedRef.current = stableSerializeState(nextQuery);
       reset(data);
 
-      const canonicalParams = buildCanonicalParams(nextQuery);
-      router.push(
-        `${"/cotacoes/listagem"}${
-          canonicalParams.toString() ? `?${canonicalParams.toString()}` : ""
-        }`
-      );
+      if (variant === "inline") {
+        notify("success", "Filtros aplicados", "A listagem foi atualizada.");
+        onAfterSubmit?.();
+      } else {
+        const canonicalParams = buildCanonicalParams(nextQuery);
+        router.push(
+          `${"/cotacoes/listagem"}${
+            canonicalParams.toString() ? `?${canonicalParams.toString()}` : ""
+          }`
+        );
+      }
     } catch (e) {
       // noop
     } finally {
@@ -257,23 +263,11 @@ export default function SearchItensLicitacaoForm({
     return <LoadingForm />;
   }
 
-  return (
-    <>
-      <Card className="min-h-[560px]">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon icon="mdi:file-document-edit-outline" className="w-6 h-6" />
-            <FormTitle title={"Realizar Cotação"} />
-          </CardTitle>
-          <CardDescription>
-            Preencha os dados abaixo para filtrar as cotações desejadas.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={handleSubmit(onSubmit, onSubmitError)}
-            className="w-full mx-auto p-2 space-y-6"
-          >
+  const formContent = (
+    <form
+      onSubmit={handleSubmit(onSubmit, onSubmitError)}
+      className="w-full mx-auto p-2 space-y-6"
+    >
             <div className="grid grid-cols-1 gap-4">
               <InputForm
                 as="textarea"
@@ -455,9 +449,25 @@ export default function SearchItensLicitacaoForm({
                 onConfirmClear={clearForm}
               />
             </div>
-          </form>
-        </CardContent>
-      </Card>
-    </>
+    </form>
+  );
+
+  if (variant === "inline") {
+    return formContent;
+  }
+
+  return (
+    <Card className="min-h-[560px]">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Icon icon="mdi:file-document-edit-outline" className="w-6 h-6" />
+          <FormTitle title={"Realizar Cotação"} />
+        </CardTitle>
+        <CardDescription>
+          Preencha os dados abaixo para filtrar as cotações desejadas.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>{formContent}</CardContent>
+    </Card>
   );
 }

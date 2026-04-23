@@ -1,182 +1,23 @@
-"use client";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { checkSession } from "@/utils/sessionCheckerServerUtils";
+import { CheckRolesStrategy } from "@/utils/rolesUtils";
+import { getCotacaoFilterOptions } from "../_lib/getCotacaoFilterOptions";
+import ListagemCotacaoClient from "./_components/ListagemCotacaoClient";
 
-import {
-  IRetornoPesquisaItensLicitacao,
-  IReturnRequestAPI,
-} from "@/interfaces/types";
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ReadonlyURLSearchParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
-import { catchErrorFromFetch, mountUrl, searchParamsToInfo } from "@/utils/requestUtils";
-
-import { isClientNextjs } from "@/utils/validateUtils";
-import { apiClientPostSearchListItens } from "@/hooks/apiclient";
-import PaginationFooter from "@/components/molecules/PaginationFooter";
-import LoadingList from "@/components/atoms/LoadingList";
-import EmptyListText from "@/components/atoms/EmptyListText";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Package } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { notify } from "@/components/molecules/NotifyToast";
-import FormTitle from "@/components/atoms/FormTitle";
-import { parseNumber } from "@/utils/stringUtils";
-import TabelaItensLicitacao from "@/components/atoms/tabela-itens";
-import PaginationFooterMobile from "@/components/molecules/PaginationFooterMobile";
-
-import { FIELDS_COTACOES_LIST } from "@/hooks/api";
-import {
-  buildBackendParams,
-  normalizeLegacySearchParams,
-} from "@/app/(system)/cotacoes/realizar-cotacao/_components/buildBackendParams";
-import { paramsToInfo } from "@/app/(system)/cotacoes/realizar-cotacao/_components/paramsToInfo";
-import { useCotacaoQueryStates } from "@/app/(system)/cotacoes/realizar-cotacao/_components/cotacaoQuery";
-
-import { forceParamSearch, extractParamSearch } from "@/utils/searchParamUtils";
-
-
-export default function ListItemLicitacao() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams: ReadonlyURLSearchParams = useSearchParams();
-  const isInitialLoad = useRef(true);
-  const [queryState] = useCotacaoQueryStates();
-
-  const currentSort = searchParams.get("sort") ?? "";
-
-  const handleSortChange = (newSort: string) => {
-    let info = searchParamsToInfo(searchParams);
-    info = extractParamSearch(info, "sort");
-    if (newSort) {
-      info = forceParamSearch(info, "sort", newSort);
-    }
-    info = forceParamSearch(info, "page", "0");
-    router.push(mountUrl({ host: "", path: pathname, info }));
-  };
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [itensLicitacao, setItensLicitacao] = useState<
-    IRetornoPesquisaItensLicitacao[]
-  >([]);
-  const [paginationInfo, setPaginationInfo] =
-    useState<IReturnRequestAPI<IRetornoPesquisaItensLicitacao> | null>(null);
-
-  const legacyNormalization = useMemo(
-    () => normalizeLegacySearchParams(searchParams),
-    [searchParams]
+export default async function ListItemLicitacao() {
+  const session = await auth();
+  const { redirectUrl, accessToken, hasAuthorization } = await checkSession(
+    session,
+    [],
+    CheckRolesStrategy.INCLUDES_ALL,
   );
 
-  useEffect(() => {
-    if (legacyNormalization.changed) {
-      const query = legacyNormalization.params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname);
-    }
-  }, [legacyNormalization, router, pathname]);
+  if (!hasAuthorization || !accessToken) {
+    redirect(redirectUrl ?? "/unauthorized");
+  }
 
-  useEffect(() => {
-    if (legacyNormalization.changed) return;
+  const options = await getCotacaoFilterOptions({ accessToken });
 
-    const fetchData = async () => {
-      if (isClientNextjs()) {
-        setIsLoading(true);
-
-        const page = queryState.page ?? 0;
-        const size = queryState.size ?? 5;
-        const backendParams = buildBackendParams({ ...queryState, page, size });
-        backendParams.set("fields", FIELDS_COTACOES_LIST);
-
-        const req = await apiClientPostSearchListItens(
-          paramsToInfo(backendParams),
-        );
-        setIsLoading(false);
-
-        if (req?.content) {
-          setPaginationInfo(req);
-          setItensLicitacao(req.content);
-        }
-
-        if (isInitialLoad.current) {
-          notify(
-            "success",
-            "Itens encontrados com sucesso!",
-            "As informações dos itens foram carregadas.",
-          );
-          isInitialLoad.current = false;
-        }
-      }
-    };
-
-    fetchData().catch((e) => {
-      catchErrorFromFetch(e, "carregar item");
-    });
-  }, [queryState, legacyNormalization.changed]);
-
-  const hasItens = itensLicitacao?.length > 0;
-
-  return (
-    <div>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <FormTitle
-              icon={<Package className="h-5 w-5" />}
-              title={"Listagem de Itens"}
-              description={`${parseNumber(
-                paginationInfo?.totalElements ?? 0,
-              )} Itens encontrados`}
-              cartButton={true}
-              backButton={true}
-              uppercase={false}
-            />
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <LoadingList />
-          ) : !hasItens ? (
-            <div className="flex flex-col items-center gap-4">
-              <EmptyListText>
-                Sem resultados de buscas... Realize uma cotação rápida
-              </EmptyListText>
-              <Button onClick={() => router.back()} variant="outline" size="sm">
-                Voltar
-              </Button>
-            </div>
-          ) : (
-            <>
-              <TabelaItensLicitacao
-                itens={itensLicitacao}
-                onSelectItem={(uuid) => router.push(`/cotacoes/${uuid}`)}
-                setIsLoading={setIsLoading}
-                currentSort={currentSort}
-                onSortChange={handleSortChange}
-              />
-              <div className="w-full">
-                <div className="hidden xl:block">
-                  <PaginationFooter
-                    setIsLoading={setIsLoading}
-                    isLoading={isLoading}
-                    paginationInfo={paginationInfo}
-                    searchParams={searchParams}
-                  />
-                </div>
-
-                <div className="block xl:hidden">
-                  <PaginationFooterMobile
-                    setIsLoading={setIsLoading}
-                    isLoading={isLoading}
-                    paginationInfo={paginationInfo}
-                    searchParams={searchParams}
-                  />
-                </div>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return <ListagemCotacaoClient session={session} options={options} />;
 }
