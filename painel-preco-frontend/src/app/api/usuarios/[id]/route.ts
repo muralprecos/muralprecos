@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAccessToken } from "@/utils/sessionTokenAccessor";
+import { ROLES } from "@/lib/authorization/roles";
+import { requireRoleSession } from "@/lib/authorization/server";
 
 const backendUrl = (id: string, suffix = "") =>
   `${process.env.API_URL}${process.env.API_URL_PREFIX}/usuarios/${id}${suffix}`;
@@ -8,6 +10,9 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRoleSession(ROLES.ADMIN);
+  if (authCheck.response) return authCheck.response;
+
   const { id } = await params;
   const token = await getAccessToken();
   if (!token)
@@ -26,6 +31,9 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRoleSession(ROLES.ADMIN);
+  if (authCheck.response) return authCheck.response;
+
   const { id } = await params;
   const token = await getAccessToken();
   if (!token)
@@ -50,6 +58,9 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRoleSession(ROLES.ADMIN);
+  if (authCheck.response) return authCheck.response;
+
   const { id } = await params;
   const token = await getAccessToken();
   if (!token)

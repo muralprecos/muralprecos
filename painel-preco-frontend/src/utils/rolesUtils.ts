@@ -11,6 +11,10 @@ function getAccessRoles(session: ClientSession | null): string[] {
   return session?.roles ?? [];
 }
 
+function normalizeRole(role: string): string {
+  return role.toUpperCase().replace(/^ROLE_/, "");
+}
+
 export function checkAccessRoles(
   session: ClientSession | null,
   rolesToCheck: string[],
@@ -19,7 +23,11 @@ export function checkAccessRoles(
   const userRoles = getAccessRoles(session);
   if (!userRoles.length) return false;
 
-  const matchingRoles = userRoles.filter((role) => rolesToCheck.includes(role));
+  const normalizedUserRoles = userRoles.map(normalizeRole);
+  const normalizedRolesToCheck = rolesToCheck.map(normalizeRole);
+  const matchingRoles = normalizedUserRoles.filter((role) =>
+    normalizedRolesToCheck.includes(role)
+  );
 
   switch (strategy) {
     case CheckRolesStrategy.INCLUDES_AT_LEAST_ONE:

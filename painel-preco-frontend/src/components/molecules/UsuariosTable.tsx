@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Edit, Trash2, Plus, Search, RefreshCcw } from "lucide-react";
+import { Users, Edit, Trash2, Plus, Search, RefreshCcw, Eye, EyeOff } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KeycloakSyncWarning } from "@/components/atoms/KeycloakSyncWarning";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import type { Organizacao, Usuario } from "@/interfaces/gestao";
+import { Separator } from "@radix-ui/react-select";
 
 interface CreateUserData {
   username: string;
@@ -45,6 +46,7 @@ interface EditUserData {
   lastName: string;
   email: string;
   organizacaoId: string;
+  password?: string;
 }
 
 interface UsuariosTableProps {
@@ -69,6 +71,7 @@ const emptyEditForm: EditUserData = {
   lastName: "",
   email: "",
   organizacaoId: "",
+  password: "",
 };
 
 export function UsuariosTable({
@@ -89,6 +92,10 @@ export function UsuariosTable({
   const [createForm, setCreateForm] = useState<CreateUserData>(emptyCreateForm);
   const [editForm, setEditForm] = useState<EditUserData>(emptyEditForm);
   const [saving, setSaving] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
 
   const filteredUsers = usuarios.filter((user) => {
     const term = search.toLowerCase();
@@ -105,6 +112,10 @@ export function UsuariosTable({
   const handleOpenCreate = () => {
     setEditingUser(null);
     setCreateForm(emptyCreateForm);
+    setConfirmPassword("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setPasswordError("");
     setIsDialogOpen(true);
   };
 
@@ -119,7 +130,12 @@ export function UsuariosTable({
       lastName,
       email: user.email ?? "",
       organizacaoId: user.organizacaoId ?? "",
+      password: "",
     });
+    setConfirmPassword("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setPasswordError("");
     setIsDialogOpen(true);
     try {
       const res = await fetch(`/api/usuarios/${user.id}`);
@@ -140,20 +156,33 @@ export function UsuariosTable({
   };
 
   const handleSave = async () => {
+    if (editingUser) {
+      if (!editForm.firstName || !editForm.email) {
+        toast.error("Nome e email são obrigatórios");
+        return;
+      }
+      if (editForm.password && editForm.password !== confirmPassword) {
+        setPasswordError("As senhas não coincidem");
+        return;
+      }
+    } else {
+      if (!createForm.username || !createForm.firstName || !createForm.email || !createForm.password || !createForm.organizacaoId) {
+        toast.error("Preencha todos os campos obrigatórios");
+        return;
+      }
+      if (createForm.password !== confirmPassword) {
+        setPasswordError("As senhas não coincidem");
+        return;
+      }
+    }
     setSaving(true);
     try {
       if (editingUser) {
-        if (!editForm.firstName || !editForm.email) {
-          toast.error("Nome e email são obrigatórios");
-          return;
-        }
-        await onSave(editForm, editingUser.id);
+        const dataToSave: EditUserData = { ...editForm };
+        if (!dataToSave.password) delete dataToSave.password;
+        await onSave(dataToSave, editingUser.id);
         toast.success("Usuário atualizado com sucesso");
       } else {
-        if (!createForm.username || !createForm.firstName || !createForm.email || !createForm.password || !createForm.organizacaoId) {
-          toast.error("Preencha todos os campos obrigatórios");
-          return;
-        }
         await onSave(createForm);
         toast.success("Usuário criado com sucesso");
       }
@@ -357,31 +386,17 @@ export function UsuariosTable({
                   <KeycloakSyncWarning message="Usuário desincronizado. Alterações podem não ser aplicadas no Keycloak." />
                 )}
                 {!editingUser && (
-                  <>
-                    <div className="grid gap-2">
-                      <Label htmlFor="username">Login *</Label>
-                      <Input
-                        id="username"
-                        value={createForm.username}
-                        onChange={(e) =>
-                          setCreateForm({ ...createForm, username: e.target.value })
-                        }
-                        placeholder="nome.usuario"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="password">Senha *</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={createForm.password}
-                        onChange={(e) =>
-                          setCreateForm({ ...createForm, password: e.target.value })
-                        }
-                        placeholder="Mínimo 6 caracteres"
-                      />
-                    </div>
-                  </>
+                  <div className="grid gap-2">
+                    <Label htmlFor="username">Login *</Label>
+                    <Input
+                      id="username"
+                      value={createForm.username}
+                      onChange={(e) =>
+                        setCreateForm({ ...createForm, username: e.target.value })
+                      }
+                      placeholder="nome.usuario"
+                    />
+                  </div>
                 )}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
@@ -439,13 +454,73 @@ export function UsuariosTable({
                       <SelectValue placeholder="Selecione uma organização" />
                     </SelectTrigger>
                     <SelectContent>
-                          {activeOrgs.map((org) => (
+                      {activeOrgs.map((org) => (
                         <SelectItem key={org.id} value={org.id}>
                           {org.nome}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <hr/>
+                <div className="grid gap-2">
+                  <Label htmlFor="password">
+                    {editingUser ? "Nova Senha" : "Senha"}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={editingUser ? (editForm.password ?? "") : createForm.password}
+                      onChange={(e) => {
+                        setPasswordError("");
+                        editingUser
+                          ? setEditForm({ ...editForm, password: e.target.value })
+                          : setCreateForm({ ...createForm, password: e.target.value });
+                      }}
+                      placeholder={editingUser ? "Deixe em branco para não alterar" : "Mínimo 6 caracteres"}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="confirmPassword">
+                    {editingUser ? "Confirmar Nova Senha" : "Confirmar Senha"}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setPasswordError("");
+                        setConfirmPassword(e.target.value);
+                      }}
+                      placeholder="Repita a senha"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  {passwordError && (
+                    <p className="text-xs text-red-500">{passwordError}</p>
+                  )}
                 </div>
               </>
             )}

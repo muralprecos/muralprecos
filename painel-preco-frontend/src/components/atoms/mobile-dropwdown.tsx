@@ -12,6 +12,8 @@ import pkg from "../../../package.json";
 import { logoutAction } from "@/app/action/logoutActions";
 import { useEffect, useState } from "react";
 import { getIdleRemainingMs } from "@/lib/session-idle-state";
+import { useAuthSession } from "@/context/AuthContext";
+import { ROLES, hasRole } from "@/lib/authorization/roles";
 
 interface ProfileDropdownProps {
   variant?: "desktop" | "mobile";
@@ -47,6 +49,8 @@ export function ProfileDropdown({
   const isLoading = !userName || !userOrg;
   const [open, setOpen] = useState(false);
   const idleRemaining = useIdleRemaining(open);
+  const { data: session } = useAuthSession();
+  const isAdmin = hasRole(session?.roles ?? [], ROLES.ADMIN);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -105,12 +109,14 @@ export function ProfileDropdown({
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="cursor-pointer" asChild>
-          <Link href="/gestao-usuarios">
-            <Users className="mr-2 h-4 w-4" />
-            <span>Gestão de Usuários</span>
-          </Link>
-        </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem className="cursor-pointer" asChild>
+            <Link href="/gestao-usuarios">
+              <Users className="mr-2 h-4 w-4" />
+              <span>Gestão de Usuários</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
 
         <DropdownMenuSeparator />
 

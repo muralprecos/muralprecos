@@ -35,6 +35,8 @@ export interface IPropsSearchItensLicitacaoForm {
   compraPeriodos: IItemSelect[];
   situacoesLicitacoes: IItemSelect[];
   unidadesFederativas: IItemSelect[];
+  variant?: "page" | "inline";
+  onAfterSubmit?: () => void;
 }
 
 const optionalString = z.string().nullable().optional();
