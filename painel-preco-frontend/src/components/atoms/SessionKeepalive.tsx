@@ -27,9 +27,17 @@ export function SessionKeepalive() {
         await logoutAction();
         return;
       }
-      fetch("/api/auth/session", { method: "GET", credentials: "same-origin" }).catch(
-        () => undefined
-      );
+      try {
+        const response = await fetch("/api/auth/session", {
+          method: "GET",
+          credentials: "same-origin",
+        });
+        if (response.status === 401 || response.status === 422) {
+          window.dispatchEvent(new CustomEvent("session:expired"));
+        }
+      } catch {
+        // Network failures should not force logout.
+      }
     };
 
     const id = setInterval(check, CHECK_INTERVAL_MS);

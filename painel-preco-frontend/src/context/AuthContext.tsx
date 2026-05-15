@@ -9,7 +9,10 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import { ClientSession } from "@/interfaces/auth";
+
+const LOGIN_PATH = "/login";
 
 type SessionStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -26,7 +29,7 @@ interface UpdateSessionData {
   name: string;
 }
 
-export const LOGIN_PATH = "/login";
+const PUBLIC_PATHS = ["/login", "/unauthorized", "/validar-cotacao"];
 
 const AuthContext = createContext<AuthContextValue>({
   data: null,
@@ -38,6 +41,12 @@ function redirectToLogin() {
   if (typeof window !== "undefined" && window.location.pathname !== LOGIN_PATH) {
     window.location.href = LOGIN_PATH;
   }
+}
+
+function isPublicPath(pathname: string) {
+  return PUBLIC_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`)
+  );
 }
 
 async function clearSession() {
@@ -52,12 +61,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<ClientSession | null>(null);
   const [status, setStatus] = useState<SessionStatus>("loading");
   const interceptorInstalled = useRef(false);
+  const pathname = usePathname();
 
   const handleExpiredSession = useCallback(async () => {
     setData(null);
     setStatus("unauthenticated");
     await clearSession();
-    redirectToLogin();
+    if (typeof window !== "undefined" && !isPublicPath(window.location.pathname)) {
+      redirectToLogin();
+    }
   }, []);
 
   const fetchSession = useCallback(async () => {
@@ -73,6 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await handleExpiredSession();
         }
       } else {
+        if (res.status === 401 || res.status === 422) {
+          await handleExpiredSession();
+          return;
+        }
         setData(null);
         setStatus("unauthenticated");
       }
@@ -96,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ): Promise<Response> {
       const response = await originalFetch(input, init);
 
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 422) {
         const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
         // Only intercept calls to our Next.js API proxy routes, not auth routes themselves
         if (url.startsWith("/api/") && !url.startsWith("/api/auth/")) {
