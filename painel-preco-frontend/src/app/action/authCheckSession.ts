@@ -17,8 +17,9 @@ async function checkAccessToken(): Promise<boolean> {
       }
     );
     // 401 = token rejeitado pelo backend/Keycloak → sessão inválida
-    // Qualquer outro status (200, 404, etc.) = token válido
-    return resp.status !== 401;
+    // 422 é tratado como fallback durante a migração para 401 no backend.
+    // Qualquer outro status (200, 404, etc.) = token válido.
+    return resp.status !== 401 && resp.status !== 422;
   } catch {
     return false;
   }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { COOKIE_NAME } from "@/lib/session-utils";
-import { LOGIN_PATH } from "./context/AuthContext";
+
+const LOGIN_PATH = "/login";
 
 // Public routes are always passed through without cookie checks.
 // The login page is a Server Component that calls auth() and redirects to /
