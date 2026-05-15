@@ -61,3 +61,17 @@ jobs:
             ghcr.io/ttsolutionspi/painel-precos-frontend:hmg
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Create and push Git tag (homolog)
+        run: |
+          TAG="${{ steps.get_version.outputs.VERSION }}-HMG"
+          git fetch --tags
+          if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists. Skipping."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "$TAG" -m "Homolog release version $TAG"
+            git push origin "$TAG"
+            echo "Tag $TAG created and pushed."
+          fi
