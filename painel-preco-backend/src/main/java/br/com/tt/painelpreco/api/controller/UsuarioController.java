@@ -5,8 +5,6 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +25,7 @@ import br.com.tt.painelpreco.api.dto.UsuarioDTO;
 import br.com.tt.painelpreco.api.dto.form.PerfilForm;
 import br.com.tt.painelpreco.api.dto.form.UsuarioForm;
 import br.com.tt.painelpreco.arch.exception.ArchException;
+import br.com.tt.painelpreco.arch.api.controller.AbstractController;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.domain.service.UsuarioService;
 import br.com.tt.painelpreco.security.SecurityRoles;
@@ -37,7 +35,7 @@ import br.com.tt.painelpreco.util.ModelConverter;
 
 @RestController
 @RequestMapping(ApiVersion.LATEST + "/usuarios")
-public class UsuarioController {
+public class UsuarioController extends AbstractController {
 
   @Autowired
   private UsuarioService usuarioService;
@@ -117,19 +115,7 @@ public class UsuarioController {
   }
 
   private AccessToken obterAccessToken() {
-    try {
-      KeycloakAuthenticationToken authentication =
-          (KeycloakAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-      @SuppressWarnings("unchecked")
-      KeycloakPrincipal<?> principal = (KeycloakPrincipal<?>) authentication.getPrincipal();
-      return principal.getKeycloakSecurityContext().getToken();
-    } catch (Exception e) {
-      throw new ArchException("Não foi possível identificar o usuário autenticado");
-    }
-  }
-
-  private String obterKeycloakUserId() {
-    return obterAccessToken().getSubject();
+    return super.getAccessToken();
   }
 
   private UsuarioDTO dtoFromToken(AccessToken token) {

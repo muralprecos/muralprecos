@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONObject;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
@@ -27,6 +28,14 @@ import br.com.tt.painelpreco.arch.api.dto.DTO;
 import br.com.tt.painelpreco.arch.exception.ArchException;
 import br.com.tt.painelpreco.arch.infra.auth.Organizacao;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
+import br.com.tt.painelpreco.arch.view.http.Body;
+import br.com.tt.painelpreco.arch.view.http.ContentType;
+import br.com.tt.painelpreco.arch.view.http.Header;
+import br.com.tt.painelpreco.arch.view.http.HttpClient;
+import br.com.tt.painelpreco.arch.view.http.HttpResponse;
+import br.com.tt.painelpreco.arch.view.http.QueryParam;
+import br.com.tt.painelpreco.arch.view.http.exception.HttpException;
+import br.com.tt.painelpreco.config.KeycloakProperties;
 import br.com.tt.painelpreco.util.ReflectionUtil;
 import br.com.tt.painelpreco.util.ReportUtil;
 import net.sf.jasperreports.engine.JasperReport;
@@ -56,9 +65,17 @@ public abstract class AbstractController {
 	
 	@Autowired
 	private ReportUtil reportUtil;
+
+	@Autowired
+	private HttpClient httpClient;
+
+	@Autowired
+	private KeycloakProperties keycloakProperties;
 	
 	@Value("${app.domain}")
 	private String appDomain;
+
+	private static final String KEYCLOAK_INTROSPECT_URL = "%s/realms/%s/protocol/openid-connect/token/introspect";
 	
 	public Map<String, Object> dtoToMap(DTO dto) {
 		Map<String, Object> parameters = new HashMap<>();
@@ -124,7 +141,9 @@ public abstract class AbstractController {
 	}
 	
 	public AccessToken getAccessToken() {
-		return getKeyCloakContext().getToken();
+		AccessToken token = getKeyCloakContext().getToken();
+		validarTokenAtivo(token);
+		return token;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -188,6 +207,29 @@ public abstract class AbstractController {
 	
 	public String getAppDomain() {
 		return appDomain;
+	}
+
+	private void validarTokenAtivo(AccessToken token) {
+		try {
+			String introspectUrl = String.format(KEYCLOAK_INTROSPECT_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
+			Header header = new Header();
+			header.setContentType(ContentType.APPLICATION_FORM_URLENCODED);
+
+			Body body = new Body();
+			body.add("token", getKeyCloakContext().getTokenString())
+				.add("client_id", keycloakProperties.getClientId())
+				.add("client_secret", keycloakProperties.getClientSecret());
+
+			HttpResponse response = httpClient.requestPost(header, body, QueryParam.NONE, introspectUrl);
+			JSONObject payload = response.getResponse();
+			if (payload == null || !payload.optBoolean("active", false)) {
+				throw new HttpException(401, "Token inválido ou expirado");
+			}
+		} catch (HttpException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new HttpException(401, "Token inválido ou expirado");
+		}
 	}
 
 }

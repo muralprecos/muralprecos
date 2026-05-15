@@ -8,14 +8,13 @@
 	<artifactId>painel-preco</artifactId>
 	<version>1.0.36</version>
 	<name>painel-preco</name>
-	<description>Painel de Preços da TT Solutions</description>
-
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.7.14</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
+	<description>Painel de Preços da TT Solutions</description>
 	<properties>
 		<java.version>11</java.version>
 		<keycloak.version>22.0.1</keycloak.version>
