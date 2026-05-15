@@ -6,6 +6,22 @@ import { ClientSession, SessionPayload } from "@/interfaces/auth";
 import { IUserInfo } from "@/interfaces/types";
 import { postRefreshToken } from "@/hooks/api";
 
+const backendBaseUrl = () => `${process.env.API_URL}${process.env.API_URL_PREFIX}`;
+
+async function validateSessionOnBackend(accessToken: string): Promise<boolean> {
+  try {
+    const resp = await fetch(`${backendBaseUrl()}/usuarios/me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      method: "GET",
+    });
+    return resp.status !== 401;
+  } catch {
+    return false;
+  }
+}
+
 async function refreshSession(
   session: SessionPayload
 ): Promise<SessionPayload | null> {
@@ -45,6 +61,12 @@ export async function auth(): Promise<ClientSession | null> {
       return null;
     }
     session = refreshed;
+  }
+
+  const sessionIsValid = await validateSessionOnBackend(session.access_token);
+  if (!sessionIsValid) {
+    try { await deleteSession(); } catch { /* ignore: running inside a render */ }
+    return null;
   }
 
   return {
