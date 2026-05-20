@@ -163,15 +163,15 @@ export default function GestaoUsuarios() {
               Usuários
             </TabsTrigger>
           </TabsList>
-          <Button
+          {/* <Button
             onClick={() => setModalSincronizar(true)}
             disabled={sincronizando}
             variant="outline"
             className="bg-surface-plain"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${sincronizando ? "animate-spin" : ""}`} />
-            {sincronizando ? "Sincronizando..." : "Sincronizara com Keycloak"}
-          </Button>
+            {sincronizando ? "Sincronizando..." : "Sincronizar com Keycloak"}
+          </Button> */}
         </div>
 
         <TabsContent value="organizacoes" className="mt-6">

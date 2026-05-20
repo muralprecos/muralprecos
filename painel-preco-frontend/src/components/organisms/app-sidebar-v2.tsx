@@ -50,8 +50,7 @@ const menuItems: MenuItem[] = [
   {
     icon: Award,
     label: "Certidões",
-    path: "https://certidoes-apf.apps.tcu.gov.br",
-    external: true,
+    path: "/certidoes",
   },
 ];
 
