@@ -14,6 +14,8 @@ import { useEffect, useState } from "react";
 import { getIdleRemainingMs } from "@/lib/session-idle-state";
 import { useAuthSession } from "@/context/AuthContext";
 import { ROLES, hasRole } from "@/lib/authorization/roles";
+import { environmentBadgeLabel } from "@/lib/app-environment";
+import { cn } from "@/lib/utils";
 
 interface ProfileDropdownProps {
   variant?: "desktop" | "mobile";
@@ -75,7 +77,14 @@ export function ProfileDropdown({
             </div>
           </button>
         ) : (
-          <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            className={cn(
+              "w-10 h-10 rounded-full bg-card flex items-center justify-center transition-colors",
+              environmentBadgeLabel
+                ? "text-amber-600 hover:text-amber-500"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
             <User className="w-5 h-5" />
           </button>
         )}
