@@ -15,6 +15,8 @@ public class ItemLicitacaoFilter {
 	private UUID uuid;
 	private String descricao;
 	private String descricaoComplementar;
+	private TipoBusca tipoBuscaDescricao = TipoBusca.TODAS_PALAVRAS;
+
 	
 	/** ============== LICITACAO ============== **/
 	private Integer ano;
@@ -57,7 +59,6 @@ public class ItemLicitacaoFilter {
 				if (field.get(this) != null) {
 					if (field.getName().equals(fieldName)) {
 						objeto = true;
-						break;
 					} else {
 						outros = true;
 					}
