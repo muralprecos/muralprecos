@@ -5,10 +5,11 @@ import {
   useQueryStates,
 } from "nuqs";
 import type { CotacaoQueryState, SortDir } from "./buildBackendParams";
-import type { FormDataCotacao } from "./utils";
+import { FormDataCotacao, TipoBuscaDescricao } from "./utils";
 
 export const cotacaoQueryParsers = {
   descricao: parseAsString,
+  tipoBuscaDescricao: parseAsString,
   periodoCompraId: parseAsString,
   ano: parseAsString,
   ufId: parseAsString,
@@ -42,6 +43,7 @@ export const defaultFormValues: FormDataCotacao = {
   modalidadeId: "",
   periodoCompraId: "",
   descricao: "",
+  tipoBuscaDescricao: TipoBuscaDescricao.TODAS_PALAVRAS,
   ufId: "",
   municipioId: "",
   orgaoSuperiorId: "",
@@ -72,6 +74,7 @@ export const queryToFormValues = (query: CotacaoQueryState): FormDataCotacao => 
     modalidadeId: query.modalidadeId ?? "",
     periodoCompraId: query.periodoCompraId ?? "",
     descricao: query.descricao ?? "",
+    tipoBuscaDescricao: (query.tipoBuscaDescricao as TipoBuscaDescricao) ?? TipoBuscaDescricao.TODAS_PALAVRAS,
     ufId: query.ufId ?? "",
     municipioId: query.municipioId ?? "",
     orgaoSuperiorId: query.orgaoSuperiorId ?? "",
@@ -95,6 +98,7 @@ export const formValuesToQuery = (values: FormDataCotacao): CotacaoQueryState =>
     modalidadeId: cleanString(values.modalidadeId),
     periodoCompraId: cleanString(values.periodoCompraId),
     descricao: cleanString(values.descricao),
+    tipoBuscaDescricao: cleanString(values.tipoBuscaDescricao),
     ufId: cleanString(values.ufId),
     municipioId: cleanString(values.municipioId),
     orgaoSuperiorId: cleanString(values.orgaoSuperiorId),

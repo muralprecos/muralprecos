@@ -4,6 +4,7 @@ export type SortDir = "asc" | "desc";
 
 export type CotacaoQueryState = {
   descricao?: string | null;
+  tipoBuscaDescricao?: string | null;
   periodoCompraId?: string | null;
   ano?: string | null;
   ufId?: string | null;
