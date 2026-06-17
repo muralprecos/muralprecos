@@ -12,9 +12,13 @@ import {
   type FormDataCotacao,
   type IPropsSearchItensLicitacaoForm,
   isFieldAutocompleteAsync,
+  TipoBuscaDescricao,
+  TipoBuscaDescricaoLabel,
 } from "./utils";
 import { Label } from "@/components/ui/label";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, HelpCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useCotacaoFields } from "@/hooks/useCotacaoFields";
 import SortSelect from "@/components/atoms/SortSelect";
 import DynamicFormField from "./DynamicFormField";
@@ -193,8 +197,7 @@ export default function SearchItensLicitacaoForm({
       } else {
         const canonicalParams = buildCanonicalParams(nextQuery);
         router.push(
-          `${"/cotacoes/listagem"}${
-            canonicalParams.toString() ? `?${canonicalParams.toString()}` : ""
+          `${"/cotacoes/listagem"}${canonicalParams.toString() ? `?${canonicalParams.toString()}` : ""
           }`
         );
       }
@@ -216,7 +219,7 @@ export default function SearchItensLicitacaoForm({
       "error",
       "Campos inválidos",
       errorMessage ||
-        "Por favor, verifique os campos obrigatórios antes de continuar."
+      "Por favor, verifique os campos obrigatórios antes de continuar."
     );
   };
 
@@ -263,192 +266,263 @@ export default function SearchItensLicitacaoForm({
     return <LoadingForm />;
   }
 
+  const searchHelpContent = (
+    <>
+      <p>Considerando a busca <strong>"serviço de xerox"</strong>:</p>
+      <ul className="space-y-2">
+        <li><strong>Qualquer palavra:</strong> Retorna itens que contenham pelo menos uma das palavras (ex: "serviço OU xerox"). Ignora artigos, preposições, conjunções, etc.</li>
+        <li><strong>Todas as palavras:</strong> Retorna itens que contenham todas as palavras, independentemente da ordem (ex: "serviço E xerox"). Ignora artigos, preposições, conjunções, etc.</li>
+        <li><strong>Frase exata:</strong> Retorna itens que contenham exatamente a frase digitada na ordem (ex: "serviço de xerox").</li>
+      </ul>
+    </>
+  );
+
   const formContent = (
     <form
       onSubmit={handleSubmit(onSubmit, onSubmitError)}
       className="w-full mx-auto p-2 space-y-6"
     >
-            <div className="grid grid-cols-1 gap-4">
-              <InputForm
-                as="textarea"
-                name="descricao"
-                control={control}
-                placeholder="Descreva o item ou serviço para cotação..."
-                inputClassName="min-h-[100px] resize-none bg-surface-plain"
-                label="Descrição"
-              />
+      <div className="grid grid-cols-1 gap-2 mb-2">
+        <InputForm
+          as="textarea"
+          name="descricao"
+          control={control}
+          placeholder="Descreva o item ou serviço para cotação..."
+          inputClassName="min-h-[100px] resize-none bg-surface-plain"
+          label="Descrição"
+        />
+        <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 text-sm mt-2">
+          <div className="flex items-center gap-1.5">
+            <span className="font-medium text-foreground">Opções de Busca:</span>
+            {/* Desktop Tooltip */}
+            <div className="hidden md:block">
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" className="text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full">
+                      <HelpCircle className="w-4 h-4 cursor-help" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-xs text-xs space-y-3 p-3 z-50">
+                    {searchHelpContent}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <DynamicFormField
-                name="ufId"
-                attr={fields.ufId}
-                control={control}
-                errors={errors}
-                selectedLabel={getSelectedLabel("ufId")}
-                onLabelResolved={(id, label) => setLabel("ufId", id, label)}
-              />
-              <DynamicFormField
-                name="municipioId"
-                attr={fields.municipioId}
-                control={control}
-                errors={errors}
-                selectedLabel={getSelectedLabel("municipioId")}
-                onLabelResolved={(id, label) =>
-                  setLabel("municipioId", id, label)
-                }
-              />
-              <DynamicFormField
-                name="ugId"
-                attr={fields.ugId}
-                control={control}
-                errors={errors}
-                selectedLabel={getSelectedLabel("ugId")}
-                onLabelResolved={(id, label) => setLabel("ugId", id, label)}
-              />
-
-              <DynamicFormField
-                name="periodoCompraId"
-                attr={fields.periodoCompraId}
-                control={control}
-                errors={errors}
-              />
-              <DynamicFormField
-                name="ano"
-                attr={fields.ano}
-                control={control}
-                errors={errors}
-              />
-
-              <DynamicFormField
-                name="unidadeFornecimentoId"
-                attr={fields.unidadeFornecimentoId}
-                control={control}
-                errors={errors}
-                selectedLabel={getSelectedLabel("unidadeFornecimentoId")}
-                onLabelResolved={(id, label) =>
-                  setLabel("unidadeFornecimentoId", id, label)
-                }
-              />
+            {/* Mobile Dialog */}
+            <div className="block md:hidden">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button type="button" className="flex items-center gap-1 text-xs font-medium text-primary dark:text-white hover:text-primary/80 dark:hover:text-white/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded p-1">
+                    <HelpCircle className="w-4 h-4" />
+                    <span className="underline underline-offset-2">Como funciona?</span>
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-[90vw] w-full rounded-lg p-4 z-50">
+                  <DialogHeader>
+                    <DialogTitle className="text-base text-left text-primary">Opções de Busca</DialogTitle>
+                  </DialogHeader>
+                  <div className="text-sm space-y-3 mt-2">
+                    {searchHelpContent}
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
-
-            {showAdvanced && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <DynamicFormField
-                  name="porteFornecedorId"
-                  attr={fields.porteFornecedorId}
-                  control={control}
-                  errors={errors}
-                />
-                <DynamicFormField
-                  name="esferaId"
-                  attr={fields.esferaId}
-                  control={control}
-                  errors={errors}
-                />
-                <DynamicFormField
-                  name="formaCompraId"
-                  attr={fields.formaCompraId}
-                  control={control}
-                  errors={errors}
-                />
-                <DynamicFormField
-                  name="modalidadeId"
-                  attr={fields.modalidadeId}
-                  control={control}
-                  errors={errors}
-                />
-                <DynamicFormField
-                  name="situacaoId"
-                  attr={fields.situacaoId}
-                  control={control}
-                  errors={errors}
-                />
-                <DynamicFormField
-                  name="orgaoSuperiorId"
-                  attr={fields.orgaoSuperiorId}
-                  control={control}
-                  errors={errors}
-                  selectedLabel={getSelectedLabel("orgaoSuperiorId")}
-                  onLabelResolved={(id, label) =>
-                    setLabel("orgaoSuperiorId", id, label)
-                  }
-                />
-                <DynamicFormField
-                  name="orgaoId"
-                  attr={fields.orgaoId}
-                  control={control}
-                  errors={errors}
-                  selectedLabel={getSelectedLabel("orgaoId")}
-                  onLabelResolved={(id, label) => setLabel("orgaoId", id, label)}
-                />
-                <DynamicFormField
-                  name="fornecedorId"
-                  attr={fields.fornecedorId}
-                  control={control}
-                  errors={errors}
-                  selectedLabel={getSelectedLabel("fornecedorId")}
-                  onLabelResolved={(id, label) =>
-                    setLabel("fornecedorId", id, label)
-                  }
-                />
-                <DynamicFormField
-                  name="materialId"
-                  attr={fields.materialId}
-                  control={control}
-                  errors={errors}
-                  selectedLabel={getSelectedLabel("materialId")}
-                  onLabelResolved={(id, label) =>
-                    setLabel("materialId", id, label)
-                  }
-                />
-
-                <InputForm
-                  name="objeto"
-                  control={control}
-                  placeholder="Objeto da licitação"
-                  label="Objeto"
-                />
-                <InputForm
-                  name="descricaoComplementar"
-                  control={control}
-                  placeholder="Descrição complementar"
-                  label="Descrição Complementar"
-                />
+          </div>
+          <Controller
+            name="tipoBuscaDescricao"
+            control={control}
+            render={({ field }) => (
+              <div className="flex flex-wrap gap-3 md:gap-4">
+                {Object.values(TipoBuscaDescricao).map((tipo) => (
+                  <label key={tipo} className="flex items-center gap-1.5 cursor-pointer select-none">
+                    <input
+                      type="radio"
+                      value={tipo}
+                      checked={(field.value || TipoBuscaDescricao.TODAS_PALAVRAS) === tipo}
+                      onChange={() => field.onChange(tipo)}
+                      className="w-4 h-4 accent-primary cursor-pointer"
+                    />
+                    <span>{TipoBuscaDescricaoLabel[tipo]}</span>
+                  </label>
+                ))}
               </div>
             )}
+          />
+        </div>
+      </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="flex flex-col gap-1.5 col-span-1 lg:col-start-3">
-                <Label className="flex items-center gap-1.5 text-sm font-medium">
-                  <ArrowUpDown className="w-4 h-4" />
-                  Ordenação
-                </Label>
-                <Controller
-                  name="sort"
-                  control={control}
-                  render={({ field }) => (
-                    <SortSelect
-                      value={field.value ?? ""}
-                      onValueChange={field.onChange}
-                    />
-                  )}
-                />
-              </div>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <DynamicFormField
+          name="ufId"
+          attr={fields.ufId}
+          control={control}
+          errors={errors}
+          selectedLabel={getSelectedLabel("ufId")}
+          onLabelResolved={(id, label) => setLabel("ufId", id, label)}
+        />
+        <DynamicFormField
+          name="municipioId"
+          attr={fields.municipioId}
+          control={control}
+          errors={errors}
+          selectedLabel={getSelectedLabel("municipioId")}
+          onLabelResolved={(id, label) =>
+            setLabel("municipioId", id, label)
+          }
+        />
+        <DynamicFormField
+          name="ugId"
+          attr={fields.ugId}
+          control={control}
+          errors={errors}
+          selectedLabel={getSelectedLabel("ugId")}
+          onLabelResolved={(id, label) => setLabel("ugId", id, label)}
+        />
 
+        <DynamicFormField
+          name="periodoCompraId"
+          attr={fields.periodoCompraId}
+          control={control}
+          errors={errors}
+        />
+        <DynamicFormField
+          name="ano"
+          attr={fields.ano}
+          control={control}
+          errors={errors}
+        />
 
-            <div className="pt-4 flex justify-end">
-              <SearchButtons
-                clearForm={handleTrashClick}
-                doingRequest={doingRequest}
-                setIsModalOpen={setIsModalOpen}
-                isModalOpen={isModalOpen}
-                showAdvancedForm={showAdvanced}
-                handleAdvancedFormClick={() => setShowAdvanced((prev) => !prev)}
-                onConfirmClear={clearForm}
+        <DynamicFormField
+          name="unidadeFornecimentoId"
+          attr={fields.unidadeFornecimentoId}
+          control={control}
+          errors={errors}
+          selectedLabel={getSelectedLabel("unidadeFornecimentoId")}
+          onLabelResolved={(id, label) =>
+            setLabel("unidadeFornecimentoId", id, label)
+          }
+        />
+      </div>
+
+      {showAdvanced && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <DynamicFormField
+            name="porteFornecedorId"
+            attr={fields.porteFornecedorId}
+            control={control}
+            errors={errors}
+          />
+          <DynamicFormField
+            name="esferaId"
+            attr={fields.esferaId}
+            control={control}
+            errors={errors}
+          />
+          <DynamicFormField
+            name="formaCompraId"
+            attr={fields.formaCompraId}
+            control={control}
+            errors={errors}
+          />
+          <DynamicFormField
+            name="modalidadeId"
+            attr={fields.modalidadeId}
+            control={control}
+            errors={errors}
+          />
+          <DynamicFormField
+            name="situacaoId"
+            attr={fields.situacaoId}
+            control={control}
+            errors={errors}
+          />
+          <DynamicFormField
+            name="orgaoSuperiorId"
+            attr={fields.orgaoSuperiorId}
+            control={control}
+            errors={errors}
+            selectedLabel={getSelectedLabel("orgaoSuperiorId")}
+            onLabelResolved={(id, label) =>
+              setLabel("orgaoSuperiorId", id, label)
+            }
+          />
+          <DynamicFormField
+            name="orgaoId"
+            attr={fields.orgaoId}
+            control={control}
+            errors={errors}
+            selectedLabel={getSelectedLabel("orgaoId")}
+            onLabelResolved={(id, label) => setLabel("orgaoId", id, label)}
+          />
+          <DynamicFormField
+            name="fornecedorId"
+            attr={fields.fornecedorId}
+            control={control}
+            errors={errors}
+            selectedLabel={getSelectedLabel("fornecedorId")}
+            onLabelResolved={(id, label) =>
+              setLabel("fornecedorId", id, label)
+            }
+          />
+          <DynamicFormField
+            name="materialId"
+            attr={fields.materialId}
+            control={control}
+            errors={errors}
+            selectedLabel={getSelectedLabel("materialId")}
+            onLabelResolved={(id, label) =>
+              setLabel("materialId", id, label)
+            }
+          />
+
+          <InputForm
+            name="objeto"
+            control={control}
+            placeholder="Objeto da licitação"
+            label="Objeto"
+          />
+          <InputForm
+            name="descricaoComplementar"
+            control={control}
+            placeholder="Descrição complementar"
+            label="Descrição Complementar"
+          />
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-1.5 col-span-1 lg:col-start-3">
+          <Label className="flex items-center gap-1.5 text-sm font-medium">
+            <ArrowUpDown className="w-4 h-4" />
+            Ordenação
+          </Label>
+          <Controller
+            name="sort"
+            control={control}
+            render={({ field }) => (
+              <SortSelect
+                value={field.value ?? ""}
+                onValueChange={field.onChange}
               />
-            </div>
+            )}
+          />
+        </div>
+      </div>
+
+
+      <div className="pt-4 flex justify-end">
+        <SearchButtons
+          clearForm={handleTrashClick}
+          doingRequest={doingRequest}
+          setIsModalOpen={setIsModalOpen}
+          isModalOpen={isModalOpen}
+          showAdvancedForm={showAdvanced}
+          handleAdvancedFormClick={() => setShowAdvanced((prev) => !prev)}
+          onConfirmClear={clearForm}
+        />
+      </div>
     </form>
   );
 

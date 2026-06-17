@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useLabelCache } from "@/hooks/useLabelCache";
 import type { IItemSelect } from "@/interfaces/types";
 import type { CotacaoQueryState } from "@/app/(system)/cotacoes/realizar-cotacao/_components/buildBackendParams";
-import { SORT_OPTIONS } from "@/app/(system)/cotacoes/realizar-cotacao/_components/utils";
+import { SORT_OPTIONS, TipoBuscaDescricao, TipoBuscaDescricaoLabel } from "@/app/(system)/cotacoes/realizar-cotacao/_components/utils";
 
 type SelectFilterOptions = {
   anosCompras: IItemSelect[];
@@ -50,7 +50,7 @@ const FILTER_LABELS: Partial<Record<keyof CotacaoQueryState, string>> = {
   sort: "Ordenacao",
 };
 
-const hiddenFilters: Array<keyof CotacaoQueryState> = ["page", "size", "dir"];
+const hiddenFilters: Array<keyof CotacaoQueryState> = ["page", "size", "dir", "tipoBuscaDescricao"];
 
 export default function AppliedCotacaoFilters({
   queryState,
@@ -94,12 +94,20 @@ export default function AppliedCotacaoFilters({
         const fromLookup = staticLookup.get(`${key}:${text}`);
         const valueLabel = cached ?? fromLookup ?? text;
         const keyLabel = FILTER_LABELS[key] ?? key;
+        let display = `${keyLabel}: ${valueLabel}`;
+
+        if (key === "descricao") {
+          const tipo = (queryState.tipoBuscaDescricao as TipoBuscaDescricao) || TipoBuscaDescricao.TODAS_PALAVRAS;
+          const tipoText = TipoBuscaDescricaoLabel[tipo] ?? TipoBuscaDescricaoLabel[TipoBuscaDescricao.TODAS_PALAVRAS];
+          display += ` (${tipoText})`;
+        }
+
         return {
           key,
           keyLabel,
           value: text,
           valueLabel,
-          display: `${keyLabel}: ${valueLabel}`,
+          display,
         };
       })
       .filter((item): item is NonNullable<typeof item> => item != null);
