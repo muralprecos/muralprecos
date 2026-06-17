@@ -245,6 +245,7 @@ export default function SearchItensLicitacaoForm({
       orgaoId: null,
       fornecedorId: null,
       materialId: null,
+      regiao: null,
       ugId: null,
       objeto: null,
       descricaoComplementar: null,
@@ -373,12 +374,10 @@ export default function SearchItensLicitacaoForm({
           }
         />
         <DynamicFormField
-          name="ugId"
-          attr={fields.ugId}
+          name="regiao"
+          attr={fields.regiao}
           control={control}
           errors={errors}
-          selectedLabel={getSelectedLabel("ugId")}
-          onLabelResolved={(id, label) => setLabel("ugId", id, label)}
         />
 
         <DynamicFormField
@@ -408,6 +407,14 @@ export default function SearchItensLicitacaoForm({
 
       {showAdvanced && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <DynamicFormField
+            name="ugId"
+            attr={fields.ugId}
+            control={control}
+            errors={errors}
+            selectedLabel={getSelectedLabel("ugId")}
+            onLabelResolved={(id, label) => setLabel("ugId", id, label)}
+          />
           <DynamicFormField
             name="porteFornecedorId"
             attr={fields.porteFornecedorId}
