@@ -29,6 +29,7 @@ import br.com.tt.painelpreco.api.dto.form.filter.TipoBusca;
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 import br.com.tt.painelpreco.util.DateUtil;
 import br.com.tt.painelpreco.util.StringUtil;
+import java.util.Arrays;
 
 @Repository
 public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRepository {
@@ -155,14 +156,13 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 								.matching(filtro.getMunicipioId()));
 					}
 
+					if (filtro.getIdsUFsRegiao() != null && filtro.getIdsUFsRegiao().length > 0) {
+						bool.must(f.terms().field("licitacao.municipio.uf.id")
+								.matchingAny(Arrays.asList(filtro.getIdsUFsRegiao())));
+					}
+
 					if (filtro.getUfId() != null) {
-						Integer[] idsUFsRegiao = br.com.tt.painelpreco.domain.model.UnidadeFederativa
-								.getUFsRegiao(filtro.getUfId());
-						if (idsUFsRegiao != null && idsUFsRegiao.length > 0) {
-							bool.must(f.terms().field("licitacao.municipio.uf.id").matchingAny(idsUFsRegiao));
-						} else {
-							bool.must(f.match().field("licitacao.municipio.uf.uuid").matching(filtro.getUfId()));
-						}
+						bool.must(f.match().field("licitacao.municipio.uf.uuid").matching(filtro.getUfId()));
 					}
 
 					// Filtros do ItemLicitacao

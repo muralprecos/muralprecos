@@ -31,6 +31,8 @@ public class ItemLicitacaoFilter {
 	private UUID materialId;
 	private UUID porteFornecedorId;
 	private UUID fornecedorId;
+	private String regiao;
+	private Integer[] idsUFsRegiao;
 	private UUID ufId;
 	private UUID municipioId;
 	private UUID unidadeFornecimentoId;
