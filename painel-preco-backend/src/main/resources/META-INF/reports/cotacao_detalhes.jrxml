@@ -21,8 +21,8 @@ from (
 		ug.nome as orgao, mc.nome || ' n.º ' || l.numero || '/' || extract(year from l.data_resultado_compra) as identificacao,
 		to_char(l.data_resultado_compra, 'dd/MM/yyyy') as data_licitacao, (il.valor / il.quantidade) as preco,
 		il.valor,
-		f.documento as fornecedor_documento,
-		f.nome as fornecedor_nome,
+		coalesce(f.documento, 'Não Informado') as fornecedor_documento,
+		coalesce(f.nome, 'Não Informado') as fornecedor_nome,
 		il.quantidade, il.descricao,
 		l.objeto,
 		l.data_abertura,
@@ -33,14 +33,14 @@ from (
 			when l.esfera_id = 1 then 'https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=' || ug.codigo ||  lpad(mc.codigo_comprasnet::varchar, 2, '0') || l.numero || substring(l.numero_controle_pncp from 25 for 4)
 			else 'https://pncp.gov.br/app/editais/' || substring(l.numero_controle_pncp from 1 for 14) || '/' || substring(l.numero_controle_pncp from 25 for 4) || '/' || cast(substring(l.numero_controle_pncp from 18 for 6) as integer)
 		end as links,
-		uf.sigla as uf,
-		coalesce(unf.nome, 'Unidade') as unidade_fornecimento
+		coalesce(uf.sigla, 'Não Informado') as uf,
+		coalesce(unf.nome, 'Não Informado') as unidade_fornecimento
 	from mural.licitacao l join mural.item_licitacao il on il.licitacao_id = l.id_licitacao
 		join mural.modalidade_compra mc on mc.id_modalidade_compra = l.modalidade_compra_id
-		join mural.unidade_fornecimento unf on unf.id_unidade_fornecimento = il.unidade_fornecimento_id
-		join mural.municipio m on m.id_municipio = l.municipio_id
-		join mural.unidade_federativa uf on uf.id_unidade_federativa = m.unidade_federativa_id
-		join mural.fornecedor f on f.id_fornecedor = il.fornecedor_id
+		left join mural.unidade_fornecimento unf on unf.id_unidade_fornecimento = il.unidade_fornecimento_id
+		left join mural.municipio m on m.id_municipio = l.municipio_id
+		left join mural.unidade_federativa uf on uf.id_unidade_federativa = m.unidade_federativa_id
+		left join mural.fornecedor f on f.id_fornecedor = il.fornecedor_id
 		join mural.unidade_gestora ug on ug.id_unidade_gestora = l.unidade_gestora_id
 where $X{IN, il.uuid, itens}
 order by 5 asc, 4 desc, 1, 2, 3 asc
