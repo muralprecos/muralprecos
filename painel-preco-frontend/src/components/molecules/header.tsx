@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useAuthSession } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggler";
+import { environmentBadgeLabel } from "@/lib/app-environment";
 
 import { ProfileDropdown } from "../atoms/mobile-dropwdown";
 
@@ -149,8 +150,13 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         <div className="w-8 h-8 rounded-xl items-center justify-center">
           <img src="/assets/logo-tt.png" alt="Logo TT" />
         </div>
-        <span className="text-foreground font-semibold text-lg">
+        <span className="flex items-center gap-2 text-foreground font-semibold text-lg">
           Mural de Preços
+          {environmentBadgeLabel && (
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
+              {environmentBadgeLabel}
+            </span>
+          )}
         </span>
       </Link>
 
