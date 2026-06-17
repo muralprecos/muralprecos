@@ -18,6 +18,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { ArrowUpDown, HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useCotacaoFields } from "@/hooks/useCotacaoFields";
 import SortSelect from "@/components/atoms/SortSelect";
 import DynamicFormField from "./DynamicFormField";
@@ -265,6 +266,17 @@ export default function SearchItensLicitacaoForm({
     return <LoadingForm />;
   }
 
+  const searchHelpContent = (
+    <>
+      <p>Considerando a busca <strong>"serviço de xerox"</strong>:</p>
+      <ul className="space-y-2">
+        <li><strong>Qualquer palavra:</strong> Retorna itens que contenham pelo menos uma das palavras (ex: "serviço OU xerox"). Ignora artigos, preposições, conjunções, etc.</li>
+        <li><strong>Todas as palavras:</strong> Retorna itens que contenham todas as palavras, independentemente da ordem (ex: "serviço E xerox"). Ignora artigos, preposições, conjunções, etc.</li>
+        <li><strong>Frase exata:</strong> Retorna itens que contenham exatamente a frase digitada na ordem (ex: "serviço de xerox").</li>
+      </ul>
+    </>
+  );
+
   const formContent = (
     <form
       onSubmit={handleSubmit(onSubmit, onSubmitError)}
@@ -279,30 +291,52 @@ export default function SearchItensLicitacaoForm({
           inputClassName="min-h-[100px] resize-none bg-surface-plain"
           label="Descrição"
         />
-        <div className="flex items-center gap-4 text-sm mt-1">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 text-sm mt-2">
           <div className="flex items-center gap-1.5">
             <span className="font-medium text-foreground">Opções de Busca:</span>
-            <TooltipProvider delayDuration={300}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-xs text-xs space-y-2">
-                  <p>Considerando a busca <strong>"serviço de xerox"</strong>:</p>
-                  <p><strong>Qualquer palavra:</strong> Retorna itens que contenham pelo menos uma das palavras (ex: "serviço OU xerox"). Ignora artigos, preposições, conjunções, etc.</p>
-                  <p><strong>Todas as palavras:</strong> Retorna itens que contenham todas as palavras, independentemente da ordem (ex: "serviço E xerox"). Ignora artigos, preposições, conjunções, etc.</p>
-                  <p><strong>Frase exata:</strong> Retorna itens que contenham exatamente a frase digitada na ordem (ex: "serviço de xerox").</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {/* Desktop Tooltip */}
+            <div className="hidden md:block">
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" className="text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-full">
+                      <HelpCircle className="w-4 h-4 cursor-help" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-xs text-xs space-y-3 p-3 z-50">
+                    {searchHelpContent}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            {/* Mobile Dialog */}
+            <div className="block md:hidden">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button type="button" className="flex items-center gap-1 text-xs font-medium text-primary dark:text-white hover:text-primary/80 dark:hover:text-white/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded p-1">
+                    <HelpCircle className="w-4 h-4" />
+                    <span className="underline underline-offset-2">Como funciona?</span>
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-[90vw] w-full rounded-lg p-4 z-50">
+                  <DialogHeader>
+                    <DialogTitle className="text-base text-left text-primary">Opções de Busca</DialogTitle>
+                  </DialogHeader>
+                  <div className="text-sm space-y-3 mt-2">
+                    {searchHelpContent}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
           <Controller
             name="tipoBuscaDescricao"
             control={control}
             render={({ field }) => (
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-3 md:gap-4">
                 {Object.values(TipoBuscaDescricao).map((tipo) => (
-                  <label key={tipo} className="flex items-center gap-1 cursor-pointer select-none">
+                  <label key={tipo} className="flex items-center gap-1.5 cursor-pointer select-none">
                     <input
                       type="radio"
                       value={tipo}
