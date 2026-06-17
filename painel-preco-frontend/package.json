@@ -1,6 +1,6 @@
 {
   "name": "painel-preco-frontend",
-  "version": "2.5.12",
+  "version": "2.5.12.1",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
