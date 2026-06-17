@@ -32,6 +32,7 @@ const FILTER_LABELS: Partial<Record<keyof CotacaoQueryState, string>> = {
   descricao: "Descricao",
   periodoCompraId: "Periodo",
   ano: "Ano",
+  regiao: "Região",
   ufId: "UF",
   municipioId: "Municipio",
   ugId: "UG",

@@ -121,6 +121,17 @@ export function useCotacaoFields({
         label: "Situação da Licitação",
         items: situacoesLicitacoes,
       },
+      regiao: {
+        type: "autocompletStatic",
+        label: "Região",
+        items: [
+          { value: "Norte", label: "Norte" },
+          { value: "Nordeste", label: "Nordeste" },
+          { value: "Centro-Oeste", label: "Centro-Oeste" },
+          { value: "Sul", label: "Sul" },
+          { value: "Sudeste", label: "Sudeste" }
+        ],
+      },
       ufId: {
         type: "autocompletStatic",
         label: "Unidade Federativa",

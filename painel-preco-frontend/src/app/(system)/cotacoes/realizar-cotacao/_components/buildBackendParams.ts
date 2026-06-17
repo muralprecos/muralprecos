@@ -7,6 +7,7 @@ export type CotacaoQueryState = {
   tipoBuscaDescricao?: string | null;
   periodoCompraId?: string | null;
   ano?: string | null;
+  regiao?: string | null;
   ufId?: string | null;
   municipioId?: string | null;
   ugId?: string | null;
