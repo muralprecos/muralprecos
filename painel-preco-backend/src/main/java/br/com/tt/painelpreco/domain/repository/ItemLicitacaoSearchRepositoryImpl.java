@@ -27,6 +27,7 @@ import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 import br.com.tt.painelpreco.util.DateUtil;
 import br.com.tt.painelpreco.util.StringUtil;
+import java.util.Arrays;
 
 @Repository
 public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRepository {
@@ -147,13 +148,12 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 								.matching(filtro.getMunicipioId()));
 					}
 
+					if (filtro.getIdsUFsRegiao() != null && filtro.getIdsUFsRegiao().length > 0) {
+						bool.must(f.terms().field("licitacao.municipio.uf.id").matchingAny(Arrays.asList(filtro.getIdsUFsRegiao())));
+					}
+
 					if (filtro.getUfId() != null) {
-						Integer[] idsUFsRegiao = br.com.tt.painelpreco.domain.model.UnidadeFederativa.getUFsRegiao(filtro.getUfId());
-						if (idsUFsRegiao != null && idsUFsRegiao.length > 0) {
-							bool.must(f.terms().field("licitacao.municipio.uf.id").matchingAny(idsUFsRegiao));
-						} else {
-							bool.must(f.match().field("licitacao.municipio.uf.uuid").matching(filtro.getUfId()));
-						}
+						bool.must(f.match().field("licitacao.municipio.uf.uuid").matching(filtro.getUfId()));
 					}
 
 					// Filtros do ItemLicitacao
@@ -163,9 +163,12 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 					}
 
 					// Boost para itens recentes considerando data de abertura
-					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(30)).boost(5.0f));
-					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(90)).boost(3.0f));
-					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(365)).boost(1.5f));
+					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(30))
+							.boost(5.0f));
+					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(90))
+							.boost(3.0f));
+					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(365))
+							.boost(1.5f));
 
 					if (!StringUtil.isEmpty(filtro.getDescricaoComplementar())) {
 						bool.must(f.simpleQueryString().field("descricaoComplementar")
@@ -198,9 +201,9 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 				.sort(f -> itemSort(f, pageable))
 
 				// .sort(f -> f.score().desc().then().field("licitacao.dataAbertura").desc()
-				// 		.then().field("licitacao.dataResultadoCompra").desc()
-				// 		.then().field("licitacao.numeroPncp").desc()
-				// 		.then().field("numeroItem").desc())
+				// .then().field("licitacao.dataResultadoCompra").desc()
+				// .then().field("licitacao.numeroPncp").desc()
+				// .then().field("numeroItem").desc())
 
 				.fetch((int) pageable.getOffset(), pageable.getPageSize());
 
@@ -253,27 +256,26 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 			return null;
 		}
 		switch (property) {
-		case "descricao":
-			return "descricao_sort";
-		case "valorUnitario":
-			return "valorUnitario";
-		case "valor":
-			return "valor";
-		case "quantidade":
-			return "quantidade";
-		case "dataResultadoCompra":
-		case "licitacao.dataResultadoCompra":
-			return "licitacao.dataResultadoCompra";
-		case "dataAbertura":
-		case "licitacao.dataAbertura":
-			return "licitacao.dataAbertura";
-		case "data":
-			return "licitacao.dataResultadoCompra";
-		default:
-			return null;
+			case "descricao":
+				return "descricao_sort";
+			case "valorUnitario":
+				return "valorUnitario";
+			case "valor":
+				return "valor";
+			case "quantidade":
+				return "quantidade";
+			case "dataResultadoCompra":
+			case "licitacao.dataResultadoCompra":
+				return "licitacao.dataResultadoCompra";
+			case "dataAbertura":
+			case "licitacao.dataAbertura":
+				return "licitacao.dataAbertura";
+			case "data":
+				return "licitacao.dataResultadoCompra";
+			default:
+				return null;
 		}
 	}
-
 
 	private String parseQuery(String query) {
 		if (StringUtil.isEmpty(query)) {
@@ -291,7 +293,8 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 				// Se começa com aspas, mantemos o conteúdo literal como está
 				matcher.appendReplacement(sb, Matcher.quoteReplacement(match));
 			} else {
-				// Caso contrário, é um conector fora de aspas; substituímos pelo símbolo correspondente
+				// Caso contrário, é um conector fora de aspas; substituímos pelo símbolo
+				// correspondente
 				String upperMatch = match.toUpperCase();
 				String replacement = "";
 				if (upperMatch.equals("AND")) {

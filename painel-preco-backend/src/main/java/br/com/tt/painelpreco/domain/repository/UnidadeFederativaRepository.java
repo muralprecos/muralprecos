@@ -7,9 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import br.com.tt.painelpreco.domain.model.UnidadeFederativa;
 
 public interface UnidadeFederativaRepository extends JpaRepository<UnidadeFederativa, Integer> {
-	
+
 	List<UnidadeFederativa> findAllByOrderByNome();
 
 	boolean existsBySigla(String sigla);
-	
+
+	List<UnidadeFederativa> findByRegiaoIgnoreCase(String regiao);
+
+	UnidadeFederativa findBySiglaIgnoreCase(String sigla);
+
 }
