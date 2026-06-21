@@ -36,7 +36,6 @@ import { Icon } from "@iconify/react";
 import { notify } from "@/components/molecules/NotifyToast";
 import { useLabelCache } from "@/hooks/useLabelCache";
 import {
-  normalizeLegacySearchParams,
   stableSerializeState,
 } from "./buildBackendParams";
 import {
@@ -130,14 +129,6 @@ export default function SearchItensLicitacaoForm({
     situacoesLicitacoes,
     unidadesFederativas,
   });
-
-  useEffect(() => {
-    const { params, changed } = normalizeLegacySearchParams(searchParams);
-    if (changed) {
-      const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname);
-    }
-  }, [searchParams, router, pathname]);
 
   useEffect(() => {
     const snapshot = stableSerializeState(queryState);
