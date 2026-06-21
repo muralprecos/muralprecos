@@ -125,7 +125,14 @@ export function AutocompleteAsyncForm<
                     {messages.FORM_AUTOCOMPLETE_EMPTY}
                   </CommandEmpty>
                   <CommandGroup>
-                    {autocompleteHook.items.map((item) => {
+                    {(() => {
+                      const sortedItems = [...autocompleteHook.items].sort((a, b) => {
+                        const nameA = (a.nome || "").trim();
+                        const nameB = (b.nome || "").trim();
+                        return nameA.localeCompare(nameB);
+                      });
+                      
+                      return sortedItems.map((item) => {
                       const itemId = item[attrVal] + "";
                       return (
                         <CommandItem
@@ -147,7 +154,8 @@ export function AutocompleteAsyncForm<
                           {item.nome}
                         </CommandItem>
                       );
-                    })}
+                    });
+                    })()}
                   </CommandGroup>
                 </Command>
               </PopoverContent>

@@ -41,11 +41,16 @@ export default function SelectForm<P extends FieldValues>({
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
-              {items.map((item) => (
+              {(() => {
+                const sortedItems = [...items].sort((a, b) => 
+                  a.label.trim().localeCompare(b.label.trim())
+                );
+                return sortedItems.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}
                 </SelectItem>
-              ))}
+                ));
+              })()}
             </SelectContent>
           </Select>
         )}
