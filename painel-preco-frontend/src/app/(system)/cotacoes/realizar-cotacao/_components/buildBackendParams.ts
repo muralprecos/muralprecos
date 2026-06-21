@@ -29,12 +29,7 @@ export type CotacaoQueryState = {
   dir?: SortDir | string | null;
 };
 
-const LEGACY_PARAM_MAP: Record<string, string> = {
-  modalidadeId: "modalidadeCompraId",
-  porteFornecedorId: "porteFornecedor",
-  situacaoId: "situacao_licitacao",
-  unidadeFornecimentoId: "unidade_fornecimento",
-};
+
 
 // Contract: page/size are 0-based in URL and backend, so zero is valid.
 const ALLOW_ZERO_FIELDS = new Set(["page", "size"]);
@@ -65,8 +60,7 @@ export const buildBackendParams = (state: CotacaoQueryState): URLSearchParams =>
     if (key === "sort" || key === "dir") return;
     const normalizedValue = normalizeValue(key, value);
     if (normalizedValue === undefined) return;
-    const legacyKey = LEGACY_PARAM_MAP[key] ?? key;
-    normalized[legacyKey] = normalizedValue;
+    normalized[key] = normalizedValue;
   });
 
   const sort = normalizeValue("sort", state.sort);
@@ -97,29 +91,4 @@ export const stableSerializeState = (state: CotacaoQueryState): string => {
   return JSON.stringify(Object.fromEntries(normalizedEntries));
 };
 
-export const normalizeLegacySearchParams = (
-  searchParams: ReadonlyURLSearchParams
-): { params: URLSearchParams; changed: boolean } => {
-  const original = searchParams.toString();
-  const params = new URLSearchParams(original);
 
-  const legacyToCanonical: Record<string, string> = {
-    modalidadeCompraId: "modalidadeId",
-    porteFornecedor: "porteFornecedorId",
-    situacao_licitacao: "situacaoId",
-    unidade_fornecimento: "unidadeFornecimentoId",
-  };
-
-  Object.entries(legacyToCanonical).forEach(([legacyKey, canonicalKey]) => {
-    if (params.has(legacyKey)) {
-      if (!params.has(canonicalKey)) {
-        const val = params.get(legacyKey);
-        if (val != null) params.set(canonicalKey, val);
-      }
-      params.delete(legacyKey);
-    }
-  });
-
-  const changed = params.toString() !== original;
-  return { params, changed };
-};
