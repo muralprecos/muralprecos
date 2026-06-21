@@ -92,7 +92,11 @@ export default function AutocompleteForm<T extends FieldValues>({
                   <CommandInput placeholder={placeholder} className="h-9" />
                   <CommandEmpty>Nenhuma opção encontrada.</CommandEmpty>
                   <CommandGroup>
-                    {items.map((item) => (
+                    {(() => {
+                      const sortedItems = [...items].sort((a, b) => 
+                        a.label.trim().localeCompare(b.label.trim())
+                      );
+                      return sortedItems.map((item) => (
                       <CommandItem
                         key={item.value}
                         value={item.label}
@@ -111,7 +115,8 @@ export default function AutocompleteForm<T extends FieldValues>({
                         />
                         {item.label}
                       </CommandItem>
-                    ))}
+                      ));
+                    })()}
                   </CommandGroup>
                 </Command>
               </PopoverContent>
