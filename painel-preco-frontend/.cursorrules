@@ -1,0 +1,9 @@
+# AI Assistant Instructions
+
+Always refer to the project-specific guidelines before proposing architectural changes, adding dependencies, or writing code:
+- Check `.github/copilot-instructions.md` (if available)
+- Check any files inside `.github/instructions/` (if available)
+
+These files contain critical rules about the architecture, security patterns, and environment configurations of this project.
+
+**Do not bypass these rules.**

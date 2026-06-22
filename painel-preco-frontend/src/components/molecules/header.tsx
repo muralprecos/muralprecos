@@ -23,6 +23,12 @@ const cotacaoNavItems = [
   { label: "Validar Cotação", path: "/cotacoes/validar-cotacao" },
 ];
 
+const adminNavItems = [
+  { label: "Organizações", path: "/administracao/organizacoes" },
+  { label: "Usuários", path: "/administracao/usuarios" },
+  { label: "Sincronização", path: "/administracao/sincronizacao" },
+];
+
 const cotacaoBaseRoutes = [
   "/cotacoes",
   "/cotacoes/realizar-cotacao",
@@ -32,7 +38,7 @@ const cotacaoBaseRoutes = [
   "/cotacoes/listagem",
 ];
 
-const hiddenNavRoutes = ["/gestao-usuarios", "/usuario/perfil"];
+const hiddenNavRoutes = ["/gestao-organizacao", "/usuario/perfil"];
 
 interface DashboardHeaderProps {
   onMenuClick?: () => void;
@@ -47,9 +53,11 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     pathname.startsWith(route),
   );
 
+  const isAdminSection = pathname.startsWith("/administracao");
+
   const showNav = !hiddenNavRoutes.includes(pathname);
 
-  const navItems = isCotacaoSection ? cotacaoNavItems : dashboardNavItems;
+  const navItems = isCotacaoSection ? cotacaoNavItems : isAdminSection ? adminNavItems : dashboardNavItems;
 
   const STR_LOADING = "";
 

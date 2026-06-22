@@ -10,6 +10,8 @@ import {
   LogOut,
   X,
   Users,
+  Cog,
+  BriefcaseBusiness
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
@@ -56,9 +58,14 @@ const menuItems: MenuItem[] = [
 
 const bottomItems: MenuItem[] = [
   {
-    icon: Users,
-    label: "Gestão de Usuários",
-    path: "/gestao-usuarios"
+    icon: Cog,
+    label: "Área Administrativa",
+    path: "/administracao"
+  },
+  {
+    icon: BriefcaseBusiness,
+    label: "Gerenciamento",
+    path: "/gestao-organizacao"
   },
   {
     icon: HelpCircle,
@@ -90,6 +97,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useAuthSession();
   const isAdmin = hasRole(session?.roles ?? [], ROLES.ADMIN);
+  const isGestor = hasRole(session?.roles ?? [], ROLES.GESTOR);
 
   const isActiveItem = (path: string) => {
     if (path === "/") {
@@ -97,6 +105,9 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
     }
     if (path === "/cotacoes/realizar-cotacao") {
       return cotacaoRoutes.includes(pathname);
+    }
+    if (path === "/administracao") {
+      return pathname.startsWith("/administracao");
     }
     return pathname === path;
   };
@@ -164,7 +175,10 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
           </nav>
           <div className="flex flex-col gap-2 py-4 border-t border-sidebar-border/30 my-[40px]">
             {bottomItems.map((item, index) => {
-              if (item.path === "/gestao-usuarios" && !isAdmin) {
+              if (item.path === "/administracao" && !isAdmin) {
+                return null;
+              }
+              if (item.path === "/gestao-organizacao" && !isGestor) {
                 return null;
               }
 
@@ -208,7 +222,13 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
                 <Link
                   key={index}
                   href={item.path}
-                  className={commonItemClasses}
+                  className={cn(
+                    "h-10 mx-3 rounded-xl flex items-center gap-3 px-3 transition-all duration-200 w-full",
+                    "lg:w-10 lg:mx-auto lg:justify-center lg:px-0 lg:group-hover:w-auto lg:group-hover:mx-3 lg:group-hover:justify-start lg:group-hover:px-3",
+                    isActiveItem(item.path)
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  )}
                 >
                   <item.icon className="w-5 h-5 min-w-5" />
                   <span className="whitespace-nowrap lg:hidden lg:group-hover:block transition-opacity duration-300">

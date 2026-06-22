@@ -1,4 +1,4 @@
-import { User, Settings, Users, LogOut } from "lucide-react";
+import { User, Users, LogOut, UserPen, Cog } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -113,16 +113,18 @@ export function ProfileDropdown({
         )}
         <DropdownMenuItem className="cursor-pointer" asChild>
           <Link href="/usuario/perfil">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Configurações</span>
+            <UserPen className="mr-2 h-4 w-4" />
+            <span>Perfil</span>
           </Link>
         </DropdownMenuItem>
 
         {isAdmin && (
           <DropdownMenuItem className="cursor-pointer" asChild>
-            <Link href="/gestao-usuarios">
-              <Users className="mr-2 h-4 w-4" />
-              <span>Gestão de Usuários</span>
+            <Link href="/administracao">
+              <div className="flex items-center gap-2">
+                <Cog className="h-4 w-4" />
+                <span>Área Administrativa</span>
+              </div>
             </Link>
           </DropdownMenuItem>
         )}
@@ -146,7 +148,7 @@ export function ProfileDropdown({
         <div className="px-2 py-1 text-xs text-muted-foreground space-y-0.5">
           <div className="text-right">v{pkg.version}</div>
         </div>
-        
+
         <div className="hidden px-2 py-1 text-xs text-muted-foreground space-y-0.5">
           {sessionStart && (
             <div>Sessão desde {new Date(sessionStart).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
