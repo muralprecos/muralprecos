@@ -28,10 +28,10 @@ import br.com.tt.painelpreco.arch.exception.ArchException;
 import br.com.tt.painelpreco.arch.api.controller.AbstractController;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.domain.service.UsuarioService;
-import br.com.tt.painelpreco.security.SecurityRoles;
 import br.com.tt.painelpreco.security.keycloak.KeycloakAdminService;
 import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.ModelConverter;
+import br.com.tt.painelpreco.security.Role;
 
 @RestController
 @RequestMapping(ApiVersion.LATEST + "/usuarios")
@@ -47,11 +47,51 @@ public class UsuarioController extends AbstractController {
   private ModelConverter converter;
 
   @GetMapping
-  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+  @PreAuthorize("hasAnyRole(T(br.com.tt.painelpreco.security.Role).ADMIN.name(), T(br.com.tt.painelpreco.security.Role).GESTOR.name())")
   public Page<UsuarioDTO> listar(@PageableDefault(size = 10) Pageable pageable) {
-    Page<Usuario> usuarios = usuarioService.listarUsuarios(pageable);
+    AccessToken token = obterAccessToken();
+    boolean isAdmin = token.getRealmAccess() != null
+        && token.getRealmAccess().getRoles().contains(Role.ADMIN.getRoleName());
+    Page<Usuario> usuarios;
+    if (isAdmin) {
+      usuarios = usuarioService.listarUsuarios(pageable);
+    } else {
+      Usuario usuarioLogado = usuarioService.buscarUsuario(token.getSubject());
+      if (usuarioLogado == null || usuarioLogado.getOrganizacao() == null) {
+        return new PageImpl<>(List.of(), pageable, 0);
+      }
+      usuarios = usuarioService.listarUsuariosDaOrganizacao(usuarioLogado.getOrganizacao(), pageable);
+    }
     List<UsuarioDTO> usuariosDTO = converter.toDTOCollection(usuarios.getContent(), UsuarioDTO.class);
     return new PageImpl<>(usuariosDTO, pageable, usuarios.getTotalElements());
+  }
+
+  @GetMapping("/minha-organizacao")
+  @PreAuthorize("hasAnyRole(T(br.com.tt.painelpreco.security.Role).ADMIN.name(), T(br.com.tt.painelpreco.security.Role).GESTOR.name())")
+  public Page<UsuarioDTO> listarDaMinhaOrganizacao(@PageableDefault(size = 10) Pageable pageable) {
+    AccessToken token = obterAccessToken();
+    Usuario usuarioLogado = usuarioService.buscarUsuario(token.getSubject());
+    if (usuarioLogado == null || usuarioLogado.getOrganizacao() == null) {
+      return new PageImpl<>(List.of(), pageable, 0);
+    }
+    Page<Usuario> usuarios = usuarioService.listarUsuariosDaOrganizacao(usuarioLogado.getOrganizacao(), pageable);
+    List<UsuarioDTO> usuariosDTO = converter.toDTOCollection(usuarios.getContent(), UsuarioDTO.class);
+    return new PageImpl<>(usuariosDTO, pageable, usuarios.getTotalElements());
+  }
+
+  private void validarAcessoGestor(String targetUsuarioId) {
+    AccessToken token = obterAccessToken();
+    boolean isAdmin = token.getRealmAccess() != null
+        && token.getRealmAccess().getRoles().contains(Role.ADMIN.getRoleName());
+    if (!isAdmin) {
+      Usuario usuarioLogado = usuarioService.buscarUsuario(token.getSubject());
+      Usuario targetUsuario = usuarioService.buscarUsuario(targetUsuarioId);
+      if (usuarioLogado == null || targetUsuario == null || usuarioLogado.getOrganizacao() == null
+          || targetUsuario.getOrganizacao() == null
+          || !usuarioLogado.getOrganizacao().getId().equals(targetUsuario.getOrganizacao().getId())) {
+        throw new ArchException("Acesso negado: Usuário pertence a outra organização.");
+      }
+    }
   }
 
   @GetMapping("/me")
@@ -78,7 +118,8 @@ public class UsuarioController extends AbstractController {
     try {
       Usuario usuario = usuarioService.buscarUsuario(keycloakUserId);
       if (usuario == null) {
-        // Usuário existe no Keycloak mas não no banco local — atualiza apenas no Keycloak
+        // Usuário existe no Keycloak mas não no banco local — atualiza apenas no
+        // Keycloak
         keycloakAdminService.atualizarUsuario(keycloakUserId, form.getEmail(),
             form.getFirstName(), form.getLastName(), null);
         if (form.getPassword() != null && !form.getPassword().isBlank()) {
@@ -86,10 +127,12 @@ public class UsuarioController extends AbstractController {
         }
         UsuarioDTO dto = dtoFromToken(token);
         // Atualiza com os novos valores do form
-        if (form.getEmail() != null) dto.setEmail(form.getEmail());
+        if (form.getEmail() != null)
+          dto.setEmail(form.getEmail());
         String nome = (form.getFirstName() != null ? form.getFirstName() : "") +
             (form.getLastName() != null && !form.getLastName().isBlank() ? " " + form.getLastName() : "");
-        if (!nome.isBlank()) dto.setNome(nome);
+        if (!nome.isBlank())
+          dto.setNome(nome);
         return ResponseEntity.ok(dto);
       }
 
@@ -131,8 +174,9 @@ public class UsuarioController extends AbstractController {
   }
 
   @GetMapping("/{id}")
-  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+  @PreAuthorize("hasAnyRole(T(br.com.tt.painelpreco.security.Role).ADMIN.name(), T(br.com.tt.painelpreco.security.Role).GESTOR.name())")
   public ResponseEntity<UsuarioDTO> buscar(@PathVariable String id) {
+    validarAcessoGestor(id);
     Usuario usuario = usuarioService.buscarUsuario(id);
     if (usuario == null) {
       return ResponseEntity.notFound().build();
@@ -147,8 +191,9 @@ public class UsuarioController extends AbstractController {
   }
 
   @GetMapping("/{id}/detalhes")
-  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+  @PreAuthorize("hasAnyRole(T(br.com.tt.painelpreco.security.Role).ADMIN.name(), T(br.com.tt.painelpreco.security.Role).GESTOR.name())")
   public ResponseEntity<UsuarioDTO> detalhes(@PathVariable String id) {
+    validarAcessoGestor(id);
     UsuarioDTO dto = usuarioService.buscarDetalhesUsuario(id);
     if (dto == null) {
       return ResponseEntity.notFound().build();
@@ -157,9 +202,21 @@ public class UsuarioController extends AbstractController {
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+  @PreAuthorize("hasAnyRole(T(br.com.tt.painelpreco.security.Role).ADMIN.name(), T(br.com.tt.painelpreco.security.Role).GESTOR.name())")
   public ResponseEntity<UsuarioDTO> atualizar(@PathVariable String id, @Valid @RequestBody UsuarioForm form) {
+    validarAcessoGestor(id);
     try {
+      // Bloquear mudança de organização pelo GESTOR
+      AccessToken token = obterAccessToken();
+      boolean isAdmin = token.getRealmAccess() != null
+          && token.getRealmAccess().getRoles().contains(Role.ADMIN.getRoleName());
+      if (!isAdmin && form.getOrganizacaoId() != null) {
+        Usuario usuarioLogado = usuarioService.buscarUsuario(token.getSubject());
+        if (usuarioLogado != null && usuarioLogado.getOrganizacao() != null) {
+          form.setOrganizacaoId(usuarioLogado.getOrganizacao().getId().toString());
+        }
+      }
+
       Usuario usuario = usuarioService.atualizarUsuario(id, form);
       UsuarioDTO dto = converter.toDTO(usuario, UsuarioDTO.class);
       // Preencher campos adicionais do DTO
@@ -177,8 +234,9 @@ public class UsuarioController extends AbstractController {
   }
 
   @PutMapping("/{id}/reativar")
-  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+  @PreAuthorize("hasAnyRole(T(br.com.tt.painelpreco.security.Role).ADMIN.name(), T(br.com.tt.painelpreco.security.Role).GESTOR.name())")
   public ResponseEntity<UsuarioDTO> reativar(@PathVariable String id) {
+    validarAcessoGestor(id);
     try {
       Usuario usuario = usuarioService.reativarUsuario(id);
       UsuarioDTO dto = converter.toDTO(usuario, UsuarioDTO.class);
@@ -196,8 +254,9 @@ public class UsuarioController extends AbstractController {
   }
 
   @DeleteMapping("/{id}")
-  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+  @PreAuthorize("hasAnyRole(T(br.com.tt.painelpreco.security.Role).ADMIN.name(), T(br.com.tt.painelpreco.security.Role).GESTOR.name())")
   public ResponseEntity<Void> desativar(@PathVariable String id) {
+    validarAcessoGestor(id);
     try {
       usuarioService.desativarUsuario(id);
       return ResponseEntity.noContent().build();

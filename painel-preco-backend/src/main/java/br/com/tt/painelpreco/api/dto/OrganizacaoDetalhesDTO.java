@@ -43,6 +43,9 @@ public class OrganizacaoDetalhesDTO {
 
     private String email;
 
+    @com.fasterxml.jackson.annotation.JsonProperty("isGestor")
+    private boolean isGestor;
+
   }
 
 }

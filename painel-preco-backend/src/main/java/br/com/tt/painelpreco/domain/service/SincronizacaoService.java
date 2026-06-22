@@ -49,18 +49,32 @@ public class SincronizacaoService {
     LocalDateTime agora = LocalDateTime.now();
     SincronizacaoResultadoDTO resultado = new SincronizacaoResultadoDTO();
 
-    sincronizarOrganizacoes(executorId, agora, resultado);
-    sincronizarUsuarios(executorId, agora, resultado);
+    sincronizarOrganizacoes(executorId, agora, resultado, false);
+    sincronizarUsuarios(executorId, agora, resultado, false);
 
     log.info("Sincronização concluída: {}", resultado);
     return resultado;
   }
 
+  @Transactional(readOnly = true)
+  public SincronizacaoResultadoDTO simular(Integer executorId) {
+    log.info("Iniciando simulação de sincronização Keycloak → Banco. Executor ID: {}", executorId);
+    LocalDateTime agora = LocalDateTime.now();
+    SincronizacaoResultadoDTO resultado = new SincronizacaoResultadoDTO();
+
+    sincronizarOrganizacoes(executorId, agora, resultado, true);
+    sincronizarUsuarios(executorId, agora, resultado, true);
+
+    log.info("Simulação concluída: {}", resultado);
+    return resultado;
+  }
+
+
   // -------------------------------------------------------------------------
   // Organizações
   // -------------------------------------------------------------------------
 
-  private void sincronizarOrganizacoes(Integer executorId, LocalDateTime agora, SincronizacaoResultadoDTO resultado) {
+  private void sincronizarOrganizacoes(Integer executorId, LocalDateTime agora, SincronizacaoResultadoDTO resultado, boolean isSimulacao) {
     log.info("Sincronizando organizações...");
 
     List<JSONObject> keycloakGroups = keycloakAdminService.listarTodosGroups();
@@ -84,35 +98,43 @@ public class SincronizacaoService {
 
       if (!keycloakGroupsMap.containsKey(uuidStr)) {
         if (Boolean.TRUE.equals(org.getAtivo())) {
-          org.setAtivo(false);
-          org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_DESATIVADA.getDescricao());
-          org.setDataUltimaSincronizacao(agora);
-          org.setUsuarioSincronizacaoId(executorId);
-          organizacaoRepository.save(org);
+          if (!isSimulacao) {
+            org.setAtivo(false);
+            org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_DESATIVADA.getDescricao());
+            org.setDataUltimaSincronizacao(agora);
+            org.setUsuarioSincronizacaoId(executorId);
+            organizacaoRepository.save(org);
+          }
           resultado.incrementOrganizacoesDesativadas();
           resultado.addMensagem("Organização desativada: " + org.getNome());
         } else {
-          org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_NAO_ENCONTRADA_NO_KEYCLOAK.getDescricao());
-          org.setDataUltimaSincronizacao(agora);
-          org.setUsuarioSincronizacaoId(executorId);
-          organizacaoRepository.save(org);
+          if (!isSimulacao) {
+            org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_NAO_ENCONTRADA_NO_KEYCLOAK.getDescricao());
+            org.setDataUltimaSincronizacao(agora);
+            org.setUsuarioSincronizacaoId(executorId);
+            organizacaoRepository.save(org);
+          }
           resultado.incrementOrganizacoesNaoAlteradas();
         }
 
       } else if (Boolean.FALSE.equals(org.getAtivo())) {
-        org.setAtivo(true);
-        org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_REATIVADA.getDescricao());
-        org.setDataUltimaSincronizacao(agora);
-        org.setUsuarioSincronizacaoId(executorId);
-        organizacaoRepository.save(org);
+        if (!isSimulacao) {
+          org.setAtivo(true);
+          org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_REATIVADA.getDescricao());
+          org.setDataUltimaSincronizacao(agora);
+          org.setUsuarioSincronizacaoId(executorId);
+          organizacaoRepository.save(org);
+        }
         resultado.incrementOrganizacoesReativadas();
         resultado.addMensagem("Organização reativada: " + org.getNome());
 
       } else {
-        org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_SINCRONIZADA.getDescricao());
-        org.setDataUltimaSincronizacao(agora);
-        org.setUsuarioSincronizacaoId(executorId);
-        organizacaoRepository.save(org);
+        if (!isSimulacao) {
+          org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_SINCRONIZADA.getDescricao());
+          org.setDataUltimaSincronizacao(agora);
+          org.setUsuarioSincronizacaoId(executorId);
+          organizacaoRepository.save(org);
+        }
         resultado.incrementOrganizacoesNaoAlteradas();
       }
     }
@@ -126,24 +148,28 @@ public class SincronizacaoService {
 
       Organizacao conflito = organizacaoRepository.findByNome(nome);
       if (conflito != null) {
-        conflito.setDetalhesUltimaSincronizacao(
-            SituacaoSincronizacao.ORGANIZACAO_CONFLITO_NOME.formatar(nome, entry.getKey()));
-        conflito.setDataUltimaSincronizacao(agora);
-        conflito.setUsuarioSincronizacaoId(executorId);
-        organizacaoRepository.save(conflito);
+        if (!isSimulacao) {
+          conflito.setDetalhesUltimaSincronizacao(
+              SituacaoSincronizacao.ORGANIZACAO_CONFLITO_NOME.formatar(nome, entry.getKey()));
+          conflito.setDataUltimaSincronizacao(agora);
+          conflito.setUsuarioSincronizacaoId(executorId);
+          organizacaoRepository.save(conflito);
+        }
         resultado.incrementOrganizacoesComConflito();
         resultado.addMensagem("Conflito de nome em organização: " + nome);
         continue;
       }
 
-      Organizacao novaOrg = new Organizacao();
-      novaOrg.setUuid(UUID.fromString(entry.getKey()));
-      novaOrg.setNome(nome);
-      novaOrg.setAtivo(true);
-      novaOrg.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_CRIADA.getDescricao());
-      novaOrg.setDataUltimaSincronizacao(agora);
-      novaOrg.setUsuarioSincronizacaoId(executorId);
-      organizacaoRepository.save(novaOrg);
+      if (!isSimulacao) {
+        Organizacao novaOrg = new Organizacao();
+        novaOrg.setUuid(UUID.fromString(entry.getKey()));
+        novaOrg.setNome(nome);
+        novaOrg.setAtivo(true);
+        novaOrg.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_CRIADA.getDescricao());
+        novaOrg.setDataUltimaSincronizacao(agora);
+        novaOrg.setUsuarioSincronizacaoId(executorId);
+        organizacaoRepository.save(novaOrg);
+      }
       resultado.incrementOrganizacoesCriadas();
       resultado.addMensagem("Organização criada: " + nome);
     }
@@ -153,7 +179,7 @@ public class SincronizacaoService {
   // Usuários
   // -------------------------------------------------------------------------
 
-  private void sincronizarUsuarios(Integer executorId, LocalDateTime agora, SincronizacaoResultadoDTO resultado) {
+  private void sincronizarUsuarios(Integer executorId, LocalDateTime agora, SincronizacaoResultadoDTO resultado, boolean isSimulacao) {
     log.info("Sincronizando usuários...");
 
     List<JSONObject> keycloakUsers = keycloakAdminService.listarTodosUsuarios();
@@ -177,35 +203,43 @@ public class SincronizacaoService {
 
       if (!keycloakUsersMap.containsKey(uuidStr)) {
         if (Boolean.TRUE.equals(user.getAtivo())) {
-          user.setAtivo(false);
-          user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_DESATIVADO.getDescricao());
-          user.setDataUltimaSincronizacao(agora);
-          user.setUsuarioSincronizacaoId(executorId);
-          usuarioRepository.save(user);
+          if (!isSimulacao) {
+            user.setAtivo(false);
+            user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_DESATIVADO.getDescricao());
+            user.setDataUltimaSincronizacao(agora);
+            user.setUsuarioSincronizacaoId(executorId);
+            usuarioRepository.save(user);
+          }
           resultado.incrementUsuariosDesativados();
           resultado.addMensagem("Usuário desativado: " + user.getLogin());
         } else {
-          user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_NAO_ENCONTRADO_NO_KEYCLOAK.getDescricao());
-          user.setDataUltimaSincronizacao(agora);
-          user.setUsuarioSincronizacaoId(executorId);
-          usuarioRepository.save(user);
+          if (!isSimulacao) {
+            user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_NAO_ENCONTRADO_NO_KEYCLOAK.getDescricao());
+            user.setDataUltimaSincronizacao(agora);
+            user.setUsuarioSincronizacaoId(executorId);
+            usuarioRepository.save(user);
+          }
           resultado.incrementUsuariosNaoAlterados();
         }
 
       } else if (Boolean.FALSE.equals(user.getAtivo())) {
-        user.setAtivo(true);
-        user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_REATIVADO.getDescricao());
-        user.setDataUltimaSincronizacao(agora);
-        user.setUsuarioSincronizacaoId(executorId);
-        usuarioRepository.save(user);
+        if (!isSimulacao) {
+          user.setAtivo(true);
+          user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_REATIVADO.getDescricao());
+          user.setDataUltimaSincronizacao(agora);
+          user.setUsuarioSincronizacaoId(executorId);
+          usuarioRepository.save(user);
+        }
         resultado.incrementUsuariosReativados();
         resultado.addMensagem("Usuário reativado: " + user.getLogin());
 
       } else {
-        user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_SINCRONIZADO.getDescricao());
-        user.setDataUltimaSincronizacao(agora);
-        user.setUsuarioSincronizacaoId(executorId);
-        usuarioRepository.save(user);
+        if (!isSimulacao) {
+          user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_SINCRONIZADO.getDescricao());
+          user.setDataUltimaSincronizacao(agora);
+          user.setUsuarioSincronizacaoId(executorId);
+          usuarioRepository.save(user);
+        }
         resultado.incrementUsuariosNaoAlterados();
       }
     }
@@ -225,11 +259,13 @@ public class SincronizacaoService {
       if (!username.isEmpty()) {
         Usuario conflito = usuarioRepository.findByLogin(username);
         if (conflito != null) {
-          conflito.setDetalhesUltimaSincronizacao(
-              SituacaoSincronizacao.USUARIO_CONFLITO_LOGIN.formatar(username, entry.getKey()));
-          conflito.setDataUltimaSincronizacao(agora);
-          conflito.setUsuarioSincronizacaoId(executorId);
-          usuarioRepository.save(conflito);
+          if (!isSimulacao) {
+            conflito.setDetalhesUltimaSincronizacao(
+                SituacaoSincronizacao.USUARIO_CONFLITO_LOGIN.formatar(username, entry.getKey()));
+            conflito.setDataUltimaSincronizacao(agora);
+            conflito.setUsuarioSincronizacaoId(executorId);
+            usuarioRepository.save(conflito);
+          }
           resultado.incrementUsuariosComConflito();
           resultado.addMensagem("Conflito de login em usuário: " + username);
           continue;
@@ -240,11 +276,13 @@ public class SincronizacaoService {
       if (!email.isEmpty()) {
         Usuario conflito = usuarioRepository.findByEmail(email);
         if (conflito != null) {
-          conflito.setDetalhesUltimaSincronizacao(
-              SituacaoSincronizacao.USUARIO_CONFLITO_EMAIL.formatar(email, entry.getKey()));
-          conflito.setDataUltimaSincronizacao(agora);
-          conflito.setUsuarioSincronizacaoId(executorId);
-          usuarioRepository.save(conflito);
+          if (!isSimulacao) {
+            conflito.setDetalhesUltimaSincronizacao(
+                SituacaoSincronizacao.USUARIO_CONFLITO_EMAIL.formatar(email, entry.getKey()));
+            conflito.setDataUltimaSincronizacao(agora);
+            conflito.setUsuarioSincronizacaoId(executorId);
+            usuarioRepository.save(conflito);
+          }
           resultado.incrementUsuariosComConflito();
           resultado.addMensagem("Conflito de email em usuário: " + email);
           continue;
@@ -254,17 +292,19 @@ public class SincronizacaoService {
       // Tentar vincular organização pelo grupo Keycloak do usuário
       Organizacao organizacao = resolverOrganizacao(entry.getKey());
 
-      Usuario novoUsuario = new Usuario();
-      novoUsuario.setUuid(UUID.fromString(entry.getKey()));
-      novoUsuario.setLogin(username.isEmpty() ? null : username);
-      novoUsuario.setNome(nome.isEmpty() ? username : nome);
-      novoUsuario.setEmail(email.isEmpty() ? null : email);
-      novoUsuario.setAtivo(true);
-      novoUsuario.setOrganizacao(organizacao);
-      novoUsuario.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_CRIADO.getDescricao());
-      novoUsuario.setDataUltimaSincronizacao(agora);
-      novoUsuario.setUsuarioSincronizacaoId(executorId);
-      usuarioRepository.save(novoUsuario);
+      if (!isSimulacao) {
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setUuid(UUID.fromString(entry.getKey()));
+        novoUsuario.setLogin(username.isEmpty() ? null : username);
+        novoUsuario.setNome(nome.isEmpty() ? username : nome);
+        novoUsuario.setEmail(email.isEmpty() ? null : email);
+        novoUsuario.setAtivo(true);
+        novoUsuario.setOrganizacao(organizacao);
+        novoUsuario.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_CRIADO.getDescricao());
+        novoUsuario.setDataUltimaSincronizacao(agora);
+        novoUsuario.setUsuarioSincronizacaoId(executorId);
+        usuarioRepository.save(novoUsuario);
+      }
       resultado.incrementUsuariosCriados();
       resultado.addMensagem("Usuário criado: " + username);
     }

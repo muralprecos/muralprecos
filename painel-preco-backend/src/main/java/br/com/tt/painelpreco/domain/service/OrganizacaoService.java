@@ -20,6 +20,7 @@ import br.com.tt.painelpreco.arch.infra.auth.Organizacao;
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.domain.repository.OrganizacaoRepository;
 import br.com.tt.painelpreco.domain.repository.UsuarioRepository;
+import br.com.tt.painelpreco.security.Role;
 import br.com.tt.painelpreco.security.keycloak.KeycloakAdminService;
 import br.com.tt.painelpreco.security.keycloak.OrganizacaoKeycloakAttributes;
 import lombok.extern.slf4j.Slf4j;
@@ -245,6 +246,8 @@ public class OrganizacaoService {
           String lastName = m.optString("lastName", "");
           membro.setNome((firstName + " " + lastName).trim());
           membro.setEmail(m.optString("email"));
+          List<String> userRoles = keycloakAdminService.obterRolesDoUsuario(m.optString("id"));
+          membro.setGestor(userRoles.contains(Role.GESTOR.getRoleName()));
           membros.add(membro);
         }
       }
@@ -275,6 +278,40 @@ public class OrganizacaoService {
     }
   }
 
+  public void adicionarGestor(String organizacaoId, String usuarioId) {
+    Organizacao organizacao = buscarOrganizacao(organizacaoId);
+    Usuario usuario = buscarUsuarioParaOrg(usuarioId);
+    if (organizacao == null || usuario == null || usuario.getOrganizacao() == null
+        || !usuario.getOrganizacao().getId().equals(organizacao.getId())) {
+      throw new ArchException("Usuário não pertence a esta organização.");
+    }
+    keycloakAdminService.atribuirRoleGestor(usuario.getUuid().toString());
+  }
+
+  public void removerGestor(String organizacaoId, String usuarioId) {
+    Organizacao organizacao = buscarOrganizacao(organizacaoId);
+    Usuario usuario = buscarUsuarioParaOrg(usuarioId);
+    if (organizacao == null || usuario == null || usuario.getOrganizacao() == null
+        || !usuario.getOrganizacao().getId().equals(organizacao.getId())) {
+      throw new ArchException("Usuário não pertence a esta organização.");
+    }
+    keycloakAdminService.removerRoleGestor(usuario.getUuid().toString());
+  }
+
+  private Usuario buscarUsuarioParaOrg(String usuarioId) {
+    try {
+      UUID uuid = UUID.fromString(usuarioId);
+      Usuario usuario = usuarioRepository.findByUuid(uuid);
+      if (usuario != null)
+        return usuario;
+    } catch (IllegalArgumentException e) {
+      // ignore
+    }
+    try {
+      return usuarioRepository.findById(Integer.parseInt(usuarioId)).orElse(null);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
 }
-
-

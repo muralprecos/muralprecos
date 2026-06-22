@@ -163,6 +163,11 @@ public class UsuarioService {
 		return usuarioRepository.findAll(pageable);
 	}
 
+	public Page<Usuario> listarUsuariosDaOrganizacao(Organizacao organizacao, Pageable pageable) {
+		log.debug("Listando usuários da organização: {}", organizacao.getId());
+		return usuarioRepository.findByOrganizacao(organizacao, pageable);
+	}
+
 	public Usuario buscarUsuario(String usuarioId) {
 		if (usuarioId == null || usuarioId.trim().isEmpty()) {
 			log.warn("Identificador de usuário é null ou vazio");
