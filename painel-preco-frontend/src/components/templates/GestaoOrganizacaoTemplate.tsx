@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import type { Organizacao, Usuario } from "@/interfaces/gestao";
 import { UsuariosTable } from "@/components/molecules/UsuariosTable";
 import { useAuthSession } from "@/context/AuthContext";
+import { useAppSelector } from "@/store/store";
 
 async function parseApiError(res: Response, fallback: string): Promise<string> {
   try {
@@ -19,24 +20,12 @@ async function parseApiError(res: Response, fallback: string): Promise<string> {
 
 export function GestaoOrganizacaoTemplate() {
   const { data: session } = useAuthSession();
+  const sessionState = useAppSelector((state) => state.sessionReducer);
+  const orgName = sessionState.org || session?.userInfo?.organizacao?.nome || "Sua Organização";
+
   const [organizacoes, setOrganizacoes] = useState<Organizacao[]>([]);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [orgName, setOrgName] = useState<string>("Sua Organização");
-
-  useEffect(() => {
-    try {
-      const cached = localStorage.getItem("userSessionCache");
-      if (cached) {
-        const { org } = JSON.parse(cached);
-        if (org) setOrgName(org);
-      } else if (session?.userInfo?.organizacao?.nome) {
-        setOrgName(session.userInfo.organizacao.nome);
-      }
-    } catch {
-      // silently ignore
-    }
-  }, [session]);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
