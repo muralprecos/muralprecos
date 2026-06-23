@@ -25,6 +25,7 @@ import {
   FileCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getLoginEnvironmentNotice } from "@/lib/app-environment";
 
 import { messages } from "@/utils/messages";
 import { INITIAL_PAGE_LOGGED } from "@/utils/routesUtils";
@@ -57,6 +58,7 @@ export default function Login(props: Props) {
   const [showPass, setShowPass] = useState<boolean>(false);
   const [doingRequest, setDoingRequest] = useState<boolean>(false);
   const appVersion = process.env.NEXT_PUBLIC_APP_VERSION || "dev";
+  const environmentNotice = getLoginEnvironmentNotice();
 
   const {
     register,
@@ -142,6 +144,17 @@ export default function Login(props: Props) {
 
           <form onSubmit={handleSubmit(onSubmit, onSubmitError)}>
             <CardContent className="space-y-6">
+              {environmentNotice && (
+                <div className="rounded-xl border border-amber-300/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-50">
+                  <p className="font-semibold uppercase tracking-[0.14em] text-[11px] text-amber-200">
+                    {environmentNotice.label}
+                  </p>
+                  <p className="mt-1 text-amber-50/90">
+                    {environmentNotice.description}
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="login" className="text-white font-medium">
                   Usuário / E-mail

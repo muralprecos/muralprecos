@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   calcUnityValueByQuantity,
   parseCurrency,
@@ -31,6 +30,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import SortSelect from "@/components/atoms/SortSelect";
 import ColumnsDropdown from "@/components/atoms/ColumnsDropdown";
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "@/store/store";
+import {
+  getTableColumnsPreferenceByUser,
+  setShowLocalizacao,
+  setShowQuantidade,
+  setShowUnidade,
+  setShowValorTotal,
+} from "@/store/features/table-columns-slice";
+import { useAuthSession } from "@/context/AuthContext";
+import { getUsernameBySession } from "@/utils/cartUtils";
 
 interface IProps {
   itens: IRetornoPesquisaItensLicitacao[];
@@ -47,11 +57,15 @@ export default function TabelaItensLicitacaoDesktop({
   currentSort = "",
   onSortChange,
 }: IProps) {
-  // Colunas opcionais
-  const [showUnidade, setShowUnidade] = useState(false);
-  const [showQuantidade, setShowQuantidade] = useState(false);
-  const [showValorTotal, setShowValorTotal] = useState(false);
-  const [showLocalizacao, setShowLocalizacao] = useState(false);
+  const session = useAuthSession();
+  const dispatch = useDispatch();
+  const tableColumnsPreference = useAppSelector(
+    (state) => state.tableColumnsPreferenceReducer
+  );
+
+  const username = getUsernameBySession(session.data);
+  const { showUnidade, showQuantidade, showValorTotal, showLocalizacao } =
+    getTableColumnsPreferenceByUser(tableColumnsPreference, username);
 
   const handleSelect = (uuid: string) => {
     if (setIsLoading) setIsLoading(true);
@@ -63,10 +77,36 @@ export default function TabelaItensLicitacaoDesktop({
       <div className="flex items-center justify-between gap-2">
         <ColumnsDropdown
           columns={[
-            { label: "Unidade", checked: showUnidade, onCheckedChange: setShowUnidade },
-            { label: "Quantidade", checked: showQuantidade, onCheckedChange: setShowQuantidade },
-            { label: "Valor Total", checked: showValorTotal, onCheckedChange: setShowValorTotal },
-            { label: "Localização", checked: showLocalizacao, onCheckedChange: setShowLocalizacao },
+            {
+              label: "Unidade",
+              checked: showUnidade,
+              onCheckedChange: (checked) =>
+                dispatch(setShowUnidade({ user: username, showUnidade: checked })),
+            },
+            {
+              label: "Quantidade",
+              checked: showQuantidade,
+              onCheckedChange: (checked) =>
+                dispatch(
+                  setShowQuantidade({ user: username, showQuantidade: checked })
+                ),
+            },
+            {
+              label: "Valor Total",
+              checked: showValorTotal,
+              onCheckedChange: (checked) =>
+                dispatch(
+                  setShowValorTotal({ user: username, showValorTotal: checked })
+                ),
+            },
+            {
+              label: "Localização",
+              checked: showLocalizacao,
+              onCheckedChange: (checked) =>
+                dispatch(
+                  setShowLocalizacao({ user: username, showLocalizacao: checked })
+                ),
+            },
           ]}
         />
         {onSortChange && (

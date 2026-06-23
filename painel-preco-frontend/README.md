@@ -41,6 +41,12 @@ npm install
 npm run dev
 ```
 
+Para sinalizar o ambiente na interface, use `NEXT_PUBLIC_APP_ENV`:
+
+```bash
+NEXT_PUBLIC_APP_ENV=development npm run dev
+```
+
 Ou com docker:
 
 ```bash
@@ -53,6 +59,24 @@ Forçar recriar com docker:
 docker compose -f docker-compose.dev.yml down -v && docker compose -f docker-compose.dev.yml up
 ```
 
+## Ambientes
+
+O projeto diferencia o ambiente exibido na interface por meio da variável `NEXT_PUBLIC_APP_ENV`.
+
+| Uso | NODE_ENV | NEXT_PUBLIC_APP_ENV | Comportamento |
+| --- | --- | --- | --- |
+| Desenvolvimento local | `development` | `development` | Exibe aviso no login e selo `dev` no cabeçalho |
+| Homologação | `production` | `homolog` | Mantém comportamento de produção e exibe aviso no login e selo `hmg` |
+| Produção | `production` | `production` | Sem aviso e sem selo adicional |
+
+`NODE_ENV` deve permanecer com valores padrão do Next.js (`development` ou `production`). Não use `NODE_ENV=homolog`, pois isso altera a semântica do framework e faria o projeto tratar a sessão como não-produtiva.
+
+Exemplo de build local para homologação:
+
+```bash
+NEXT_PUBLIC_APP_ENV=homolog npm run build
+```
+
 ## Deploy
 
 Check configs in docker-compose.yml file. Default target is production, but can be "dev" or "builder" (only generate the build files, without execute the server). You can change the exposed ports too, by default uses port number 3000.
@@ -62,6 +86,12 @@ docker build . -t painel-precos-frontend-local:latest
 docker build . -t ghcr.io/ttsolutionspi/painel-precos-frontend:latest
 docker push ghcr.io/ttsolutionspi/painel-precos-frontend:latest
 docker-compose up
+```
+
+Para gerar uma imagem homolog localmente:
+
+```bash
+docker build --build-arg NEXT_PUBLIC_APP_ENV=homolog -t painel-precos-frontend-homolog:latest .
 ```
 
 ## Development Without CORS

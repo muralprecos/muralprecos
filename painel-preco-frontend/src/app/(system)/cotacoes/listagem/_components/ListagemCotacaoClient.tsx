@@ -35,7 +35,6 @@ import PaginationFooterMobile from "@/components/molecules/PaginationFooterMobil
 import { FIELDS_COTACOES_LIST } from "@/hooks/api";
 import {
   buildBackendParams,
-  normalizeLegacySearchParams,
   type CotacaoQueryState,
 } from "@/app/(system)/cotacoes/realizar-cotacao/_components/buildBackendParams";
 import { paramsToInfo } from "@/app/(system)/cotacoes/realizar-cotacao/_components/paramsToInfo";
@@ -102,20 +101,9 @@ export default function ListagemCotacaoClient({
   const [paginationInfo, setPaginationInfo] =
     useState<IReturnRequestAPI<IRetornoPesquisaItensLicitacao> | null>(null);
 
-  const legacyNormalization = useMemo(
-    () => normalizeLegacySearchParams(searchParams),
-    [searchParams],
-  );
+
 
   useEffect(() => {
-    if (legacyNormalization.changed) {
-      const query = legacyNormalization.params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname);
-    }
-  }, [legacyNormalization, router, pathname]);
-
-  useEffect(() => {
-    if (legacyNormalization.changed) return;
 
     const fetchData = async () => {
       if (isClientNextjs()) {
@@ -148,7 +136,7 @@ export default function ListagemCotacaoClient({
     fetchData().catch((e) => {
       catchErrorFromFetch(e, "carregar item");
     });
-  }, [queryState, legacyNormalization.changed]);
+  }, [queryState]);
 
   useEffect(() => {
     return () => {

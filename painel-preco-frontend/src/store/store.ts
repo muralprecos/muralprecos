@@ -5,6 +5,10 @@ import { isClientNextjs } from '@/utils/validateUtils';
 
 import cartReducer, { initialState as cartInitialState } from './features/cart-slice';
 import cotacaoLabelCacheReducer, { cotacaoLabelCacheInitialState } from './features/cotacao-label-cache-slice';
+import tableColumnsPreferenceReducer, {
+  tableColumnsPreferenceInitialState,
+  TableColumnsPreferenceState,
+} from './features/table-columns-slice';
 import { ICart } from '@/interfaces/types';
 
 function loadFromLocalStorage<T>(key: string, fallback: T): T {
@@ -20,15 +24,21 @@ function loadFromLocalStorage<T>(key: string, fallback: T): T {
 
 const cartState = loadFromLocalStorage<ICart>('carts', cartInitialState);
 const cotacaoLabelCacheState = loadFromLocalStorage('cotacaoLabelCache', cotacaoLabelCacheInitialState);
+const tableColumnsPreferenceState = loadFromLocalStorage<TableColumnsPreferenceState>(
+  'tableColumnsPreference',
+  tableColumnsPreferenceInitialState
+);
 
 export const store = configureStore({
   preloadedState: {
     cartReducer: cartState,
     cotacaoLabelCacheReducer: cotacaoLabelCacheState,
+    tableColumnsPreferenceReducer: tableColumnsPreferenceState,
   },
   reducer: {
     cartReducer,
     cotacaoLabelCacheReducer,
+    tableColumnsPreferenceReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(listenerMiddleware.middleware),
