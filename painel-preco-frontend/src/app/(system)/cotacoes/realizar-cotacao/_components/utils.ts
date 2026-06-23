@@ -65,6 +65,7 @@ export const schema = z.object({
   descricao: z.string().min(1, ZodStrings.required || "Campo obrigatório"), 
   tipoBuscaDescricao: z.nativeEnum(TipoBuscaDescricao).optional(),
 
+  regiao: optionalString,
   ufId: optionalString,
   municipioId: optionalString,
   orgaoSuperiorId: optionalString,
