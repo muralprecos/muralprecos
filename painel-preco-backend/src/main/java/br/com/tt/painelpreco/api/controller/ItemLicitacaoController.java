@@ -21,6 +21,7 @@ import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 import br.com.tt.painelpreco.domain.service.ItemLicitacaoDescCompService;
 import br.com.tt.painelpreco.domain.service.ItemLicitacaoDescService;
 import br.com.tt.painelpreco.domain.service.ItemLicitacaoService;
+import br.com.tt.painelpreco.domain.service.UnidadeFederativaService;
 import br.com.tt.painelpreco.util.ApiVersion;
 import br.com.tt.painelpreco.util.ModelConverter;
 
@@ -37,6 +38,9 @@ public class ItemLicitacaoController {
 	
 	@Autowired
 	private ItemLicitacaoDescCompService itemLicitacaoDescCompService;
+	
+	@Autowired
+	private UnidadeFederativaService unidadeFederativaService;
 	
 	@Autowired
 	private ModelConverter converter;
@@ -63,6 +67,10 @@ public class ItemLicitacaoController {
 	
 	@GetMapping
 	public Page<?> pesquisar(Pageable pageable, ItemLicitacaoFilter filter) {
+		if (filter.getRegiao() != null) {
+			filter.setIdsUFsRegiao(unidadeFederativaService.getIdsUFsPorRegiao(filter.getRegiao()));
+		}
+
 		Page<ItemLicitacao> itens = null;
 		if (filter.isOnly()) {
 			if (filter.isDescricaoOnly())

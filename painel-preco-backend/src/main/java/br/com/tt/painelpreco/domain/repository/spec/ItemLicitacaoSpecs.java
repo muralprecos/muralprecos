@@ -58,13 +58,12 @@ public class ItemLicitacaoSpecs {
 			if (filtro.getMunicipioId() != null)
 				predicates.add(builder.equal(root.join("licitacao").get("municipio").get("uuid"), filtro.getMunicipioId()));
 			
+			if (filtro.getIdsUFsRegiao() != null && filtro.getIdsUFsRegiao().length > 0) {
+				predicates.add(root.join("licitacao").get("municipio").get("uf").get("id").in((Object[]) filtro.getIdsUFsRegiao()));
+			}
+			
 			if (filtro.getUfId() != null) {
-				Integer[] idsUFsRegiao = UnidadeFederativa.getUFsRegiao(filtro.getUfId());
-				
-				if (idsUFsRegiao != null && idsUFsRegiao.length > 0)
-					predicates.add(root.join("licitacao").get("municipio").get("uf").get("id").in(idsUFsRegiao));
-				else
-					predicates.add(builder.equal(root.join("licitacao").get("municipio").get("uf").get("uuid"), filtro.getUfId()));
+				predicates.add(builder.equal(root.join("licitacao").get("municipio").get("uf").get("uuid"), filtro.getUfId()));
 			}
 			/** ====================================================== LICITACAO ====================================================== **/
 			
