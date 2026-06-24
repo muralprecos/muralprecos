@@ -10,7 +10,7 @@ import br.com.tt.painelpreco.util.ReflectionUtil;
 
 public enum HttpMethod {
 
-	POST(HttpPost.class), GET(HttpGet.class), PUT(HttpPut.class), DELETE(HttpDelete.class);
+	POST(HttpPost.class), GET(HttpGet.class), PUT(HttpPut.class), DELETE(HttpDeleteWithBody.class);
 
 	private Class<? extends HttpRequestBase> clazz;
 

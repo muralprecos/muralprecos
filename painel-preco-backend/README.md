@@ -539,3 +539,8 @@ Na próxima etapa, a autorização deve considerar escopo por organização (mul
 - `ADMIN`: visão e gestão global
 - `GESTOR`: gestão da própria organização
 - `USUARIO`: operações limitadas à própria organização
+
+## Configuração de Caches (Spring Cache)
+
+A aplicação utiliza o Spring Cache suportado por `ConcurrentMapCacheManager`.
+Para criar e utilizar um novo cache (por exemplo, ao adicionar `@Cacheable("meuCache")`), é estritamente necessário registrar o nome desse cache no bean `CacheManager` localizado em `PainelPrecoApplication.java`. Se o nome do cache não for listado na inicialização, a aplicação falhará em tempo de execução ao tentar gravar ou ler dados nele.
