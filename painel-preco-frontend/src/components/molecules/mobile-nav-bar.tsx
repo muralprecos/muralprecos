@@ -24,16 +24,23 @@ const cotacaoNavItems = [
   { label: "Validar", icon: CheckCircle, path: "/cotacoes/validar-cotacao" },
 ];
 
+const adminNavItems = [
+  { label: "Organizações", icon: FileText, path: "/administracao/organizacoes" },
+  { label: "Usuários", icon: FileText, path: "/administracao/usuarios" },
+  { label: "Sincronização", icon: FileText, path: "/administracao/sincronizacao" },
+];
+
 const cotacaoRoutes = "/cotacoes";
 
-const hiddenNavRoutes = ["/gestao-usuarios", "/usuario/perfil"];
+const hiddenNavRoutes = ["/usuario/perfil"];
 
 export function MobileNavBar() {
   const pathname = usePathname();
 
   const isCotacaoSection = pathname.startsWith(cotacaoRoutes);
+  const isAdminSection = pathname.startsWith("/administracao");
   const showNav = hiddenNavRoutes.includes(pathname);
-  const navItems = isCotacaoSection ? cotacaoNavItems : dashboardNavItems;
+  const navItems = isCotacaoSection ? cotacaoNavItems : isAdminSection ? adminNavItems : dashboardNavItems;
 
   return (
     <>

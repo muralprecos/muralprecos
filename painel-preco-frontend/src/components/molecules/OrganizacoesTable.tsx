@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Building2, Edit, Trash2, Plus, Search, Eye, RefreshCcw } from "lucide-react";
+import { Building2, Edit, Trash2, Plus, Search, Eye, RefreshCcw, ShieldAlert } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KeycloakSyncWarning } from "@/components/atoms/KeycloakSyncWarning";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -37,6 +38,7 @@ interface OrganizacoesTableProps {
   onSave: (data: Partial<Organizacao> & { cnpj?: string; numero?: string }, id?: string) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onReativar: (id: string) => Promise<void>;
+  isLoading?: boolean;
 }
 
 const emptyForm = { nome: "", cnpj: "", numero: "" };
@@ -46,6 +48,7 @@ export function OrganizacoesTable({
   onSave,
   onDelete,
   onReativar,
+  isLoading = false,
 }: OrganizacoesTableProps) {
   const [search, setSearch] = useState("");
   const [statusFiltro, setStatusFiltro] = useState<"ativo" | "inativo" | "todos">("ativo");
@@ -143,6 +146,31 @@ export function OrganizacoesTable({
     }
   };
 
+  const handleToggleGestor = async (orgId: string, membroUuid: string, novoStatus: boolean) => {
+    try {
+      const res = await fetch(`/api/organizacoes/${orgId}/gestores/${membroUuid}`, { 
+        method: novoStatus ? "PUT" : "DELETE" 
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || data.error || "Erro na API");
+      }
+      
+      toast.success(novoStatus ? "Privilégios de gestor concedidos" : "Privilégios de gestor removidos");
+      setDetalhesOrg((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          membros: prev.membros?.map((m) =>
+            m.uuid === membroUuid ? { ...m, isGestor: novoStatus } : m
+          ),
+        };
+      });
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao alterar privilégios do membro");
+    }
+  };
+
   const handleSave = async () => {
     if (!formData.nome) {
       toast.error("Nome é obrigatório");
@@ -229,7 +257,17 @@ export function OrganizacoesTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredOrgs.length === 0 ? (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={`skeleton-${i}`}>
+                  <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                  <TableCell className="hidden lg:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
+                  <TableCell className="hidden xl:table-cell"><Skeleton className="h-5 w-24 rounded-full" /></TableCell>
+                  <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+                  <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
+                </TableRow>
+              ))
+            ) : filteredOrgs.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={5}
@@ -496,9 +534,24 @@ export function OrganizacoesTable({
                 ) : (
                   <div className="rounded-lg border border-border divide-y divide-border">
                     {detalhesOrg.membros?.map((m) => (
-                      <div key={m.uuid} className="px-3 py-2 text-sm flex gap-4">
-                        <span className="font-medium flex-1">{m.nome || m.username}</span>
-                        <span className="text-muted-foreground">{m.email}</span>
+                      <div key={m.uuid} className="px-3 py-2 text-sm flex gap-4 items-center">
+                        <div className="flex-1">
+                          <div className="font-medium flex items-center gap-2">
+                            {m.nome || m.username}
+                            {m.isGestor && <Badge variant="outline" className="text-[10px] py-0 h-4 border-amber-500 text-amber-600 bg-amber-500/10">Gestor</Badge>}
+                          </div>
+                          <span className="text-muted-foreground text-xs">{m.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor={`gestor-${m.uuid}`} className="text-xs text-muted-foreground cursor-pointer">
+                            Gestor?
+                          </Label>
+                          <Switch
+                            id={`gestor-${m.uuid}`}
+                            checked={m.isGestor}
+                            onCheckedChange={(checked) => m.uuid && handleToggleGestor(detalhesOrg.id.toString(), m.uuid, checked)}
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>

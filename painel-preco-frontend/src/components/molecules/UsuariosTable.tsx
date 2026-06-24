@@ -55,6 +55,8 @@ interface UsuariosTableProps {
   onSave: (data: CreateUserData | EditUserData, id?: string) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
   onReativar: (id: string) => Promise<void>;
+  isGestor?: boolean;
+  isLoading?: boolean;
 }
 
 const emptyCreateForm: CreateUserData = {
@@ -80,9 +82,12 @@ export function UsuariosTable({
   onSave,
   onDelete,
   onReativar,
+  isGestor = false,
+  isLoading = false,
 }: UsuariosTableProps) {
   const [search, setSearch] = useState("");
   const [statusFiltro, setStatusFiltro] = useState<"ativo" | "inativo" | "todos">("ativo");
+  const [organizacaoFiltro, setOrganizacaoFiltro] = useState<string>("todas");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<Usuario | null>(null);
@@ -106,7 +111,8 @@ export function UsuariosTable({
     const matchStatus =
       statusFiltro === "todos" ||
       (statusFiltro === "ativo" ? user.ativo === true : user.ativo === false);
-    return matchNome && matchStatus;
+    const matchOrg = organizacaoFiltro === "todas" || user.organizacaoId === organizacaoFiltro;
+    return matchNome && matchStatus && matchOrg;
   });
 
   const handleOpenCreate = () => {
@@ -166,7 +172,7 @@ export function UsuariosTable({
         return;
       }
     } else {
-      if (!createForm.username || !createForm.firstName || !createForm.email || !createForm.password || !createForm.organizacaoId) {
+      if (!createForm.username || !createForm.firstName || !createForm.email || !createForm.password || (!isGestor && !createForm.organizacaoId)) {
         toast.error("Preencha todos os campos obrigatórios");
         return;
       }
@@ -243,6 +249,21 @@ export function UsuariosTable({
               <SelectItem value="todos">Todos</SelectItem>
             </SelectContent>
           </Select>
+          {!isGestor && (
+            <Select value={organizacaoFiltro} onValueChange={setOrganizacaoFiltro}>
+              <SelectTrigger className="w-48 bg-surface-plain">
+                <SelectValue placeholder="Todas as organizações" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas organizações</SelectItem>
+                {activeOrgs.map((org) => (
+                  <SelectItem key={org.id} value={org.id}>
+                    {org.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
         <Button onClick={handleOpenCreate}>
           <Plus className="h-4 w-4 mr-2" />
@@ -256,7 +277,7 @@ export function UsuariosTable({
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead className="hidden sm:table-cell">Login</TableHead>
-              <TableHead className="hidden md:table-cell">Organização</TableHead>
+              {!isGestor && <TableHead className="hidden md:table-cell">Organização</TableHead>}
               <TableHead className="hidden lg:table-cell">Últ. Sincronização</TableHead>
               <TableHead className="hidden xl:table-cell">Detalhes Sincronização</TableHead>
               <TableHead>Status</TableHead>
@@ -264,7 +285,19 @@ export function UsuariosTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.length === 0 ? (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={`skeleton-${i}`}>
+                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                  <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
+                  {!isGestor && <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-32" /></TableCell>}
+                  <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
+                  <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                  <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-12 rounded-full" /></TableCell>
+                  <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
+                </TableRow>
+              ))
+            ) : filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -281,9 +314,11 @@ export function UsuariosTable({
                   <TableCell className="hidden sm:table-cell text-muted-foreground">
                     {user.login ?? "-"}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-muted-foreground">
-                    {user.organizacaoNome ?? "-"}
-                  </TableCell>
+                  {!isGestor && (
+                    <TableCell className="hidden md:table-cell text-muted-foreground">
+                      {user.organizacaoNome ?? "-"}
+                    </TableCell>
+                  )}
                   <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
                     {user.dataUltimaSincronizacao
                       ? new Date(user.dataUltimaSincronizacao).toLocaleString("pt-BR")
@@ -440,28 +475,30 @@ export function UsuariosTable({
                     placeholder="email@empresa.com"
                   />
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="organizacao">Organização *</Label>
-                  <Select
-                    value={editingUser ? editForm.organizacaoId : createForm.organizacaoId}
-                    onValueChange={(value) =>
-                      editingUser
-                        ? setEditForm({ ...editForm, organizacaoId: value })
-                        : setCreateForm({ ...createForm, organizacaoId: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma organização" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {activeOrgs.map((org) => (
-                        <SelectItem key={org.id} value={org.id}>
-                          {org.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {!isGestor && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="organizacao">Organização *</Label>
+                    <Select
+                      value={editingUser ? editForm.organizacaoId : createForm.organizacaoId}
+                      onValueChange={(value) =>
+                        editingUser
+                          ? setEditForm({ ...editForm, organizacaoId: value })
+                          : setCreateForm({ ...createForm, organizacaoId: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma organização" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {activeOrgs.map((org) => (
+                          <SelectItem key={org.id} value={org.id}>
+                            {org.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <hr/>
                 <div className="grid gap-2">
                   <Label htmlFor="password">

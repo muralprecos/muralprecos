@@ -96,7 +96,7 @@ export function FormEditarPerfil({ usuario }: IPageValidacaoClient) {
 
       if (res.success) {
         notify("success", messages.REQUEST_SUCCESS);
-        await update({ firstName, lastName, email });
+        await update({ firstName, lastName, email, name: `${firstName} ${lastName}`.trim() });
         router.push("/");
       } else {
         notify("error", res.error || messages.REQUEST_ERROR);

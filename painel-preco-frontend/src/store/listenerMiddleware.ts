@@ -9,26 +9,28 @@ import {
   setShowUnidade,
   setShowValorTotal,
 } from "./features/table-columns-slice";
+import { setSessionData, clearSessionData } from "./features/session-slice";
+import { storageService } from "@/services/StorageService";
 
 export const listenerMiddleware = createListenerMiddleware();
 
 listenerMiddleware.startListening({
   matcher: isAnyOf(clear, add, remove),
   effect: (action, listenerApi) => {
-    return localStorage.setItem(
+    storageService.setItem(
       "carts",
-      JSON.stringify((listenerApi.getState() as RootState).cartReducer)
-    )
+      (listenerApi.getState() as RootState).cartReducer
+    );
   }
 });
 
 listenerMiddleware.startListening({
   matcher: isAnyOf(setLabel),
   effect: (action, listenerApi) => {
-    return localStorage.setItem(
+    storageService.setItem(
       "cotacaoLabelCache",
-      JSON.stringify((listenerApi.getState() as RootState).cotacaoLabelCacheReducer)
-    )
+      (listenerApi.getState() as RootState).cotacaoLabelCacheReducer
+    );
   }
 });
 
@@ -41,9 +43,19 @@ listenerMiddleware.startListening({
     resetUserColumnsPreference
   ),
   effect: (action, listenerApi) => {
-    return localStorage.setItem(
+    storageService.setItem(
       "tableColumnsPreference",
-      JSON.stringify((listenerApi.getState() as RootState).tableColumnsPreferenceReducer)
-    )
+      (listenerApi.getState() as RootState).tableColumnsPreferenceReducer
+    );
+  }
+});
+
+listenerMiddleware.startListening({
+  matcher: isAnyOf(setSessionData, clearSessionData),
+  effect: (action, listenerApi) => {
+    storageService.setItem(
+      "userSessionCache",
+      (listenerApi.getState() as RootState).sessionReducer
+    );
   }
 });
