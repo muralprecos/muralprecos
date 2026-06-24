@@ -46,6 +46,8 @@ public class OrganizacaoDetalhesDTO {
     @com.fasterxml.jackson.annotation.JsonProperty("isGestor")
     private boolean isGestor;
 
+    private Boolean ativo;
+
   }
 
 }
