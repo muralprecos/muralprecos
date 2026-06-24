@@ -115,6 +115,7 @@ export function useCotacaoFields({
         type: "autocompletStatic",
         label: "Período da Compra",
         items: compraPeriodos,
+        disableSorting: true,
       },
       situacaoId: {
         type: "autocompletStatic",

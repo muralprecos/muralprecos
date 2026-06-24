@@ -96,16 +96,19 @@ export type FieldFormSelect = {
   type: "select";
   label: string;
   items: IItemSelect[];
+  disableSorting?: boolean;
 };
 export type FieldFormAutocompleteStatic = {
   type: "autocompletStatic";
   label: string;
   items: IItemSelect[];
+  disableSorting?: boolean;
 };
 export type FieldFormAutocompleteAsync = {
   type: "autocompleteAsync";
   label: string;
   auto: FieldAutocompleteAsync<any>;
+  disableSorting?: boolean;
 };
 export type FieldFormTypes =
   | FieldFormSelect
