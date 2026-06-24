@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await handleExpiredSession();
         }
       } else {
-        if (res.status === 401 || res.status === 422) {
+        if (res.status === 401) {
           await handleExpiredSession();
           return;
         }
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ): Promise<Response> {
       const response = await originalFetch(input, init);
 
-      if (response.status === 401 || response.status === 422) {
+      if (response.status === 401) {
         const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
         // Only intercept calls to our Next.js API proxy routes, not auth routes themselves
         if (url.startsWith("/api/") && !url.startsWith("/api/auth/")) {
