@@ -22,6 +22,7 @@ export interface MembroOrganizacao {
   nome?: string;
   email?: string;
   isGestor?: boolean;
+  ativo?: boolean;
 }
 
 export interface Usuario {
