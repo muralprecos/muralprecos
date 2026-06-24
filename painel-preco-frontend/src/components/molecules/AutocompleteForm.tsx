@@ -33,6 +33,7 @@ interface Props<T extends FieldValues> extends UseControllerProps<T> {
   placeholder?: string;
   className?: string;
   errors?: Record<string, any>;
+  disableSorting?: boolean;
 }
 
 export default function AutocompleteForm<T extends FieldValues>({
@@ -43,6 +44,7 @@ export default function AutocompleteForm<T extends FieldValues>({
   placeholder = "Digite para buscar...",
   className,
   errors,
+  disableSorting,
 }: Props<T>) {
   const error = errors?.[name]?.message;
   const [open, setOpen] = useState(false);
@@ -93,9 +95,11 @@ export default function AutocompleteForm<T extends FieldValues>({
                   <CommandEmpty>Nenhuma opção encontrada.</CommandEmpty>
                   <CommandGroup>
                     {(() => {
-                      const sortedItems = [...items].sort((a, b) => 
-                        a.label.trim().localeCompare(b.label.trim())
-                      );
+                      const sortedItems = disableSorting 
+                        ? items 
+                        : [...items].sort((a, b) => 
+                            a.label.trim().localeCompare(b.label.trim())
+                          );
                       return sortedItems.map((item) => (
                       <CommandItem
                         key={item.value}
