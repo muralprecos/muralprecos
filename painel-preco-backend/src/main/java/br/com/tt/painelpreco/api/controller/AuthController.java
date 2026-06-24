@@ -87,12 +87,24 @@ public class AuthController extends HttpClientController {
 	}
 
 	@PostMapping(value = "/cadastro", consumes = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+	@PreAuthorize("hasAnyRole(T(br.com.tt.painelpreco.security.Role).ADMIN.name(), T(br.com.tt.painelpreco.security.Role).GESTOR.name())")
 	public ResponseEntity<CadastroDTO> cadastro(@Valid @RequestBody CadastroForm form) {
 		try {
-			// Validação adicional: verifica se organizacaoId foi informado
-			if (form.getOrganizacaoId() == null || form.getOrganizacaoId().trim().isEmpty()) {
-				throw new ArchException("Campo 'organizacaoId' é obrigatório. Use 'organizacaoId' (não 'organizacaoUuid')");
+			org.keycloak.representations.AccessToken token = super.getAccessToken();
+			boolean isAdmin = token.getRealmAccess() != null && token.getRealmAccess().getRoles().contains(br.com.tt.painelpreco.security.Role.ADMIN.getRoleName());
+			
+			if (!isAdmin) {
+				Usuario usuarioLogado = usuarioService.buscarUsuario(token.getSubject());
+				if (usuarioLogado != null && usuarioLogado.getOrganizacao() != null) {
+					form.setOrganizacaoId(usuarioLogado.getOrganizacao().getId().toString());
+				} else {
+					throw new ArchException("Gestor sem organização associada.");
+				}
+			} else {
+				// Validação adicional para Admin: verifica se organizacaoId foi informado
+				if (form.getOrganizacaoId() == null || form.getOrganizacaoId().trim().isEmpty()) {
+					throw new ArchException("Campo 'organizacaoId' é obrigatório. Use 'organizacaoId' (não 'organizacaoUuid')");
+				}
 			}
 
 			Usuario usuario = usuarioService.criarUsuario(form);

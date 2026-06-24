@@ -23,6 +23,12 @@
 - Keep role checks explicit (`@PreAuthorize`) for protected endpoints.
 - Never hardcode secrets or tokens in source files.
 
+## Cache Configuration (CRITICAL)
+- The application uses Spring's `@EnableCaching` with a `ConcurrentMapCacheManager`.
+- Whenever you introduce a new `@Cacheable`, `@CacheEvict`, or `@CachePut` annotation anywhere in the code, you **MUST** manually register the cache name in `PainelPrecoApplication.java`.
+- Example: If you add `@Cacheable("myNewCache")`, you must update the `cacheManager()` Bean: `return new ConcurrentMapCacheManager(..., "myNewCache");`.
+- Failing to do so will result in `Cannot find cache named 'myNewCache'` runtime exceptions because Spring Boot does not dynamically create caches when using the explicit array constructor of `ConcurrentMapCacheManager`.
+
 ## Dev Environment Guardrails
 - Local dependencies commonly run via `docker compose -f docker-compose.dev.yml up -d`.
 - Avoid enabling expensive startup tasks in dev (full indexing / heavy collectors) unless user requests it.

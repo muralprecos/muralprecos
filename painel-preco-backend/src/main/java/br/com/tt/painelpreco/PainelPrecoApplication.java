@@ -11,8 +11,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import br.com.tt.painelpreco.config.StartupIndexer;
 import br.com.tt.painelpreco.pncp.domain.service.ColetaDadosPncpService;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
-//@EnableCaching
+@EnableCaching
 @EnableScheduling
 @EnableFeignClients
 @SpringBootApplication
@@ -46,5 +49,10 @@ public class PainelPrecoApplication {
             initializer.init(luceneStartup);
         };
     }
+
+	@Bean
+	public CacheManager cacheManager() {
+		return new ConcurrentMapCacheManager("keycloakUsers", "keycloakUserRoles", "keycloakGroups", "keycloakRoles", "keycloakToken");
+	}
 
 }
