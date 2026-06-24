@@ -54,33 +54,43 @@ public class AuthController extends HttpClientController {
 
 	@PostConstruct
 	public void init() {
-		this.authenticationUrl = String.format(AuthController.KEYCLOAK_AUTHETICATE_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
-		this.revokeUrl = String.format(AuthController.KEYCLOAK_REVOKE_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
+		this.authenticationUrl = String.format(AuthController.KEYCLOAK_AUTHETICATE_URL,
+				keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
+		this.revokeUrl = String.format(AuthController.KEYCLOAK_REVOKE_URL, keycloakProperties.getAuthServerUrl(),
+				keycloakProperties.getRealm());
 	}
 
 	@PostMapping(value = "/logon", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<AuthDTO> auth(AuthForm authForm) {
 		String errorMsg = "Autenticação falhou. %s";
 		try {
-			AuthDTO authDTO = authenticate(authForm);
-
-			// Verificar status do usuário e da organização no banco local
+			// Verificar status do usuário e da organização no banco local ANTES de
+			// autenticar
 			br.com.tt.painelpreco.arch.infra.auth.Usuario usuario = usuarioService.findByLogin(authForm.getUsername());
 			if (usuario != null) {
-				if (Boolean.FALSE.equals(usuario.getAtivo())) {
-					throw new ArchException("Usuário desativado. Contate o administrador.");
-				}
 				if (usuario.getOrganizacao() != null && Boolean.FALSE.equals(usuario.getOrganizacao().getAtivo())) {
-					throw new ArchException("Organização desativada. Contate o administrador.");
+					throw new ArchException("Organização está inativa. Contactar o administrador do sistema.");
+				}
+				if (Boolean.FALSE.equals(usuario.getAtivo())) {
+					throw new ArchException("Usuário está inativo. Contactar o administrador do sistema.");
 				}
 			}
 
+			AuthDTO authDTO = authenticate(authForm);
+
 			return ResponseEntity.ok(authDTO);
 		} catch (HttpException e) {
-			if (e.isAcessoNegado())
+			if (e.getMessage() != null && e.getMessage().contains("Account disabled")) {
+				throw new ArchException("Usuário está inativo. Contactar o administrador do sistema.");
+			}
+			if (e.isAcessoNegado() || (e.getStatusCode() == 400 && e.getMessage() != null
+					&& e.getMessage().contains("invalid_grant"))) {
 				throw new HttpException("Autenticação falhou. Usuário ou senha inválidos.");
+			}
 
 			throw new ArchException(String.format(errorMsg, e.getMessage()));
+		} catch (ArchException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ArchException(String.format(errorMsg, e.getMessage()));
 		}
@@ -91,8 +101,9 @@ public class AuthController extends HttpClientController {
 	public ResponseEntity<CadastroDTO> cadastro(@Valid @RequestBody CadastroForm form) {
 		try {
 			org.keycloak.representations.AccessToken token = super.getAccessToken();
-			boolean isAdmin = token.getRealmAccess() != null && token.getRealmAccess().getRoles().contains(br.com.tt.painelpreco.security.Role.ADMIN.getRoleName());
-			
+			boolean isAdmin = token.getRealmAccess() != null && token.getRealmAccess().getRoles()
+					.contains(br.com.tt.painelpreco.security.Role.ADMIN.getRoleName());
+
 			if (!isAdmin) {
 				Usuario usuarioLogado = usuarioService.buscarUsuario(token.getSubject());
 				if (usuarioLogado != null && usuarioLogado.getOrganizacao() != null) {
@@ -103,7 +114,8 @@ public class AuthController extends HttpClientController {
 			} else {
 				// Validação adicional para Admin: verifica se organizacaoId foi informado
 				if (form.getOrganizacaoId() == null || form.getOrganizacaoId().trim().isEmpty()) {
-					throw new ArchException("Campo 'organizacaoId' é obrigatório. Use 'organizacaoId' (não 'organizacaoUuid')");
+					throw new ArchException(
+							"Campo 'organizacaoId' é obrigatório. Use 'organizacaoId' (não 'organizacaoUuid')");
 				}
 			}
 
@@ -123,7 +135,9 @@ public class AuthController extends HttpClientController {
 			throw e;
 		} catch (Exception e) {
 			throw new ArchException(
-					"Erro ao cadastrar usuário: " + (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()), e);
+					"Erro ao cadastrar usuário: "
+							+ (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()),
+					e);
 		}
 	}
 
@@ -152,9 +166,9 @@ public class AuthController extends HttpClientController {
 
 			Body body = new Body();
 			body.add(Body.GRANT_TYPE_KEY, "refresh_token")
-				.add("refresh_token", refreshForm.getRefresh_token())
-				.add(Body.CLIENT_ID_KEY, keycloakProperties.getClientId())
-				.add(Body.CLIENT_SECRET, keycloakProperties.getClientSecret());
+					.add("refresh_token", refreshForm.getRefresh_token())
+					.add(Body.CLIENT_ID_KEY, keycloakProperties.getClientId())
+					.add(Body.CLIENT_SECRET, keycloakProperties.getClientSecret());
 
 			HttpResponse response = super.requestPost(header, body, QueryParam.NONE, authenticationUrl);
 			AuthDTO authDTO = response.toDTO(AuthDTO.class);
@@ -194,4 +208,3 @@ public class AuthController extends HttpClientController {
 	}
 
 }
-

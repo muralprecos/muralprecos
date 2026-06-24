@@ -108,34 +108,41 @@ public class SincronizacaoService {
           resultado.incrementOrganizacoesDesativadas();
           resultado.addMensagem("Organização desativada: " + org.getNome());
         } else {
+          resultado.incrementOrganizacoesNaoAlteradas();
+        }
+
+      } else {
+        JSONObject kcGroup = keycloakGroupsMap.get(uuidStr);
+        boolean kcEnabled = true;
+        if (kcGroup.optJSONObject("attributes") != null && kcGroup.optJSONObject("attributes").optJSONArray(br.com.tt.painelpreco.security.keycloak.OrganizacaoKeycloakAttributes.ENABLED) != null) {
+          kcEnabled = Boolean.parseBoolean(kcGroup.optJSONObject("attributes").optJSONArray(br.com.tt.painelpreco.security.keycloak.OrganizacaoKeycloakAttributes.ENABLED).getString(0));
+        }
+
+        if (kcEnabled && Boolean.FALSE.equals(org.getAtivo())) {
           if (!isSimulacao) {
-            org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_NAO_ENCONTRADA_NO_KEYCLOAK.getDescricao());
+            org.setAtivo(true);
+            org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_REATIVADA.getDescricao());
             org.setDataUltimaSincronizacao(agora);
             org.setUsuarioSincronizacaoId(executorId);
             organizacaoRepository.save(org);
           }
+          resultado.incrementOrganizacoesReativadas();
+          resultado.addMensagem("Organização reativada (sync): " + org.getNome());
+
+        } else if (!kcEnabled && Boolean.TRUE.equals(org.getAtivo())) {
+          if (!isSimulacao) {
+            org.setAtivo(false);
+            org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_DESATIVADA.getDescricao());
+            org.setDataUltimaSincronizacao(agora);
+            org.setUsuarioSincronizacaoId(executorId);
+            organizacaoRepository.save(org);
+          }
+          resultado.incrementOrganizacoesDesativadas();
+          resultado.addMensagem("Organização desativada (sync): " + org.getNome());
+
+        } else {
           resultado.incrementOrganizacoesNaoAlteradas();
         }
-
-      } else if (Boolean.FALSE.equals(org.getAtivo())) {
-        if (!isSimulacao) {
-          org.setAtivo(true);
-          org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_REATIVADA.getDescricao());
-          org.setDataUltimaSincronizacao(agora);
-          org.setUsuarioSincronizacaoId(executorId);
-          organizacaoRepository.save(org);
-        }
-        resultado.incrementOrganizacoesReativadas();
-        resultado.addMensagem("Organização reativada: " + org.getNome());
-
-      } else {
-        if (!isSimulacao) {
-          org.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_SINCRONIZADA.getDescricao());
-          org.setDataUltimaSincronizacao(agora);
-          org.setUsuarioSincronizacaoId(executorId);
-          organizacaoRepository.save(org);
-        }
-        resultado.incrementOrganizacoesNaoAlteradas();
       }
     }
 
@@ -164,7 +171,13 @@ public class SincronizacaoService {
         Organizacao novaOrg = new Organizacao();
         novaOrg.setUuid(UUID.fromString(entry.getKey()));
         novaOrg.setNome(nome);
-        novaOrg.setAtivo(true);
+
+        boolean kcEnabled = true;
+        if (group.optJSONObject("attributes") != null && group.optJSONObject("attributes").optJSONArray(br.com.tt.painelpreco.security.keycloak.OrganizacaoKeycloakAttributes.ENABLED) != null) {
+          kcEnabled = Boolean.parseBoolean(group.optJSONObject("attributes").optJSONArray(br.com.tt.painelpreco.security.keycloak.OrganizacaoKeycloakAttributes.ENABLED).getString(0));
+        }
+        novaOrg.setAtivo(kcEnabled);
+        
         novaOrg.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.ORGANIZACAO_CRIADA.getDescricao());
         novaOrg.setDataUltimaSincronizacao(agora);
         novaOrg.setUsuarioSincronizacaoId(executorId);
@@ -213,34 +226,38 @@ public class SincronizacaoService {
           resultado.incrementUsuariosDesativados();
           resultado.addMensagem("Usuário desativado: " + user.getLogin());
         } else {
+          resultado.incrementUsuariosNaoAlterados();
+        }
+
+      } else {
+        JSONObject kcUser = keycloakUsersMap.get(uuidStr);
+        boolean kcEnabled = kcUser.optBoolean("enabled", true);
+
+        if (kcEnabled && Boolean.FALSE.equals(user.getAtivo())) {
           if (!isSimulacao) {
-            user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_NAO_ENCONTRADO_NO_KEYCLOAK.getDescricao());
+            user.setAtivo(true);
+            user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_REATIVADO.getDescricao());
             user.setDataUltimaSincronizacao(agora);
             user.setUsuarioSincronizacaoId(executorId);
             usuarioRepository.save(user);
           }
+          resultado.incrementUsuariosReativados();
+          resultado.addMensagem("Usuário reativado (sync): " + user.getLogin());
+
+        } else if (!kcEnabled && Boolean.TRUE.equals(user.getAtivo())) {
+          if (!isSimulacao) {
+            user.setAtivo(false);
+            user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_DESATIVADO.getDescricao());
+            user.setDataUltimaSincronizacao(agora);
+            user.setUsuarioSincronizacaoId(executorId);
+            usuarioRepository.save(user);
+          }
+          resultado.incrementUsuariosDesativados();
+          resultado.addMensagem("Usuário desativado (sync): " + user.getLogin());
+
+        } else {
           resultado.incrementUsuariosNaoAlterados();
         }
-
-      } else if (Boolean.FALSE.equals(user.getAtivo())) {
-        if (!isSimulacao) {
-          user.setAtivo(true);
-          user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_REATIVADO.getDescricao());
-          user.setDataUltimaSincronizacao(agora);
-          user.setUsuarioSincronizacaoId(executorId);
-          usuarioRepository.save(user);
-        }
-        resultado.incrementUsuariosReativados();
-        resultado.addMensagem("Usuário reativado: " + user.getLogin());
-
-      } else {
-        if (!isSimulacao) {
-          user.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_SINCRONIZADO.getDescricao());
-          user.setDataUltimaSincronizacao(agora);
-          user.setUsuarioSincronizacaoId(executorId);
-          usuarioRepository.save(user);
-        }
-        resultado.incrementUsuariosNaoAlterados();
       }
     }
 
@@ -298,7 +315,10 @@ public class SincronizacaoService {
         novoUsuario.setLogin(username.isEmpty() ? null : username);
         novoUsuario.setNome(nome.isEmpty() ? username : nome);
         novoUsuario.setEmail(email.isEmpty() ? null : email);
-        novoUsuario.setAtivo(true);
+        
+        boolean kcEnabled = kcUser.optBoolean("enabled", true);
+        novoUsuario.setAtivo(kcEnabled);
+        
         novoUsuario.setOrganizacao(organizacao);
         novoUsuario.setDetalhesUltimaSincronizacao(SituacaoSincronizacao.USUARIO_CRIADO.getDescricao());
         novoUsuario.setDataUltimaSincronizacao(agora);

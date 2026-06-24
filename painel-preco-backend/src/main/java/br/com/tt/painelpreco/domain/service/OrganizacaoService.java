@@ -80,7 +80,7 @@ public class OrganizacaoService {
     // Criar group no Keycloak
     String keycloakGroupId;
     try {
-      keycloakGroupId = keycloakAdminService.criarGroup(form.getNome(), form.getCnpj(), form.getNumero());
+      keycloakGroupId = keycloakAdminService.criarGroup(form.getNome(), form.getCnpj(), form.getNumero(), "true");
       log.info("Group criado no Keycloak com ID: {}", keycloakGroupId);
     } catch (Exception e) {
       log.error("Erro ao criar group no Keycloak: {}", e.getMessage());
@@ -123,7 +123,8 @@ public class OrganizacaoService {
     // Atualizar group no Keycloak (inclui cnpj/numero como atributos)
     try {
       String groupId = organizacao.getUuid().toString();
-      keycloakAdminService.atualizarGroup(groupId, form.getNome(), form.getCnpj(), form.getNumero());
+      String enabledStr = String.valueOf(organizacao.getAtivo() != null ? organizacao.getAtivo() : true);
+      keycloakAdminService.atualizarGroup(groupId, form.getNome(), form.getCnpj(), form.getNumero(), enabledStr);
       log.info("Group atualizado no Keycloak: {}", groupId);
     } catch (Exception e) {
       log.error("Erro ao atualizar group no Keycloak: {}", e.getMessage());
@@ -168,7 +169,14 @@ public class OrganizacaoService {
     // Desativar organização no banco local
     organizacao.setAtivo(false);
     organizacao = organizacaoRepository.save(organizacao);
-    log.info("Organização desativada com sucesso. ID: {}", organizacao.getId());
+    log.info("Organização desativada com sucesso no banco. ID: {}", organizacao.getId());
+
+    try {
+      keycloakAdminService.alterarStatusGroup(organizacao.getUuid().toString(), false);
+      log.info("Organização desativada no Keycloak");
+    } catch (Exception e) {
+      log.warn("Erro ao desativar organização no Keycloak: {}", e.getMessage());
+    }
 
     return organizacao;
   }
@@ -188,7 +196,14 @@ public class OrganizacaoService {
 
     organizacao.setAtivo(true);
     organizacao = organizacaoRepository.save(organizacao);
-    log.info("Organização reativada com sucesso. ID: {}", organizacao.getId());
+    log.info("Organização reativada com sucesso no banco. ID: {}", organizacao.getId());
+
+    try {
+      keycloakAdminService.alterarStatusGroup(organizacao.getUuid().toString(), true);
+      log.info("Organização reativada no Keycloak");
+    } catch (Exception e) {
+      log.warn("Erro ao reativar organização no Keycloak: {}", e.getMessage());
+    }
 
     return organizacao;
   }
@@ -246,6 +261,7 @@ public class OrganizacaoService {
           String lastName = m.optString("lastName", "");
           membro.setNome((firstName + " " + lastName).trim());
           membro.setEmail(m.optString("email"));
+          membro.setAtivo(m.optBoolean("enabled", true));
           List<String> userRoles = keycloakAdminService.obterRolesDoUsuario(m.optString("id"));
           membro.setGestor(userRoles.contains(Role.GESTOR.getRoleName()));
           membros.add(membro);
