@@ -320,7 +320,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
-  public String criarGroup(String nome, String cnpj, String telefone) {
+  public String criarGroup(String nome, String cnpj, String telefone, String enabled) {
     log.info("Criando group no Keycloak: {}", nome);
 
     try {
@@ -332,7 +332,7 @@ public class KeycloakAdminService extends HttpClientController {
 
       JSONObject groupJson = new JSONObject();
       groupJson.put("name", nome);
-      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone));
+      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone, enabled));
 
       Body body = new Body(groupJson);
 
@@ -459,7 +459,7 @@ public class KeycloakAdminService extends HttpClientController {
   }
 
   @CacheEvict(value = "keycloakGroups", key = "#groupId")
-  public void atualizarGroup(String groupId, String nome, String cnpj, String telefone) {
+  public void atualizarGroup(String groupId, String nome, String cnpj, String telefone, String enabled) {
     log.info("Atualizando group {} no Keycloak", groupId);
 
     try {
@@ -471,7 +471,7 @@ public class KeycloakAdminService extends HttpClientController {
 
       JSONObject groupJson = new JSONObject();
       groupJson.put("name", nome);
-      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone));
+      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone, enabled));
 
       Body body = new Body(groupJson);
 
@@ -487,7 +487,36 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
-  private JSONObject construirAtributosOrganizacao(String nome, String cnpj, String telefone) {
+  @CacheEvict(value = "keycloakGroups", key = "#groupId")
+  public void alterarStatusGroup(String groupId, boolean enabled) {
+    log.info("Alterando status do group {} no Keycloak para {}", groupId, enabled);
+    try {
+      JSONObject group = buscarGroupPorId(groupId);
+      if (group == null) return;
+      
+      JSONObject attributes = group.optJSONObject("attributes");
+      if (attributes == null) {
+          attributes = new JSONObject();
+      }
+      attributes.put(OrganizacaoKeycloakAttributes.ENABLED, new JSONArray().put(String.valueOf(enabled)));
+      group.put("attributes", attributes);
+
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+      Body body = new Body(group);
+      String url = groupsUrl + "/" + groupId;
+      
+      super.requestPut(header, body, QueryParam.NONE, url);
+      log.info("Status do group atualizado com sucesso");
+    } catch (HttpException e) {
+      log.error("Erro ao alterar status do group no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao alterar status do group no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  private JSONObject construirAtributosOrganizacao(String nome, String cnpj, String telefone, String enabled) {
     JSONObject attributes = new JSONObject();
     if (nome != null) {
       attributes.put(OrganizacaoKeycloakAttributes.NOME, new JSONArray().put(nome));
@@ -497,6 +526,9 @@ public class KeycloakAdminService extends HttpClientController {
     }
     if (telefone != null && !telefone.trim().isEmpty()) {
       attributes.put(OrganizacaoKeycloakAttributes.TELEFONE, new JSONArray().put(telefone));
+    }
+    if (enabled != null) {
+      attributes.put(OrganizacaoKeycloakAttributes.ENABLED, new JSONArray().put(enabled));
     }
     return attributes;
   }
@@ -873,6 +905,7 @@ public class KeycloakAdminService extends HttpClientController {
       header.add("Authorization", "Bearer " + token);
       QueryParam queryParam = new QueryParam();
       queryParam.add("max", "10000");
+      queryParam.add("briefRepresentation", "false");
       String responseRaw = obterRespostaRawGet(header, queryParam, groupsUrl);
       if (responseRaw == null || responseRaw.trim().isEmpty()) {
         return new java.util.ArrayList<>();
