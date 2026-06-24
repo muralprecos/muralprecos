@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Users, Edit, Trash2, Plus, Search, RefreshCcw, Eye, EyeOff } from "lucide-react";
+import { SortIcon } from "@/components/atoms/SortIcon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KeycloakSyncWarning } from "@/components/atoms/KeycloakSyncWarning";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import type { Organizacao, Usuario } from "@/interfaces/gestao";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@radix-ui/react-select";
 
 interface CreateUserData {
@@ -101,6 +103,17 @@ export function UsuariosTable({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: "nome" | "login" | "organizacaoNome", direction: "asc" | "desc" } | null>(null);
+
+  const handleSort = (key: "nome" | "login" | "organizacaoNome") => {
+    setSortConfig((current) => {
+      if (current?.key === key) {
+        if (current.direction === "asc") return { key, direction: "desc" };
+        return null;
+      }
+      return { key, direction: "asc" };
+    });
+  };
 
   const filteredUsers = usuarios.filter((user) => {
     const term = search.toLowerCase();
@@ -113,6 +126,13 @@ export function UsuariosTable({
       (statusFiltro === "ativo" ? user.ativo === true : user.ativo === false);
     const matchOrg = organizacaoFiltro === "todas" || user.organizacaoId === organizacaoFiltro;
     return matchNome && matchStatus && matchOrg;
+  }).sort((a, b) => {
+    if (!sortConfig) return 0;
+    const aValue = (a[sortConfig.key] || "").toLowerCase();
+    const bValue = (b[sortConfig.key] || "").toLowerCase();
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
   });
 
   const handleOpenCreate = () => {
@@ -127,8 +147,6 @@ export function UsuariosTable({
 
   const handleOpenEdit = async (user: Usuario) => {
     setEditingUser(user);
-    setDetalhesUsuario(null);
-    setDetalhesLoading(true);
     const [firstName = "", ...rest] = (user.nome ?? "").split(" ");
     const lastName = rest.join(" ");
     setEditForm({
@@ -143,14 +161,19 @@ export function UsuariosTable({
     setShowConfirmPassword(false);
     setPasswordError("");
     setIsDialogOpen(true);
+    setDetalhesLoading(true);
+
     try {
       const res = await fetch(`/api/usuarios/${user.id}`);
       if (res.ok) {
-        const data: Usuario = await res.json();
+        const data = await res.json();
+        // Mesclar dados de sincronização da tabela que não vêm no endpoint de detalhes
+        data.detalhesUltimaSincronizacao = user.detalhesUltimaSincronizacao;
+        data.dataUltimaSincronizacao = user.dataUltimaSincronizacao;
         setDetalhesUsuario(data);
       }
-    } catch {
-      // silently ignore — warning simply won't be shown
+    } catch (err) {
+      console.error("Erro ao buscar detalhes:", err);
     } finally {
       setDetalhesLoading(false);
     }
@@ -226,6 +249,153 @@ export function UsuariosTable({
 
   const activeOrgs = organizacoes.filter((org) => org.ativo);
 
+  const renderForm = () => (
+    <>
+      {editingUser && detalhesUsuario?.keycloakNaoEncontrado && (
+        <KeycloakSyncWarning message="Usuário desincronizado. Alterações podem não ser aplicadas no Keycloak." />
+      )}
+      {!editingUser && (
+        <div className="grid gap-2">
+          <Label htmlFor="username">Login *</Label>
+          <Input
+            id="username"
+            value={createForm.username}
+            onChange={(e) =>
+              setCreateForm({ ...createForm, username: e.target.value })
+            }
+            placeholder="nome.usuario"
+          />
+        </div>
+      )}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="firstName">Nome *</Label>
+          <Input
+            id="firstName"
+            value={editingUser ? editForm.firstName : createForm.firstName}
+            onChange={(e) =>
+              editingUser
+                ? setEditForm({ ...editForm, firstName: e.target.value })
+                : setCreateForm({ ...createForm, firstName: e.target.value })
+            }
+            placeholder="Primeiro nome"
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="lastName">Sobrenome</Label>
+          <Input
+            id="lastName"
+            value={editingUser ? editForm.lastName : createForm.lastName}
+            onChange={(e) =>
+              editingUser
+                ? setEditForm({ ...editForm, lastName: e.target.value })
+                : setCreateForm({ ...createForm, lastName: e.target.value })
+            }
+            placeholder="Sobrenome"
+          />
+        </div>
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="email">Email *</Label>
+        <Input
+          id="email"
+          type="email"
+          value={editingUser ? editForm.email : createForm.email}
+          onChange={(e) =>
+            editingUser
+              ? setEditForm({ ...editForm, email: e.target.value })
+              : setCreateForm({ ...createForm, email: e.target.value })
+          }
+          placeholder="email@empresa.com"
+        />
+      </div>
+      {!isGestor && (
+        <div className="grid gap-2">
+          <Label htmlFor="organizacao">Organização *</Label>
+          <Select
+            value={editingUser ? editForm.organizacaoId : createForm.organizacaoId}
+            onValueChange={(value) =>
+              editingUser
+                ? setEditForm({ ...editForm, organizacaoId: value })
+                : setCreateForm({ ...createForm, organizacaoId: value })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione uma organização" />
+            </SelectTrigger>
+            <SelectContent>
+              {activeOrgs.map((org) => (
+                <SelectItem key={org.id} value={org.id}>
+                  {org.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      <hr/>
+      <div className="grid gap-2">
+        <Label htmlFor="password">
+          {editingUser ? "Nova Senha" : "Senha"}
+        </Label>
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            value={editingUser ? (editForm.password ?? "") : createForm.password}
+            onChange={(e) => {
+              setPasswordError("");
+              editingUser
+                ? setEditForm({ ...editForm, password: e.target.value })
+                : setCreateForm({ ...createForm, password: e.target.value });
+            }}
+            placeholder={editingUser ? "Deixe em branco para não alterar" : "Mínimo 6 caracteres"}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+            onClick={() => setShowPassword(!showPassword)}
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+        </div>
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="confirmPassword">
+          {editingUser ? "Confirmar Nova Senha" : "Confirmar Senha"}
+        </Label>
+        <div className="relative">
+          <Input
+            id="confirmPassword"
+            type={showConfirmPassword ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => {
+              setPasswordError("");
+              setConfirmPassword(e.target.value);
+            }}
+            placeholder="Repita a senha"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            tabIndex={-1}
+          >
+            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
+        </div>
+        {passwordError && (
+          <p className="text-xs text-red-500">{passwordError}</p>
+        )}
+      </div>
+    </>
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -275,11 +445,18 @@ export function UsuariosTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead className="hidden sm:table-cell">Login</TableHead>
-              {!isGestor && <TableHead className="hidden md:table-cell">Organização</TableHead>}
-              <TableHead className="hidden lg:table-cell">Últ. Sincronização</TableHead>
-              <TableHead className="hidden xl:table-cell">Detalhes Sincronização</TableHead>
+              <TableHead className="cursor-pointer" onClick={() => handleSort("nome")}>
+                Nome <SortIcon direction={sortConfig?.key === "nome" ? sortConfig.direction : null} />
+              </TableHead>
+              <TableHead className="hidden sm:table-cell cursor-pointer" onClick={() => handleSort("login")}>
+                Login <SortIcon direction={sortConfig?.key === "login" ? sortConfig.direction : null} />
+              </TableHead>
+              <TableHead className="hidden xl:table-cell">E-mail</TableHead>
+              {!isGestor && (
+                <TableHead className="hidden md:table-cell cursor-pointer" onClick={() => handleSort("organizacaoNome")}>
+                  Organização <SortIcon direction={sortConfig?.key === "organizacaoNome" ? sortConfig.direction : null} />
+                </TableHead>
+              )}
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -290,9 +467,8 @@ export function UsuariosTable({
                 <TableRow key={`skeleton-${i}`}>
                   <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                   <TableCell className="hidden sm:table-cell"><Skeleton className="h-4 w-24" /></TableCell>
-                  {!isGestor && <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-32" /></TableCell>}
                   <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-32" /></TableCell>
-                  <TableCell className="hidden xl:table-cell"><Skeleton className="h-4 w-20" /></TableCell>
+                  {!isGestor && <TableCell className="hidden md:table-cell"><Skeleton className="h-4 w-32" /></TableCell>}
                   <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-12 rounded-full" /></TableCell>
                   <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
                 </TableRow>
@@ -300,7 +476,7 @@ export function UsuariosTable({
             ) : filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={isGestor ? 5 : 6}
                   className="text-center py-8 text-muted-foreground"
                 >
                   <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -314,35 +490,14 @@ export function UsuariosTable({
                   <TableCell className="hidden sm:table-cell text-muted-foreground">
                     {user.login ?? "-"}
                   </TableCell>
+                  <TableCell className="hidden xl:table-cell text-muted-foreground max-w-[200px] truncate">
+                    {user.email ?? "-"}
+                  </TableCell>
                   {!isGestor && (
                     <TableCell className="hidden md:table-cell text-muted-foreground">
                       {user.organizacaoNome ?? "-"}
                     </TableCell>
                   )}
-                  <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
-                    {user.dataUltimaSincronizacao
-                      ? new Date(user.dataUltimaSincronizacao).toLocaleString("pt-BR")
-                      : "-"}
-                  </TableCell>
-                  <TableCell className="hidden xl:table-cell max-w-xs">
-                    {user.detalhesUltimaSincronizacao ? (
-                      <span
-                        title={user.detalhesUltimaSincronizacao}
-                        className={`text-xs px-2 py-0.5 rounded-full font-medium truncate block max-w-[200px] ${
-                          user.detalhesUltimaSincronizacao.toLowerCase().includes("sucesso")
-                            ? "bg-green-100 text-green-800"
-                            : user.detalhesUltimaSincronizacao.toLowerCase().includes("conflito") ||
-                              user.detalhesUltimaSincronizacao.toLowerCase().includes("não encontrado")
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {user.detalhesUltimaSincronizacao}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">-</span>
-                    )}
-                  </TableCell>
                   <TableCell>
                     <Badge variant={user.ativo ? "default" : "secondary"}>
                       {user.ativo ? "Ativo" : "Inativo"}
@@ -417,148 +572,33 @@ export function UsuariosTable({
               </>
             ) : (
               <>
-                {editingUser && detalhesUsuario?.keycloakNaoEncontrado && (
-                  <KeycloakSyncWarning message="Usuário desincronizado. Alterações podem não ser aplicadas no Keycloak." />
+                {editingUser && !isGestor ? (
+                  <Tabs defaultValue="dados">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="dados">Dados Principais</TabsTrigger>
+                      <TabsTrigger value="sync">Sincronização</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="dados" className="space-y-4 mt-4">
+                      {renderForm()}
+                    </TabsContent>
+                    <TabsContent value="sync" className="space-y-4 mt-4">
+                      <div className="grid gap-2">
+                        <Label>Detalhes da Sincronização</Label>
+                        <div className="text-sm p-3 border rounded-md bg-muted/50">
+                          {detalhesUsuario?.detalhesUltimaSincronizacao || "Nenhuma sincronização registrada"}
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>Data da Última Sincronização</Label>
+                        <div className="text-sm p-3 border rounded-md bg-muted/50">
+                          {detalhesUsuario?.dataUltimaSincronizacao ? new Date(detalhesUsuario.dataUltimaSincronizacao).toLocaleString("pt-BR") : "-"}
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                ) : (
+                  renderForm()
                 )}
-                {!editingUser && (
-                  <div className="grid gap-2">
-                    <Label htmlFor="username">Login *</Label>
-                    <Input
-                      id="username"
-                      value={createForm.username}
-                      onChange={(e) =>
-                        setCreateForm({ ...createForm, username: e.target.value })
-                      }
-                      placeholder="nome.usuario"
-                    />
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="firstName">Nome *</Label>
-                    <Input
-                      id="firstName"
-                      value={editingUser ? editForm.firstName : createForm.firstName}
-                      onChange={(e) =>
-                        editingUser
-                          ? setEditForm({ ...editForm, firstName: e.target.value })
-                          : setCreateForm({ ...createForm, firstName: e.target.value })
-                      }
-                      placeholder="Primeiro nome"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="lastName">Sobrenome</Label>
-                    <Input
-                      id="lastName"
-                      value={editingUser ? editForm.lastName : createForm.lastName}
-                      onChange={(e) =>
-                        editingUser
-                          ? setEditForm({ ...editForm, lastName: e.target.value })
-                          : setCreateForm({ ...createForm, lastName: e.target.value })
-                      }
-                      placeholder="Sobrenome"
-                    />
-                  </div>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={editingUser ? editForm.email : createForm.email}
-                    onChange={(e) =>
-                      editingUser
-                        ? setEditForm({ ...editForm, email: e.target.value })
-                        : setCreateForm({ ...createForm, email: e.target.value })
-                    }
-                    placeholder="email@empresa.com"
-                  />
-                </div>
-                {!isGestor && (
-                  <div className="grid gap-2">
-                    <Label htmlFor="organizacao">Organização *</Label>
-                    <Select
-                      value={editingUser ? editForm.organizacaoId : createForm.organizacaoId}
-                      onValueChange={(value) =>
-                        editingUser
-                          ? setEditForm({ ...editForm, organizacaoId: value })
-                          : setCreateForm({ ...createForm, organizacaoId: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma organização" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {activeOrgs.map((org) => (
-                          <SelectItem key={org.id} value={org.id}>
-                            {org.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-                <hr/>
-                <div className="grid gap-2">
-                  <Label htmlFor="password">
-                    {editingUser ? "Nova Senha" : "Senha"}
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={editingUser ? (editForm.password ?? "") : createForm.password}
-                      onChange={(e) => {
-                        setPasswordError("");
-                        editingUser
-                          ? setEditForm({ ...editForm, password: e.target.value })
-                          : setCreateForm({ ...createForm, password: e.target.value });
-                      }}
-                      placeholder={editingUser ? "Deixe em branco para não alterar" : "Mínimo 6 caracteres"}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                      onClick={() => setShowPassword(!showPassword)}
-                      tabIndex={-1}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="confirmPassword">
-                    {editingUser ? "Confirmar Nova Senha" : "Confirmar Senha"}
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={confirmPassword}
-                      onChange={(e) => {
-                        setPasswordError("");
-                        setConfirmPassword(e.target.value);
-                      }}
-                      placeholder="Repita a senha"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      tabIndex={-1}
-                    >
-                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                  {passwordError && (
-                    <p className="text-xs text-red-500">{passwordError}</p>
-                  )}
-                </div>
               </>
             )}
           </div>
