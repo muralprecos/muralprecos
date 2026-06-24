@@ -4,8 +4,6 @@ import {
   LayoutDashboard,
   FileText,
   Award,
-  Gavel,
-  Settings,
   HelpCircle,
   LogOut,
   X,
@@ -42,14 +40,8 @@ const menuItems: MenuItem[] = [
   //   path: "/licitacoes",
   // },
   {
-    icon: Gavel,
-    label: "Documentos",
-    path: "https://www.gov.br/agu/pt-br/composicao/cgu/cgu/modelos/licitacoesecontratos",
-    external: true,
-  },
-  {
     icon: Award,
-    label: "Certidões",
+    label: "Modelos e Certidões",
     path: "/certidoes",
   },
 ];
@@ -130,7 +122,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
         <aside
           className={cn(
             "group min-h-[580px] bg-sidebar rounded-2xl flex flex-col py-4 overflow-hidden shadow-lg transition-all duration-300 ease-in-out",
-            "w-56 lg:w-16 lg:hover:w-56",
+            "w-64 lg:w-16 lg:hover:w-64",
           )}
         >
           <button
