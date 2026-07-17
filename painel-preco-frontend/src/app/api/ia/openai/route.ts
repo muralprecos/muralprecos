@@ -1,29 +1,10 @@
 import { NextResponse } from "next/server";
 import { getOpenAI } from "@/lib/openai";
-import OpenAI from "openai";
-
-const ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID!;
-
-async function waitForRunCompletion(openai: OpenAI , threadId: string, runId: string) {
-  let run;
-  do {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    run = await openai.beta.threads.runs.retrieve(threadId, runId);
-  } while (run.status === "in_progress" || run.status === "queued");
-
-  return run;
-}
+import { SYSTEM_PROMPT } from "@/lib/prompts/systemPrompt";
 
 export async function POST(req: Request) {
   try {
-    const { message, threadId: existingThreadId } = await req.json();
-
-    if (!message) {
-      return NextResponse.json(
-        { error: "A propriedade 'message' é obrigatória." },
-        { status: 400 }
-      );
-    }
+    const { message, messages } = await req.json();
 
     const openai = getOpenAI();
     if (!openai) {
@@ -33,39 +14,34 @@ export async function POST(req: Request) {
       );
     }
 
-    const threadId =
-      existingThreadId ?? (await openai.beta.threads.create()).id;
+    let apiMessages: any[] = [];
 
-    await openai.beta.threads.messages.create(threadId, {
-      role: "user",
-      content: message,
-    });
-
-    const run = await openai.beta.threads.runs.create(threadId, {
-      assistant_id: ASSISTANT_ID,
-    });
-
-    const completedRun = await waitForRunCompletion(openai, threadId, run.id);
-
-    if (completedRun.status === "failed") {
-      const errorMessage =
-        completedRun.last_error?.message || "A execução falhou.";
+    if (messages && Array.isArray(messages)) {
+      // Filtra qualquer mensagem de sistema enviada pelo cliente para evitar duplicidade
+      apiMessages = messages.filter((msg: any) => msg.role !== "system");
+    } else if (message) {
+      apiMessages = [{ role: "user", content: message }];
+    } else {
       return NextResponse.json(
-        { error: `Erro do assistente: ${errorMessage}` },
-        { status: 500 }
+        { error: "A propriedade 'message' ou 'messages' é obrigatória." },
+        { status: 400 }
       );
     }
 
-    const messages = await openai.beta.threads.messages.list(threadId);
-
-    const assistantMessage = messages.data.find((m) => m.role === "assistant");
+    // Chamada à API de Chat Completions
+    const response = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || "gpt-5.4-mini",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...apiMessages,
+      ],
+    });
 
     const reply =
-      assistantMessage?.content?.[0]?.type === "text"
-        ? assistantMessage.content[0].text.value
-        : "Não foi possível obter uma resposta do assistente.";
+      response.choices[0]?.message?.content ||
+      "Não foi possível obter uma resposta do assistente.";
 
-    return NextResponse.json({ reply, threadId });
+    return NextResponse.json({ reply });
   } catch (error: any) {
     console.error("Erro no endpoint /api/ia/openai:", {
       message: error.message,
@@ -77,3 +53,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

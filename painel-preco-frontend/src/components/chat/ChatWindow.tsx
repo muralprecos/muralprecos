@@ -26,7 +26,6 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
         "Você é um assistente especializado em cotação de preços. Ajude os usuários com questões relacionadas a preços, produtos e comparação de custos de forma útil e profissional.",
     },
   ]);
-  const [threadId, setThreadId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,18 +48,24 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
     setLoading(true);
 
     try {
-      setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+      const userMessageObj = { role: "user" as const, content: userMessage };
+      const updatedMessages = [...messages, userMessageObj];
+      setMessages(updatedMessages);
       setTimeout(() => scrollDown(), 100);
 
       const response = await fetch("/api/ia/openai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage, threadId }),
+        body: JSON.stringify({
+          messages: updatedMessages.filter((msg) => msg.role !== "system"),
+        }),
       });
 
       const data = await response.json();
 
-      if (data.threadId) setThreadId(data.threadId);
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
       setMessages((prev) => [
         ...prev,
