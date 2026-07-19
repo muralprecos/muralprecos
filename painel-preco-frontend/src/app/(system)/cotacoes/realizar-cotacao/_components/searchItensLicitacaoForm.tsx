@@ -109,6 +109,7 @@ export default function SearchItensLicitacaoForm({
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<FormDataCotacao>({
     resolver: zodResolver(schema),
@@ -117,6 +118,15 @@ export default function SearchItensLicitacaoForm({
 
   const ufId = watch("ufId");
   const watchedValues = watch();
+
+  const prevUfIdRef = useRef<string | undefined>(ufId);
+
+  useEffect(() => {
+    if (prevUfIdRef.current !== ufId) {
+      setValue("municipioId", "");
+      prevUfIdRef.current = ufId;
+    }
+  }, [ufId, setValue]);
 
   const fields = useCotacaoFields({
     ufId: ufId ?? undefined,
@@ -280,8 +290,9 @@ export default function SearchItensLicitacaoForm({
           name="descricao"
           control={control}
           placeholder="Descreva o item ou serviço para cotação..."
-          inputClassName="min-h-[100px] resize-none bg-surface-plain"
-          label="Descrição"
+          inputClassName="resize-none bg-surface-plain"
+          label="Descrição *"
+          rows={2}
         />
         <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 text-sm mt-2">
           <div className="flex items-center gap-1.5">
@@ -345,59 +356,62 @@ export default function SearchItensLicitacaoForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <DynamicFormField
-          name="ufId"
-          attr={fields.ufId}
-          control={control}
-          errors={errors}
-          selectedLabel={getSelectedLabel("ufId")}
-          onLabelResolved={(id, label) => setLabel("ufId", id, label)}
-        />
-        <DynamicFormField
-          name="municipioId"
-          attr={fields.municipioId}
-          control={control}
-          errors={errors}
-          selectedLabel={getSelectedLabel("municipioId")}
-          onLabelResolved={(id, label) =>
-            setLabel("municipioId", id, label)
-          }
-        />
-        <DynamicFormField
-          name="regiao"
-          attr={fields.regiao}
-          control={control}
-          errors={errors}
-        />
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DynamicFormField
+            name="periodoCompraId"
+            attr={fields.periodoCompraId}
+            control={control}
+            errors={errors}
+          />
+          <DynamicFormField
+            name="regiao"
+            attr={fields.regiao}
+            control={control}
+            errors={errors}
+          />
+        </div>
 
-        <DynamicFormField
-          name="periodoCompraId"
-          attr={fields.periodoCompraId}
-          control={control}
-          errors={errors}
-        />
-        <DynamicFormField
-          name="ano"
-          attr={fields.ano}
-          control={control}
-          errors={errors}
-        />
-
-        <DynamicFormField
-          name="unidadeFornecimentoId"
-          attr={fields.unidadeFornecimentoId}
-          control={control}
-          errors={errors}
-          selectedLabel={getSelectedLabel("unidadeFornecimentoId")}
-          onLabelResolved={(id, label) =>
-            setLabel("unidadeFornecimentoId", id, label)
-          }
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DynamicFormField
+            name="ufId"
+            attr={fields.ufId}
+            control={control}
+            errors={errors}
+            selectedLabel={getSelectedLabel("ufId")}
+            onLabelResolved={(id, label) => setLabel("ufId", id, label)}
+          />
+          <DynamicFormField
+            name="municipioId"
+            attr={fields.municipioId}
+            control={control}
+            errors={errors}
+            selectedLabel={getSelectedLabel("municipioId")}
+            onLabelResolved={(id, label) =>
+              setLabel("municipioId", id, label)
+            }
+          />
+        </div>
       </div>
 
       {showAdvanced && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <DynamicFormField
+            name="ano"
+            attr={fields.ano}
+            control={control}
+            errors={errors}
+          />
+          <DynamicFormField
+            name="unidadeFornecimentoId"
+            attr={fields.unidadeFornecimentoId}
+            control={control}
+            errors={errors}
+            selectedLabel={getSelectedLabel("unidadeFornecimentoId")}
+            onLabelResolved={(id, label) =>
+              setLabel("unidadeFornecimentoId", id, label)
+            }
+          />
           <DynamicFormField
             name="ugId"
             attr={fields.ugId}

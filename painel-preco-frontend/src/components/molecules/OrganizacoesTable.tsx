@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Building2, Edit, Trash2, Plus, Search, Eye, RefreshCcw, ShieldAlert } from "lucide-react";
+import { Building2, Edit, Trash2, Plus, Search, Eye, EyeOff, RefreshCcw, ShieldAlert } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KeycloakSyncWarning } from "@/components/atoms/KeycloakSyncWarning";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import { MaskedInput } from "@/components/atoms/MaskedInput";
 import { toast } from "sonner";
 import type { Organizacao, OrganizacaoDetalhes } from "@/interfaces/gestao";
+import { UsuarioFormDialog } from "./UsuarioFormDialog";
 
 interface OrganizacoesTableProps {
   organizacoes: Organizacao[];
@@ -65,6 +66,9 @@ export function OrganizacoesTable({
   const [formData, setFormData] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [cnpjLoading, setCnpjLoading] = useState(false);
+
+  // Adicionar usuário à organização
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
 
   const handleCnpjChange = useCallback(async (raw: string, formatted: string) => {
     setFormData((prev) => ({ ...prev, cnpj: formatted }));
@@ -172,6 +176,47 @@ export function OrganizacoesTable({
       });
     } catch (err: any) {
       toast.error(err.message || "Erro ao alterar privilégios do membro");
+    }
+  };
+
+  const handleOpenAddUser = () => {
+    if (!detalhesOrg) return;
+    setIsAddUserDialogOpen(true);
+  };
+
+  const refreshDetalhes = async (orgId: string) => {
+    try {
+      const res = await fetch(`/api/organizacoes/${orgId}/detalhes`);
+      if (res.ok) {
+        const data: OrganizacaoDetalhes = await res.json();
+        const org = organizacoes.find((o) => o.id.toString() === orgId);
+        if (org) {
+          data.detalhesUltimaSincronizacao = org.detalhesUltimaSincronizacao;
+          data.dataUltimaSincronizacao = org.dataUltimaSincronizacao;
+        }
+        setDetalhesOrg(data);
+      }
+    } catch (err) {
+      console.error("Erro ao atualizar detalhes:", err);
+    }
+  };
+
+  const handleAddUserSubmit = async (data: any) => {
+    const res = await fetch("/api/usuarios", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      const raw: string = body?.message ?? body?.error ?? "Erro ao criar usuário";
+      const match = raw.match(/ArchException:\s*(.+)$/);
+      throw new Error(match ? match[1].trim() : raw);
+    }
+
+    if (detalhesOrg) {
+      await refreshDetalhes(detalhesOrg.id.toString());
     }
   };
 
@@ -532,9 +577,20 @@ export function OrganizacoesTable({
                     </div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground text-sm block mb-2">
-                      Membros ({detalhesOrg.membros?.length ?? 0})
-                    </span>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-muted-foreground text-sm block">
+                        Membros ({detalhesOrg.membros?.length ?? 0})
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleOpenAddUser}
+                        className="h-8"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Adicionar Usuário
+                      </Button>
+                    </div>
                     {(detalhesOrg.membros?.length ?? 0) === 0 ? (
                       <p className="text-muted-foreground text-sm">Nenhum membro cadastrado</p>
                     ) : (
@@ -589,6 +645,14 @@ export function OrganizacoesTable({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <UsuarioFormDialog
+        open={isAddUserDialogOpen}
+        onOpenChange={setIsAddUserDialogOpen}
+        editingUser={null}
+        organizacoes={organizacoes}
+        onSave={handleAddUserSubmit}
+        fixedOrganizacaoId={detalhesOrg?.id.toString()}
+      />
     </div>
   );
 }

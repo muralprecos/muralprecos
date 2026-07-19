@@ -103,6 +103,8 @@ export type FieldFormAutocompleteStatic = {
   label: string;
   items: IItemSelect[];
   disableSorting?: boolean;
+  isLoading?: boolean;
+  isDisabled?: boolean;
 };
 export type FieldFormAutocompleteAsync = {
   type: "autocompleteAsync";
