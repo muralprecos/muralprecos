@@ -184,8 +184,6 @@ export default function SearchItensLicitacaoForm({
         ...cleaned,
         page: 0,
         size: queryState.size ?? 10,
-        sort: queryState.sort,
-        dir: queryState.dir,
       };
 
       await setQueryState(nextQuery, { history: "replace" });
@@ -504,8 +502,8 @@ export default function SearchItensLicitacaoForm({
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="flex flex-col gap-1.5 col-span-1 lg:col-start-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5 md:col-start-2">
           <Label className="flex items-center gap-1.5 text-sm font-medium">
             <ArrowUpDown className="w-4 h-4" />
             Ordenação

@@ -11,10 +11,10 @@ Obtém o token de acesso da aplicação.
 ```json
 {
   "client_id": "mural-preco",
-  "client_secret": "REDACTED-KEYCLOAK-SECRET",
+  "client_secret": "XPTO",
   "grant_type": "password",
-  "username": "usertester",
-  "password": "REDACTED-PASSWORD"
+  "username": "[EMAIL_ADDRESS]",
+  "password": "[PASSWORD]"
 }
 ```
 
