@@ -26,7 +26,7 @@ export type CotacaoQueryState = {
   page?: number | null;
   size?: number | null;
   sort?: string | null;
-  dir?: SortDir | string | null;
+  dir?: SortDir | null;
 };
 
 

@@ -82,13 +82,24 @@ export default function ListagemCotacaoClient({
   const [isEditingFilters, setIsEditingFilters] = useState(false);
   const [isClosingFilters, setIsClosingFilters] = useState(false);
 
-  const currentSort = searchParams.get("sort") ?? "";
+  const sortParam = searchParams.get("sort") ?? "";
+  const dirParam = searchParams.get("dir") ?? "";
+  const currentSort = sortParam ? (dirParam ? `${sortParam},${dirParam}` : sortParam) : "";
 
   const handleSortChange = (newSort: string) => {
     let info = searchParamsToInfo(searchParams);
     info = extractParamSearch(info, "sort");
+    info = extractParamSearch(info, "dir");
     if (newSort) {
-      info = forceParamSearch(info, "sort", newSort);
+      const parts = newSort.split(",");
+      const sortVal = parts[0];
+      const dirVal = parts[1];
+      if (sortVal) {
+        info = forceParamSearch(info, "sort", sortVal);
+      }
+      if (dirVal) {
+        info = forceParamSearch(info, "dir", dirVal);
+      }
     }
     info = forceParamSearch(info, "page", "0");
     router.push(mountUrl({ host: "", path: pathname, info }));

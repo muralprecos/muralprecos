@@ -48,6 +48,9 @@ export default function DynamicFormField({
         items={attr.items}
         errors={errors}
         disableSorting={attr.disableSorting}
+        isLoading={attr.isLoading}
+        isDisabled={attr.isDisabled}
+        onLabelResolved={onLabelResolved}
       />
     );
   }

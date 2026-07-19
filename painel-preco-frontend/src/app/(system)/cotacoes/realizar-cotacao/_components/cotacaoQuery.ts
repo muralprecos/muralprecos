@@ -57,6 +57,7 @@ export const defaultFormValues: FormDataCotacao = {
   descricaoComplementar: "",
   situacaoId: "",
   unidadeFornecimentoId: "",
+  sort: "dataResultadoCompra,desc",
 };
 
 const cleanString = (value: string | null | undefined) => {
@@ -68,6 +69,10 @@ const cleanString = (value: string | null | undefined) => {
 };
 
 export const queryToFormValues = (query: CotacaoQueryState): FormDataCotacao => {
+  let sortVal = "dataResultadoCompra,desc";
+  if (query.sort) {
+    sortVal = query.dir ? `${query.sort},${query.dir}` : query.sort;
+  }
   return {
     ano: query.ano ?? "",
     porteFornecedorId: query.porteFornecedorId ?? "",
@@ -89,10 +94,15 @@ export const queryToFormValues = (query: CotacaoQueryState): FormDataCotacao => 
     descricaoComplementar: query.descricaoComplementar ?? "",
     situacaoId: query.situacaoId ?? "",
     unidadeFornecimentoId: query.unidadeFornecimentoId ?? "",
+    sort: sortVal,
   };
 };
 
 export const formValuesToQuery = (values: FormDataCotacao): CotacaoQueryState => {
+  const sortParts = values.sort ? values.sort.split(",") : [];
+  const sortParam = sortParts[0] || null;
+  const dirParam = (sortParts[1] === "asc" || sortParts[1] === "desc" ? sortParts[1] : null) as "asc" | "desc" | null;
+
   return {
     ano: cleanString(values.ano),
     porteFornecedorId: cleanString(values.porteFornecedorId),
@@ -114,6 +124,8 @@ export const formValuesToQuery = (values: FormDataCotacao): CotacaoQueryState =>
     descricaoComplementar: cleanString(values.descricaoComplementar),
     situacaoId: cleanString(values.situacaoId),
     unidadeFornecimentoId: cleanString(values.unidadeFornecimentoId),
+    sort: sortParam,
+    dir: dirParam,
   };
 };
 
