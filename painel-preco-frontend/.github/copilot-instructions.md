@@ -38,7 +38,13 @@
 - Avoid hardcoding secrets or environment-sensitive values.
 - Do not change docker/deploy targets unless explicitly requested.
 
-## Environment Conventions
+## Environment & Analytics Conventions
 - In this Next.js app, `NODE_ENV` must remain `development` or `production`.
 - Use `NEXT_PUBLIC_APP_ENV` for application-level environment cues such as `development`, `homolog`, and `production`.
 - Homolog must behave like production at framework/runtime level, so use `NODE_ENV=production` together with `NEXT_PUBLIC_APP_ENV=homolog`.
+- **Google Analytics (GA4):**
+  - Integrated via `@next/third-parties/google` in `RootLayout`.
+  - Resolution: `process.env.GA_MEASUREMENT_ID` (runtime server environment variable).
+  - CI/CD Workflows (`.github/workflows/`):
+    - `homolog.yml` passes `GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID_HMG }}` as build-arg.
+    - `main.yml` passes `GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID_PROD }}` as build-arg.

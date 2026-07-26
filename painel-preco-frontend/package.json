@@ -1,6 +1,6 @@
 {
   "name": "painel-preco-frontend",
-  "version": "2.5.16",
+  "version": "2.5.17",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@iconify/react": "^6.0.0",
+    "@next/third-parties": "^16.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
