@@ -68,10 +68,19 @@ export const apiClientGetListObjetoCompra = async (info: IAPISearchInfo[]) => {
 export const apiClientGetListMunicipios = async (info: IAPISearchInfo[]) => {
   const uuiduf = getValParamSearch(info, "uuiduf");
   const nome = getValParamSearch(info, "nome");
+  const page = getValParamSearch(info, "page");
+  const size = getValParamSearch(info, "size");
 
-  const res = await fetch(
-    `/api/autocomplete/unidades-federativas/${uuiduf}/municipios/${nome}`
-  );
+  const searchParams = new URLSearchParams();
+  if (page) searchParams.set("page", page);
+  if (size) searchParams.set("size", size);
+  const queryStr = searchParams.toString();
+
+  const url = `/api/autocomplete/unidades-federativas/${uuiduf}/municipios/${nome}${
+    queryStr ? `?${queryStr}` : ""
+  }`;
+
+  const res = await fetch(url);
   const data = await res.json();
   return data;
 };

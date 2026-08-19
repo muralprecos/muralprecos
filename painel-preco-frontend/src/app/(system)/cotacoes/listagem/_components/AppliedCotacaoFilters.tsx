@@ -48,7 +48,7 @@ const FILTER_LABELS: Partial<Record<keyof CotacaoQueryState, string>> = {
   materialId: "Material",
   objeto: "Objeto",
   descricaoComplementar: "Descricao Complementar",
-  sort: "Ordenacao",
+  sort: "Ordenação",
 };
 
 const hiddenFilters: Array<keyof CotacaoQueryState> = ["page", "size", "dir", "tipoBuscaDescricao"];
@@ -91,9 +91,14 @@ export default function AppliedCotacaoFilters({
         const text = String(rawValue).trim();
         if (!text || text === "0") return null;
 
-        const cached = getLabel(key, text);
-        const fromLookup = staticLookup.get(`${key}:${text}`);
-        const valueLabel = cached ?? fromLookup ?? text;
+        let lookupText = text;
+        if (key === "sort" && queryState.sort) {
+          lookupText = queryState.dir ? `${queryState.sort},${queryState.dir}` : queryState.sort;
+        }
+
+        const cached = getLabel(key, lookupText);
+        const fromLookup = staticLookup.get(`${key}:${lookupText}`);
+        const valueLabel = cached ?? fromLookup ?? lookupText;
         const keyLabel = FILTER_LABELS[key] ?? key;
         let display = `${keyLabel}: ${valueLabel}`;
 
