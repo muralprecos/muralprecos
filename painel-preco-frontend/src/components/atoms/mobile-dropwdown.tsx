@@ -1,4 +1,4 @@
-import { User, Settings, Users, LogOut } from "lucide-react";
+import { User, Users, LogOut, UserPen, Cog } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +14,8 @@ import { useEffect, useState } from "react";
 import { getIdleRemainingMs } from "@/lib/session-idle-state";
 import { useAuthSession } from "@/context/AuthContext";
 import { ROLES, hasRole } from "@/lib/authorization/roles";
+import { environmentBadgeLabel } from "@/lib/app-environment";
+import { cn } from "@/lib/utils";
 
 interface ProfileDropdownProps {
   variant?: "desktop" | "mobile";
@@ -75,7 +77,14 @@ export function ProfileDropdown({
             </div>
           </button>
         ) : (
-          <button className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            className={cn(
+              "w-10 h-10 rounded-full bg-card flex items-center justify-center transition-colors",
+              environmentBadgeLabel
+                ? "text-amber-600 hover:text-amber-500"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
             <User className="w-5 h-5" />
           </button>
         )}
@@ -104,16 +113,18 @@ export function ProfileDropdown({
         )}
         <DropdownMenuItem className="cursor-pointer" asChild>
           <Link href="/usuario/perfil">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Configurações</span>
+            <UserPen className="mr-2 h-4 w-4" />
+            <span>Perfil</span>
           </Link>
         </DropdownMenuItem>
 
         {isAdmin && (
           <DropdownMenuItem className="cursor-pointer" asChild>
-            <Link href="/gestao-usuarios">
-              <Users className="mr-2 h-4 w-4" />
-              <span>Gestão de Usuários</span>
+            <Link href="/administracao">
+              <div className="flex items-center gap-2">
+                <Cog className="h-4 w-4" />
+                <span>Área Administrativa</span>
+              </div>
             </Link>
           </DropdownMenuItem>
         )}
@@ -137,7 +148,7 @@ export function ProfileDropdown({
         <div className="px-2 py-1 text-xs text-muted-foreground space-y-0.5">
           <div className="text-right">v{pkg.version}</div>
         </div>
-        
+
         <div className="hidden px-2 py-1 text-xs text-muted-foreground space-y-0.5">
           {sessionStart && (
             <div>Sessão desde {new Date(sessionStart).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>

@@ -35,7 +35,6 @@ import PaginationFooterMobile from "@/components/molecules/PaginationFooterMobil
 import { FIELDS_COTACOES_LIST } from "@/hooks/api";
 import {
   buildBackendParams,
-  normalizeLegacySearchParams,
   type CotacaoQueryState,
 } from "@/app/(system)/cotacoes/realizar-cotacao/_components/buildBackendParams";
 import { paramsToInfo } from "@/app/(system)/cotacoes/realizar-cotacao/_components/paramsToInfo";
@@ -83,13 +82,24 @@ export default function ListagemCotacaoClient({
   const [isEditingFilters, setIsEditingFilters] = useState(false);
   const [isClosingFilters, setIsClosingFilters] = useState(false);
 
-  const currentSort = searchParams.get("sort") ?? "";
+  const sortParam = searchParams.get("sort") ?? "";
+  const dirParam = searchParams.get("dir") ?? "";
+  const currentSort = sortParam ? (dirParam ? `${sortParam},${dirParam}` : sortParam) : "";
 
   const handleSortChange = (newSort: string) => {
     let info = searchParamsToInfo(searchParams);
     info = extractParamSearch(info, "sort");
+    info = extractParamSearch(info, "dir");
     if (newSort) {
-      info = forceParamSearch(info, "sort", newSort);
+      const parts = newSort.split(",");
+      const sortVal = parts[0];
+      const dirVal = parts[1];
+      if (sortVal) {
+        info = forceParamSearch(info, "sort", sortVal);
+      }
+      if (dirVal) {
+        info = forceParamSearch(info, "dir", dirVal);
+      }
     }
     info = forceParamSearch(info, "page", "0");
     router.push(mountUrl({ host: "", path: pathname, info }));
@@ -102,20 +112,9 @@ export default function ListagemCotacaoClient({
   const [paginationInfo, setPaginationInfo] =
     useState<IReturnRequestAPI<IRetornoPesquisaItensLicitacao> | null>(null);
 
-  const legacyNormalization = useMemo(
-    () => normalizeLegacySearchParams(searchParams),
-    [searchParams],
-  );
+
 
   useEffect(() => {
-    if (legacyNormalization.changed) {
-      const query = legacyNormalization.params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname);
-    }
-  }, [legacyNormalization, router, pathname]);
-
-  useEffect(() => {
-    if (legacyNormalization.changed) return;
 
     const fetchData = async () => {
       if (isClientNextjs()) {
@@ -148,7 +147,7 @@ export default function ListagemCotacaoClient({
     fetchData().catch((e) => {
       catchErrorFromFetch(e, "carregar item");
     });
-  }, [queryState, legacyNormalization.changed]);
+  }, [queryState]);
 
   useEffect(() => {
     return () => {

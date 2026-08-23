@@ -17,6 +17,7 @@ interface Props<P extends FieldValues> extends UseControllerProps<P> {
   label: string;
   errors?: Record<string, any>;
   className?: string;
+  disableSorting?: boolean;
 }
 
 export default function SelectForm<P extends FieldValues>({
@@ -26,6 +27,7 @@ export default function SelectForm<P extends FieldValues>({
   items,
   errors,
   className,
+  disableSorting,
 }: Props<P>) {
   const error = errors?.[name]?.message;
 
@@ -41,11 +43,18 @@ export default function SelectForm<P extends FieldValues>({
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
-              {items.map((item) => (
+              {(() => {
+                const sortedItems = disableSorting 
+                  ? items 
+                  : [...items].sort((a, b) => 
+                      a.label.trim().localeCompare(b.label.trim())
+                    );
+                return sortedItems.map((item) => (
                 <SelectItem key={item.value} value={item.value}>
                   {item.label}
                 </SelectItem>
-              ))}
+                ));
+              })()}
             </SelectContent>
           </Select>
         )}

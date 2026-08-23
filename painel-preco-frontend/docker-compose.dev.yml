@@ -11,9 +11,10 @@ services:
       - /app/node_modules
       - /app/.next
     ports:
-      - "3000:3000"
+      - "3300:3000"
     environment:
       - NODE_ENV=development
+      - NEXT_PUBLIC_APP_ENV=development
       - NEXT_TELEMETRY_DISABLED=1
       - HOSTNAME=${HOSTNAME:-0.0.0.0}
       - API_URL=${API_URL:-http://172.17.0.1:8080}
@@ -21,3 +22,4 @@ services:
       - AUTH_SECRET=${AUTH_SECRET:-secret}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - OPENAI_ASSISTANT_ID=${OPENAI_ASSISTANT_ID:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-}

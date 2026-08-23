@@ -6,6 +6,18 @@ import {
   ISimpleObjetoAPI,
 } from "@/interfaces/types";
 
+export enum TipoBuscaDescricao {
+  QUALQUER_PALAVRA = "QUALQUER_PALAVRA",
+  TODAS_PALAVRAS = "TODAS_PALAVRAS",
+  FRASE_EXATA = "FRASE_EXATA",
+}
+
+export const TipoBuscaDescricaoLabel: Record<TipoBuscaDescricao, string> = {
+  [TipoBuscaDescricao.QUALQUER_PALAVRA]: "Qualquer palavra",
+  [TipoBuscaDescricao.TODAS_PALAVRAS]: "Todas as palavras",
+  [TipoBuscaDescricao.FRASE_EXATA]: "Frase exata",
+};
+
 export const SORT_OPTIONS: IItemSelect[] = [
   { value: "", label: "Relevância (padrão)" },
   { value: "valorUnitario,asc", label: "Valor Unitário (menor primeiro)" },
@@ -51,7 +63,9 @@ export const schema = z.object({
   periodoCompraId: z.string().min(1, ZodStrings.required || "Campo obrigatório"),
 
   descricao: z.string().min(1, ZodStrings.required || "Campo obrigatório"), 
+  tipoBuscaDescricao: z.nativeEnum(TipoBuscaDescricao).optional(),
 
+  regiao: optionalString,
   ufId: optionalString,
   municipioId: optionalString,
   orgaoSuperiorId: optionalString,
@@ -82,16 +96,21 @@ export type FieldFormSelect = {
   type: "select";
   label: string;
   items: IItemSelect[];
+  disableSorting?: boolean;
 };
 export type FieldFormAutocompleteStatic = {
   type: "autocompletStatic";
   label: string;
   items: IItemSelect[];
+  disableSorting?: boolean;
+  isLoading?: boolean;
+  isDisabled?: boolean;
 };
 export type FieldFormAutocompleteAsync = {
   type: "autocompleteAsync";
   label: string;
   auto: FieldAutocompleteAsync<any>;
+  disableSorting?: boolean;
 };
 export type FieldFormTypes =
   | FieldFormSelect

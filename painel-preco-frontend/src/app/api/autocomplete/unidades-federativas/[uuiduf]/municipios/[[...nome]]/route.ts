@@ -17,5 +17,15 @@ export async function GET(
     info.push({ param: "nome", val: resolvedParams.nome[0] });
   }
 
+  const { searchParams } = new URL(request.url);
+  const page = searchParams.get("page");
+  const size = searchParams.get("size");
+  if (page) {
+    info.push({ param: "page", val: page });
+  }
+  if (size) {
+    info.push({ param: "size", val: size });
+  }
+
   return genericGET(getListMunicipios, info);
 }

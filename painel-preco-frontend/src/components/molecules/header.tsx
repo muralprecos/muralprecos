@@ -7,6 +7,9 @@ import { usePathname } from "next/navigation";
 import { useAuthSession } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { ThemeTogglerButton } from "../animate-ui/components/buttons/theme-toggler";
+import { environmentBadgeLabel } from "@/lib/app-environment";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { setSessionData, clearSessionData } from "@/store/features/session-slice";
 
 import { ProfileDropdown } from "../atoms/mobile-dropwdown";
 
@@ -22,6 +25,12 @@ const cotacaoNavItems = [
   { label: "Validar Cotação", path: "/cotacoes/validar-cotacao" },
 ];
 
+const adminNavItems = [
+  { label: "Organizações", path: "/administracao/organizacoes" },
+  { label: "Usuários", path: "/administracao/usuarios" },
+  { label: "Sincronização", path: "/administracao/sincronizacao" },
+];
+
 const cotacaoBaseRoutes = [
   "/cotacoes",
   "/cotacoes/realizar-cotacao",
@@ -31,7 +40,7 @@ const cotacaoBaseRoutes = [
   "/cotacoes/listagem",
 ];
 
-const hiddenNavRoutes = ["/gestao-usuarios", "/usuario/perfil"];
+const hiddenNavRoutes = ["/gestao-organizacao", "/usuario/perfil"];
 
 interface DashboardHeaderProps {
   onMenuClick?: () => void;
@@ -46,28 +55,21 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     pathname.startsWith(route),
   );
 
+  const isAdminSection = pathname.startsWith("/administracao");
+
   const showNav = !hiddenNavRoutes.includes(pathname);
 
-  const navItems = isCotacaoSection ? cotacaoNavItems : dashboardNavItems;
+  const navItems = isCotacaoSection ? cotacaoNavItems : isAdminSection ? adminNavItems : dashboardNavItems;
+
+  const dispatch = useAppDispatch();
+  const sessionState = useAppSelector((state) => state.sessionReducer);
 
   const STR_LOADING = "";
-
-  const [name, setName] = useState(STR_LOADING);
-  const [org, setOrg] = useState(STR_LOADING);
+  const name = sessionState.name || STR_LOADING;
+  const org = sessionState.org || STR_LOADING;
 
   useEffect(() => {
     setMounted(true);
-
-    try {
-      const cached = localStorage.getItem("userSessionCache");
-      if (cached) {
-        const { name: cachedName, org: cachedOrg } = JSON.parse(cached);
-        setName(cachedName);
-        setOrg(cachedOrg);
-      }
-    } catch (error) {
-      console.error("Erro ao carregar cache de sessão:", error);
-    }
   }, []);
 
   useEffect(() => {
@@ -82,46 +84,22 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       const userName = userInfo.name || "Usuário";
       const tokenOrg = userInfo.organizacao?.nome;
 
-      setName(userName);
-
       if (tokenOrg) {
-        setOrg(tokenOrg);
-        try {
-          localStorage.setItem(
-            "userSessionCache",
-            JSON.stringify({ name: userName, org: tokenOrg }),
-          );
-        } catch (error) {
-          console.error("Erro ao salvar cache de sessão:", error);
-        }
+        dispatch(setSessionData({ name: userName, org: tokenOrg }));
       } else {
         // org não está no token — busca no backend
         fetch("/api/usuarios/me")
           .then((res) => res.ok ? res.json() : null)
           .then((data) => {
             const orgName: string = data?.organizacaoNome || "Sem Organização";
-            setOrg(orgName);
-            try {
-              localStorage.setItem(
-                "userSessionCache",
-                JSON.stringify({ name: userName, org: orgName }),
-              );
-            } catch {
-              // silently ignore
-            }
+            dispatch(setSessionData({ name: userName, org: orgName }));
           })
-          .catch(() => setOrg("Sem Organização"));
+          .catch(() => dispatch(setSessionData({ name: userName, org: "Sem Organização" })));
       }
     } else if (status === "unauthenticated") {
-      setName("");
-      setOrg("");
-      try {
-        localStorage.removeItem("userSessionCache");
-      } catch (error) {
-        console.error("Erro ao limpar cache de sessão:", error);
-      }
+      dispatch(clearSessionData());
     }
-  }, [session, status, update]);
+  }, [session, status, update, dispatch]);
 
   return (
     <header className="flex items-center justify-between mb-8 animate-fade-in relative bg-transparent">
@@ -149,8 +127,13 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         <div className="w-8 h-8 rounded-xl items-center justify-center">
           <img src="/assets/logo-tt.png" alt="Logo TT" />
         </div>
-        <span className="text-foreground font-semibold text-lg">
+        <span className="flex items-center gap-2 text-foreground font-semibold text-lg">
           Mural de Preços
+          {environmentBadgeLabel && (
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
+              {environmentBadgeLabel}
+            </span>
+          )}
         </span>
       </Link>
 

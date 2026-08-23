@@ -36,6 +36,7 @@ interface IProps<T extends ISimpleObjetoAPI, P extends FieldValues>
   placeholder?: string;
   selectedLabel?: string;
   onLabelResolved?: (id: string, label: string) => void;
+  disableSorting?: boolean;
 }
 
 export function AutocompleteAsyncForm<
@@ -52,6 +53,7 @@ export function AutocompleteAsyncForm<
   placeholder = "Digite para buscar...",
   selectedLabel,
   onLabelResolved,
+  disableSorting,
 }: IProps<T, P>) {
   const [open, setOpen] = useState(false);
 
@@ -125,7 +127,16 @@ export function AutocompleteAsyncForm<
                     {messages.FORM_AUTOCOMPLETE_EMPTY}
                   </CommandEmpty>
                   <CommandGroup>
-                    {autocompleteHook.items.map((item) => {
+                    {(() => {
+                      const sortedItems = disableSorting
+                        ? autocompleteHook.items
+                        : [...autocompleteHook.items].sort((a, b) => {
+                            const nameA = (a.nome || "").trim();
+                            const nameB = (b.nome || "").trim();
+                            return nameA.localeCompare(nameB);
+                          });
+                      
+                      return sortedItems.map((item) => {
                       const itemId = item[attrVal] + "";
                       return (
                         <CommandItem
@@ -147,7 +158,8 @@ export function AutocompleteAsyncForm<
                           {item.nome}
                         </CommandItem>
                       );
-                    })}
+                    });
+                    })()}
                   </CommandGroup>
                 </Command>
               </PopoverContent>

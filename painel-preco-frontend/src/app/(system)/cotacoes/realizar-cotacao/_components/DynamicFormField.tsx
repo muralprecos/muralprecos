@@ -34,6 +34,7 @@ export default function DynamicFormField({
         control={control}
         items={attr.items}
         errors={errors}
+        disableSorting={attr.disableSorting}
       />
     );
   }
@@ -46,6 +47,10 @@ export default function DynamicFormField({
         control={control}
         items={attr.items}
         errors={errors}
+        disableSorting={attr.disableSorting}
+        isLoading={attr.isLoading}
+        isDisabled={attr.isDisabled}
+        onLabelResolved={onLabelResolved}
       />
     );
   }
@@ -62,6 +67,7 @@ export default function DynamicFormField({
         autocompleteHook={attr.auto.async}
         selectedLabel={selectedLabel}
         onLabelResolved={onLabelResolved}
+        disableSorting={attr.disableSorting}
       />
     );
   }

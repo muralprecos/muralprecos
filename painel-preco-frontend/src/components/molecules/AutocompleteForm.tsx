@@ -15,11 +15,12 @@ import {
 import { cn } from "@/lib/utils";
 import {
   Controller,
+  useWatch,
   type FieldValues,
   type UseControllerProps,
 } from "react-hook-form";
 import { Check, ChevronsUpDown, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
 interface IItem {
@@ -33,6 +34,10 @@ interface Props<T extends FieldValues> extends UseControllerProps<T> {
   placeholder?: string;
   className?: string;
   errors?: Record<string, any>;
+  disableSorting?: boolean;
+  isLoading?: boolean;
+  isDisabled?: boolean;
+  onLabelResolved?: (id: string, label: string) => void;
 }
 
 export default function AutocompleteForm<T extends FieldValues>({
@@ -43,9 +48,22 @@ export default function AutocompleteForm<T extends FieldValues>({
   placeholder = "Digite para buscar...",
   className,
   errors,
+  disableSorting,
+  isLoading,
+  isDisabled,
+  onLabelResolved,
 }: Props<T>) {
   const error = errors?.[name]?.message;
   const [open, setOpen] = useState(false);
+
+  const value = useWatch({ control, name });
+  const selectedItem = items.find((item) => item.value === value);
+
+  useEffect(() => {
+    if (value && selectedItem && onLabelResolved) {
+      onLabelResolved(value, selectedItem.label);
+    }
+  }, [value, selectedItem, onLabelResolved]);
 
   return (
     <div className={cn("w-full", className)}>
@@ -57,7 +75,9 @@ export default function AutocompleteForm<T extends FieldValues>({
           const selectedItem = items.find((item) => item.value === field.value);
 
           return (
-            <Popover open={open} onOpenChange={setOpen}>
+            <Popover open={open && !isDisabled && !isLoading} onOpenChange={(val) => {
+              if (!isDisabled && !isLoading) setOpen(val);
+            }}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -67,9 +87,14 @@ export default function AutocompleteForm<T extends FieldValues>({
                     "w-full justify-between",
                     !field.value && "text-muted-foreground"
                   )}
+                  disabled={isDisabled || isLoading}
                   onClick={() => setOpen(!open)}
                 >
-                  {selectedItem?.label || placeholder}
+                  {isLoading
+                    ? name === "municipioId"
+                      ? "Carregando Municípios..."
+                      : "Carregando..."
+                    : selectedItem?.label || placeholder}
                   <div className="flex items-center">
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     {field.value && (
@@ -92,12 +117,19 @@ export default function AutocompleteForm<T extends FieldValues>({
                   <CommandInput placeholder={placeholder} className="h-9" />
                   <CommandEmpty>Nenhuma opção encontrada.</CommandEmpty>
                   <CommandGroup>
-                    {items.map((item) => (
+                    {(() => {
+                      const sortedItems = disableSorting 
+                        ? items 
+                        : [...items].sort((a, b) => 
+                            a.label.trim().localeCompare(b.label.trim())
+                          );
+                      return sortedItems.map((item) => (
                       <CommandItem
                         key={item.value}
                         value={item.label}
                         onSelect={() => {
                           field.onChange(item.value);
+                          onLabelResolved?.(item.value, item.label);
                           setOpen(false);
                         }}
                       >
@@ -111,7 +143,8 @@ export default function AutocompleteForm<T extends FieldValues>({
                         />
                         {item.label}
                       </CommandItem>
-                    ))}
+                      ));
+                    })()}
                   </CommandGroup>
                 </Command>
               </PopoverContent>

@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import ChatWidget from "@/components/organisms/ChatWidget";
 import { NotifyToaster } from "@/components/molecules/NotifyToast";
 import { SessionKeepalive } from "@/components/atoms/SessionKeepalive";
+import { GoogleAnalytics } from "@next/third-parties/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
+  const gaId = process.env.GA_MEASUREMENT_ID;
 
   return (
     <html lang="pt-br" suppressHydrationWarning>
@@ -38,6 +40,7 @@ export default async function RootLayout({
             {session && <SessionKeepalive />}
           </main>
         </Providers>
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   );

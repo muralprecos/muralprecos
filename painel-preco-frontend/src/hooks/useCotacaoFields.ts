@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAutocompleteFilter } from "@/hooks/autocomplete/useAutocompleteFilter";
 import {
   apiClientGetListFornecedores,
@@ -52,12 +52,69 @@ export function useCotacaoFields({
 }: Props): FieldsForms {
   const hasUF = ufId != null && ufId !== "";
 
-  const autoMunicipio = useAutocompleteFilter<IMunicipio>({
-    minCharactersLoad: 0,
-    params: ["nome"],
-    getList: apiClientGetListMunicipios,
-    infos: ufId ? [{ val: ufId, param: "uuiduf" }] : [],
-  });
+  const [municipios, setMunicipios] = useState<IItemSelect[]>([]);
+  const [loadingMunicipios, setLoadingMunicipios] = useState(false);
+
+  useEffect(() => {
+    if (!ufId) {
+      setMunicipios([]);
+      setLoadingMunicipios(false);
+      return;
+    }
+
+    let active = true;
+    const fetchMunicipios = async () => {
+      setLoadingMunicipios(true);
+      try {
+        let currentPage = 0;
+        let allMunicipios: IMunicipio[] = [];
+        let totalElements = 0;
+
+        do {
+          const res = await apiClientGetListMunicipios([
+            { param: "uuiduf", val: ufId },
+            { param: "nome", val: "" },
+            { param: "page", val: String(currentPage) },
+            { param: "size", val: "50" },
+          ]);
+
+          if (active && res) {
+            if (Array.isArray(res.content)) {
+              allMunicipios = allMunicipios.concat(res.content);
+            }
+            totalElements = res.totalElements ?? 0;
+          } else {
+            break;
+          }
+
+          currentPage++;
+        } while (active && allMunicipios.length < totalElements && totalElements > 0);
+
+        if (active) {
+          const items = allMunicipios.map((m: IMunicipio) => ({
+            value: m.uuid,
+            label: m.nome,
+          }));
+          setMunicipios(items);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar municípios:", error);
+        if (active) {
+          setMunicipios([]);
+        }
+      } finally {
+        if (active) {
+          setLoadingMunicipios(false);
+        }
+      }
+    };
+
+    fetchMunicipios();
+
+    return () => {
+      active = false;
+    };
+  }, [ufId]);
 
   const autoOrgaoSuperior = useAutocompleteFilter<IOrgao>({
     getList: apiClientGetListOrgaosSuperiores,
@@ -113,13 +170,25 @@ export function useCotacaoFields({
       },
       periodoCompraId: {
         type: "autocompletStatic",
-        label: "Período da Compra",
+        label: "Período da Compra *",
         items: compraPeriodos,
+        disableSorting: true,
       },
       situacaoId: {
         type: "autocompletStatic",
         label: "Situação da Licitação",
         items: situacoesLicitacoes,
+      },
+      regiao: {
+        type: "autocompletStatic",
+        label: "Região",
+        items: [
+          { value: "Norte", label: "Norte" },
+          { value: "Nordeste", label: "Nordeste" },
+          { value: "Centro-Oeste", label: "Centro-Oeste" },
+          { value: "Sul", label: "Sul" },
+          { value: "Sudeste", label: "Sudeste" }
+        ],
       },
       ufId: {
         type: "autocompletStatic",
@@ -127,13 +196,12 @@ export function useCotacaoFields({
         items: unidadesFederativas,
       },
       municipioId: {
-        type: "autocompleteAsync",
+        type: "autocompletStatic",
         label: "Município",
-        auto: {
-          async: autoMunicipio,
-          attrVal: "uuid",
-          isDisabled: !hasUF,
-        },
+        items: municipios,
+        disableSorting: false,
+        isLoading: loadingMunicipios,
+        isDisabled: !hasUF,
       },
       orgaoSuperiorId: {
         type: "autocompleteAsync",
@@ -199,7 +267,8 @@ export function useCotacaoFields({
       compraPeriodos,
       situacoesLicitacoes,
       unidadesFederativas,
-      autoMunicipio,
+      municipios,
+      loadingMunicipios,
       autoOrgaoSuperior,
       autoOrgao,
       autoFornecedor,

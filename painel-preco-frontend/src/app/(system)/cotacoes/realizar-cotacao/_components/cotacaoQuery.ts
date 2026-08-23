@@ -5,12 +5,14 @@ import {
   useQueryStates,
 } from "nuqs";
 import type { CotacaoQueryState, SortDir } from "./buildBackendParams";
-import type { FormDataCotacao } from "./utils";
+import { FormDataCotacao, TipoBuscaDescricao } from "./utils";
 
 export const cotacaoQueryParsers = {
   descricao: parseAsString,
+  tipoBuscaDescricao: parseAsString,
   periodoCompraId: parseAsString,
   ano: parseAsString,
+  regiao: parseAsString,
   ufId: parseAsString,
   municipioId: parseAsString,
   ugId: parseAsString,
@@ -42,6 +44,8 @@ export const defaultFormValues: FormDataCotacao = {
   modalidadeId: "",
   periodoCompraId: "",
   descricao: "",
+  tipoBuscaDescricao: TipoBuscaDescricao.TODAS_PALAVRAS,
+  regiao: "",
   ufId: "",
   municipioId: "",
   orgaoSuperiorId: "",
@@ -53,6 +57,7 @@ export const defaultFormValues: FormDataCotacao = {
   descricaoComplementar: "",
   situacaoId: "",
   unidadeFornecimentoId: "",
+  sort: "dataResultadoCompra,desc",
 };
 
 const cleanString = (value: string | null | undefined) => {
@@ -64,6 +69,10 @@ const cleanString = (value: string | null | undefined) => {
 };
 
 export const queryToFormValues = (query: CotacaoQueryState): FormDataCotacao => {
+  let sortVal = "dataResultadoCompra,desc";
+  if (query.sort) {
+    sortVal = query.dir ? `${query.sort},${query.dir}` : query.sort;
+  }
   return {
     ano: query.ano ?? "",
     porteFornecedorId: query.porteFornecedorId ?? "",
@@ -72,6 +81,8 @@ export const queryToFormValues = (query: CotacaoQueryState): FormDataCotacao => 
     modalidadeId: query.modalidadeId ?? "",
     periodoCompraId: query.periodoCompraId ?? "",
     descricao: query.descricao ?? "",
+    tipoBuscaDescricao: (query.tipoBuscaDescricao as TipoBuscaDescricao) ?? TipoBuscaDescricao.TODAS_PALAVRAS,
+    regiao: query.regiao ?? "",
     ufId: query.ufId ?? "",
     municipioId: query.municipioId ?? "",
     orgaoSuperiorId: query.orgaoSuperiorId ?? "",
@@ -83,10 +94,15 @@ export const queryToFormValues = (query: CotacaoQueryState): FormDataCotacao => 
     descricaoComplementar: query.descricaoComplementar ?? "",
     situacaoId: query.situacaoId ?? "",
     unidadeFornecimentoId: query.unidadeFornecimentoId ?? "",
+    sort: sortVal,
   };
 };
 
 export const formValuesToQuery = (values: FormDataCotacao): CotacaoQueryState => {
+  const sortParts = values.sort ? values.sort.split(",") : [];
+  const sortParam = sortParts[0] || null;
+  const dirParam = (sortParts[1] === "asc" || sortParts[1] === "desc" ? sortParts[1] : null) as "asc" | "desc" | null;
+
   return {
     ano: cleanString(values.ano),
     porteFornecedorId: cleanString(values.porteFornecedorId),
@@ -95,6 +111,8 @@ export const formValuesToQuery = (values: FormDataCotacao): CotacaoQueryState =>
     modalidadeId: cleanString(values.modalidadeId),
     periodoCompraId: cleanString(values.periodoCompraId),
     descricao: cleanString(values.descricao),
+    tipoBuscaDescricao: cleanString(values.tipoBuscaDescricao),
+    regiao: cleanString(values.regiao),
     ufId: cleanString(values.ufId),
     municipioId: cleanString(values.municipioId),
     orgaoSuperiorId: cleanString(values.orgaoSuperiorId),
@@ -106,6 +124,8 @@ export const formValuesToQuery = (values: FormDataCotacao): CotacaoQueryState =>
     descricaoComplementar: cleanString(values.descricaoComplementar),
     situacaoId: cleanString(values.situacaoId),
     unidadeFornecimentoId: cleanString(values.unidadeFornecimentoId),
+    sort: sortParam,
+    dir: dirParam,
   };
 };
 

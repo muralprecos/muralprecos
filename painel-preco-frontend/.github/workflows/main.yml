@@ -39,6 +39,9 @@ jobs:
           platforms: linux/amd64
           provenance: false
           sbom: false
+          build-args: |
+            NEXT_PUBLIC_APP_ENV=production
+            GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID_PROD }}
           tags: |
             ghcr.io/ttsolutionspi/painel-precos-frontend:${{ steps.get_version.outputs.VERSION }}
             ghcr.io/ttsolutionspi/painel-precos-frontend:latest
