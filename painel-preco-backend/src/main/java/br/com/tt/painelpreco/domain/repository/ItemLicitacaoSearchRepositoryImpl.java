@@ -214,7 +214,7 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 		return f.bool()
 				.must(f.range().field("licitacao.dataAbertura").atMost(hoje))
 				.must(f.range().field("licitacao.dataResultadoCompra").atMost(hoje))
-				.must(f.range().field("quantidade").greaterThan(0))
+				.must(f.range().field("quantidade").greaterThan(0L))
 				.must(f.range().field("valor").greaterThan(0.0))
 				.toPredicate();
 	}
