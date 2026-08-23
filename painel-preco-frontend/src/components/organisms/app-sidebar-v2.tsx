@@ -10,6 +10,8 @@ import {
   LogOut,
   X,
   Users,
+  Building2,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
@@ -35,6 +37,16 @@ const menuItems: MenuItem[] = [
     icon: FileText,
     label: "Cotação",
     path: "/cotacoes/realizar-cotacao",
+  },
+  {
+    icon: Building2,
+    label: "Fornecedores",
+    path: "/fornecedores",
+  },
+  {
+    icon: ScrollText,
+    label: "Atas de Registro",
+    path: "/atas",
   },
   // {
   //   icon: Gavel,

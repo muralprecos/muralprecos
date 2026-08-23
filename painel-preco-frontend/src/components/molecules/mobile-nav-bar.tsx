@@ -7,6 +7,8 @@ import {
   ShoppingCart,
   CheckCircle,
   BarChart3,
+  Building2,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -15,6 +17,8 @@ import { usePathname } from "next/navigation";
 const dashboardNavItems = [
   { label: "Overview", icon: LayoutDashboard, path: "/" },
   { label: "Atividades", icon: FileText, path: "/atividades" },
+  { label: "Fornecedores", icon: Building2, path: "/fornecedores" },
+  { label: "Atas", icon: ScrollText, path: "/atas" },
 ];
 
 const cotacaoNavItems = [
