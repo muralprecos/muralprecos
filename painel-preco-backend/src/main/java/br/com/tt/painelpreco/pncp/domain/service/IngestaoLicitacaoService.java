@@ -26,6 +26,7 @@ import br.com.tt.painelpreco.domain.model.Licitacao;
 import br.com.tt.painelpreco.domain.model.ModalidadeCompra;
 import br.com.tt.painelpreco.domain.model.Municipio;
 import br.com.tt.painelpreco.domain.model.Orgao;
+import br.com.tt.painelpreco.domain.model.SituacaoCompra;
 import br.com.tt.painelpreco.domain.model.SituacaoLicitacao;
 import br.com.tt.painelpreco.domain.model.UnidadeFederativa;
 import br.com.tt.painelpreco.domain.model.UnidadeGestora;
@@ -35,6 +36,7 @@ import br.com.tt.painelpreco.domain.service.LicitacaoService;
 import br.com.tt.painelpreco.domain.service.ModalidadeCompraService;
 import br.com.tt.painelpreco.domain.service.MunicipioService;
 import br.com.tt.painelpreco.domain.service.OrgaoService;
+import br.com.tt.painelpreco.domain.service.SituacaoCompraService;
 import br.com.tt.painelpreco.domain.service.SituacaoLicitacaoService;
 import br.com.tt.painelpreco.domain.service.UnidadeFederativaService;
 import br.com.tt.painelpreco.domain.service.UnidadeGestoraService;
@@ -59,6 +61,9 @@ public class IngestaoLicitacaoService {
 	
 	@Autowired
 	private SituacaoLicitacaoService situacaoLicitacaoService;
+
+	@Autowired
+	private SituacaoCompraService situacaoCompraService;
 	
 	@Autowired
 	private UnidadeGestoraService unidadeGestoraService;
@@ -88,6 +93,7 @@ public class IngestaoLicitacaoService {
         Set<Municipio> municipios = new HashSet<>();
         Set<Orgao> orgaos = new HashSet<>();
         Set<SituacaoLicitacao> situacoes = new HashSet<>();
+        Set<SituacaoCompra> situacoesCompra = new HashSet<>();
         Set<Esfera> esferas = new HashSet<>();
         Set<FormaCompra> formas = new HashSet<>();
         Set<UnidadeGestora> unidades = new HashSet<>();
@@ -144,11 +150,17 @@ public class IngestaoLicitacaoService {
                         orgao.setEsfera(esfera);
                         orgaos.add(orgao);
 
-                        // Situação
+                        // Situação (publicação no PNCP)
                         SituacaoLicitacao situacao = new SituacaoLicitacao();
                         situacao.setId(dado.get("situacaoCompraId").asInt());
                         situacao.setNome(dado.get("situacaoCompraNome").asText());
                         situacoes.add(situacao);
+
+                        // Situação do processo de compra
+                        SituacaoCompra situacaoCompra = new SituacaoCompra();
+                        situacaoCompra.setId(dado.get("situacaoCompraId").asInt());
+                        situacaoCompra.setNome(dado.get("situacaoCompraNome").asText());
+                        situacoesCompra.add(situacaoCompra);
 
                         // Forma
                         FormaCompra forma = new FormaCompra();
@@ -181,6 +193,7 @@ public class IngestaoLicitacaoService {
                         licitacao.setMunicipio(municipio);
                         licitacao.setOrgao(orgao);
                         licitacao.setSituacao(situacao);
+                        licitacao.setSituacaoCompra(situacaoCompra);
                         licitacao.setUnidadeGestora(unidade);
 //                        licitacao.setOrgao(orgao);
                         licitacao.setEsfera(esfera);
@@ -202,6 +215,7 @@ public class IngestaoLicitacaoService {
         ufs.forEach(uf -> {unidadeFederativaService.save(uf);});
         esferas.forEach(esfera -> {esferaService.save(esfera);});
         situacoes.forEach(situacao -> {situacaoLicitacaoService.save(situacao);});
+        situacoesCompra.forEach(sc -> {situacaoCompraService.save(sc);});
         formas.forEach(forma -> {formaCompraService.save(forma);});
         unidades.forEach(unidade -> {unidadeGestoraService.save(unidade);});
         
@@ -219,6 +233,9 @@ public class IngestaoLicitacaoService {
         
         Map<Integer, SituacaoLicitacao> situacaoLicitacaoMap = new HashMap<>();
         situacaoLicitacaoService.findAll().forEach(situacao -> {situacaoLicitacaoMap.put(situacao.getId(), situacao);});
+
+        Map<Integer, SituacaoCompra> situacaoCompraMap = new HashMap<>();
+        situacaoCompraService.findAll().forEach(sc -> situacaoCompraMap.put(sc.getId(), sc));
         
         Map<Integer, FormaCompra> formaCompraMap = new HashMap<>();
         formaCompraService.findAll().forEach(formaCompra -> {formaCompraMap.put(formaCompra.getId(), formaCompra);});
@@ -245,6 +262,7 @@ public class IngestaoLicitacaoService {
         	licitacao.setMunicipio(municipioMap.get(licitacao.getMunicipio().getCodigoIbge()));
         	licitacao.setEsfera(esferaMap.get(licitacao.getEsfera().getCodigo()));
         	licitacao.setSituacao(situacaoLicitacaoMap.get(licitacao.getSituacao().getId()));
+        	licitacao.setSituacaoCompra(situacaoCompraMap.get(licitacao.getSituacaoCompra().getId()));
         	licitacao.setFormaCompra(formaCompraMap.get(licitacao.getFormaCompra().getId()));
         	licitacao.setOrgao(orgaoMap.get(licitacao.getOrgao().getCnpj()));
         	licitacao.setUnidadeGestora(unidadeGestoraMap.get(licitacao.getUnidadeGestora().getCnpj() + "|" + licitacao.getUnidadeGestora().getCodigo()));

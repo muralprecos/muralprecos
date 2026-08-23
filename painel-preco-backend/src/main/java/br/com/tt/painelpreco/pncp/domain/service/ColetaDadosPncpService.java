@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +32,9 @@ import feign.FeignException;
 public class ColetaDadosPncpService {
 	
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+    // Todas as modalidades de contratação do PNCP
+    private static final int[] TODAS_MODALIDADES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
     
     @Autowired
     private PncpClient pncpClient;
@@ -51,13 +53,26 @@ public class ColetaDadosPncpService {
     
     @Autowired
     private IngestaoLicitacaoService pncpLicitacaoService;
-    
+
     @Autowired
     private IngestaoItemLicitacaoService pncpItemLicitacaoService;
+
+    @Autowired
+    private IngestaoResultadoItemService pncpResultadoItemService;
+
+    @Autowired
+    private IngestaoAtaRegistroPrecoService pncpAtaService;
+
+    @Autowired
+    private EnriquecimentoSituacaoCompraService enriquecimentoSituacaoCompraService;
     
     // Valor da chave da API do PNCP
     @Value("${pncp.api.key}")
     private String apiKey;
+
+    // Data mínima de coleta para modalidades sem arquivos anteriores
+    @Value("${pncp.api.coleta.data-inicio:2022-01-01}")
+    private String dataInicioConfig;
     
     // Diretório de saída
     @Value("${pncp.api.output.dir}")
@@ -106,56 +121,50 @@ public class ColetaDadosPncpService {
 
     private void getDadosLicitacao() {
         long inicio = System.currentTimeMillis();
-        
-        // 1. Inserção do registro de início
-        insertIngestaoDadosPncp(); 
+        insertIngestaoDadosPncp();
 
-        // 2. Definição das datas
+        LocalDate dataParada = findUltimaIngestaoDadosPncp();
+        System.out.println("Iniciando coleta de dados de licitação do PNCP (todas as modalidades)...");
+
+        LocalDate dataInicio = LocalDate.parse(dataInicioConfig);
+
+        for (int modalidade : TODAS_MODALIDADES) {
+            // Para modalidades sem arquivos ainda, retrocede até a data de início configurada
+            LocalDate parada = temArquivosParaModalidade(modalidade) ? dataParada : dataInicio;
+            coletarModalidade(modalidade, parada);
+        }
+
+        System.out.printf("INFO: Coleta de licitações concluída em %.3fs%n",
+                (System.currentTimeMillis() - inicio) / 1000.0);
+    }
+
+    private void coletarModalidade(int modalidade, LocalDate dataParada) {
         LocalDate dataFinal = LocalDate.now();
-        //LocalDate dataFinal = LocalDate.of(2025, 2, 5); // Exemplo de data fixa
-        
-        // 3. Busca da última data de ingestão no DB
-        LocalDate dataParada = findUltimaIngestaoDadosPncp(); //LocalDate.of(2026, 3, 7); 
-        // Você pode comentar a linha acima e usar a linha abaixo para testar o loop completo:
-//         LocalDate dataParada = LocalDate.of(2015, 1, 1);
-
-        final int modalidadeCompra = 6;
         int countJaExiste = 0;
         final int limiteJaExiste = 2;
-        
-        System.out.println("Iniciando coleta de dados de licitação do PNCP...");
 
-        // Laço while principal
+        System.out.printf("INFO: Coletando modalidade %d a partir de %s%n", modalidade, dataFinal);
+
         while (!dataFinal.isBefore(dataParada) && countJaExiste < limiteJaExiste) {
             LocalDate dataInicial = dataFinal.minusDays(1);
-            
+            String dataFinalStr = dataFinal.format(DATE_FORMATTER);
+            String dataInicialStr = dataInicial.format(DATE_FORMATTER);
+
             int pagina = 1;
             boolean temPagina = true;
             boolean jaExiste = false;
-            String msg = "";
 
-            // Laço while interno
             while (temPagina && !jaExiste) {
-                String dataFinalStr = dataFinal.format(DATE_FORMATTER);
-                String dataInicialStr = dataInicial.format(DATE_FORMATTER);
-                String nomeArquivoJson = String.format("%slicitacoes-%s-%d.json", folder, dataFinalStr, pagina);
-                msg = String.format("Data inicial: %s; data final: %s. Página: %d", dataInicialStr, dataFinalStr, pagina);
+                String nomeArquivoJson = nomeArquivoLicitacao(modalidade, dataFinalStr, pagina);
+                String msg = String.format("Mod %d | %s → %s | pág %d", modalidade, dataInicialStr, dataFinalStr, pagina);
 
                 try {
                     File arquivo = new File(nomeArquivoJson);
-                    
+
                     if (!arquivo.isFile()) {
                         System.out.println("INFO: " + msg + " - Chamando API");
-                        
-                        Object responseJson = null;
-                        boolean erro = false;
-                        do {
-	                        responseJson = pncpClient.getLicitacoes(dataInicialStr, dataFinalStr, modalidadeCompra, pagina, 50, apiKey);
-	                        if (Objects.nonNull(responseJson) && responseJson instanceof String && !((String) responseJson).startsWith("{\"data\":"))
-	                        	erro = true;
-	                        else
-	                        	erro = false;
-                        } while (erro);
+
+                        Object responseJson = pncpClient.getLicitacoes(dataInicialStr, dataFinalStr, modalidade, pagina, 50, apiKey);
 
                         if (Objects.nonNull(responseJson)) {
                             new ObjectMapper().writeValue(arquivo, responseJson);
@@ -168,22 +177,35 @@ public class ColetaDadosPncpService {
                         jaExiste = true;
                         countJaExiste++;
                     }
-
                 } catch (Exception e) {
-                    System.err.println("ERROR: Erro no download/parsing: " + e.getMessage());
-                    insertLogErro("OpenDataLicitacaoCollector", String.format("Arquivo: %s. Erro: %s", nomeArquivoJson, e.getMessage()));
+                    System.err.println("ERROR: " + msg + ": " + e.getMessage());
+                    insertLogErro("OpenDataLicitacaoCollector",
+                            String.format("Arquivo: %s. Erro: %s", nomeArquivoJson, e.getMessage()));
+                    temPagina = false;
                 }
-            } // Fim do while interno
-
-            if (!temPagina || jaExiste) {
-                System.out.println("INFO: " + msg + " - Missing/Stop");
             }
-            
-            dataFinal = dataFinal.minusDays(1);
-        } 
 
-        long tempoTotal = System.currentTimeMillis() - inicio;
-        System.out.printf("INFO: Tempo de processamento: %.3f segundos%n", tempoTotal / 1000.0);
+            dataFinal = dataFinal.minusDays(1);
+        }
+    }
+
+    /**
+     * Modalidade 6 (Pregão - Eletrônico) usa o formato legado para não re-baixar os 35K arquivos existentes.
+     * Demais modalidades usam formato com prefixo de modalidade.
+     */
+    private String nomeArquivoLicitacao(int modalidade, String data, int pagina) {
+        if (modalidade == 6) {
+            return String.format("%slicitacoes-%s-%d.json", folder, data, pagina);
+        }
+        return String.format("%slicitacoes-m%d-%s-%d.json", folder, modalidade, data, pagina);
+    }
+
+    /** Verifica se já existe ao menos um arquivo baixado para a modalidade. */
+    private boolean temArquivosParaModalidade(int modalidade) {
+        File dir = new File(folder);
+        String prefixo = (modalidade == 6) ? "licitacoes-2" : "licitacoes-m" + modalidade + "-";
+        String[] encontrados = dir.list((d, name) -> name.startsWith(prefixo) && name.endsWith(".json"));
+        return encontrados != null && encontrados.length > 0;
     }
     
     private void getDadosItemLicitacao() {
@@ -275,21 +297,65 @@ public class ColetaDadosPncpService {
         return Integer.parseInt(parte);
     }
     
-    @Transactional
+    // Sem @Transactional — cada sub-serviço gerencia sua própria transação (REQUIRED_NEW via proxy)
     public void getDados(boolean startup, boolean licitacoesOnly) {
     	if (startup) {
-	    	this.getDadosLicitacao();
-	    	
+	    	executarEtapa("getDadosLicitacao", this::getDadosLicitacao);
+
 	    	if (!licitacoesOnly) {
-	    		this.getDadosItemLicitacao();
+	    		executarEtapa("getDadosItemLicitacao", this::getDadosItemLicitacao);
 	    	}
-	    	
-	        pncpLicitacaoService.carregaLicitacoesBaixadasNoBanco();
-	        
+
+	        executarEtapa("carregaLicitacoesBaixadasNoBanco", pncpLicitacaoService::carregaLicitacoesBaixadasNoBanco);
+
 	        if (!licitacoesOnly) {
-	        	pncpItemLicitacaoService.carregaItensLicitacaoBaixadosNoBanco();
+	        	executarEtapa("carregaItensLicitacaoBaixadosNoBanco", pncpItemLicitacaoService::carregaItensLicitacaoBaixadosNoBanco);
+	        	executarEtapa("carregaResultadosBaixadosNoBanco", pncpResultadoItemService::carregaResultadosBaixadosNoBanco);
+	        	executarEtapa("carregaAtasBaixadasNoBanco", pncpAtaService::carregaAtasBaixadasNoBanco);
 	        }
     	}
+    }
+
+    /** Executa apenas as etapas de ingestão (sem download de novos JSONs). */
+    public void ingerirDadosExistentes() {
+        executarEtapa("carregaLicitacoesBaixadasNoBanco", pncpLicitacaoService::carregaLicitacoesBaixadasNoBanco);
+        executarEtapa("carregaItensLicitacaoBaixadosNoBanco", pncpItemLicitacaoService::carregaItensLicitacaoBaixadosNoBanco);
+        executarEtapa("carregaResultadosBaixadosNoBanco", pncpResultadoItemService::carregaResultadosBaixadosNoBanco);
+        executarEtapa("carregaAtasBaixadasNoBanco", pncpAtaService::carregaAtasBaixadasNoBanco);
+    }
+
+    /**
+     * Executa uma etapa do pipeline isolada de falha (fail-open): uma exceção não tratada
+     * em uma etapa (ex.: coleta de fornecedores) não pode impedir as etapas seguintes
+     * (ex.: coleta de atas) de rodar na mesma execução.
+     */
+    private void executarEtapa(String nomeEtapa, Runnable etapa) {
+        long inicio = System.currentTimeMillis();
+        try {
+            etapa.run();
+        } catch (Exception e) {
+            System.err.println("ERROR: Falha na etapa " + nomeEtapa + ": " + e.getMessage());
+            insertLogErro("Coleta." + nomeEtapa, e.getMessage());
+        } finally {
+            System.out.printf("INFO: Etapa %s finalizada em %.1fs%n",
+                    nomeEtapa, (System.currentTimeMillis() - inicio) / 1000.0);
+        }
+    }
+
+    /** Executa apenas a coleta de resultados para itens já no banco sem fornecedor. */
+    public void coletarFornecedores() {
+        pncpResultadoItemService.carregaResultadosBaixadosNoBanco();
+        // Atas não são chamadas aqui: têm endpoint próprio (/coleta/pncp/atas)
+    }
+
+    /** Executa apenas a ingestão de atas de registro de preço. */
+    public void coletarAtas() {
+        pncpAtaService.carregaAtasBaixadasNoBanco();
+    }
+
+    /** Lê todos os JSONs de licitações e popula situacao_compra + situacao_compra_id. */
+    public void enriquecerSituacaoCompra() {
+        enriquecimentoSituacaoCompraService.enriquecer();
     }
 
 }

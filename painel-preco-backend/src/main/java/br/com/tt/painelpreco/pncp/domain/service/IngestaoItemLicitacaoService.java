@@ -97,7 +97,7 @@ public class IngestaoItemLicitacaoService {
                             item.setNumeroPncp(numeroPncp);
                             item.setNumeroItem(dado.get("numeroItem").asInt());
                             item.setDescricao(dado.get("descricao").asText());
-                            item.setQuantidade(dado.get("quantidade").asInt());
+                            item.setQuantidade(dado.get("quantidade").asLong());
                             item.setValor(dado.get("valorTotal").asDouble());
                             item.setCodigo(dado.get("catalogoCodigoItem") != null ? dado.get("catalogoCodigoItem").asText() : null);
                             item.setDescricaoComplementar(dado.get("informacaoComplementar") != null ? dado.get("informacaoComplementar").asText() : "");

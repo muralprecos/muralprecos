@@ -52,6 +52,19 @@ public interface LicitacaoRepository extends JpaRepository<Licitacao, Integer>, 
 	@Query(value = "SELECT l FROM Licitacao l WHERE NOT EXISTS (SELECT 1 FROM ItemLicitacao il WHERE il.licitacao = l)")
 	List<Licitacao> findPendentesImportacaoItens();
 
+	// Filtra apenas licitações SRP (objeto menciona registro de preços) cujas atas + itens
+	// ainda não foram integralmente processados (atas_completo_em IS NULL). Antes, o critério
+	// era "nenhuma ata existente ainda", o que marcava a licitação como concluída assim que a
+	// primeira ata era salva, mesmo que o processamento tivesse sido interrompido no meio.
+	// Reduz de 867K para ~19K licitações, tornando a coleta viável.
+	@Query(value =
+		"SELECT l.* FROM mural.licitacao l " +
+		"WHERE l.atas_completo_em IS NULL " +
+		"AND (LOWER(l.objeto) LIKE '%registro%pre%' OR LOWER(l.objeto) LIKE '%sistema%regist%' " +
+		"     OR LOWER(l.objeto) LIKE '% srp %' OR LOWER(l.objeto) LIKE '%srp:%')",
+		nativeQuery = true)
+	List<Licitacao> findPendentesImportacaoAtas();
+
 	@Query(value = "SELECT l.* FROM mural.licitacao l WHERE l.numero_controle_pncp = ANY(:numerosPncp)", nativeQuery = true)
 	List<Licitacao> findAllByNumeroPncpIn(@Param("numerosPncp") String[] numerosPncp);
 }

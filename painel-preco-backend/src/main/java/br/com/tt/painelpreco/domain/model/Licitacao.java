@@ -26,6 +26,7 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.IndexingDe
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
 
 import br.com.tt.painelpreco.domain.model.vo.PeriodoCompra;
+import br.com.tt.painelpreco.domain.model.SituacaoCompra;
 import br.com.tt.painelpreco.util.DateUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -73,6 +74,10 @@ public class Licitacao {
 	@ManyToOne
 	@JoinColumn(name = "situacao_licitacao_id")
 	private SituacaoLicitacao situacao;
+
+	@ManyToOne
+	@JoinColumn(name = "situacao_compra_id")
+	private SituacaoCompra situacaoCompra;
 
 	/** Órgão Superior **/
 	@ManyToOne
