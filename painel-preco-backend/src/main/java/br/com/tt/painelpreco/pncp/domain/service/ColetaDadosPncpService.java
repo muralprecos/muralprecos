@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -35,6 +36,11 @@ public class ColetaDadosPncpService {
 
     // Todas as modalidades de contratação do PNCP
     private static final int[] TODAS_MODALIDADES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+
+    // Evita que o disparo manual (ColetaPncpController) e o agendamento das 0h
+    // (ColetaIngestaoDadosTask) rodem getDados() em paralelo — não há nenhuma
+    // outra proteção contra concorrência nas etapas de download/ingestão.
+    private final AtomicBoolean coletaEmAndamento = new AtomicBoolean(false);
     
     @Autowired
     private PncpClient pncpClient;
@@ -299,20 +305,28 @@ public class ColetaDadosPncpService {
     
     // Sem @Transactional — cada sub-serviço gerencia sua própria transação (REQUIRED_NEW via proxy)
     public void getDados(boolean startup, boolean licitacoesOnly) {
-    	if (startup) {
-	    	executarEtapa("getDadosLicitacao", this::getDadosLicitacao);
+    	if (!coletaEmAndamento.compareAndSet(false, true)) {
+    		System.out.println("INFO: Coleta já em andamento (disparo manual ou agendado anterior) — ignorando esta chamada.");
+    		return;
+    	}
+    	try {
+	    	if (startup) {
+		    	executarEtapa("getDadosLicitacao", this::getDadosLicitacao);
 
-	    	if (!licitacoesOnly) {
-	    		executarEtapa("getDadosItemLicitacao", this::getDadosItemLicitacao);
+		    	if (!licitacoesOnly) {
+		    		executarEtapa("getDadosItemLicitacao", this::getDadosItemLicitacao);
+		    	}
+
+		        executarEtapa("carregaLicitacoesBaixadasNoBanco", pncpLicitacaoService::carregaLicitacoesBaixadasNoBanco);
+
+		        if (!licitacoesOnly) {
+		        	executarEtapa("carregaItensLicitacaoBaixadosNoBanco", pncpItemLicitacaoService::carregaItensLicitacaoBaixadosNoBanco);
+		        	executarEtapa("carregaResultadosBaixadosNoBanco", pncpResultadoItemService::carregaResultadosBaixadosNoBanco);
+		        	executarEtapa("carregaAtasBaixadasNoBanco", pncpAtaService::carregaAtasBaixadasNoBanco);
+		        }
 	    	}
-
-	        executarEtapa("carregaLicitacoesBaixadasNoBanco", pncpLicitacaoService::carregaLicitacoesBaixadasNoBanco);
-
-	        if (!licitacoesOnly) {
-	        	executarEtapa("carregaItensLicitacaoBaixadosNoBanco", pncpItemLicitacaoService::carregaItensLicitacaoBaixadosNoBanco);
-	        	executarEtapa("carregaResultadosBaixadosNoBanco", pncpResultadoItemService::carregaResultadosBaixadosNoBanco);
-	        	executarEtapa("carregaAtasBaixadasNoBanco", pncpAtaService::carregaAtasBaixadasNoBanco);
-	        }
+    	} finally {
+    		coletaEmAndamento.set(false);
     	}
     }
 
