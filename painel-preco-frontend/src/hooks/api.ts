@@ -24,15 +24,23 @@ import {
   IAPISearchPropsLogged,
   IHistoricoCotacao,
   IValidaCotacao,
+  IProcessoContratacao,
+  IProcessoContratacaoForm,
+  IArtefatoGerado,
+  IArtefatoSecaoLog,
+  TipoArtefatoEnum,
 } from "@/interfaces/types";
 import {
   HOST_API_PREFIX,
   ResponseError,
+  getGenericBlob,
   getGenericListPageable,
   getGenericObject,
   getObjectDesc,
   postGenericBlob,
   postGenericJson,
+  putGenericJson,
+  reqBodyGeneric,
 } from "./genericapi";
 import {
   extractParamSearch,
@@ -293,6 +301,103 @@ export const postDownloadItensCotacoes = async (
       itens: itens.map((i) => i.uuid),
     }),
     acceptType: "",
+    accessToken,
+  });
+};
+
+export const postMaterializarCotacaoDoCarrinho = async (
+  itens: IRetornoPesquisaItensLicitacao[],
+  accessToken: string
+): Promise<string | null> => {
+  const res = await reqBodyGeneric({
+    path: HOST_API_PREFIX + "/cotacoes",
+    bodydata: JSON.stringify({
+      itens: itens.map((i) => i.uuid),
+    }),
+    acceptType: "",
+    accessToken,
+    method: "POST",
+  });
+  return res.data?.headers.get("X-Cotacao-Uuid") ?? null;
+};
+
+export const postCreateProcessoContratacao = async (
+  form: IProcessoContratacaoForm,
+  accessToken: string
+): Promise<IProcessoContratacao | null> => {
+  return postGenericJson<IProcessoContratacao>({
+    path: HOST_API_PREFIX + "/processos-contratacao",
+    bodydata: JSON.stringify(form),
+    accessToken,
+  });
+};
+
+export const getProcessoContratacao = async (opts: IAPISearchPropsLogged) => {
+  const uuid = getValParamSearch(opts.info, "uuid");
+  opts.info = extractParamSearch(opts.info, "uuid");
+  return getGenericObject<IProcessoContratacao>({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}`,
+    ...opts,
+  });
+};
+
+export const putAtualizarProcessoContratacao = async (
+  uuid: string,
+  form: IProcessoContratacaoForm,
+  accessToken: string
+): Promise<IProcessoContratacao | null> => {
+  return putGenericJson<IProcessoContratacao>({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}`,
+    bodydata: JSON.stringify(form),
+    accessToken,
+  });
+};
+
+export const postGerarArtefato = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  accessToken: string
+): Promise<IArtefatoGerado | null> => {
+  return postGenericJson<IArtefatoGerado>({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/gerar`,
+    bodydata: "",
+    accessToken,
+  });
+};
+
+export const postRevisarArtefato = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  versao: number,
+  accessToken: string
+): Promise<IArtefatoGerado | null> => {
+  return postGenericJson<IArtefatoGerado>({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/revisar`,
+    bodydata: "",
+    accessToken,
+  });
+};
+
+export const getLogSecoesArtefato = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  versao: number,
+  accessToken: string
+): Promise<IArtefatoSecaoLog[] | null> => {
+  return getGenericObject<IArtefatoSecaoLog[]>({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/log-secoes`,
+    accessToken,
+  });
+};
+
+export const getDownloadArtefato = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  versao: number,
+  accessToken: string
+) => {
+  return getGenericBlob({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/download`,
     accessToken,
   });
 };

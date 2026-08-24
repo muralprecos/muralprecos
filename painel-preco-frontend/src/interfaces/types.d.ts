@@ -319,4 +319,122 @@ export interface IConversationIAHistory {
   role: string;
   content: string;
 }
+
+export type ModalidadeProcessoEnum = "PREGAO" | "CONCORRENCIA";
+export type CriterioJulgamentoProcessoEnum =
+  | "MENOR_PRECO"
+  | "MAIOR_DESCONTO"
+  | "TECNICA_E_PRECO";
+export type RegimeExecucaoProcessoEnum =
+  | "COM_DEDICACAO_MAO_DE_OBRA"
+  | "SEM_DEDICACAO_MAO_DE_OBRA"
+  | "COMPRAS"
+  | "OBRAS";
+export type PrazoVigenciaFundamentoEnum =
+  | "ART_105"
+  | "ART_106_107"
+  | "ART_75_VIII";
+export type StatusProcessoContratacaoEnum =
+  | "INTAKE"
+  | "EM_GERACAO"
+  | "RASCUNHO_DISPONIVEL"
+  | "CONCLUIDO";
+export type TipoArtefatoEnum = "ETP" | "TR" | "EDITAL";
+export type StatusArtefatoEnum = "RASCUNHO" | "REVISADO";
+export type OrigemSecaoLogEnum =
+  | "DETERMINISTICO"
+  | "LLM_SELECAO_CLAUSULA"
+  | "LLM_REDACAO_LIVRE";
+
+export interface IItemProcessoContratacao {
+  numeroItem: string | null;
+  descricao: string;
+  descricaoComplementar: string | null;
+  unidadeFornecimento: string | null;
+  quantidade: number;
+  valorUnitario: number | null;
+  valorTotal: number | null;
+  fornecedorNome: string | null;
+  fornecedorDocumento: string | null;
+  licitacaoNumeroPncp: string | null;
+  licitacaoModalidade: string | null;
+  licitacaoUf: string | null;
+}
+
+export interface IArtefatoGerado {
+  uuid: string;
+  tipo: TipoArtefatoEnum;
+  versao: number;
+  status: StatusArtefatoEnum;
+  nomeArquivo: string;
+  geradoEm: string;
+  revisadoEm: string | null;
+}
+
+export interface IArtefatoSecaoLog {
+  secaoChave: string;
+  origem: OrigemSecaoLogEnum;
+  clausulaSelecionada: string | null;
+  factsEnviados: string;
+  respostaBruta: string;
+}
+
+export interface IProcessoContratacao {
+  uuid: string;
+  cotacaoUuid: string;
+  objeto: string | null;
+  justificativaNecessidade: string | null;
+  modalidadePretendida: ModalidadeProcessoEnum | null;
+  criterioJulgamento: CriterioJulgamentoProcessoEnum | null;
+  regimeExecucao: RegimeExecucaoProcessoEnum | null;
+  prazoVigenciaMeses: number | null;
+  prazoVigenciaFundamentoLegal: PrazoVigenciaFundamentoEnum | null;
+  tipoObjetoContinuo: boolean | null;
+  orcamentoSigiloso: boolean;
+  registroPrecos: boolean;
+  tratamentoFavorecidoMeEpp: boolean;
+  dotacaoGestaoUnidade: string | null;
+  dotacaoFonteRecursos: string | null;
+  dotacaoProgramaTrabalho: string | null;
+  dotacaoElementoDespesa: string | null;
+  dotacaoPlanoInterno: string | null;
+  dotacaoPostergada: boolean;
+  orgaoNome: string | null;
+  orgaoCnpj: string | null;
+  orgaoEndereco: string | null;
+  orgaoEsfera: string | null;
+  orgaoUasg: string | null;
+  orgaoTelefone: string | null;
+  status: StatusProcessoContratacaoEnum;
+  criadoEm: string;
+  itens: IItemProcessoContratacao[];
+  artefatos: IArtefatoGerado[];
+}
+
+export interface IProcessoContratacaoForm {
+  cotacaoUuid: string;
+  objeto?: string | null;
+  justificativaNecessidade?: string | null;
+  modalidadePretendida?: ModalidadeProcessoEnum | null;
+  criterioJulgamento?: CriterioJulgamentoProcessoEnum | null;
+  regimeExecucao?: RegimeExecucaoProcessoEnum | null;
+  prazoVigenciaMeses?: number | null;
+  prazoVigenciaFundamentoLegal?: PrazoVigenciaFundamentoEnum | null;
+  tipoObjetoContinuo?: boolean | null;
+  orcamentoSigiloso?: boolean | null;
+  registroPrecos?: boolean | null;
+  tratamentoFavorecidoMeEpp?: boolean | null;
+  dotacaoGestaoUnidade?: string | null;
+  dotacaoFonteRecursos?: string | null;
+  dotacaoProgramaTrabalho?: string | null;
+  dotacaoElementoDespesa?: string | null;
+  dotacaoPlanoInterno?: string | null;
+  dotacaoPostergada?: boolean | null;
+  orgaoNome?: string | null;
+  orgaoCnpj?: string | null;
+  orgaoEndereco?: string | null;
+  orgaoEsfera?: string | null;
+  orgaoUasg?: string | null;
+  orgaoTelefone?: string | null;
+}
 [];

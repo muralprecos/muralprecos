@@ -126,7 +126,7 @@ export const getGenericListPageable = async <T>(
   return getGenericObject(otps);
 };
 
-const reqBodyGeneric = async <T>({
+export const reqBodyGeneric = async <T>({
   path,
   bodydata,
   acceptType,
@@ -164,6 +164,24 @@ export const postGenericJson = async <T>({
   return res.data?.json();
 };
 
+export const putGenericJson = async <T>({
+  path,
+  bodydata,
+  acceptType,
+  contentType,
+  accessToken,
+}: IAPISearchProps): Promise<T | null> => {
+  const res = await reqBodyGeneric({
+    path,
+    bodydata,
+    acceptType,
+    contentType,
+    accessToken,
+    method: "PUT",
+  });
+  return res.data?.json();
+};
+
 export const postGenericBlob = async ({
   path,
   bodydata,
@@ -178,6 +196,20 @@ export const postGenericBlob = async ({
     method: "POST",
   });
   return res.status ? (res.data ? res.data.blob() : null) : null;
+};
+
+export const getGenericBlob = async ({
+  path,
+  info,
+  accessToken,
+}: IAPISearchProps): Promise<{ blob: Blob; filename: string | null } | null> => {
+  const res = await doReq({ path, info, accessToken, acceptType: "" });
+  if (!res.status || !res.data) {
+    return null;
+  }
+  const disposition = res.data.headers.get("Content-Disposition");
+  const match = disposition ? /filename="?([^"]+)"?/.exec(disposition) : null;
+  return { blob: await res.data.blob(), filename: match ? match[1] : null };
 };
 
 export const getObjectDesc = async <T extends ISimpleObjetoAPI>(

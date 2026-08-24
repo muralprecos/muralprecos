@@ -8,6 +8,8 @@ import {
   LogOut,
   X,
   Users,
+  Building2,
+  ScrollText,
   Cog,
   BriefcaseBusiness
 } from "lucide-react";
@@ -35,6 +37,16 @@ const menuItems: MenuItem[] = [
     icon: FileText,
     label: "Cotação",
     path: "/cotacoes/realizar-cotacao",
+  },
+  {
+    icon: Building2,
+    label: "Fornecedores",
+    path: "/fornecedores",
+  },
+  {
+    icon: ScrollText,
+    label: "Atas de Registro",
+    path: "/atas",
   },
   // {
   //   icon: Gavel,
