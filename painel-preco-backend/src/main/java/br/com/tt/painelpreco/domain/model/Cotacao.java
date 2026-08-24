@@ -1,7 +1,10 @@
 package br.com.tt.painelpreco.domain.model;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +20,7 @@ import javax.persistence.TemporalType;
 
 import br.com.tt.painelpreco.arch.infra.auth.Usuario;
 import br.com.tt.painelpreco.util.DateUtil;
+import br.com.tt.painelpreco.util.StringUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -47,6 +51,28 @@ public class Cotacao {
 	
 	@Column(name = "string_busca")
 	private String stringBusca;
+
+	// UUIDs dos itens pesquisados (ItemLicitacao), unidos por vírgula.
+	// Necessário para reconstituir a cotação a partir do histórico (ex.: para
+	// gerar ETP/TR/Edital) — não usado pelo fluxo de geração do PDF em si.
+	@Column(name = "itens_uuid", columnDefinition = "TEXT")
+	private String itensUuid;
+
+	public List<UUID> getItensUuidList() {
+		if (StringUtil.isEmpty(itensUuid)) {
+			return List.of();
+		}
+		return Arrays.stream(itensUuid.split(","))
+				.map(String::trim)
+				.filter(s -> !s.isEmpty())
+				.map(UUID::fromString)
+				.collect(Collectors.toList());
+	}
+
+	public void setItensUuidList(UUID[] itens) {
+		this.itensUuid = itens == null ? null
+				: Arrays.stream(itens).map(UUID::toString).collect(Collectors.joining(","));
+	}
 	
 	@Column(name = "hash_validacao", nullable = false)
 	private String hashValidacao;

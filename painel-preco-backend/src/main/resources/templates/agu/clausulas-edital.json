@@ -1,0 +1,14 @@
+{
+  "DIVISAO_ITENS": {
+    "POR_ITEM": "A licitação será dividida em itens, conforme tabela constante do Termo de Referência/Projeto Básico, facultando-se ao licitante a participação em quantos itens forem de seu interesse.",
+    "ITEM_UNICO": "A licitação será realizada em único item."
+  },
+  "TRATAMENTO_ME_EPP": {
+    "CONCEDIDO": "Será concedido tratamento favorecido para as microempresas e empresas de pequeno porte, para as sociedades cooperativas mencionadas no artigo 16 da Lei nº 14.133, de 2021, para o agricultor familiar, o produtor rural pessoa física e para o microempreendedor individual - MEI, nos limites previstos da Lei Complementar nº 123, de 2006 e do Decreto nº 8.538, de 2015.",
+    "NAO_CONCEDIDO": "Não será concedido nesta Licitação tratamento favorecido para microempresas, empresas de pequeno porte e figuras equiparadas, nos termos da Lei Complementar nº 123, de 2006, em razão da incidência, no caso, do art. 4º, § 1º da Lei nº 14.133, de 2021."
+  },
+  "ORCAMENTO_SIGILO": {
+    "PUBLICO": "O orçamento estimado da presente contratação não será de caráter sigiloso.",
+    "SIGILOSO": "O orçamento estimado da presente contratação será de caráter sigiloso. Para fins do disposto no item anterior, o orçamento estimado para a contratação não será tornado público antes de definido o resultado do julgamento das propostas. O caráter sigiloso do orçamento estimado para a contratação não prevalecerá para os órgãos de controle interno e externo."
+  }
+}

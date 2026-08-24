@@ -18,4 +18,14 @@ public class PorteFornecedorService {
 		return porteFornecedorRepository.findAll();
 	}
 
+	public PorteFornecedor findOrCreate(String nome) {
+		PorteFornecedor existente = porteFornecedorRepository.findFirstByNome(nome);
+		if (existente != null) {
+			return existente;
+		}
+		PorteFornecedor novo = new PorteFornecedor();
+		novo.setNome(nome);
+		return porteFornecedorRepository.save(novo);
+	}
+
 }

@@ -1,0 +1,19 @@
+{
+  "CONTINUIDADE": {
+    "NAO_CONTINUO": "O serviço é enquadrado como não contínuo ou contratado por escopo.",
+    "CONTINUO": "O serviço é enquadrado como continuado, tendo em vista a natureza do objeto e a necessidade de continuidade da prestação, sendo a vigência plurianual mais vantajosa nos termos do Estudo Técnico Preliminar."
+  },
+  "VIGENCIA": {
+    "ART_105": "O prazo de vigência da contratação é de {{FACTS:PRAZO_VIGENCIA_MESES}} meses, contados da assinatura do contrato, na forma do artigo 105 da Lei n° 14.133, de 2021.",
+    "ART_106_107": "O prazo de vigência da contratação é de {{FACTS:PRAZO_VIGENCIA_MESES}} meses, contados da assinatura do contrato, prorrogável por até 10 (dez) anos, na forma dos artigos 106 e 107 da Lei n° 14.133, de 2021.",
+    "ART_75_VIII": "O prazo de vigência da contratação é de {{FACTS:PRAZO_VIGENCIA_MESES}} meses, contados da assinatura do contrato, improrrogável, na forma do art. 75, inciso VIII, da Lei n° 14.133, de 2021."
+  },
+  "ORCAMENTO_SIGILO": {
+    "PUBLICO": "O custo estimado total da contratação, que é o máximo aceitável, é de {{FACTS:VALOR_TOTAL_ESTIMADO}} ({{FACTS:VALOR_POR_EXTENSO}}), conforme custos unitários apostos na tabela constante do item 1.1 acima.",
+    "SIGILOSO": "O custo estimado da contratação possui caráter sigiloso e será tornado público apenas e imediatamente após o julgamento das propostas. Quando as propostas permanecerem com preços acima do orçamento estimado, o custo estimado da contratação será tornado público após a fase de lances."
+  },
+  "DOTACAO": {
+    "INFORMADA": "A contratação será atendida pela seguinte dotação: Gestão/unidade: {{FACTS:DOTACAO_GESTAO_UNIDADE}}; Fonte de recursos: {{FACTS:DOTACAO_FONTE_RECURSOS}}; Programa de trabalho: {{FACTS:DOTACAO_PROGRAMA_TRABALHO}}; Elemento de despesa: {{FACTS:DOTACAO_ELEMENTO_DESPESA}}; Plano interno: {{FACTS:DOTACAO_PLANO_INTERNO}}. A dotação relativa aos exercícios financeiros subsequentes será indicada após aprovação da Lei Orçamentária respectiva e liberação dos créditos correspondentes, mediante apostilamento.",
+    "POSTERGADA": "A indicação da dotação orçamentária fica postergada para o momento da assinatura do contrato ou instrumento equivalente."
+  }
+}
