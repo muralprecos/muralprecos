@@ -8,6 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import br.com.tt.painelpreco.arch.api.controller.HttpClientController;
@@ -34,6 +36,7 @@ public class KeycloakAdminService extends HttpClientController {
   private static final String ADMIN_TOKEN_URL = "%s/realms/master/protocol/openid-connect/token";
   private static final String ADMIN_USERS_URL = "%s/admin/realms/%s/users";
   private static final String ADMIN_GROUPS_URL = "%s/admin/realms/%s/groups";
+  private static final String ADMIN_ROLES_URL = "%s/admin/realms/%s/roles";
 
   @Autowired
   private KeycloakProperties keycloakProperties;
@@ -50,14 +53,19 @@ public class KeycloakAdminService extends HttpClientController {
   private String tokenUrl;
   private String usersUrl;
   private String groupsUrl;
+  private String rolesUrl;
   private String accessToken;
   private long tokenExpirationTime;
 
   @PostConstruct
   public void init() {
     this.tokenUrl = String.format(ADMIN_TOKEN_URL, keycloakProperties.getAuthServerUrl());
-    this.usersUrl = String.format(ADMIN_USERS_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
-    this.groupsUrl = String.format(ADMIN_GROUPS_URL, keycloakProperties.getAuthServerUrl(), keycloakProperties.getRealm());
+    this.usersUrl = String.format(ADMIN_USERS_URL, keycloakProperties.getAuthServerUrl(),
+        keycloakProperties.getRealm());
+    this.groupsUrl = String.format(ADMIN_GROUPS_URL, keycloakProperties.getAuthServerUrl(),
+        keycloakProperties.getRealm());
+    this.rolesUrl = String.format(ADMIN_ROLES_URL, keycloakProperties.getAuthServerUrl(),
+        keycloakProperties.getRealm());
   }
 
   public String obterAccessTokenAdmin() {
@@ -289,6 +297,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
+  @CacheEvict(value = "keycloakUsers", key = "#userId")
   public void adicionarUsuarioAoGroup(String userId, String groupId) {
     log.info("Adicionando usuário {} ao group {}", userId, groupId);
 
@@ -311,7 +320,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
-  public String criarGroup(String nome, String cnpj, String telefone) {
+  public String criarGroup(String nome, String cnpj, String telefone, String enabled) {
     log.info("Criando group no Keycloak: {}", nome);
 
     try {
@@ -323,7 +332,7 @@ public class KeycloakAdminService extends HttpClientController {
 
       JSONObject groupJson = new JSONObject();
       groupJson.put("name", nome);
-      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone));
+      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone, enabled));
 
       Body body = new Body(groupJson);
 
@@ -391,6 +400,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
+  @Cacheable(value = "keycloakGroups", key = "#groupId")
   public JSONObject buscarGroupPorId(String groupId) {
     log.debug("Buscando group no Keycloak por ID: {}", groupId);
 
@@ -448,7 +458,8 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
-  public void atualizarGroup(String groupId, String nome, String cnpj, String telefone) {
+  @CacheEvict(value = "keycloakGroups", key = "#groupId")
+  public void atualizarGroup(String groupId, String nome, String cnpj, String telefone, String enabled) {
     log.info("Atualizando group {} no Keycloak", groupId);
 
     try {
@@ -460,7 +471,7 @@ public class KeycloakAdminService extends HttpClientController {
 
       JSONObject groupJson = new JSONObject();
       groupJson.put("name", nome);
-      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone));
+      groupJson.put("attributes", construirAtributosOrganizacao(nome, cnpj, telefone, enabled));
 
       Body body = new Body(groupJson);
 
@@ -476,7 +487,36 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
-  private JSONObject construirAtributosOrganizacao(String nome, String cnpj, String telefone) {
+  @CacheEvict(value = "keycloakGroups", key = "#groupId")
+  public void alterarStatusGroup(String groupId, boolean enabled) {
+    log.info("Alterando status do group {} no Keycloak para {}", groupId, enabled);
+    try {
+      JSONObject group = buscarGroupPorId(groupId);
+      if (group == null) return;
+      
+      JSONObject attributes = group.optJSONObject("attributes");
+      if (attributes == null) {
+          attributes = new JSONObject();
+      }
+      attributes.put(OrganizacaoKeycloakAttributes.ENABLED, new JSONArray().put(String.valueOf(enabled)));
+      group.put("attributes", attributes);
+
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+      Body body = new Body(group);
+      String url = groupsUrl + "/" + groupId;
+      
+      super.requestPut(header, body, QueryParam.NONE, url);
+      log.info("Status do group atualizado com sucesso");
+    } catch (HttpException e) {
+      log.error("Erro ao alterar status do group no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao alterar status do group no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  private JSONObject construirAtributosOrganizacao(String nome, String cnpj, String telefone, String enabled) {
     JSONObject attributes = new JSONObject();
     if (nome != null) {
       attributes.put(OrganizacaoKeycloakAttributes.NOME, new JSONArray().put(nome));
@@ -486,6 +526,9 @@ public class KeycloakAdminService extends HttpClientController {
     }
     if (telefone != null && !telefone.trim().isEmpty()) {
       attributes.put(OrganizacaoKeycloakAttributes.TELEFONE, new JSONArray().put(telefone));
+    }
+    if (enabled != null) {
+      attributes.put(OrganizacaoKeycloakAttributes.ENABLED, new JSONArray().put(enabled));
     }
     return attributes;
   }
@@ -569,6 +612,7 @@ public class KeycloakAdminService extends HttpClientController {
     atualizarUsuario(userId, null, null, null, true);
   }
 
+  @CacheEvict(value = "keycloakGroups", key = "#groupId")
   public void deletarGroup(String groupId) {
     log.info("Deletando group {} no Keycloak", groupId);
 
@@ -630,6 +674,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
+  @Cacheable(value = "keycloakUsers", key = "#userId")
   public JSONObject buscarUsuarioPorId(String userId) {
     log.debug("Buscando usuário no Keycloak por ID: {}", userId);
 
@@ -657,6 +702,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
+  @CacheEvict(value = "keycloakUsers", key = "#userId")
   public void atualizarUsuario(String userId, String email, String firstName, String lastName,
       Boolean enabled) {
     log.info("Atualizando usuário {} no Keycloak", userId);
@@ -707,6 +753,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
+  @CacheEvict(value = "keycloakUsers", key = "#userId")
   public void deletarUsuario(String userId) {
     log.info("Deletando usuário {} no Keycloak", userId);
 
@@ -729,6 +776,7 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
+  @CacheEvict(value = "keycloakUsers", key = "#userId")
   public void removerUsuarioDoGroup(String userId, String groupId) {
     log.info("Removendo usuário {} do group {}", userId, groupId);
 
@@ -766,13 +814,7 @@ public class KeycloakAdminService extends HttpClientController {
       credentialsJson.put("value", novaSenha);
       credentialsJson.put("temporary", false);
 
-      JSONArray credentialsArray = new JSONArray();
-      credentialsArray.put(credentialsJson);
-
-      JSONObject userJson = new JSONObject();
-      userJson.put("credentials", credentialsArray);
-
-      Body body = new Body(userJson);
+      Body body = new Body(credentialsJson);
 
       String url = usersUrl + "/" + userId + "/reset-password";
 
@@ -863,6 +905,7 @@ public class KeycloakAdminService extends HttpClientController {
       header.add("Authorization", "Bearer " + token);
       QueryParam queryParam = new QueryParam();
       queryParam.add("max", "10000");
+      queryParam.add("briefRepresentation", "false");
       String responseRaw = obterRespostaRawGet(header, queryParam, groupsUrl);
       if (responseRaw == null || responseRaw.trim().isEmpty()) {
         return new java.util.ArrayList<>();
@@ -913,4 +956,107 @@ public class KeycloakAdminService extends HttpClientController {
     }
   }
 
+  @CacheEvict(value = { "keycloakUsers", "keycloakUserRoles" }, key = "#userId")
+  public void atribuirRoleGestor(String userId) {
+    log.info("Atribuindo role GESTOR ao usuário {} no Keycloak", userId);
+    try {
+      JSONObject role = buscarRole("GESTOR");
+      if (role == null) {
+        throw new ArchException("Role GESTOR não encontrada no Keycloak");
+      }
+
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      String url = usersUrl + "/" + userId + "/role-mappings/realm";
+      JSONArray bodyArr = new JSONArray().put(role);
+      Body body = new Body(bodyArr);
+
+      super.requestPost(header, body, QueryParam.NONE, url);
+      log.info("Role GESTOR atribuída com sucesso");
+    } catch (HttpException e) {
+      log.error("Erro ao atribuir role GESTOR no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao atribuir role GESTOR: " + e.getMessage(), e);
+    }
+  }
+
+  @CacheEvict(value = { "keycloakUsers", "keycloakUserRoles" }, key = "#userId")
+  public void removerRoleGestor(String userId) {
+    log.info("Removendo role GESTOR do usuário {} no Keycloak", userId);
+    try {
+      JSONObject role = buscarRole("GESTOR");
+      if (role == null) {
+        log.warn("Role GESTOR não encontrada, nada a remover.");
+        return;
+      }
+
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      String url = usersUrl + "/" + userId + "/role-mappings/realm";
+      JSONArray bodyArr = new JSONArray().put(role);
+      Body body = new Body(bodyArr);
+
+      super.requestDelete(header, body, QueryParam.NONE, url);
+      log.info("Role GESTOR removida com sucesso");
+    } catch (HttpException e) {
+      log.error("Erro ao remover role GESTOR no Keycloak: {}", e.getMessage());
+      throw new ArchException("Falha ao remover role GESTOR: " + e.getMessage(), e);
+    }
+  }
+
+  private JSONObject buscarRole(String roleName) {
+    try {
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      String url = rolesUrl + "/" + roleName;
+      HttpResponse response = super.requestGet(header, Body.DEFAULT, QueryParam.NONE, url);
+      return response.getResponse();
+    } catch (HttpException e) {
+      if (e.getStatusCode() == 404) {
+        return null;
+      }
+      log.error("Erro ao buscar role {}: {}", roleName, e.getMessage());
+      throw new ArchException("Falha ao buscar role no Keycloak: " + e.getMessage(), e);
+    }
+  }
+
+  @Cacheable(value = "keycloakUserRoles", key = "#userId")
+  public List<String> obterRolesDoUsuario(String userId) {
+    log.debug("Buscando roles do usuário {} no Keycloak", userId);
+    try {
+      String token = obterAccessTokenAdmin();
+      Header header = new Header();
+      header.setContentType(ContentType.APPLICATION_JSON);
+      header.add("Authorization", "Bearer " + token);
+
+      String url = usersUrl + "/" + userId + "/role-mappings/realm";
+      String responseStr = obterRespostaRawGet(header, QueryParam.NONE, url);
+
+      if (responseStr == null || responseStr.trim().isEmpty()) {
+        return new java.util.ArrayList<>();
+      }
+
+      JSONArray rolesArray = new JSONArray(responseStr);
+      List<String> roles = new java.util.ArrayList<>();
+      for (int i = 0; i < rolesArray.length(); i++) {
+        JSONObject role = rolesArray.getJSONObject(i);
+        roles.add(role.getString("name"));
+      }
+      return roles;
+    } catch (HttpException e) {
+      if (e.getStatusCode() == 404) {
+        return new java.util.ArrayList<>();
+      }
+      log.error("Erro ao buscar roles do usuário: {}", e.getMessage());
+      return new java.util.ArrayList<>();
+    }
+  }
 }

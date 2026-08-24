@@ -18,11 +18,16 @@ public class Body extends TinyTypeMap {
 	public static final Body DEFAULT = null;
 
 	private JSONObject json;
+	private org.json.JSONArray jsonArray;
 
 	public Body() {}
 	
 	public Body(JSONObject json) {
 		this.json = json;
+	}
+
+	public Body(org.json.JSONArray jsonArray) {
+		this.jsonArray = jsonArray;
 	}
 	
 	public StringEntity getStringEntity(ContentType contextType) {
@@ -32,6 +37,8 @@ public class Body extends TinyTypeMap {
 	public String getString(ContentType contextType) {
 		if (this.json != null)
 			return this.json.toString();
+		if (this.jsonArray != null)
+			return this.jsonArray.toString();
 		
 		String body = "";
 		Map<String, Object> map = super.map();

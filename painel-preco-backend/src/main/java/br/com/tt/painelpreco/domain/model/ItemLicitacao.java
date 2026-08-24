@@ -99,7 +99,7 @@ public class ItemLicitacao {
 	private String codigo;
 
 	/** Descrição do Item **/
-	@FullTextField
+	@FullTextField(analyzer = "portuguese_analyzer")
 	@KeywordField(name = "descricao_sort", sortable = Sortable.YES)
 	private String descricao;
 
