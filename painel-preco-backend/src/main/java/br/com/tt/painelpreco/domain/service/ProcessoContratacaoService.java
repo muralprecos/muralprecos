@@ -102,7 +102,7 @@ public class ProcessoContratacaoService {
 			item.setDescricao(origem.getDescricao());
 			item.setDescricaoComplementar(origem.getDescricaoComplementar());
 			item.setUnidadeFornecimento(origem.getUnidadeFornecimento() == null ? null : origem.getUnidadeFornecimento().getNome());
-			item.setQuantidade(origem.getQuantidade());
+			item.setQuantidade(origem.getQuantidade() == null ? null : origem.getQuantidade().longValue());
 			Double valorUnitario = origem.getValorUnitario();
 			item.setValorUnitario(valorUnitario == null ? null : BigDecimal.valueOf(valorUnitario));
 			item.setValorTotal(origem.getValor() == null ? null : BigDecimal.valueOf(origem.getValor()));
