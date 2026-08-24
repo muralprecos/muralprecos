@@ -134,5 +134,31 @@ public class OrganizacaoController {
     }
   }
 
+  @PutMapping("/{id}/gestores/{usuarioId}")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+  public ResponseEntity<Void> adicionarGestor(@PathVariable String id, @PathVariable String usuarioId) {
+    try {
+      organizacaoService.adicionarGestor(id, usuarioId);
+      return ResponseEntity.ok().build();
+    } catch (ArchException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new ArchException("Erro ao adicionar gestor: " + e.getMessage(), e);
+    }
+  }
+
+  @DeleteMapping("/{id}/gestores/{usuarioId}")
+  @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+  public ResponseEntity<Void> removerGestor(@PathVariable String id, @PathVariable String usuarioId) {
+    try {
+      organizacaoService.removerGestor(id, usuarioId);
+      return ResponseEntity.noContent().build();
+    } catch (ArchException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new ArchException("Erro ao remover gestor: " + e.getMessage(), e);
+    }
+  }
+
 }
 

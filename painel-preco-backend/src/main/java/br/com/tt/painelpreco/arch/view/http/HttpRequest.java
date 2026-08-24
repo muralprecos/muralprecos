@@ -111,12 +111,12 @@ public class HttpRequest {
 	}
 
 	private void setQueryParamGet(List<NameValuePair> nameValuePairs) {
-		HttpGet httpGet = getHttpRequestBase();
+		HttpRequestBase requestBase = getHttpRequestBase();
 		try {
-			URI uri = new URIBuilder(httpGet.getURI())
+			URI uri = new URIBuilder(requestBase.getURI())
 							.addParameters(nameValuePairs)
 							.build();
-			httpGet.setURI(uri);
+			requestBase.setURI(uri);
 		} catch (URISyntaxException e) {
 			throw new ArchException(e);
 		}

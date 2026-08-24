@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import javax.persistence.EntityManager;
 
 import org.hibernate.search.engine.search.predicate.SearchPredicate;
+import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
 import org.hibernate.search.engine.search.predicate.dsl.SearchPredicateFactory;
 import org.hibernate.search.engine.search.sort.dsl.SortOrder;
 import org.hibernate.search.engine.search.sort.dsl.CompositeSortComponentsStep;
@@ -24,9 +25,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import br.com.tt.painelpreco.api.dto.form.filter.ItemLicitacaoFilter;
+import br.com.tt.painelpreco.api.dto.form.filter.TipoBusca;
 import br.com.tt.painelpreco.domain.model.ItemLicitacao;
 import br.com.tt.painelpreco.util.DateUtil;
 import br.com.tt.painelpreco.util.StringUtil;
+import java.util.Arrays;
 
 @Repository
 public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRepository {
@@ -54,17 +57,23 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 		Date hoje = new Date();
 
 		List<ItemLicitacao> hits = searchSession.search(ItemLicitacao.class)
-				.where(f -> f.bool()
-						.must(f.match().field("descricao").matching(descricao))
-						.must(filtrosBase(f, hoje)))
+				.where(f -> {
+					var bool = f.bool();
+					applyDescricaoFilter(bool, f, filtro);
+					bool.must(filtrosBase(f, hoje));
+					return bool;
+				})
 				.sort(f -> itemSort(f, pageable))
 				.fetch((int) pageable.getOffset(), pageable.getPageSize())
 				.hits();
 
 		long totalHits = searchSession.search(ItemLicitacao.class)
-				.where(f -> f.bool()
-						.must(f.simpleQueryString().field("descricao").matching(descricao))
-						.must(filtrosBase(f, hoje)))
+				.where(f -> {
+					var bool = f.bool();
+					applyDescricaoFilter(bool, f, filtro);
+					bool.must(filtrosBase(f, hoje));
+					return bool;
+				})
 				.fetchTotalHitCount();
 
 		return new PageImpl<>(hits, pageable, totalHits);
@@ -147,25 +156,25 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 								.matching(filtro.getMunicipioId()));
 					}
 
+					if (filtro.getIdsUFsRegiao() != null && filtro.getIdsUFsRegiao().length > 0) {
+						bool.must(f.terms().field("licitacao.municipio.uf.id")
+								.matchingAny(Arrays.asList(filtro.getIdsUFsRegiao())));
+					}
+
 					if (filtro.getUfId() != null) {
-						Integer[] idsUFsRegiao = br.com.tt.painelpreco.domain.model.UnidadeFederativa.getUFsRegiao(filtro.getUfId());
-						if (idsUFsRegiao != null && idsUFsRegiao.length > 0) {
-							bool.must(f.terms().field("licitacao.municipio.uf.id").matchingAny(idsUFsRegiao));
-						} else {
-							bool.must(f.match().field("licitacao.municipio.uf.uuid").matching(filtro.getUfId()));
-						}
+						bool.must(f.match().field("licitacao.municipio.uf.uuid").matching(filtro.getUfId()));
 					}
 
 					// Filtros do ItemLicitacao
-					if (!StringUtil.isEmpty(filtro.getDescricao())) {
-						bool.must(f.simpleQueryString().field("descricao")
-								.matching(parseQuery(filtro.getDescricao())));
-					}
+					applyDescricaoFilter(bool, f, filtro);
 
 					// Boost para itens recentes considerando data de abertura
-					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(30)).boost(5.0f));
-					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(90)).boost(3.0f));
-					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(365)).boost(1.5f));
+					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(30))
+							.boost(5.0f));
+					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(90))
+							.boost(3.0f));
+					bool.should(f.range().field("licitacao.dataAbertura").atLeast(DateUtil.decrementaDeHoje(365))
+							.boost(1.5f));
 
 					if (!StringUtil.isEmpty(filtro.getDescricaoComplementar())) {
 						bool.must(f.simpleQueryString().field("descricaoComplementar")
@@ -198,9 +207,9 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 				.sort(f -> itemSort(f, pageable))
 
 				// .sort(f -> f.score().desc().then().field("licitacao.dataAbertura").desc()
-				// 		.then().field("licitacao.dataResultadoCompra").desc()
-				// 		.then().field("licitacao.numeroPncp").desc()
-				// 		.then().field("numeroItem").desc())
+				// .then().field("licitacao.dataResultadoCompra").desc()
+				// .then().field("licitacao.numeroPncp").desc()
+				// .then().field("numeroItem").desc())
 
 				.fetch((int) pageable.getOffset(), pageable.getPageSize());
 
@@ -214,9 +223,27 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 		return f.bool()
 				.must(f.range().field("licitacao.dataAbertura").atMost(hoje))
 				.must(f.range().field("licitacao.dataResultadoCompra").atMost(hoje))
-				.must(f.range().field("quantidade").greaterThan(0L))
+				.must(f.range().field("quantidade").greaterThan(0))
 				.must(f.range().field("valor").greaterThan(0.0))
 				.toPredicate();
+	}
+
+	private void applyDescricaoFilter(BooleanPredicateClausesStep<?> bool, SearchPredicateFactory f,
+			ItemLicitacaoFilter filtro) {
+		if (!StringUtil.isEmpty(filtro.getDescricao())) {
+			String desc = filtro.getDescricao().trim();
+			TipoBusca tipoBusca = filtro.getTipoBuscaDescricao() != null ? filtro.getTipoBuscaDescricao()
+					: TipoBusca.TODAS_PALAVRAS;
+
+			if (tipoBusca == TipoBusca.FRASE_EXATA) {
+				bool.must(f.phrase().field("descricao").matching(desc));
+			} else if (tipoBusca == TipoBusca.TODAS_PALAVRAS) {
+				bool.must(f.simpleQueryString().field("descricao").matching(desc)
+						.defaultOperator(org.hibernate.search.engine.search.common.BooleanOperator.AND));
+			} else {
+				bool.must(f.match().field("descricao").matching(desc));
+			}
+		}
 	}
 
 	private SortFinalStep itemSort(SearchSortFactory f, Pageable pageable) {
@@ -253,27 +280,26 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 			return null;
 		}
 		switch (property) {
-		case "descricao":
-			return "descricao_sort";
-		case "valorUnitario":
-			return "valorUnitario";
-		case "valor":
-			return "valor";
-		case "quantidade":
-			return "quantidade";
-		case "dataResultadoCompra":
-		case "licitacao.dataResultadoCompra":
-			return "licitacao.dataResultadoCompra";
-		case "dataAbertura":
-		case "licitacao.dataAbertura":
-			return "licitacao.dataAbertura";
-		case "data":
-			return "licitacao.dataResultadoCompra";
-		default:
-			return null;
+			case "descricao":
+				return "descricao_sort";
+			case "valorUnitario":
+				return "valorUnitario";
+			case "valor":
+				return "valor";
+			case "quantidade":
+				return "quantidade";
+			case "dataResultadoCompra":
+			case "licitacao.dataResultadoCompra":
+				return "licitacao.dataResultadoCompra";
+			case "dataAbertura":
+			case "licitacao.dataAbertura":
+				return "licitacao.dataAbertura";
+			case "data":
+				return "licitacao.dataResultadoCompra";
+			default:
+				return null;
 		}
 	}
-
 
 	private String parseQuery(String query) {
 		if (StringUtil.isEmpty(query)) {
@@ -291,7 +317,8 @@ public class ItemLicitacaoSearchRepositoryImpl implements ItemLicitacaoSearchRep
 				// Se começa com aspas, mantemos o conteúdo literal como está
 				matcher.appendReplacement(sb, Matcher.quoteReplacement(match));
 			} else {
-				// Caso contrário, é um conector fora de aspas; substituímos pelo símbolo correspondente
+				// Caso contrário, é um conector fora de aspas; substituímos pelo símbolo
+				// correspondente
 				String upperMatch = match.toUpperCase();
 				String replacement = "";
 				if (upperMatch.equals("AND")) {

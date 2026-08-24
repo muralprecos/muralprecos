@@ -9,6 +9,7 @@ public final class OrganizacaoKeycloakAttributes {
   public static final String NOME = "organizacaoNome";
   public static final String CNPJ = "organizacaoCNPJ";
   public static final String TELEFONE = "organizacaoTelefone";
+  public static final String ENABLED = "enabled";
 
   private OrganizacaoKeycloakAttributes() {
   }

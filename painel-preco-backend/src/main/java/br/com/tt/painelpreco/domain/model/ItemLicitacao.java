@@ -99,7 +99,7 @@ public class ItemLicitacao {
 	private String codigo;
 
 	/** Descrição do Item **/
-	@FullTextField
+	@FullTextField(analyzer = "portuguese_analyzer")
 	@KeywordField(name = "descricao_sort", sortable = Sortable.YES)
 	private String descricao;
 
@@ -115,7 +115,7 @@ public class ItemLicitacao {
 	private UnidadeFornecimento unidadeFornecimento;
 
 	@GenericField(sortable = Sortable.YES)
-	private Long quantidade;
+	private Integer quantidade;
 
 	@GenericField(sortable = Sortable.YES)
 	private Double valor;
