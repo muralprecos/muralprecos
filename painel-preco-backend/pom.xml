@@ -6,7 +6,7 @@
 
 	<groupId>br.com.tt</groupId>
 	<artifactId>painel-preco</artifactId>
-	<version>1.0.40.3</version>
+	<version>1.0.40.4</version>
 	<name>painel-preco</name>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
