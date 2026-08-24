@@ -135,6 +135,11 @@ public class ProcessoContratacaoService {
 		return processo;
 	}
 
+	/** @return o processo mais recente já criado para esta cotação, ou {@code null} se nenhum existir. */
+	public ProcessoContratacao buscarPorCotacaoUuid(UUID cotacaoUuid) {
+		return processoContratacaoRepository.findFirstByCotacao_UuidOrderByCriadoEmDesc(cotacaoUuid);
+	}
+
 	@Transactional
 	public ProcessoContratacao atualizar(UUID uuid, ProcessoContratacaoForm form) {
 		ProcessoContratacao processo = buscarPorUuid(uuid);

@@ -16,6 +16,9 @@ public interface ProcessoContratacaoRepository extends JpaRepository<ProcessoCon
 	@Transactional
 	ProcessoContratacao findByUuid(UUID uuid);
 
+	@Transactional
+	ProcessoContratacao findFirstByCotacao_UuidOrderByCriadoEmDesc(UUID cotacaoUuid);
+
 	Page<ProcessoContratacao> findByCriadoPorOrderByCriadoEmDesc(Usuario criadoPor, Pageable pageable);
 
 }

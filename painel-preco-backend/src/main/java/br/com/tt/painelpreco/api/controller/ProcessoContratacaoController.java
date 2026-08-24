@@ -74,6 +74,16 @@ public class ProcessoContratacaoController extends AbstractController {
 		return processoContratacaoService.toDTO(processoContratacaoService.buscarPorUuid(uuid));
 	}
 
+	/** Usado pela tela de intake para redirecionar direto ao processo já existente, em vez de recriar um novo. */
+	@GetMapping("/por-cotacao/{cotacaoUuid}")
+	public ResponseEntity<ProcessoContratacaoDTO> buscarPorCotacao(@PathVariable UUID cotacaoUuid) {
+		ProcessoContratacao processo = processoContratacaoService.buscarPorCotacaoUuid(cotacaoUuid);
+		if (processo == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(processoContratacaoService.toDTO(processo));
+	}
+
 	@PutMapping("/{uuid}")
 	public ProcessoContratacaoDTO atualizar(@PathVariable UUID uuid, @Valid @RequestBody ProcessoContratacaoForm form) {
 		ProcessoContratacao processo = processoContratacaoService.atualizar(uuid, form);
