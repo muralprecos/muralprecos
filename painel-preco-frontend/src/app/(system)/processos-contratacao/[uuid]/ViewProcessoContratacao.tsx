@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   IArtefatoGerado,
   IArtefatoSecaoLog,
@@ -58,9 +58,17 @@ function ultimaVersao(artefatos: IArtefatoGerado[], tipo: TipoArtefatoEnum): IAr
 export default function ViewProcessoContratacao({ uuid }: IProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [processo, setProcesso] = useState<IProcessoContratacao | null>(null);
-  const [gerando, setGerando] = useState<TipoArtefatoEnum | null>(null);
-  const [baixando, setBaixando] = useState<TipoArtefatoEnum | null>(null);
-  const [revisando, setRevisando] = useState<TipoArtefatoEnum | null>(null);
+  const [gerando, setGerando] = useState<Set<TipoArtefatoEnum>>(new Set());
+  const [baixando, setBaixando] = useState<Set<TipoArtefatoEnum>>(new Set());
+  const [revisando, setRevisando] = useState<Set<TipoArtefatoEnum>>(new Set());
+
+  const marcar = (setter: Dispatch<SetStateAction<Set<TipoArtefatoEnum>>>, tipo: TipoArtefatoEnum, ativo: boolean) =>
+    setter((atual) => {
+      const proximo = new Set(atual);
+      if (ativo) proximo.add(tipo);
+      else proximo.delete(tipo);
+      return proximo;
+    });
   const [logAberto, setLogAberto] = useState<{ tipo: TipoArtefatoEnum; versao: number } | null>(null);
   const [logSecoes, setLogSecoes] = useState<IArtefatoSecaoLog[]>([]);
   const [carregandoLog, setCarregandoLog] = useState(false);
@@ -86,40 +94,40 @@ export default function ViewProcessoContratacao({ uuid }: IProps) {
 
   const handleGerar = async (tipo: TipoArtefatoEnum) => {
     try {
-      setGerando(tipo);
+      marcar(setGerando, tipo, true);
       await apiClientPostGerarArtefato(uuid, tipo);
       notify("success", `${tipo} gerado como rascunho. Revise o conteúdo antes de usar.`);
       await carregarProcesso();
     } catch (e: any) {
       notify("error", e?.message || `Erro ao gerar o ${tipo}.`);
     } finally {
-      setGerando(null);
+      marcar(setGerando, tipo, false);
     }
   };
 
   const handleBaixar = async (tipo: TipoArtefatoEnum, versao: number) => {
     try {
-      setBaixando(tipo);
+      marcar(setBaixando, tipo, true);
       const { blob, filename } = await apiClientGetDownloadArtefato(uuid, tipo, versao);
       downloadFile(blob, filename || `${tipo}-v${versao}.docx`);
       notify("success", "Iniciando download do arquivo!");
     } catch (e: any) {
       notify("error", e?.message || `Erro ao baixar o ${tipo}.`);
     } finally {
-      setBaixando(null);
+      marcar(setBaixando, tipo, false);
     }
   };
 
   const handleRevisar = async (tipo: TipoArtefatoEnum, versao: number) => {
     try {
-      setRevisando(tipo);
+      marcar(setRevisando, tipo, true);
       await apiClientPostRevisarArtefato(uuid, tipo, versao);
       notify("success", `${tipo} marcado como revisado.`);
       await carregarProcesso();
     } catch (e: any) {
       notify("error", e?.message || `Erro ao marcar o ${tipo} como revisado.`);
     } finally {
-      setRevisando(null);
+      marcar(setRevisando, tipo, false);
     }
   };
 
@@ -217,9 +225,9 @@ export default function ViewProcessoContratacao({ uuid }: IProps) {
                     size="sm"
                     variant={artefato ? "outline" : "default"}
                     onClick={() => handleGerar(tipo)}
-                    disabled={gerando === tipo}
+                    disabled={gerando.has(tipo)}
                   >
-                    {gerando === tipo ? (
+                    {gerando.has(tipo) ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     {artefato ? "Gerar novamente" : "Gerar"}
@@ -231,9 +239,9 @@ export default function ViewProcessoContratacao({ uuid }: IProps) {
                         size="sm"
                         variant="outline"
                         onClick={() => handleBaixar(tipo, artefato.versao)}
-                        disabled={baixando === tipo}
+                        disabled={baixando.has(tipo)}
                       >
-                        {baixando === tipo ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {baixando.has(tipo) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Baixar .docx
                       </Button>
 
@@ -251,9 +259,9 @@ export default function ViewProcessoContratacao({ uuid }: IProps) {
                           size="sm"
                           variant="secondary"
                           onClick={() => handleRevisar(tipo, artefato.versao)}
-                          disabled={revisando === tipo}
+                          disabled={revisando.has(tipo)}
                         >
-                          {revisando === tipo ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                          {revisando.has(tipo) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                           Marcar como revisado
                         </Button>
                       )}

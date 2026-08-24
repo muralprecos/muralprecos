@@ -214,6 +214,21 @@ export const apiClientGetProcessoContratacao = async (
   return data as IProcessoContratacao;
 };
 
+/** @return o processo já existente para esta cotação, ou null se nenhum foi criado ainda. */
+export const apiClientGetProcessoContratacaoPorCotacao = async (
+  cotacaoUuid: string
+): Promise<IProcessoContratacao | null> => {
+  const res = await fetch(`/api/processos-contratacao/por-cotacao/${cotacaoUuid}`);
+  if (res.status === 404) {
+    return null;
+  }
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || "Não foi possível verificar processos existentes para esta cotação");
+  }
+  return data as IProcessoContratacao;
+};
+
 export const apiClientPutAtualizarProcessoContratacao = async (
   uuid: string,
   form: IProcessoContratacaoForm
