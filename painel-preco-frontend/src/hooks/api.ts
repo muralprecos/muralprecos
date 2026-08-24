@@ -341,6 +341,24 @@ export const getProcessoContratacao = async (opts: IAPISearchPropsLogged) => {
   });
 };
 
+/** @return o processo já existente para esta cotação, ou null se nenhum foi criado ainda. */
+export const getProcessoContratacaoPorCotacao = async (
+  cotacaoUuid: string,
+  accessToken: string
+): Promise<IProcessoContratacao | null> => {
+  try {
+    return await getGenericObject<IProcessoContratacao>({
+      path: `${HOST_API_PREFIX}/processos-contratacao/por-cotacao/${cotacaoUuid}`,
+      accessToken,
+    });
+  } catch (err: any) {
+    if (err?.statusCode === 404) {
+      return null;
+    }
+    throw err;
+  }
+};
+
 export const putAtualizarProcessoContratacao = async (
   uuid: string,
   form: IProcessoContratacaoForm,

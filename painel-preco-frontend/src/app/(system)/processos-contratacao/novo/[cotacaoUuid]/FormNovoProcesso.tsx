@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,9 +16,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import FormTitle from "@/components/atoms/FormTitle";
+import LoadingList from "@/components/atoms/LoadingList";
 import { FileText, Loader2 } from "lucide-react";
 import { notify } from "@/components/molecules/NotifyToast";
-import { apiClientPostCreateProcessoContratacao } from "@/hooks/apiclient";
+import {
+  apiClientGetProcessoContratacaoPorCotacao,
+  apiClientPostCreateProcessoContratacao,
+} from "@/hooks/apiclient";
+import { catchErrorFromFetch } from "@/utils/requestUtils";
+import { isClientNextjs } from "@/utils/validateUtils";
 import { IProcessoContratacaoForm } from "@/interfaces/types";
 
 interface IProps {
@@ -59,6 +65,24 @@ export default function FormNovoProcesso({ cotacaoUuid }: IProps) {
     cotacaoUuid,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [verificandoExistente, setVerificandoExistente] = useState(true);
+
+  useEffect(() => {
+    if (!isClientNextjs()) return;
+    (async () => {
+      try {
+        const existente = await apiClientGetProcessoContratacaoPorCotacao(cotacaoUuid);
+        if (existente) {
+          router.replace(`/processos-contratacao/${existente.uuid}`);
+          return;
+        }
+      } catch (e) {
+        catchErrorFromFetch(e, "verificar processos já existentes para esta cotação");
+      }
+      setVerificandoExistente(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cotacaoUuid]);
 
   const set = <K extends keyof IProcessoContratacaoForm>(
     campo: K,
@@ -78,6 +102,10 @@ export default function FormNovoProcesso({ cotacaoUuid }: IProps) {
       setIsSaving(false);
     }
   };
+
+  if (verificandoExistente) {
+    return <LoadingList />;
+  }
 
   return (
     <div className="space-y-6">
