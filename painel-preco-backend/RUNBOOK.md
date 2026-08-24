@@ -7,6 +7,37 @@ Backend e frontend são repositórios git independentes, lado a lado dentro de u
 └── painel-preco-frontend
 ```
 
+## Antes de começar (config necessária, uma vez por ambiente)
+
+**Este projeto NÃO roda migrations automaticamente.** Apesar de o Flyway estar
+habilitado (`spring.flyway.enabled=true`) e `spring.jpa.hibernate.ddl-auto=none`,
+não existe pasta `db/migration` — o Flyway só cria um baseline vazio no
+primeiro start. Todo o schema é gerenciado à mão pelos arquivos em
+`src/main/resources/scripts/*.sql`, aplicados manualmente contra o banco.
+**Sempre que der `git pull` e houver `.sql` novo em `scripts/`, rode-o antes
+de subir o backend:**
+
+```bash
+cd /home/euclydes/repos/tt/painel-preco/painel-preco-backend
+docker exec -i painel-preco-backend-postgres-1 psql -U postgres -d muralpreco \
+  < src/main/resources/scripts/2026-08-23-create-processo-contratacao.sql
+docker exec -i painel-preco-backend-postgres-1 psql -U postgres -d muralpreco \
+  < src/main/resources/scripts/2026-08-23-add-tratamento-me-epp.sql
+```
+(Ver `git log --diff-filter=A -- src/main/resources/scripts/` para achar rapidamente quais scripts são novos desde o seu último pull.)
+
+**Variáveis de ambiente novas** (feature de geração de ETP/TR/Edital) — copiar
+de `.env-example` para o seu `.env` e preencher `LLM_API_KEY` com uma chave
+real (peça a chave de homologação com o time; nunca commitar a chave):
+```
+LLM_API_KEY=...
+LLM_API_BASE_URL=https://api.deepseek.com/v1
+LLM_API_MODEL=deepseek-chat
+```
+Sem isso, os endpoints `/processos-contratacao/*/artefatos/*/gerar` falham
+com erro de autenticação contra a API do LLM — o resto da aplicação funciona
+normalmente sem essas variáveis.
+
 ## Subir a stack
 
 ### 1. Infra (postgres, redis, keycloak)
