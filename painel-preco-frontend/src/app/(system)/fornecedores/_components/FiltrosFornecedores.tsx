@@ -32,8 +32,10 @@ export function FiltrosFornecedores({ filtros, onAplicar }: Props) {
     fetch("/api/dashboard/fornecedores?recurso=por-porte")
       .then((res) => (res.ok ? res.json() : []))
       .then((data: FornecedorPorteItem[]) => {
-        const nomes = data.map((d) => d.porte).filter(Boolean).sort((a, b) => a.localeCompare(b));
-        setPortes(nomes);
+        if (Array.isArray(data)) {
+          const nomes = data.map((d) => d.porte).filter(Boolean).sort((a, b) => a.localeCompare(b));
+          setPortes(nomes);
+        }
       })
       .catch(() => setPortes([]));
   }, []);

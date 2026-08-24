@@ -8,12 +8,19 @@ import { PorteChart } from "./PorteChart";
 import { EvolucaoChart } from "./EvolucaoChart";
 import { FiltrosFornecedores } from "./FiltrosFornecedores";
 import { useFornecedoresQueryStates, filtrosToParams, type FornecedoresFiltros } from "../_lib/fornecedoresQuery";
+import { notifyApiError } from "@/utils/errorUtils";
 import type { FornecedorKpi, FornecedorRankingItem, FornecedorPorteItem, FornecedorEvolucaoItem } from "./types";
 
 async function apiFetch<T>(recurso: string, params?: Record<string, string>): Promise<T> {
   const qs = new URLSearchParams({ recurso, ...params }).toString();
   const res = await fetch(`/api/dashboard/fornecedores?${qs}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => null);
+    const error = new Error(errorBody?.message || `HTTP ${res.status}`);
+    (error as any).status = res.status;
+    (error as any).details = errorBody;
+    throw error;
+  }
   return res.json();
 }
 
@@ -34,23 +41,30 @@ export default function FornecedoresDashboardClient() {
   const [loadPorte, setLoadPorte] = useState(true);
   const [loadEvolucao, setLoadEvolucao] = useState(true);
 
+  const handleError = (error: unknown) => {
+    console.error(error);
+    notifyApiError(error, "Erro ao carregar dados de fornecedores", {
+      id: "fornecedores-dashboard-error",
+    });
+  };
+
   useEffect(() => {
     setLoadKpi(true);
     apiFetch<FornecedorKpi>("kpis", filtroParams)
       .then(setKpi)
-      .catch(console.error)
+      .catch(handleError)
       .finally(() => setLoadKpi(false));
 
     setLoadRanking(true);
     apiFetch<FornecedorRankingItem[]>("ranking", { limite: "10", ...filtroParams })
       .then(setRanking)
-      .catch(console.error)
+      .catch(handleError)
       .finally(() => setLoadRanking(false));
 
     setLoadPorte(true);
     apiFetch<FornecedorPorteItem[]>("por-porte", filtroParams)
       .then(setPorte)
-      .catch(console.error)
+      .catch(handleError)
       .finally(() => setLoadPorte(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtroParamsKey]);
@@ -59,7 +73,7 @@ export default function FornecedoresDashboardClient() {
     setLoadEvolucao(true);
     apiFetch<FornecedorEvolucaoItem[]>("evolucao-mensal", { ano: String(a), ...filtroParams })
       .then(setEvolucao)
-      .catch(console.error)
+      .catch(handleError)
       .finally(() => setLoadEvolucao(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtroParamsKey]);

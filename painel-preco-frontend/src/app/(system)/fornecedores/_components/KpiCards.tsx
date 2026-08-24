@@ -40,7 +40,7 @@ interface Props {
 }
 
 export function KpiCards({ kpi, isLoading }: Props) {
-  if (isLoading || !kpi) {
+  if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
@@ -53,19 +53,29 @@ export function KpiCards({ kpi, isLoading }: Props) {
     );
   }
 
+  const safeKpi: FornecedorKpi = kpi ?? {
+    totalFornecedores: 0,
+    fornecedoresMes: 0,
+    fornecedoresMesVariacao: 0,
+    totalContratos: 0,
+    valorTotal: 0,
+    valorMes: 0,
+    valorMesVariacao: 0,
+  };
+
   const cards = [
     {
       title: "Fornecedores",
-      value: kpi.totalFornecedores.toLocaleString("pt-BR"),
-      sub: `${kpi.fornecedoresMes.toLocaleString("pt-BR")} este mês`,
-      variacao: fmtVariacao(kpi.fornecedoresMesVariacao),
-      t: trend(kpi.fornecedoresMesVariacao),
+      value: safeKpi.totalFornecedores.toLocaleString("pt-BR"),
+      sub: `${safeKpi.fornecedoresMes.toLocaleString("pt-BR")} este mês`,
+      variacao: fmtVariacao(safeKpi.fornecedoresMesVariacao),
+      t: trend(safeKpi.fornecedoresMesVariacao),
       icon: Building2,
       primary: true,
     },
     {
       title: "Contratos Vencidos",
-      value: kpi.totalContratos.toLocaleString("pt-BR"),
+      value: safeKpi.totalContratos.toLocaleString("pt-BR"),
       sub: "Total homologados",
       variacao: null,
       t: "neutral" as const,
@@ -74,7 +84,7 @@ export function KpiCards({ kpi, isLoading }: Props) {
     },
     {
       title: "Valor Total",
-      value: fmtMoeda(kpi.valorTotal),
+      value: fmtMoeda(safeKpi.valorTotal),
       sub: "Soma itens adjudicados",
       variacao: null,
       t: "neutral" as const,
@@ -83,10 +93,10 @@ export function KpiCards({ kpi, isLoading }: Props) {
     },
     {
       title: "Valor Este Mês",
-      value: fmtMoeda(kpi.valorMes),
+      value: fmtMoeda(safeKpi.valorMes),
       sub: "Adjudicado no mês",
-      variacao: fmtVariacao(kpi.valorMesVariacao),
-      t: trend(kpi.valorMesVariacao),
+      variacao: fmtVariacao(safeKpi.valorMesVariacao),
+      t: trend(safeKpi.valorMesVariacao),
       icon: DollarSign,
       primary: false,
     },

@@ -2,6 +2,7 @@ import { isResponseReq } from "@/hooks/genericapi";
 import { IAPISearchInfo, IAPISearchProps } from "@/interfaces/types";
 import { ReadonlyURLSearchParams } from "next/navigation";
 import { notify } from "@/components/molecules/NotifyToast";
+import { parseApiError } from "@/utils/errorUtils";
 
 const addParam = (
   url: string,
@@ -88,14 +89,18 @@ export function showFileInOtherTab(blob: Blob) {
 }
 
 export function catchErrorFromFetch(e: any, strErroGeral: string) {
-  if (isResponseReq(e)) {
-    if (e.statusCode === 401) {
-      notify(
-        "error",
-        "Usuário sem permissão. Caso persista, efetue o login novamente."
-      );
-      return;
-    }
+  const parsed = parseApiError(e);
+  if (parsed.status === 401 || parsed.status === 403) {
+    notify(
+      "error",
+      "Acesso não autorizado",
+      "Sua sessão expirou ou você não possui permissão. Efetue o login novamente."
+    );
+    return;
   }
-  notify("error", `Problema ao ${strErroGeral}, tente novamente!`);
+  notify(
+    "error",
+    `Problema ao ${strErroGeral}`,
+    parsed.description || "Tente novamente mais tarde."
+  );
 }

@@ -57,7 +57,7 @@ test("buildBackendParams builds sort + dir", () => {
 test("buildBackendParams ignores invalid dir", () => {
   const params = buildBackendParams({
     sort: "valor",
-    dir: "invalid",
+    dir: "invalid" as any,
   });
   const obj = Object.fromEntries(params.entries());
   assert.equal(obj.sort, "valor");
