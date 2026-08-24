@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   Download,
+  FileText,
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -52,6 +53,10 @@ export default function ItemHistoricoCotacao({ item }: IProps) {
 
   const handleViewDetails = () => {
     router.push(`/cotacoes/validar-cotacao/${item.hashValidacao}`);
+  };
+
+  const handleGerarArtefatos = () => {
+    router.push(`/processos-contratacao/novo/${item.uuid}`);
   };
 
   return (
@@ -122,6 +127,22 @@ export default function ItemHistoricoCotacao({ item }: IProps) {
           </TooltipTrigger>
           <TooltipContent>
             <p>Baixar arquivo PDF da cotação</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleGerarArtefatos}
+              className="rounded-full border hover:bg-muted/70 transition-colors"
+            >
+              <FileText className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Gerar ETP, Termo de Referência e Edital</p>
           </TooltipContent>
         </Tooltip>
       </div>

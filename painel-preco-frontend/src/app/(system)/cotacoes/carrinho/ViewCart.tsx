@@ -10,14 +10,17 @@ import { useRouter } from "next/navigation";
 import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
 import { getUserCartBySession, getUsernameBySession } from "@/utils/cartUtils";
 import { ClientSession } from "@/interfaces/auth";
-import { apiClientPostGerarPDFCotacao } from "@/hooks/apiclient";
+import {
+  apiClientPostGerarPDFCotacao,
+  apiClientPostGerarProcessoContratacaoDoCarrinho,
+} from "@/hooks/apiclient";
 import { useAppSelector } from "@/store/store";
 import { useDispatch } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ItemListLicitacao from "@/components/atoms/ItemListLicitacao";
 import { Button } from "@/components/ui/button";
-import { FileDown, ShoppingCart, Trash2 } from "lucide-react";
+import { FileDown, FileText, ShoppingCart, Trash2 } from "lucide-react";
 import { AlertMessage, type IAlertMessage } from "@/components/molecules/Alert";
 import LoadingList from "@/components/atoms/LoadingList";
 import FormTitle from "@/components/atoms/FormTitle";
@@ -34,6 +37,7 @@ export default function ViewCart({ session }: IPropsCartPge) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [doingRequest, setDoingRequest] = useState(false);
+  const [doingRequestProcesso, setDoingRequestProcesso] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
@@ -88,6 +92,20 @@ export default function ViewCart({ session }: IPropsCartPge) {
     } catch (e: any) {
       setDoingRequest(false);
       notify("error", e?.message || "Erro ao gerar PDF.");
+    }
+  };
+
+  const gerarProcessoContratacao = async () => {
+    try {
+      setDoingRequestProcesso(true);
+      const cotacaoUuid = await apiClientPostGerarProcessoContratacaoDoCarrinho(cart);
+      notify("success", "Cotação registrada! Preencha os dados para gerar os artefatos.");
+      clearCart();
+      router.push(`/processos-contratacao/novo/${cotacaoUuid}`);
+    } catch (e: any) {
+      notify("error", e?.message || "Erro ao iniciar o processo de contratação.");
+    } finally {
+      setDoingRequestProcesso(false);
     }
   };
 
@@ -179,6 +197,22 @@ export default function ViewCart({ session }: IPropsCartPge) {
                   onOpenChange={setIsModalOpen}
                   actionYes={modalConfirmFn}
                 />
+
+                <Button
+                  variant="outline"
+                  onClick={gerarProcessoContratacao}
+                  disabled={doingRequestProcesso || !hastItens() || isLoading}
+                >
+                  <FileText className="h-4 w-4" />
+                  {!doingRequestProcesso ? (
+                    "Gerar Processo de Contratação"
+                  ) : (
+                    <>
+                      <LoadingCircleIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Gerando...
+                    </>
+                  )}
+                </Button>
 
                 <Button
                   variant="default"

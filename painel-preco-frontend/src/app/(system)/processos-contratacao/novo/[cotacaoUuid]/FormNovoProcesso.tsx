@@ -1,0 +1,317 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import FormTitle from "@/components/atoms/FormTitle";
+import { FileText, Loader2 } from "lucide-react";
+import { notify } from "@/components/molecules/NotifyToast";
+import { apiClientPostCreateProcessoContratacao } from "@/hooks/apiclient";
+import { IProcessoContratacaoForm } from "@/interfaces/types";
+
+interface IProps {
+  cotacaoUuid: string;
+}
+
+const ESTADO_INICIAL: IProcessoContratacaoForm = {
+  cotacaoUuid: "",
+  objeto: "",
+  justificativaNecessidade: "",
+  modalidadePretendida: null,
+  criterioJulgamento: null,
+  regimeExecucao: null,
+  prazoVigenciaMeses: null,
+  prazoVigenciaFundamentoLegal: null,
+  tipoObjetoContinuo: false,
+  orcamentoSigiloso: false,
+  registroPrecos: false,
+  tratamentoFavorecidoMeEpp: true,
+  dotacaoGestaoUnidade: "",
+  dotacaoFonteRecursos: "",
+  dotacaoProgramaTrabalho: "",
+  dotacaoElementoDespesa: "",
+  dotacaoPlanoInterno: "",
+  dotacaoPostergada: false,
+  orgaoNome: "",
+  orgaoCnpj: "",
+  orgaoEndereco: "",
+  orgaoEsfera: "",
+  orgaoUasg: "",
+  orgaoTelefone: "",
+};
+
+export default function FormNovoProcesso({ cotacaoUuid }: IProps) {
+  const router = useRouter();
+  const [form, setForm] = useState<IProcessoContratacaoForm>({
+    ...ESTADO_INICIAL,
+    cotacaoUuid,
+  });
+  const [isSaving, setIsSaving] = useState(false);
+
+  const set = <K extends keyof IProcessoContratacaoForm>(
+    campo: K,
+    valor: IProcessoContratacaoForm[K]
+  ) => setForm((f) => ({ ...f, [campo]: valor }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsSaving(true);
+      const processo = await apiClientPostCreateProcessoContratacao(form);
+      notify("success", "Processo de contratação criado! Agora gere os artefatos.");
+      router.push(`/processos-contratacao/${processo.uuid}`);
+    } catch (err: any) {
+      notify("error", err?.message || "Erro ao criar o processo de contratação.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <FormTitle
+        icon={<FileText className="h-5 w-5" />}
+        title="Novo Processo de Contratação"
+        description="Preencha os dados institucionais e legais para gerar o ETP, o Termo de Referência e o Edital."
+        uppercase={false}
+        backButton={true}
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Dados Gerais</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="objeto">Objeto da contratação</Label>
+              <Textarea
+                id="objeto"
+                value={form.objeto ?? ""}
+                onChange={(e) => set("objeto", e.target.value)}
+                placeholder="Ex.: aquisição de materiais de limpeza e higiene para os prédios administrativos do órgão"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="justificativa">Justificativa da necessidade</Label>
+              <Textarea
+                id="justificativa"
+                value={form.justificativaNecessidade ?? ""}
+                onChange={(e) => set("justificativaNecessidade", e.target.value)}
+                placeholder="Por que esta contratação é necessária?"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Modalidade, Julgamento e Execução</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-1.5">
+              <Label>Modalidade pretendida</Label>
+              <Select
+                value={form.modalidadePretendida ?? undefined}
+                onValueChange={(v) => set("modalidadePretendida", v as IProcessoContratacaoForm["modalidadePretendida"])}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PREGAO">Pregão Eletrônico</SelectItem>
+                  <SelectItem value="CONCORRENCIA">Concorrência</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Critério de julgamento</Label>
+              <Select
+                value={form.criterioJulgamento ?? undefined}
+                onValueChange={(v) => set("criterioJulgamento", v as IProcessoContratacaoForm["criterioJulgamento"])}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MENOR_PRECO">Menor preço</SelectItem>
+                  <SelectItem value="MAIOR_DESCONTO">Maior desconto</SelectItem>
+                  <SelectItem value="TECNICA_E_PRECO">Técnica e preço</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Regime de execução</Label>
+              <Select
+                value={form.regimeExecucao ?? undefined}
+                onValueChange={(v) => set("regimeExecucao", v as IProcessoContratacaoForm["regimeExecucao"])}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="COM_DEDICACAO_MAO_DE_OBRA">Serviço com dedicação de mão de obra</SelectItem>
+                  <SelectItem value="SEM_DEDICACAO_MAO_DE_OBRA">Serviço sem dedicação de mão de obra</SelectItem>
+                  <SelectItem value="COMPRAS">Compras</SelectItem>
+                  <SelectItem value="OBRAS">Obras</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border p-3 sm:col-span-2 lg:col-span-1">
+              <Label htmlFor="objetoContinuo" className="cursor-pointer">Objeto de natureza continuada</Label>
+              <Switch
+                id="objetoContinuo"
+                checked={!!form.tipoObjetoContinuo}
+                onCheckedChange={(v) => set("tipoObjetoContinuo", v)}
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <Label htmlFor="registroPrecos" className="cursor-pointer">Registro de preços</Label>
+              <Switch
+                id="registroPrecos"
+                checked={!!form.registroPrecos}
+                onCheckedChange={(v) => set("registroPrecos", v)}
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <Label htmlFor="orcamentoSigiloso" className="cursor-pointer">Orçamento sigiloso</Label>
+              <Switch
+                id="orcamentoSigiloso"
+                checked={!!form.orcamentoSigiloso}
+                onCheckedChange={(v) => set("orcamentoSigiloso", v)}
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <Label htmlFor="tratamentoMeEpp" className="cursor-pointer">Tratamento favorecido ME/EPP</Label>
+              <Switch
+                id="tratamentoMeEpp"
+                checked={!!form.tratamentoFavorecidoMeEpp}
+                onCheckedChange={(v) => set("tratamentoFavorecidoMeEpp", v)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Vigência</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="prazoVigencia">Prazo de vigência (meses)</Label>
+              <Input
+                id="prazoVigencia"
+                type="number"
+                min={1}
+                value={form.prazoVigenciaMeses ?? ""}
+                onChange={(e) => set("prazoVigenciaMeses", e.target.value ? Number(e.target.value) : null)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Fundamento legal da vigência</Label>
+              <Select
+                value={form.prazoVigenciaFundamentoLegal ?? undefined}
+                onValueChange={(v) => set("prazoVigenciaFundamentoLegal", v as IProcessoContratacaoForm["prazoVigenciaFundamentoLegal"])}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ART_105">Art. 105 (prazo determinado)</SelectItem>
+                  <SelectItem value="ART_106_107">Arts. 106-107 (serviço contínuo, prorrogável)</SelectItem>
+                  <SelectItem value="ART_75_VIII">Art. 75, VIII (improrrogável)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Dotação Orçamentária</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="gestaoUnidade">Gestão/Unidade</Label>
+              <Input id="gestaoUnidade" value={form.dotacaoGestaoUnidade ?? ""} onChange={(e) => set("dotacaoGestaoUnidade", e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="fonteRecursos">Fonte de recursos</Label>
+              <Input id="fonteRecursos" value={form.dotacaoFonteRecursos ?? ""} onChange={(e) => set("dotacaoFonteRecursos", e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="programaTrabalho">Programa de trabalho</Label>
+              <Input id="programaTrabalho" value={form.dotacaoProgramaTrabalho ?? ""} onChange={(e) => set("dotacaoProgramaTrabalho", e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="elementoDespesa">Elemento de despesa</Label>
+              <Input id="elementoDespesa" value={form.dotacaoElementoDespesa ?? ""} onChange={(e) => set("dotacaoElementoDespesa", e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="planoInterno">Plano interno</Label>
+              <Input id="planoInterno" value={form.dotacaoPlanoInterno ?? ""} onChange={(e) => set("dotacaoPlanoInterno", e.target.value)} />
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <Label htmlFor="dotacaoPostergada" className="cursor-pointer">Postergar indicação da dotação</Label>
+              <Switch
+                id="dotacaoPostergada"
+                checked={!!form.dotacaoPostergada}
+                onCheckedChange={(v) => set("dotacaoPostergada", v)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Dados do Órgão Requisitante</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="orgaoNome">Nome do órgão</Label>
+              <Input id="orgaoNome" value={form.orgaoNome ?? ""} onChange={(e) => set("orgaoNome", e.target.value)} placeholder="Preenchido automaticamente, se não informado" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="orgaoCnpj">CNPJ</Label>
+              <Input id="orgaoCnpj" value={form.orgaoCnpj ?? ""} onChange={(e) => set("orgaoCnpj", e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="orgaoUasg">UASG</Label>
+              <Input id="orgaoUasg" value={form.orgaoUasg ?? ""} onChange={(e) => set("orgaoUasg", e.target.value)} />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="orgaoEndereco">Endereço</Label>
+              <Input id="orgaoEndereco" value={form.orgaoEndereco ?? ""} onChange={(e) => set("orgaoEndereco", e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="orgaoEsfera">Esfera</Label>
+              <Input id="orgaoEsfera" value={form.orgaoEsfera ?? ""} onChange={(e) => set("orgaoEsfera", e.target.value)} placeholder="Federal, Estadual, Municipal..." />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="orgaoTelefone">Telefone</Label>
+              <Input id="orgaoTelefone" value={form.orgaoTelefone ?? ""} onChange={(e) => set("orgaoTelefone", e.target.value)} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Criando processo...
+              </>
+            ) : (
+              "Criar Processo e Continuar"
+            )}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
