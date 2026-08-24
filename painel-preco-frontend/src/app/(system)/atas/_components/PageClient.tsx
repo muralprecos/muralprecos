@@ -9,6 +9,7 @@ import { AlertasVencimento } from "./AlertasVencimento";
 import { TopObjetosTable } from "./TopObjetosTable";
 import { FiltrosAtas } from "./FiltrosAtas";
 import { useAtasQueryStates, filtrosToParams, type AtasFiltros } from "../_lib/atasQuery";
+import { notifyApiError } from "@/utils/errorUtils";
 import type {
   AtaKpi,
   AtaSituacaoItem,
@@ -20,7 +21,13 @@ import type {
 async function apiFetch<T>(recurso: string, params?: Record<string, string>): Promise<T> {
   const qs = new URLSearchParams({ recurso, ...params }).toString();
   const res = await fetch(`/api/dashboard/atas?${qs}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => null);
+    const error = new Error(errorBody?.message || `HTTP ${res.status}`);
+    (error as any).status = res.status;
+    (error as any).details = errorBody;
+    throw error;
+  }
   return res.json();
 }
 
@@ -45,28 +52,46 @@ export default function AtasDashboardClient() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const filtroParamsKey = JSON.stringify(filtroParams);
 
+  const handleError = (error: unknown) => {
+    console.error(error);
+    notifyApiError(error, "Erro ao carregar dados de atas", {
+      id: "atas-dashboard-error",
+    });
+  };
+
   useEffect(() => {
     setLoadKpi(true);
-    apiFetch<AtaKpi>("kpis", filtroParams).then(setKpi).catch(console.error).finally(() => setLoadKpi(false));
+    apiFetch<AtaKpi>("kpis", filtroParams)
+      .then(setKpi)
+      .catch(handleError)
+      .finally(() => setLoadKpi(false));
 
     setLoadSituacao(true);
     apiFetch<AtaSituacaoItem[]>("por-situacao", filtroParams)
-      .then(setSituacao).catch(console.error).finally(() => setLoadSituacao(false));
+      .then(setSituacao)
+      .catch(handleError)
+      .finally(() => setLoadSituacao(false));
 
     setLoadTopObjetos(true);
     apiFetch<AtaTopObjetoItem[]>("top-objetos", { limite: "10", ...filtroParams })
-      .then(setTopObjetos).catch(console.error).finally(() => setLoadTopObjetos(false));
+      .then(setTopObjetos)
+      .catch(handleError)
+      .finally(() => setLoadTopObjetos(false));
 
     setLoadAlertas(true);
     apiFetch<AtaAlertaVencimento[]>("alertas-vencimento", filtroParams)
-      .then(setAlertas).catch(console.error).finally(() => setLoadAlertas(false));
+      .then(setAlertas)
+      .catch(handleError)
+      .finally(() => setLoadAlertas(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtroParamsKey]);
 
   const fetchEvolucao = useCallback((a: number) => {
     setLoadEvolucao(true);
     apiFetch<AtaEvolucaoItem[]>("evolucao-mensal", { ano: String(a), ...filtroParams })
-      .then(setEvolucao).catch(console.error).finally(() => setLoadEvolucao(false));
+      .then(setEvolucao)
+      .catch(handleError)
+      .finally(() => setLoadEvolucao(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtroParamsKey]);
 

@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function KpiCards({ kpi, isLoading }: Props) {
-  if (isLoading || !kpi) {
+  if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
@@ -29,10 +29,17 @@ export function KpiCards({ kpi, isLoading }: Props) {
     );
   }
 
+  const safeKpi: AtaKpi = kpi ?? {
+    totalAtasAtivas: 0,
+    atasVencendo30d: 0,
+    valorTotalRegistrado: 0,
+    totalItensCobertos: 0,
+  };
+
   const cards = [
     {
       title: "Atas Ativas",
-      value: kpi.totalAtasAtivas.toLocaleString("pt-BR"),
+      value: safeKpi.totalAtasAtivas.toLocaleString("pt-BR"),
       sub: "Com vigência em curso",
       icon: ScrollText,
       primary: true,
@@ -40,15 +47,15 @@ export function KpiCards({ kpi, isLoading }: Props) {
     },
     {
       title: "Vencendo em 30 dias",
-      value: kpi.atasVencendo30d.toLocaleString("pt-BR"),
+      value: safeKpi.atasVencendo30d.toLocaleString("pt-BR"),
       sub: "Requerem atenção",
       icon: AlertTriangle,
       primary: false,
-      accent: kpi.atasVencendo30d > 50 ? "text-amber-600 dark:text-amber-400" : null,
+      accent: safeKpi.atasVencendo30d > 50 ? "text-amber-600 dark:text-amber-400" : null,
     },
     {
       title: "Valor Registrado",
-      value: fmtMoeda(kpi.valorTotalRegistrado),
+      value: fmtMoeda(safeKpi.valorTotalRegistrado),
       sub: "Soma das atas ativas",
       icon: DollarSign,
       primary: false,
@@ -56,7 +63,7 @@ export function KpiCards({ kpi, isLoading }: Props) {
     },
     {
       title: "Itens Cobertos",
-      value: kpi.totalItensCobertos.toLocaleString("pt-BR"),
+      value: safeKpi.totalItensCobertos.toLocaleString("pt-BR"),
       sub: "Itens com ata ativa",
       icon: Package,
       primary: false,

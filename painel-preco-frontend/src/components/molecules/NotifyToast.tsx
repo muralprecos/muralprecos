@@ -21,14 +21,35 @@ const border = {
   info: "#a9d1f5",
 };
 
+export interface NotifyOptions {
+  id?: string | number;
+  description?: string;
+  duration?: number;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+}
+
 export function notify(
   type: keyof typeof background,
   message: string,
-  description?: string
+  descriptionOrOptions?: string | NotifyOptions,
+  maybeOptions?: NotifyOptions
 ) {
+  const options: NotifyOptions =
+    typeof descriptionOrOptions === "object" && descriptionOrOptions !== null
+      ? descriptionOrOptions
+      : {
+          description: typeof descriptionOrOptions === "string" ? descriptionOrOptions : undefined,
+          ...maybeOptions,
+        };
+
   toast[type](message, {
-    description,
-    duration: type === "error" ? 5000 : 3000,
+    id: options.id,
+    description: options.description,
+    duration: options.duration ?? (type === "error" ? 5000 : 3000),
+    action: options.action,
     style: {
       backgroundColor: background[type],
       color: color[type],
