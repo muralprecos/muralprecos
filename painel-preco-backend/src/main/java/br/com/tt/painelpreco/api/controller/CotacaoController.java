@@ -81,6 +81,7 @@ public class CotacaoController extends AbstractController {
 			cotacao.setCriadoPor(usuario);
 			cotacao.setIp(ip);
 			cotacao.setStringBusca(stringBusca);
+			cotacao.setItensUuidList(itens);
 			cotacao.setCriadoEm(agora);
 			cotacao.setNome(nome);
 			cotacao.setNomeArquivo(nomeArquivo);
@@ -111,6 +112,7 @@ public class CotacaoController extends AbstractController {
 			headers.setContentType(MediaType.APPLICATION_PDF);
 			headers.setContentDispositionFormData("attachment", nomeArquivo);
 			headers.setContentLength(pdf.length);
+			headers.add("X-Cotacao-Uuid", cotacao.getUuid().toString());
 
 			return ResponseEntity.ok().headers(headers).body(pdf);
 		} catch (ArchException e) {
