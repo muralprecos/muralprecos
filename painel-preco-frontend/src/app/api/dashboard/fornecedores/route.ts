@@ -62,6 +62,15 @@ export async function GET(req: NextRequest) {
     }
   } catch (e) {
     console.error("[dashboard/fornecedores]", e);
-    return NextResponse.json({ error: "Erro ao buscar dados" }, { status: 502 });
+    const msg = e instanceof Error ? e.message : String(e);
+    const statusMatch = msg.match(/→\s*(\d{3})/);
+    const status = statusMatch ? parseInt(statusMatch[1], 10) : 502;
+    return NextResponse.json(
+      {
+        message: "Não foi possível carregar os dados de fornecedores no momento.",
+        error: msg,
+      },
+      { status: status >= 400 && status < 600 ? status : 502 }
+    );
   }
 }
