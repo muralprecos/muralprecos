@@ -115,7 +115,7 @@ public class ItemLicitacao {
 	private UnidadeFornecimento unidadeFornecimento;
 
 	@GenericField(sortable = Sortable.YES)
-	private Long quantidade;
+	private Integer quantidade;
 
 	@GenericField(sortable = Sortable.YES)
 	private Double valor;
