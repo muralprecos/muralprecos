@@ -69,12 +69,23 @@ O projeto diferencia o ambiente exibido na interface por meio da variável `NEXT
 | Homologação | `production` | `homolog` | Mantém comportamento de produção e exibe aviso no login e selo `hmg` |
 | Produção | `production` | `production` | Sem aviso e sem selo adicional |
 
+### Google Analytics (GA4)
+
+O rastreamento via Google Analytics (GA4) é integrado via `@next/third-parties/google` no `RootLayout`. O ID de medição é lido dinamicamente da variável de ambiente de servidor `GA_MEASUREMENT_ID`:
+
+1. **No `.env` local ou Portainer (Runtime):** Defina `GA_MEASUREMENT_ID=G-XXXXXXXXXX`. Por ser lido em servidor Node.js (Server Component), alterações entram em vigor imediatamente ao reiniciar o contêiner, sem necessidade de recompilar o bundle.
+2. **No CI/CD (GitHub Actions):**
+   - **Homologação (`.github/workflows/homolog.yml`):** Injeta `GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID_HMG }}`.
+   - **Produção (`.github/workflows/main.yml`):** Injeta `GA_MEASUREMENT_ID=${{ vars.GA_MEASUREMENT_ID_PROD }}`.
+
+Caso a variável `GA_MEASUREMENT_ID` não esteja definida, o script do Google Analytics não é carregado no cliente.
+
 `NODE_ENV` deve permanecer com valores padrão do Next.js (`development` ou `production`). Não use `NODE_ENV=homolog`, pois isso altera a semântica do framework e faria o projeto tratar a sessão como não-produtiva.
 
 Exemplo de build local para homologação:
 
 ```bash
-NEXT_PUBLIC_APP_ENV=homolog npm run build
+NEXT_PUBLIC_APP_ENV=homolog GA_MEASUREMENT_ID=G-HOMOLOG123 npm run build
 ```
 
 ## Deploy
