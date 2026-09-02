@@ -9,12 +9,17 @@ export async function POST(req: NextRequest) {
   let body: { username?: string; password?: string };
   try {
     body = await req.json();
-  } catch {
+  } catch (error) {
+    console.error("[auth/login] Erro ao processar JSON da requisição:", error);
     return NextResponse.json({ error: "Requisição inválida" }, { status: 400 });
   }
 
   const { username, password } = body;
   if (!username || !password) {
+    console.warn("[auth/login] Tentativa de login com campos obrigatórios ausentes:", {
+      hasUsername: !!username,
+      hasPassword: !!password,
+    });
     return NextResponse.json(
       { error: "Credenciais obrigatórias" },
       { status: 400 }
@@ -26,12 +31,24 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
+      console.error("[auth/login] Backend retornou erro na autenticação:", {
+        targetUrl: `${process.env.API_URL}${process.env.API_URL_PREFIX}/auth/logon`,
+        status: res.status,
+        statusText: res.statusText,
+        username,
+        responseBody: text,
+      });
+
       let errorMsg = "Credenciais inválidas";
       try {
         const parsed = JSON.parse(text);
         errorMsg = parsed?.message || parsed?.error || errorMsg;
       } catch {
-        if (text) errorMsg = text;
+        if (text && !text.trim().startsWith("<")) {
+          errorMsg = text;
+        } else if (text && text.trim().startsWith("<")) {
+          errorMsg = "Erro na comunicação com o servidor de autenticação";
+        }
       }
       const status = res.status === 401 ? 401 : res.status >= 400 && res.status < 500 ? res.status : 500;
       return NextResponse.json({ error: errorMsg }, { status });
@@ -51,10 +68,12 @@ export async function POST(req: NextRequest) {
     await setSession(session);
 
     return NextResponse.json({ ok: true });
-  } catch {
+  } catch (error) {
+    console.error("[auth/login] Exceção inesperada durante o login:", error);
     return NextResponse.json(
       { error: "Erro ao realizar login" },
       { status: 500 }
     );
   }
 }
+
