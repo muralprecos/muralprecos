@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildBackendParams } from "../../src/app/(system)/cotacoes/realizar-cotacao/_components/buildBackendParams";
 
-test("buildBackendParams maps canonical to legacy keys", () => {
+test("buildBackendParams retains canonical keys", () => {
   const params = buildBackendParams({
     modalidadeId: "abc",
     porteFornecedorId: "123",
@@ -10,10 +10,10 @@ test("buildBackendParams maps canonical to legacy keys", () => {
     unidadeFornecimentoId: "un",
   });
   const obj = Object.fromEntries(params.entries());
-  assert.equal(obj.modalidadeCompraId, "abc");
-  assert.equal(obj.porteFornecedor, "123");
-  assert.equal(obj.situacao_licitacao, "sit");
-  assert.equal(obj.unidade_fornecimento, "un");
+  assert.equal(obj.modalidadeId, "abc");
+  assert.equal(obj.porteFornecedorId, "123");
+  assert.equal(obj.situacaoId, "sit");
+  assert.equal(obj.unidadeFornecimentoId, "un");
 });
 
 test("buildBackendParams removes empty values and trims strings", () => {
@@ -57,7 +57,7 @@ test("buildBackendParams builds sort + dir", () => {
 test("buildBackendParams ignores invalid dir", () => {
   const params = buildBackendParams({
     sort: "valor",
-    dir: "invalid",
+    dir: "invalid" as unknown as any,
   });
   const obj = Object.fromEntries(params.entries());
   assert.equal(obj.sort, "valor");
