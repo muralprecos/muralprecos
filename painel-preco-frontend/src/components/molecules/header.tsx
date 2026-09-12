@@ -38,6 +38,9 @@ const cotacaoBaseRoutes = [
   "/cotacoes/historico",
   "/cotacoes/validar-cotacao",
   "/cotacoes/listagem",
+  // Processo de contratação (ETP/TR/Edital) sempre parte de uma cotação — mantém a
+  // mesma toolbar em vez de cair no default (Overview/Atividades).
+  "/processos-contratacao",
 ];
 
 const hiddenNavRoutes = ["/gestao-organizacao", "/usuario/perfil"];

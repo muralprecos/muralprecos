@@ -338,6 +338,9 @@ export const getProcessoContratacao = async (opts: IAPISearchPropsLogged) => {
   return getGenericObject<IProcessoContratacao>({
     path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}`,
     ...opts,
+    // Sempre consultado logo após gerar/revisar um artefato — o cache padrão de 1h
+    // (doReq/genericapi.ts) fazia o card e o log de seções mostrarem dado velho.
+    config: { next: { revalidate: 0 } },
   });
 };
 
@@ -405,6 +408,8 @@ export const getLogSecoesArtefato = async (
   return getGenericObject<IArtefatoSecaoLog[]>({
     path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/log-secoes`,
     accessToken,
+    // Sempre a versão recém-gerada — nunca deve vir do cache de 1h.
+    config: { next: { revalidate: 0 } },
   });
 };
 
