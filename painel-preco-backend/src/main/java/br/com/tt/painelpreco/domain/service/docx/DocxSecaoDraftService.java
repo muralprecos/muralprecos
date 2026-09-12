@@ -129,24 +129,36 @@ public class DocxSecaoDraftService {
 					"Redija a descrição da solução como um todo, considerado o ciclo de vida do objeto, com base no objeto e nos itens.",
 					"DESCRICAO_DA_SOLUCAO_COMO_UM_TODO_CONSIDERADO_O_CICLO_DE_VIDA_DO_OBJETO"),
 			new SecaoDraft("REQUISITOS_CONTRATACAO",
-					"Redija os requisitos da contratação (sustentabilidade, exigências técnicas gerais aplicáveis ao objeto). Não invente "
-					+ "percentuais, índices ou prazos específicos de garantia — quando aplicável, marque como [A SER PREENCHIDO PELO ÓRGÃO].",
+					"Redija os requisitos da contratação (sustentabilidade, exigências técnicas gerais aplicáveis ao objeto). Cite o "
+					+ "percentual e/ou a descrição de garantia contratual (fatos exigeGarantiaContratual/percentualGarantiaContratual/"
+					+ "garantiaServicoDescricao) e as exigências de uniforme (fatos exigeUniforme/especificacaoUniforme) quando informados; "
+					+ "não invente esses valores quando ausentes — marque como [A SER PREENCHIDO PELO ÓRGÃO].",
 					"REQUISITOS_DA_CONTRATACAO"),
 			new SecaoDraft("SUBCONTRATACAO",
-					"Redija a cláusula de subcontratação, tratando genericamente das condições e limites em que ela pode ser admitida ou vedada.",
+					"Redija a cláusula de subcontratação. Use o fato permiteSubcontratacao para dizer se é admitida ou vedada e, se admitida "
+					+ "e o fato percentualMaximoSubcontratacao estiver informado, cite o limite percentual; caso contrário, trate genericamente "
+					+ "das condições sem inventar um percentual.",
 					"SUBCONTRATACAO"),
 			new SecaoDraft("MODELO_EXECUCAO",
-					"Redija o modelo de execução do objeto: condições de execução, local/horário, rotinas a cumprir, com base no objeto informado.",
+					"Redija o modelo de execução do objeto: condições de execução, rotinas a cumprir, com base no objeto informado. Cite o "
+					+ "local (localExecucaoServicos) e o horário (horarioExecucaoServicos) de prestação dos serviços e o prazo de início da "
+					+ "execução (prazoInicioExecucaoDias, contado do marco indicado em marcoInicioExecucao) quando esses fatos estiverem "
+					+ "informados; quando não estiverem, marque como [A SER PREENCHIDO PELO ÓRGÃO].",
 					"MODELO_DE_EXECUCAO_DO_OBJETO"),
 			new SecaoDraft("MODELO_GESTAO",
 					"Redija o modelo de gestão do contrato: rotinas de fiscalização técnica e administrativa, papel do gestor/fiscal do contrato.",
 					"MODELO_DE_GESTAO_DO_CONTRATO"),
 			new SecaoDraft("MEDICAO_PAGAMENTO",
-					"Redija os critérios de medição e pagamento: recebimento provisório/definitivo, liquidação e forma de pagamento, em termos gerais "
-					+ "(sem inventar prazos específicos em dias — marque como [A SER PREENCHIDO PELO ÓRGÃO] quando necessário).",
+					"Redija os critérios de medição e pagamento: liquidação e forma de pagamento, em termos gerais. Cite os prazos de "
+					+ "recebimento provisório (prazoRecebimentoProvisorioDias), recebimento definitivo (prazoRecebimentoDefinitivoDias) e "
+					+ "pagamento (prazoPagamentoDias), bem como o índice e a periodicidade de reajuste/repactuação (indiceReajuste, "
+					+ "periodicidadeReajusteMeses) quando aplicável, sempre que esses fatos estiverem informados; quando não estiverem, "
+					+ "marque como [A SER PREENCHIDO PELO ÓRGÃO].",
 					"CRITERIOS_DE_MEDICAO_E_PAGAMENTO"),
 			new SecaoDraft("SANCOES",
-					"Redija as infrações e sanções administrativas aplicáveis, com base nos arts. 155 a 163 da Lei nº 14.133/2021, em termos gerais.",
+					"Redija as infrações e sanções administrativas aplicáveis, com base nos arts. 155 a 163 da Lei nº 14.133/2021, em termos "
+					+ "gerais. Cite os percentuais de multa moratória e compensatória (percentualMultaMoratoria, percentualMultaCompensatoria) "
+					+ "quando informados; quando não estiverem, refira-se à forma prevista no instrumento contratual, sem inventar um valor.",
 					"INFRACOES_E_SANCOES_ADMINISTRATIVAS"),
 			new SecaoDraft("SELECAO_FORNECEDOR",
 					"Redija a forma e os critérios de seleção do fornecedor e o regime de execução, com base na modalidade, no critério de "
@@ -156,7 +168,10 @@ public class DocxSecaoDraftService {
 					"Redija as disposições finais do Termo de Referência, em termos gerais e concisos.",
 					"DISPOSICOES_FINAIS"),
 			new SecaoDraft("FORMALIZACAO_CONTRATACAO",
-					"Redija a seção de formalização da contratação (assinatura do contrato/ata, documentos exigidos do adjudicatário), em termos gerais.",
+					"Redija a seção de formalização da contratação (assinatura do contrato/ata, documentos exigidos do adjudicatário), em "
+					+ "termos gerais. Cite o prazo para o adjudicatário assinar o contrato ou instrumento equivalente "
+					+ "(prazoAssinaturaContratoDiasUteis, em dias úteis) quando informado; caso contrário, marque como "
+					+ "[A SER PREENCHIDO PELO ÓRGÃO].",
 					"FORMALIZACAO_DA_CONTRATACAO"),
 			new SecaoDraft("OBRIGACOES_CONTRATANTE",
 					"Redija as obrigações do contratante, em termos gerais e usuais para este tipo de contratação.",
@@ -195,14 +210,17 @@ public class DocxSecaoDraftService {
 					+ "participação), sem repetir o tratamento diferenciado a ME/EPP (tratado em cláusula própria).",
 					"DA_PARTICIPACAO_NA_LICITACAO"),
 			new SecaoDraft("APRESENTACAO_PROPOSTA_HABILITACAO",
-					"Redija a seção sobre a apresentação da proposta e dos documentos de habilitação, em termos gerais do rito eletrônico.",
+					"Redija a seção sobre a apresentação da proposta e dos documentos de habilitação, em termos gerais do rito eletrônico. "
+					+ "Cite o prazo de validade da proposta (prazoValidadePropostaDias) quando informado; caso contrário, marque como "
+					+ "[A SER PREENCHIDO PELO ÓRGÃO].",
 					"DA_APRESENTACAO_DA_PROPOSTA_E_DOS_DOCUMENTOS_DE_HABILITACAO"),
 			new SecaoDraft("PREENCHIMENTO_PROPOSTA",
 					"Redija a seção sobre o preenchimento da proposta no sistema, em termos gerais.",
 					"DO_PREENCHIMENTO_DA_PROPOSTA"),
 			new SecaoDraft("ABERTURA_SESSAO_LANCES",
 					"Redija a seção sobre a abertura da sessão pública, classificação das propostas e formulação de lances, com base na "
-					+ "modalidade informada (pregão eletrônico ou concorrência).",
+					+ "modalidade informada (pregão eletrônico ou concorrência). Cite o intervalo mínimo de diferença de valores entre lances "
+					+ "(intervaloMinimoLances) quando informado; caso contrário, marque como [A SER PREENCHIDO PELO ÓRGÃO].",
 					"DA_ABERTURA_DA_SESSAO_CLASSIFICACAO_DAS_PROPOSTAS_E_FORMULACAO_DE_LANCES"),
 			new SecaoDraft("FASE_JULGAMENTO",
 					"Redija a seção da fase de julgamento das propostas, com base no critério de julgamento informado.",
@@ -211,7 +229,9 @@ public class DocxSecaoDraftService {
 					"Redija a seção da fase de habilitação, em termos gerais, remetendo às exigências detalhadas no Termo de Referência anexo.",
 					"DA_FASE_DE_HABILITACAO"),
 			new SecaoDraft("TERMO_CONTRATO",
-					"Redija a seção sobre a formalização do termo de contrato (ou instrumento equivalente), em termos gerais.",
+					"Redija a seção sobre a formalização do termo de contrato (ou instrumento equivalente), em termos gerais. Cite o prazo "
+					+ "para o adjudicatário assinar o contrato (prazoAssinaturaContratoDiasUteis, em dias úteis) quando informado; caso "
+					+ "contrário, marque como [A SER PREENCHIDO PELO ÓRGÃO].",
 					"DO_TERMO_DE_CONTRATO"),
 			new SecaoDraft("ATA_REGISTRO_PRECOS",
 					"Redija a seção sobre a ata de registro de preços. Se o fato registroPrecos for falso, declare explicitamente que esta "
@@ -225,10 +245,15 @@ public class DocxSecaoDraftService {
 					"Redija a seção sobre recursos administrativos, com base nos arts. 165 a 168 da Lei nº 14.133/2021, em termos gerais.",
 					"DOS_RECURSOS"),
 			new SecaoDraft("INFRACOES_SANCOES_EDITAL",
-					"Redija as infrações administrativas e sanções aplicáveis a este certame, com base nos arts. 155 a 163 da Lei nº 14.133/2021.",
+					"Redija as infrações administrativas e sanções aplicáveis a este certame, com base nos arts. 155 a 163 da Lei nº "
+					+ "14.133/2021. Cite os percentuais de multa moratória e compensatória (percentualMultaMoratoria, "
+					+ "percentualMultaCompensatoria) quando informados; quando não estiverem, refira-se à forma prevista no edital/contrato, "
+					+ "sem inventar um valor.",
 					"DAS_INFRACOES_ADMINISTRATIVAS_E_SANCOES"),
 			new SecaoDraft("IMPUGNACAO_ESCLARECIMENTO",
-					"Redija a seção sobre impugnação ao edital e pedidos de esclarecimento, com base no art. 164 da Lei nº 14.133/2021, em termos gerais.",
+					"Redija a seção sobre impugnação ao edital e pedidos de esclarecimento, com base no art. 164 da Lei nº 14.133/2021, em "
+					+ "termos gerais. Cite o meio eletrônico pelo qual a impugnação/esclarecimento deve ser enviado "
+					+ "(meioImpugnacaoEsclarecimento) quando informado; caso contrário, marque como [A SER PREENCHIDO PELO ÓRGÃO].",
 					"DA_IMPUGNACAO_AO_EDITAL_E_DO_PEDIDO_DE_ESCLARECIMENTO"),
 			new SecaoDraft("DISPOSICOES_GERAIS_EDITAL",
 					"Redija as disposições gerais do edital, em termos gerais e concisos.",
@@ -313,6 +338,29 @@ public class DocxSecaoDraftService {
 		fatos.put("orgaoEsfera", processo.getOrgaoEsfera());
 		fatos.put("orgaoUasg", processo.getOrgaoUasg());
 		fatos.put("orgaoTelefone", processo.getOrgaoTelefone());
+
+		fatos.put("localExecucaoServicos", processo.getLocalExecucaoServicos());
+		fatos.put("horarioExecucaoServicos", processo.getHorarioExecucaoServicos());
+		fatos.put("prazoInicioExecucaoDias", processo.getPrazoInicioExecucaoDias());
+		fatos.put("marcoInicioExecucao", nomeEnum(processo.getMarcoInicioExecucao()));
+		fatos.put("prazoRecebimentoProvisorioDias", processo.getPrazoRecebimentoProvisorioDias());
+		fatos.put("prazoRecebimentoDefinitivoDias", processo.getPrazoRecebimentoDefinitivoDias());
+		fatos.put("prazoPagamentoDias", processo.getPrazoPagamentoDias());
+		fatos.put("exigeGarantiaContratual", processo.getExigeGarantiaContratual());
+		fatos.put("percentualGarantiaContratual", processo.getPercentualGarantiaContratual());
+		fatos.put("garantiaServicoDescricao", processo.getGarantiaServicoDescricao());
+		fatos.put("permiteSubcontratacao", processo.getPermiteSubcontratacao());
+		fatos.put("percentualMaximoSubcontratacao", processo.getPercentualMaximoSubcontratacao());
+		fatos.put("exigeUniforme", processo.getExigeUniforme());
+		fatos.put("especificacaoUniforme", processo.getEspecificacaoUniforme());
+		fatos.put("indiceReajuste", processo.getIndiceReajuste());
+		fatos.put("periodicidadeReajusteMeses", processo.getPeriodicidadeReajusteMeses());
+		fatos.put("percentualMultaMoratoria", processo.getPercentualMultaMoratoria());
+		fatos.put("percentualMultaCompensatoria", processo.getPercentualMultaCompensatoria());
+		fatos.put("prazoAssinaturaContratoDiasUteis", processo.getPrazoAssinaturaContratoDiasUteis());
+		fatos.put("prazoValidadePropostaDias", processo.getPrazoValidadePropostaDias());
+		fatos.put("intervaloMinimoLances", processo.getIntervaloMinimoLances());
+		fatos.put("meioImpugnacaoEsclarecimento", processo.getMeioImpugnacaoEsclarecimento());
 
 		BigDecimal valorTotal = processo.getItens().stream()
 				.map(ItemProcessoContratacao::getValorTotal)
