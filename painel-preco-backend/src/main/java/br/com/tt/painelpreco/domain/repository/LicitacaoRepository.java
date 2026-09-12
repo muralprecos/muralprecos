@@ -65,6 +65,14 @@ public interface LicitacaoRepository extends JpaRepository<Licitacao, Integer>, 
 		nativeQuery = true)
 	List<Licitacao> findPendentesImportacaoAtas();
 
+	// Só os IDs das licitações pendentes: a ingestão de itens carrega e persiste em blocos
+	// (uma transação por bloco), então não faz sentido trazer todas as entidades de uma vez.
+	@Query(value = "SELECT l.id FROM Licitacao l WHERE NOT EXISTS (SELECT 1 FROM ItemLicitacao il WHERE il.licitacao = l)")
+	List<Long> findIdsPendentesImportacaoItens();
+
+	@Query(value = "SELECT l FROM Licitacao l WHERE l.id IN :ids")
+	List<Licitacao> findAllByIdIn(@Param("ids") List<Long> ids);
+
 	@Query(value = "SELECT l.* FROM mural.licitacao l WHERE l.numero_controle_pncp = ANY(:numerosPncp)", nativeQuery = true)
 	List<Licitacao> findAllByNumeroPncpIn(@Param("numerosPncp") String[] numerosPncp);
 }
