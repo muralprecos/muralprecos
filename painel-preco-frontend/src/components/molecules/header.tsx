@@ -41,6 +41,8 @@ const cotacaoBaseRoutes = [
   // Processo de contratação (ETP/TR/Edital) sempre parte de uma cotação — mantém a
   // mesma toolbar em vez de cair no default (Overview/Atividades).
   "/processos-contratacao",
+  // Menu "Gerar Artefatos" só lista cotações e leva ao mesmo fluxo acima.
+  "/artefatos",
 ];
 
 const hiddenNavRoutes = ["/gestao-organizacao", "/usuario/perfil"];
