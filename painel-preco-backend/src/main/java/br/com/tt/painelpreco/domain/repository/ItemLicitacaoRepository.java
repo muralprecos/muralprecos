@@ -28,5 +28,14 @@ public interface ItemLicitacaoRepository extends JpaRepository<ItemLicitacao, In
 	
 	@Query("SELECT DISTINCT new ItemLicitacao(il.descricaoComplementar) FROM ItemLicitacao il WHERE UPPER(il.descricaoComplementar) LIKE UPPER(:descricaoComplementar) ORDER BY il.descricaoComplementar")
 	Page<ItemLicitacao> findAllByDescricaoComplementar(String descricaoComplementar, Pageable pageable);
-	
+
+	// Usados pela ingestão de itens do PNCP para tornar cada tentativa de bloco idempotente:
+	// método derivado simples (sem @Modifying de bulk delete) para que o Hibernate Search
+	// seja notificado item a item e remova os documentos Lucene correspondentes.
+	void deleteByLicitacaoIdIn(List<Long> licitacaoIds);
+
+	boolean existsByLicitacaoIdIn(List<Long> licitacaoIds);
+
+	long countByLicitacaoIdIn(List<Long> licitacaoIds);
+
 }

@@ -2,7 +2,6 @@ package br.com.tt.painelpreco.pncp.domain.service;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,14 +10,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,95 +44,43 @@ import br.com.tt.painelpreco.util.DateUtil;
 
 @Service
 public class IngestaoLicitacaoService {
-
+	
 	@Autowired
 	private ModalidadeCompraService modalidadeCompraService;
-
+	
 	@Autowired
 	private UnidadeFederativaService unidadeFederativaService;
-
+	
 	@Autowired
 	private MunicipioService municipioService;
-
+	
 	@Autowired
 	private OrgaoService orgaoService;
-
+	
 	@Autowired
 	private SituacaoLicitacaoService situacaoLicitacaoService;
-
+	
 	@Autowired
 	private UnidadeGestoraService unidadeGestoraService;
-
+	
 	@Autowired
 	private EsferaService esferaService;
-
+	
 	@Autowired
 	private FormaCompraService formaCompraService;
-
+	
 	@Autowired
 	private LogErroRepository logErroRepository;
-
+	
 	@Autowired
 	private LicitacaoService licitacaoService;
-
-	@PersistenceContext
-	private EntityManager entityManager;
-
-	private final TransactionTemplate transactionTemplate;
-
+	
 	@Value("${pncp.api.output.dir}")
     private String jsonDir;
-
-	// Nº de arquivos JSON de licitação processados por transação. Cada bloco é persistido,
-	// "flushado" e a sessão é limpa (flush + clear) antes do próximo, para o cache de 1º nível
-	// do Hibernate não crescer sem limite e estourar o heap numa carga completa (dezenas de
-	// milhares de arquivos).
-	@Value("${pncp.coleta.licitacoes.bloco-arquivos:200}")
-	private int blocoArquivos;
-
-	@Autowired
-	public IngestaoLicitacaoService(PlatformTransactionManager transactionManager) {
-		this.transactionTemplate = new TransactionTemplate(transactionManager);
-	}
-
-	// Sem @Transactional: a transação é aberta por bloco de arquivos (processaBloco), nunca
-	// para a carga inteira.
+	
+	@Transactional
 	public void carregaLicitacoesBaixadasNoBanco() {
         long inicio = System.currentTimeMillis();
-
-        File folder = new File(jsonDir);
-        File[] jsonArqs = folder.listFiles((dir, name) -> name.endsWith(".json"));
-
-        if (jsonArqs == null) return;
-
-        List<File> arquivos = Arrays.asList(jsonArqs);
-        int totalArquivos = arquivos.size();
-        int totalBlocos = (totalArquivos + blocoArquivos - 1) / blocoArquivos;
-        System.out.printf("INFO: %d arquivos de licitação a processar (%d blocos de até %d).%n",
-                totalArquivos, totalBlocos, blocoArquivos);
-
-        for (int i = 0; i < totalArquivos; i += blocoArquivos) {
-            List<File> bloco = arquivos.subList(i, Math.min(i + blocoArquivos, totalArquivos));
-            int numBloco = (i / blocoArquivos) + 1;
-            try {
-                processaBloco(bloco);
-                System.out.printf("INFO: Bloco %d/%d — %d arquivos em %.1fs%n",
-                        numBloco, totalBlocos, bloco.size(), (System.currentTimeMillis() - inicio) / 1000.0);
-            } catch (Exception e) {
-                // fail-open: um bloco que falha não impede os demais; os já commitados permanecem.
-                System.err.printf("ERROR: Falha no bloco %d/%d: %s%n", numBloco, totalBlocos, e.getMessage());
-                logErroRepository.save(new LogErro(new Date(), "DatabaseIngestor",
-                        "Falha no bloco " + numBloco + "/" + totalBlocos + ": " + e.getMessage()));
-            }
-        }
-
-        double tempoTotal = (System.currentTimeMillis() - inicio) / 1000.0;
-        System.out.println(String.format("Tempo de processamento: %.6f segundos", tempoTotal));
-    }
-
-	/** Processa um bloco de arquivos JSON de licitação em transação própria. */
-	private void processaBloco(List<File> jsonArqs) {
-        transactionTemplate.execute(status -> {
         ObjectMapper mapper = new ObjectMapper();
 
         Set<ModalidadeCompra> modalidades = new HashSet<>();
@@ -148,6 +92,11 @@ public class IngestaoLicitacaoService {
         Set<FormaCompra> formas = new HashSet<>();
         Set<UnidadeGestora> unidades = new HashSet<>();
         Set<Licitacao> licitacoes = new HashSet<>();
+
+        File folder = new File(jsonDir);
+        File[] jsonArqs = folder.listFiles((dir, name) -> name.endsWith(".json"));
+
+        if (jsonArqs == null) return;
 
         for (File arq : jsonArqs) {
             try {
@@ -179,7 +128,7 @@ public class IngestaoLicitacaoService {
                         municipio.setUf(uf);
                         municipio.setCodigoIbge(dado.get("unidadeOrgao").get("codigoIbge").asText());
                         municipios.add(municipio);
-
+                        
                         // Esfera
                         Esfera esfera = new Esfera();
                         String esferaId = dado.get("orgaoEntidade").get("esferaId").asText();
@@ -236,7 +185,7 @@ public class IngestaoLicitacaoService {
 //                        licitacao.setOrgao(orgao);
                         licitacao.setEsfera(esfera);
                         licitacao.setFormaCompra(forma);
-
+                        
                         System.out.println(licitacao);
                         licitacoes.add(licitacao);
                     }
@@ -255,41 +204,41 @@ public class IngestaoLicitacaoService {
         situacoes.forEach(situacao -> {situacaoLicitacaoService.save(situacao);});
         formas.forEach(forma -> {formaCompraService.save(forma);});
         unidades.forEach(unidade -> {unidadeGestoraService.save(unidade);});
-
+        
         Map<Integer, ModalidadeCompra> modalidadeMap = new HashMap<>();
         modalidadeCompraService.findAll().forEach(modalidade -> {modalidadeMap.put(modalidade.getCodigo(), modalidade);});
-
+        
         Map<String, Municipio> municipioMap = new HashMap<>();
         municipioService.findAll().forEach(municipio -> {municipioMap.put(municipio.getCodigoIbge(), municipio);});
-
+        
         Map<String, UnidadeFederativa> ufMap = new HashMap<>();
         unidadeFederativaService.findAll().forEach(uf -> {ufMap.put(uf.getSigla(), uf);});
-
+        
         Map<EsferaEnum, Esfera> esferaMap = new HashMap<>();
         esferaService.findAll().forEach(esfera -> {esferaMap.put(esfera.getCodigo(), esfera);});
-
+        
         Map<Integer, SituacaoLicitacao> situacaoLicitacaoMap = new HashMap<>();
         situacaoLicitacaoService.findAll().forEach(situacao -> {situacaoLicitacaoMap.put(situacao.getId(), situacao);});
-
+        
         Map<Integer, FormaCompra> formaCompraMap = new HashMap<>();
         formaCompraService.findAll().forEach(formaCompra -> {formaCompraMap.put(formaCompra.getId(), formaCompra);});
-
+        
         Map<String, Orgao> orgaoMap = new HashMap<>();
         orgaoService.findAll().forEach(orgao -> {orgaoMap.put(orgao.getCnpj(), orgao);});
 
         Map<String, UnidadeGestora> unidadeGestoraMap = new HashMap<>();
         unidadeGestoraService.findAll().forEach(unidade -> {unidadeGestoraMap.put(unidade.getCnpj() + "|" + unidade.getCodigo(), unidade);});
-
+        
         municipios.forEach(municipio -> {
         	municipio.setUf(ufMap.get(municipio.getUf().getSigla()));
         	municipioService.save(municipio);
         });
-
+        
         orgaos.forEach(orgao -> {
         	orgao.setEsfera(esferaMap.get(orgao.getEsfera().getCodigo()));
         	orgaoService.save(orgao);
         });
-
+        
         List<String> numerosPncp = new ArrayList<>();
         licitacoes.forEach(licitacao -> {
         	licitacao.setModalidadeCompra(modalidadeMap.get(licitacao.getModalidadeCompra().getCodigo()));
@@ -299,12 +248,12 @@ public class IngestaoLicitacaoService {
         	licitacao.setFormaCompra(formaCompraMap.get(licitacao.getFormaCompra().getId()));
         	licitacao.setOrgao(orgaoMap.get(licitacao.getOrgao().getCnpj()));
         	licitacao.setUnidadeGestora(unidadeGestoraMap.get(licitacao.getUnidadeGestora().getCnpj() + "|" + licitacao.getUnidadeGestora().getCodigo()));
-
+        	
         	numerosPncp.add(licitacao.getNumeroPncp());
         });
-
+        
         List<Licitacao> licitacoesJaExistem = licitacaoService.findAllByNumeroPncpIn(numerosPncp);
-
+        
         Map<String, Long> mapaIds = licitacoesJaExistem.stream()
         	    .collect(Collectors.toMap(
         	        item -> item.getNumeroPncp(),
@@ -319,19 +268,15 @@ public class IngestaoLicitacaoService {
         	        entidadeDoSet.setId(idEncontrado);
         	    }
         	});
-
+        
 //        licitacaoService.saveAll(licitacoesJaExistem);
-//
+//        
 //        licitacoes.removeAll(licitacoesJaExistem);
 
         licitacaoService.saveAll(licitacoes);
-
-        // Descarrega o bloco e desanexa tudo da sessão para o próximo começar limpo.
-        entityManager.flush();
-        entityManager.clear();
-
-        return null;
-        });
+        
+        double tempoTotal = (System.currentTimeMillis() - inicio) / 1000.0;
+        System.out.println(String.format("Tempo de processamento: %.6f segundos", tempoTotal));
     }
 
 }
