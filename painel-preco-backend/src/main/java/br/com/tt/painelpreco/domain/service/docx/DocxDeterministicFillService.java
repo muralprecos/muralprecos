@@ -140,7 +140,10 @@ public class DocxDeterministicFillService {
 	}
 
 	private String vazioSeNaoInformado(String valor) {
-		return valor == null ? "[A SER PREENCHIDO PELO ÓRGÃO]" : valor;
+		// Trata string em branco ("") como não informado, não só null — o intake grava alguns
+		// campos opcionais como "" em vez de deixar a coluna nula, e "Fonte de recursos: ;"
+		// no documento final é exatamente o tipo de resíduo de template que o usuário reclamou.
+		return valor == null || valor.isBlank() ? "[A SER PREENCHIDO PELO ÓRGÃO]" : valor;
 	}
 
 }

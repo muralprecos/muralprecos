@@ -9,7 +9,7 @@
     "ART_75_VIII": "O prazo de vigência da contratação é de {{FACTS:PRAZO_VIGENCIA_MESES}} meses, contados da assinatura do contrato, improrrogável, na forma do art. 75, inciso VIII, da Lei n° 14.133, de 2021."
   },
   "ORCAMENTO_SIGILO": {
-    "PUBLICO": "O custo estimado total da contratação, que é o máximo aceitável, é de {{FACTS:VALOR_TOTAL_ESTIMADO}} ({{FACTS:VALOR_POR_EXTENSO}}), conforme custos unitários apostos na tabela constante do item 1.1 acima.",
+    "PUBLICO": "O custo estimado total da contratação, que é o máximo aceitável, é de {{FACTS:VALOR_TOTAL_ESTIMADO}} ({{FACTS:VALOR_POR_EXTENSO}}), conforme os custos unitários por item detalhados na tabela desta Seção.",
     "SIGILOSO": "O custo estimado da contratação possui caráter sigiloso e será tornado público apenas e imediatamente após o julgamento das propostas. Quando as propostas permanecerem com preços acima do orçamento estimado, o custo estimado da contratação será tornado público após a fase de lances."
   },
   "DOTACAO": {

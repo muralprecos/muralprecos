@@ -29,7 +29,7 @@ import br.com.tt.painelpreco.domain.repository.ArtefatoSecaoLogRepository;
 import br.com.tt.painelpreco.domain.repository.ProcessoContratacaoRepository;
 import br.com.tt.painelpreco.domain.service.docx.DocxClauseSelectionService;
 import br.com.tt.painelpreco.domain.service.docx.DocxDeterministicFillService;
-import br.com.tt.painelpreco.domain.service.docx.DocxNarrativeDraftService;
+import br.com.tt.painelpreco.domain.service.docx.DocxSecaoDraftService;
 import br.com.tt.painelpreco.domain.service.docx.DocxTemplateEngine;
 
 /**
@@ -41,9 +41,9 @@ import br.com.tt.painelpreco.domain.service.docx.DocxTemplateEngine;
 @Service
 public class ArtefatoGeradoService {
 
-	private static final String TEMPLATE_TR = "templates/agu/tr-unico-agu.docx";
+	private static final String TEMPLATE_TR = "templates/tr-clean-base.docx";
 	private static final String TEMPLATE_ETP = "templates/etp/etp-base.docx";
-	private static final String TEMPLATE_EDITAL = "templates/agu/edital-agu.docx";
+	private static final String TEMPLATE_EDITAL = "templates/edital-clean-base.docx";
 
 	@Autowired
 	private ArtefatoGeradoRepository artefatoGeradoRepository;
@@ -58,7 +58,7 @@ public class ArtefatoGeradoService {
 	private DocxClauseSelectionService clauseSelectionService;
 
 	@Autowired
-	private DocxNarrativeDraftService narrativeDraftService;
+	private DocxSecaoDraftService secaoDraftService;
 
 	@Autowired
 	private DocxDeterministicFillService deterministicFillService;
@@ -89,9 +89,11 @@ public class ArtefatoGeradoService {
 
 			ArtefatoGerado artefato = criarEsqueleto(processo, TipoEnum.TR, TEMPLATE_TR, usuarioLogado);
 
-			// Passo B primeiro: o texto de uma cláusula pode conter {{FACTS:*}}
-			// (ex.: dotação orçamentária), resolvido só no Passo A a seguir.
-			List<ArtefatoSecaoLog> logs = clauseSelectionService.preencherClausulasTR(doc, processo, artefato);
+			// Passo B (cláusulas binárias pré-catalogadas) e Passo C (redação por seção via IA)
+			// antes do Passo A: o texto de uma cláusula pode conter {{FACTS:*}} (ex.: dotação
+			// orçamentária), resolvido só no Passo A a seguir.
+			List<ArtefatoSecaoLog> logs = new ArrayList<>(clauseSelectionService.preencherClausulasTR(doc, processo, artefato));
+			logs.addAll(secaoDraftService.redigirTermoReferencia(doc, processo, artefato));
 			deterministicFillService.preencherFatos(doc, processo);
 
 			return finalizar(doc, artefato, logs, processo);
@@ -110,7 +112,7 @@ public class ArtefatoGeradoService {
 			// Redação restrita (Passo C) primeiro, pelo mesmo motivo do TR: o
 			// texto redigido não deve introduzir tokens novos, mas por
 			// segurança a ordem é mantida consistente com o TR.
-			List<ArtefatoSecaoLog> logs = narrativeDraftService.preencherRedacaoLivreEtp(doc, processo, artefato);
+			List<ArtefatoSecaoLog> logs = secaoDraftService.redigirEtp(doc, processo, artefato);
 			deterministicFillService.preencherFatos(doc, processo);
 
 			return finalizar(doc, artefato, logs, processo);
@@ -126,9 +128,10 @@ public class ArtefatoGeradoService {
 
 			ArtefatoGerado artefato = criarEsqueleto(processo, TipoEnum.EDITAL, TEMPLATE_EDITAL, usuarioLogado);
 
-			// Mesma engine e mesma ordem do TR: Passo B (seleção de cláusula,
-			// que pode introduzir novos {{FACTS:*}}) antes do Passo A.
-			List<ArtefatoSecaoLog> logs = clauseSelectionService.preencherClausulasEdital(doc, processo, artefato);
+			// Mesma engine e mesma ordem do TR: Passo B (seleção de cláusula, que pode
+			// introduzir novos {{FACTS:*}}) e Passo C (redação por seção) antes do Passo A.
+			List<ArtefatoSecaoLog> logs = new ArrayList<>(clauseSelectionService.preencherClausulasEdital(doc, processo, artefato));
+			logs.addAll(secaoDraftService.redigirEdital(doc, processo, artefato));
 			deterministicFillService.preencherFatos(doc, processo);
 
 			return finalizar(doc, artefato, logs, processo);

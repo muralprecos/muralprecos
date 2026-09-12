@@ -251,8 +251,10 @@ public class DocxTemplateEngine {
 			Pattern.compile("X{1,4}\\s*\\(x{3,7}\\)\\s*(dias\\s*úteis|dias|meses)", Pattern.CASE_INSENSITIVE),
 			// Sequência solta de 3+ "X" fora dos padrões acima (ex.: "prazo de XXXXXXX",
 			// "processo nº xxxxx.xxxxxx/xxxx-xx" — case-insensitive: o modelo usa tanto
-			// maiúsculo quanto minúsculo para essa convenção de lacuna)
-			Pattern.compile("X{3,}", Pattern.CASE_INSENSITIVE),
+			// maiúsculo quanto minúsculo para essa convenção de lacuna). \b nos dois lados
+			// evita falso positivo em algarismo romano legítimo citado em lei (ex.: "inciso
+			// XXXIII" não deve virar "⚠ XXXIII" — sem \b final, "XXX" casaria dentro dele).
+			Pattern.compile("\\bX{3,}\\b", Pattern.CASE_INSENSITIVE),
 			// Instruções entre colchetes do próprio modelo AGU (convenção do modelo para
 			// "escolher"/"preencher"): preserva o texto original, só adiciona o sinalizador.
 			Pattern.compile("\\[[^\\[\\]\\{\\}]{1,300}\\]")
