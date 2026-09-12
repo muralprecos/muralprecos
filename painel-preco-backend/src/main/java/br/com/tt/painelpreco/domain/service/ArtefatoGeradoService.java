@@ -30,6 +30,7 @@ import br.com.tt.painelpreco.domain.repository.ProcessoContratacaoRepository;
 import br.com.tt.painelpreco.domain.service.docx.DocxClauseSelectionService;
 import br.com.tt.painelpreco.domain.service.docx.DocxDeterministicFillService;
 import br.com.tt.painelpreco.domain.service.docx.DocxNarrativeDraftService;
+import br.com.tt.painelpreco.domain.service.docx.DocxTemplateEngine;
 
 /**
  * Orquestra a geração de um artefato (ETP, TR ou Edital): abre o template,
@@ -61,6 +62,9 @@ public class ArtefatoGeradoService {
 
 	@Autowired
 	private DocxDeterministicFillService deterministicFillService;
+
+	@Autowired
+	private DocxTemplateEngine templateEngine;
 
 	@Value("${llm.api.model}")
 	private String modeloLlm;
@@ -149,9 +153,19 @@ public class ArtefatoGeradoService {
 	}
 
 	private ArtefatoGerado finalizar(XWPFDocument doc, ArtefatoGerado artefato, List<ArtefatoSecaoLog> logs, ProcessoContratacao processo) throws IOException {
+		// Sinaliza (com "⚠") os pontos do modelo AGU que não foram resolvidos por nenhum
+		// {{FACTS:*}}/{{CLAUSE:*}} — percentuais/prazos/índices que são decisão jurídica de
+		// cada contratação, que o sistema não conhece e não deve adivinhar. Ver
+		// DocxTemplateEngine.sinalizarLacunasPendentes.
+		templateEngine.sinalizarLacunasPendentes(doc.getParagraphs(), doc.getTables());
+
 		ByteArrayOutputStream saida = new ByteArrayOutputStream();
 		doc.write(saida);
-		artefato.setDocx(saida.toByteArray());
+		// Remove os comentários de orientação do modelo AGU (o POI preserva essa parte do
+		// .docx intacta ao reescrever) — sem isso, o documento entregue ao usuário ainda
+		// carrega dezenas de comentários internos do modelo, dando a impressão de template
+		// inacabado. Ver DocxTemplateEngine.removerComentarios.
+		artefato.setDocx(templateEngine.removerComentarios(saida.toByteArray()));
 
 		artefato = artefatoGeradoRepository.save(artefato);
 		artefatoSecaoLogRepository.saveAll(logs);

@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -72,6 +73,11 @@ public class IngestaoAtaRegistroPrecoService {
         new File(folderItensAta).mkdirs();
     }
 
+    // Sem isso, os caches de ata-* nunca eram invalidados em lugar nenhum do código — uma vez
+    // populados, ficavam desatualizados até o app reiniciar (o CacheManager em uso,
+    // ConcurrentMapCacheManager, não tem TTL). Espelha o @CacheEvict já usado em
+    // IngestaoResultadoItemService para os caches de fornecedor-*.
+    @CacheEvict(value = {"ata-kpis", "ata-por-situacao", "ata-evolucao", "ata-top-objetos", "ata-alertas-vencimento"}, allEntries = true)
     public void carregaAtasBaixadasNoBanco() {
         long inicio = System.currentTimeMillis();
         inicioExecucao = inicio;
