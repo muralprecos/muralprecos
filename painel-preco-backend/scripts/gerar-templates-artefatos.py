@@ -152,7 +152,7 @@ def capa(titulo_documento):
 def assinatura():
     return "".join([
         blank(),
-        p("[Local], [dia] de [mês] de [ano].", size=22),
+        p("[Local], {{FACTS:DATA_GERACAO_EXTENSO}}.", size=22),
         blank(),
         p("_________________________________________", size=22),
         p("(Nome e Cargo do Responsável pela Elaboração)", size=20, center=True),

@@ -202,6 +202,24 @@ public class ArtefatoGeradoService {
 		return artefatoGeradoRepository.save(artefato);
 	}
 
+	/**
+	 * Anexa a versão final do artefato (ex.: o rascunho gerado, editado manualmente pelo
+	 * usuário no Word) — mantida lado a lado com o docx gerado pelo sistema, nunca o
+	 * substitui. O envio já marca o artefato como revisado, pois enviar a versão final é,
+	 * em si, o ato de concluir a revisão.
+	 */
+	@Transactional
+	public ArtefatoGerado enviarArquivoFinal(ArtefatoGerado artefato, byte[] conteudo, String nomeArquivo, Usuario usuarioLogado) {
+		artefato.setDocxFinal(conteudo);
+		artefato.setNomeArquivoFinal(nomeArquivo);
+		artefato.setFinalEnviadoPor(usuarioLogado);
+		artefato.setFinalEnviadoEm(new Date());
+		artefato.setStatus(StatusEnum.REVISADO);
+		artefato.setRevisadoPor(usuarioLogado);
+		artefato.setRevisadoEm(new Date());
+		return artefatoGeradoRepository.save(artefato);
+	}
+
 	public List<ArtefatoSecaoLogDTO> logSecoes(ArtefatoGerado artefato) {
 		List<ArtefatoSecaoLogDTO> dtos = new ArrayList<>();
 		for (ArtefatoSecaoLog log : artefatoSecaoLogRepository.findByArtefatoGeradoOrderByIdAsc(artefato)) {

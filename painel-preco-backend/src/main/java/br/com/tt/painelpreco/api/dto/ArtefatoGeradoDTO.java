@@ -20,5 +20,7 @@ public class ArtefatoGeradoDTO {
 	private String nomeArquivo;
 	private Date geradoEm;
 	private Date revisadoEm;
+	private String nomeArquivoFinal;
+	private Date finalEnviadoEm;
 
 }

@@ -90,4 +90,22 @@ public class ArtefatoGerado {
 	@JoinColumn(name = "revisado_por")
 	private Usuario revisadoPor;
 
+	// Versão final enviada manualmente pelo usuário (ex.: depois de editar o rascunho
+	// gerado no Word) — mantida lado a lado com o docx gerado pelo sistema, nunca o
+	// substitui, para preservar o histórico de auditoria de ambas as versões.
+	@Column(name = "nome_arquivo_final")
+	private String nomeArquivoFinal;
+
+	@Lob
+	@Column(name = "docx_final")
+	private byte[] docxFinal;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "final_enviado_em")
+	private Date finalEnviadoEm;
+
+	@ManyToOne
+	@JoinColumn(name = "final_enviado_por")
+	private Usuario finalEnviadoPor;
+
 }
