@@ -17,6 +17,8 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,11 @@ public class IngestaoResultadoItemService {
     @Autowired private FornecedorRepository fornecedorRepository;
     @Autowired private PorteFornecedorRepository porteFornecedorRepository;
     @Autowired private JdbcTemplate jdbcTemplate;
+    @Autowired private CacheManager cacheManager;
+
+    private static final String[] CACHES_FORNECEDOR = {
+            "fornecedor-kpis", "fornecedor-ranking", "fornecedor-porte", "fornecedor-evolucao"
+    };
 
     private String folderResultados;
 
@@ -147,6 +154,17 @@ public class IngestaoResultadoItemService {
                     + "(acumulado resolvidos: %d) em %.1fs%n",
                     pagina, pageUpdates.size(), pageNaoResolvidos.size(), totalAtualizados,
                     (System.currentTimeMillis() - inicio) / 1000.0);
+
+            // Invalida os caches do dashboard a cada página (não só ao final da coleta
+            // inteira, que pode levar até maxDurationHoras): sem isso, fornecedores já
+            // resolvidos e gravados nesta mesma página ficavam invisíveis na tela até a
+            // execução completa terminar — o @CacheEvict do método não cobre esse meio-termo.
+            if (!pageUpdates.isEmpty()) {
+                for (String nomeCache : CACHES_FORNECEDOR) {
+                    Cache cache = cacheManager.getCache(nomeCache);
+                    if (cache != null) cache.clear();
+                }
+            }
         }
 
         executor.shutdown();

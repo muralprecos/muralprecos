@@ -16,11 +16,13 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.tt.painelpreco.api.dto.ColetaPncpStatusDTO;
 import br.com.tt.painelpreco.pncp.api.ItemClient;
 import br.com.tt.painelpreco.pncp.api.PncpClient;
 import br.com.tt.painelpreco.pncp.domain.model.IngestaoDadosPncp;
@@ -41,7 +43,12 @@ public class ColetaDadosPncpService {
     // (ColetaIngestaoDadosTask) rodem getDados() em paralelo — não há nenhuma
     // outra proteção contra concorrência nas etapas de download/ingestão.
     private final AtomicBoolean coletaEmAndamento = new AtomicBoolean(false);
-    
+
+    // Guardas independentes das etapas que também têm disparo próprio (endpoint/tela
+    // administrativa) além do fluxo completo — mesmo padrão de coletaEmAndamento.
+    private final AtomicBoolean fornecedoresEmAndamento = new AtomicBoolean(false);
+    private final AtomicBoolean atasEmAndamento = new AtomicBoolean(false);
+
     @Autowired
     private PncpClient pncpClient;
     
@@ -321,8 +328,8 @@ public class ColetaDadosPncpService {
 
 		        if (!licitacoesOnly) {
 		        	executarEtapa("carregaItensLicitacaoBaixadosNoBanco", pncpItemLicitacaoService::carregaItensLicitacaoBaixadosNoBanco);
-		        	executarEtapa("carregaResultadosBaixadosNoBanco", pncpResultadoItemService::carregaResultadosBaixadosNoBanco);
-		        	executarEtapa("carregaAtasBaixadasNoBanco", pncpAtaService::carregaAtasBaixadasNoBanco);
+		        	executarEtapa("carregaResultadosBaixadosNoBanco", this::coletarFornecedores);
+		        	executarEtapa("carregaAtasBaixadasNoBanco", this::coletarAtas);
 		        }
 	    	}
     	} finally {
@@ -334,8 +341,8 @@ public class ColetaDadosPncpService {
     public void ingerirDadosExistentes() {
         executarEtapa("carregaLicitacoesBaixadasNoBanco", pncpLicitacaoService::carregaLicitacoesBaixadasNoBanco);
         executarEtapa("carregaItensLicitacaoBaixadosNoBanco", pncpItemLicitacaoService::carregaItensLicitacaoBaixadosNoBanco);
-        executarEtapa("carregaResultadosBaixadosNoBanco", pncpResultadoItemService::carregaResultadosBaixadosNoBanco);
-        executarEtapa("carregaAtasBaixadasNoBanco", pncpAtaService::carregaAtasBaixadasNoBanco);
+        executarEtapa("carregaResultadosBaixadosNoBanco", this::coletarFornecedores);
+        executarEtapa("carregaAtasBaixadasNoBanco", this::coletarAtas);
     }
 
     /**
@@ -358,18 +365,57 @@ public class ColetaDadosPncpService {
 
     /** Executa apenas a coleta de resultados para itens já no banco sem fornecedor. */
     public void coletarFornecedores() {
-        pncpResultadoItemService.carregaResultadosBaixadosNoBanco();
-        // Atas não são chamadas aqui: têm endpoint próprio (/coleta/pncp/atas)
+        if (!fornecedoresEmAndamento.compareAndSet(false, true)) {
+            System.out.println("INFO: Coleta de fornecedores já em andamento — ignorando esta chamada.");
+            return;
+        }
+        try {
+            pncpResultadoItemService.carregaResultadosBaixadosNoBanco();
+            // Atas não são chamadas aqui: têm endpoint próprio (/coleta/pncp/atas)
+        } finally {
+            fornecedoresEmAndamento.set(false);
+        }
     }
 
     /** Executa apenas a ingestão de atas de registro de preço. */
     public void coletarAtas() {
-        pncpAtaService.carregaAtasBaixadasNoBanco();
+        if (!atasEmAndamento.compareAndSet(false, true)) {
+            System.out.println("INFO: Coleta de atas já em andamento — ignorando esta chamada.");
+            return;
+        }
+        try {
+            pncpAtaService.carregaAtasBaixadasNoBanco();
+        } finally {
+            atasEmAndamento.set(false);
+        }
     }
 
     /** Lê todos os JSONs de licitações e popula situacao_compra + situacao_compra_id. */
     public void enriquecerSituacaoCompra() {
         enriquecimentoSituacaoCompraService.enriquecer();
+    }
+
+    /** Disparo assíncrono para a tela administrativa: retorna imediatamente e roda em segundo plano. */
+    @Async("pncpAsyncExecutor")
+    public void dispararLicitacoesItensAsync(boolean licitacoesOnly) {
+        getDados(true, licitacoesOnly);
+    }
+
+    /** Disparo assíncrono para a tela administrativa: retorna imediatamente e roda em segundo plano. */
+    @Async("pncpAsyncExecutor")
+    public void dispararFornecedoresAsync() {
+        coletarFornecedores();
+    }
+
+    /** Disparo assíncrono para a tela administrativa: retorna imediatamente e roda em segundo plano. */
+    @Async("pncpAsyncExecutor")
+    public void dispararAtasAsync() {
+        coletarAtas();
+    }
+
+    /** Status atual das etapas de coleta, para a tela administrativa desabilitar botões já em execução. */
+    public ColetaPncpStatusDTO getStatus() {
+        return new ColetaPncpStatusDTO(coletaEmAndamento.get(), fornecedoresEmAndamento.get(), atasEmAndamento.get());
     }
 
 }

@@ -14,9 +14,12 @@ import br.com.tt.painelpreco.pncp.domain.service.ColetaDadosPncpService;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @EnableCaching
 @EnableScheduling
+@EnableAsync
 @EnableFeignClients
 @SpringBootApplication
 public class PainelPrecoApplication {
@@ -48,6 +51,19 @@ public class PainelPrecoApplication {
 		return args -> {
 			initializer.init(luceneStartup);
 		};
+	}
+
+	@Bean(name = "pncpAsyncExecutor")
+	public ThreadPoolTaskExecutor pncpAsyncExecutor() {
+		// 3 disparos possíveis a partir da tela administrativa (licitações/itens, fornecedores,
+		// atas) — cada etapa já tem sua própria trava contra duplicidade (AtomicBoolean), então
+		// este pool só precisa caber uma thread por etapa ao mesmo tempo.
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(3);
+		executor.setMaxPoolSize(3);
+		executor.setThreadNamePrefix("pncp-coleta-");
+		executor.initialize();
+		return executor;
 	}
 
 	@Bean

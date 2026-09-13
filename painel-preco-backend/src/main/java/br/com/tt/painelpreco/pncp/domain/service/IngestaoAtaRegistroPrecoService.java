@@ -19,6 +19,8 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -60,6 +62,11 @@ public class IngestaoAtaRegistroPrecoService {
     @Autowired private AtaRegistroPrecoRepository ataRepository;
     @Autowired private FornecedorRepository fornecedorRepository;
     @Autowired private PorteFornecedorRepository porteFornecedorRepository;
+    @Autowired private CacheManager cacheManager;
+
+    private static final String[] CACHES_ATA = {
+            "ata-kpis", "ata-por-situacao", "ata-evolucao", "ata-top-objetos", "ata-alertas-vencimento"
+    };
     @Autowired private JdbcTemplate jdbcTemplate;
 
     private String folderAtas;
@@ -192,6 +199,21 @@ public class IngestaoAtaRegistroPrecoService {
                         sub, BATCH_SIZE,
                         (ps, id) -> ps.setLong(1, id));
             }
+        }
+
+        // Invalida os caches do dashboard a cada flush (a cada 30s), não só ao final da
+        // execução inteira: sem isso, dado novo já gravado no banco por este mesmo flush
+        // ficava invisível na tela até a coleta inteira terminar — na prática, o
+        // @CacheEvict do método não ajuda quem quer ver o progresso ainda rodando.
+        if (!lote.isEmpty() || !updates.isEmpty()) {
+            evictCachesAta();
+        }
+    }
+
+    private void evictCachesAta() {
+        for (String nome : CACHES_ATA) {
+            Cache cache = cacheManager.getCache(nome);
+            if (cache != null) cache.clear();
         }
     }
 
