@@ -283,6 +283,8 @@ public class ProcessoContratacaoService {
 			artefatoDTO.setNomeArquivo(artefato.getNomeArquivo());
 			artefatoDTO.setGeradoEm(artefato.getGeradoEm());
 			artefatoDTO.setRevisadoEm(artefato.getRevisadoEm());
+			artefatoDTO.setNomeArquivoFinal(artefato.getNomeArquivoFinal());
+			artefatoDTO.setFinalEnviadoEm(artefato.getFinalEnviadoEm());
 			artefatosDTO.add(artefatoDTO);
 		}
 		dto.setArtefatos(artefatosDTO);
