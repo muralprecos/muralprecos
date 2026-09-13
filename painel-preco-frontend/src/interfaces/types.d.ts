@@ -370,6 +370,8 @@ export interface IArtefatoGerado {
   nomeArquivo: string;
   geradoEm: string;
   revisadoEm: string | null;
+  nomeArquivoFinal: string | null;
+  finalEnviadoEm: string | null;
 }
 
 export interface IArtefatoSecaoLog {

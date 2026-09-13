@@ -27,14 +27,14 @@ export default function FormWizard({ steps, children }: IProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap items-center gap-2">
         {steps.map((step, index) => (
           <button
             key={step.titulo}
             type="button"
             onClick={() => setStepAtual(index)}
             className={cn(
-              "flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap",
+              "flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap",
               index === stepAtual
                 ? "bg-primary text-primary-foreground"
                 : index < stepAtual

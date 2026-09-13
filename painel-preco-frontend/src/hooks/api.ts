@@ -425,6 +425,35 @@ export const getDownloadArtefato = async (
   });
 };
 
+export const postUploadArtefatoFinal = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  versao: number,
+  formData: FormData,
+  accessToken: string
+): Promise<IArtefatoGerado | null> => {
+  return postGenericJson<IArtefatoGerado>({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/arquivo-final`,
+    bodydata: formData,
+    // Content-Type vazio: o fetch define "multipart/form-data; boundary=..." sozinho
+    // quando o body é um FormData — setar manualmente quebraria o boundary.
+    contentType: "",
+    accessToken,
+  });
+};
+
+export const getDownloadArtefatoFinal = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  versao: number,
+  accessToken: string
+) => {
+  return getGenericBlob({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/arquivo-final/download`,
+    accessToken,
+  });
+};
+
 export const postLogin = async (userAuth: IUserAuth) => {
   const URL = `${process.env.API_URL}${process.env.API_URL_PREFIX}/auth/logon`;
 
