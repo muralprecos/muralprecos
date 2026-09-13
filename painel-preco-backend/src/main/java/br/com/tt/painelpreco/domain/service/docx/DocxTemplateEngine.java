@@ -1,8 +1,17 @@
 package br.com.tt.painelpreco.domain.service.docx;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -218,6 +227,146 @@ public class DocxTemplateEngine {
 		CTRow linhaViva = tabela.getCTTbl().insertNewTr(posicaoDestino);
 		linhaViva.set(linhaOrigem.getCtRow().copy());
 		return new XWPFTableRow(linhaViva, tabela);
+	}
+
+	// ── Sinalização de lacunas não resolvidas pelo template ────────────────────
+
+	/**
+	 * Padrões de lacuna que os modelos AGU deixam para preenchimento manual e que
+	 * NÃO são cobertos pelo sistema de tokens {@code {{FACTS:*}}}/{@code {{CLAUSE:*}}}
+	 * (percentuais de multa/garantia, prazos em dias/meses, índices de reajuste etc. —
+	 * são decisões jurídicas/administrativas específicas de cada contratação, que o
+	 * sistema não conhece e não deve adivinhar). Em vez de deixar o texto cru
+	 * ("XX% (xxxxx por cento)", "XX (xxxxx) dias") ou uma instrução de colchete
+	 * discreta ("[indicar o índice]"), sinaliza com "⚠" para ficar visualmente
+	 * inequívoco que é um ponto de decisão pendente, não um erro de geração.
+	 *
+	 * NÃO mexe em sequências de sublinhado ("____"): são linhas de assinatura em
+	 * branco, propositalmente vazias, não lacunas de dado.
+	 */
+	private static final List<Pattern> PADROES_LACUNA = List.of(
+			// "XX% (xxxxx por cento)" — percentual não definido
+			Pattern.compile("X{1,3}%\\s*\\(x{3,7}\\s*por\\s*cento\\)", Pattern.CASE_INSENSITIVE),
+			// "XX (xxxxx) dias/meses/dias úteis" — prazo não definido
+			Pattern.compile("X{1,4}\\s*\\(x{3,7}\\)\\s*(dias\\s*úteis|dias|meses)", Pattern.CASE_INSENSITIVE),
+			// Sequência solta de 3+ "X" fora dos padrões acima (ex.: "prazo de XXXXXXX",
+			// "processo nº xxxxx.xxxxxx/xxxx-xx" — case-insensitive: o modelo usa tanto
+			// maiúsculo quanto minúsculo para essa convenção de lacuna). \b nos dois lados
+			// evita falso positivo em algarismo romano legítimo citado em lei (ex.: "inciso
+			// XXXIII" não deve virar "⚠ XXXIII" — sem \b final, "XXX" casaria dentro dele).
+			Pattern.compile("\\bX{3,}\\b", Pattern.CASE_INSENSITIVE),
+			// Instruções entre colchetes do próprio modelo AGU (convenção do modelo para
+			// "escolher"/"preencher"): preserva o texto original, só adiciona o sinalizador.
+			Pattern.compile("\\[[^\\[\\]\\{\\}]{1,300}\\]")
+	);
+
+	/** Sinaliza, em todos os parágrafos do corpo e das tabelas, as lacunas pendentes do template. */
+	public void sinalizarLacunasPendentes(Iterable<XWPFParagraph> paragrafos, Iterable<XWPFTable> tabelas) {
+		for (XWPFParagraph paragrafo : paragrafos) {
+			sinalizarLacunasNoParagrafo(paragrafo);
+		}
+		for (XWPFTable tabela : tabelas) {
+			for (XWPFTableRow linha : tabela.getRows()) {
+				for (XWPFTableCell celula : linha.getTableCells()) {
+					for (XWPFParagraph paragrafo : celula.getParagraphs()) {
+						sinalizarLacunasNoParagrafo(paragrafo);
+					}
+					for (XWPFTable aninhada : celula.getTables()) {
+						sinalizarLacunasPendentes(List.of(), List.of(aninhada));
+					}
+				}
+			}
+		}
+	}
+
+	private void sinalizarLacunasNoParagrafo(XWPFParagraph paragrafo) {
+		String textoOriginal = paragrafo.getText();
+		if (textoOriginal == null || textoOriginal.isEmpty()) {
+			return;
+		}
+
+		String textoFinal = textoOriginal;
+		for (Pattern padrao : PADROES_LACUNA) {
+			Matcher matcher = padrao.matcher(textoFinal);
+			StringBuilder saida = new StringBuilder();
+			int fimAnterior = 0;
+			while (matcher.find()) {
+				saida.append(textoFinal, fimAnterior, matcher.start());
+				saida.append("⚠ ").append(matcher.group());
+				fimAnterior = matcher.end();
+			}
+			saida.append(textoFinal.substring(fimAnterior));
+			textoFinal = saida.toString();
+		}
+
+		if (!textoFinal.equals(textoOriginal)) {
+			substituirTextoDoParagrafo(paragrafo, textoFinal);
+		}
+	}
+
+	// ── Remoção de comentários do Word ──────────────────────────────────────────
+
+	// Partes descartadas: os comments*.xml em si, o _rels próprio deles (word/_rels/comments*.xml.rels),
+	// e people.xml (lista de autores de comentário — sem uso depois de remover os comentários).
+	private static final Pattern COMMENT_PART = Pattern.compile("^word/(_rels/)?comments[^/]*\\.xml(\\.rels)?$");
+	private static final Pattern COMMENT_MARKUP = Pattern.compile(
+			"<w:comment(RangeStart|RangeEnd|Reference)\\b[^>]*/>");
+	private static final Pattern COMMENT_CONTENT_TYPE_OVERRIDE = Pattern.compile(
+			"<Override[^>]*PartName=\"/word/(comments[^\"]*|people\\.xml)\"[^>]*/>");
+	// Relacionamentos a limpar de word/_rels/document.xml.rels: os que apontam pra comments*.xml
+	// (Target="comments.xml" etc.) e o que aponta pra people.xml (parte também descartada).
+	private static final Pattern COMMENT_RELATIONSHIP = Pattern.compile(
+			"<Relationship[^>]*Target=\"(comments[^\"]*|people\\.xml)\"[^>]*/>");
+
+	/**
+	 * Remove os comentários de revisão do Word (bolhas de anotação) de um .docx já
+	 * serializado — o modelo AGU do TR/Edital tem dezenas de comentários de
+	 * orientação de uso ("ORIENTAÇÕES PARA USO DO MODELO...") que o Apache POI
+	 * preserva ao reescrever o documento (não são tocados pela substituição de
+	 * texto), e sobrevivem visíveis no arquivo final entregue ao usuário.
+	 *
+	 * Opera diretamente no ZIP do .docx (em vez da API de comentários do POI):
+	 * descarta as partes {@code word/comments*.xml}, remove as referências a elas
+	 * em {@code [Content_Types].xml} e {@code word/_rels/document.xml.rels}, e
+	 * apaga as marcações {@code <w:commentRangeStart|End|Reference>} de
+	 * {@code word/document.xml} (são elementos vazios que só marcam onde um
+	 * comentário se ancora — removê-los não altera nenhum texto visível).
+	 */
+	public byte[] removerComentarios(byte[] docx) {
+		try (ZipInputStream zin = new ZipInputStream(new java.io.ByteArrayInputStream(docx));
+				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				ZipOutputStream zout = new ZipOutputStream(bos)) {
+
+			ZipEntry entrada;
+			while ((entrada = zin.getNextEntry()) != null) {
+				String nome = entrada.getName();
+				if (COMMENT_PART.matcher(nome).matches() || nome.equals("word/people.xml")) {
+					continue; // descarta a parte de comentários (e a lista de autores, sem uso sem comentários)
+				}
+
+				byte[] conteudo = zin.readAllBytes();
+
+				if (nome.equals("[Content_Types].xml") || nome.equals("word/_rels/document.xml.rels")) {
+					String xml = new String(conteudo, StandardCharsets.UTF_8);
+					Pattern padrao = nome.startsWith("word/_rels") ? COMMENT_RELATIONSHIP : COMMENT_CONTENT_TYPE_OVERRIDE;
+					xml = padrao.matcher(xml).replaceAll("");
+					conteudo = xml.getBytes(StandardCharsets.UTF_8);
+				} else if (nome.equals("word/document.xml")) {
+					String xml = new String(conteudo, StandardCharsets.UTF_8);
+					xml = COMMENT_MARKUP.matcher(xml).replaceAll("");
+					conteudo = xml.getBytes(StandardCharsets.UTF_8);
+				}
+
+				zout.putNextEntry(new ZipEntry(nome));
+				zout.write(conteudo);
+				zout.closeEntry();
+			}
+
+			zout.finish();
+			return bos.toByteArray();
+		} catch (IOException e) {
+			throw new UncheckedIOException("Falha ao remover comentários do .docx gerado", e);
+		}
 	}
 
 }

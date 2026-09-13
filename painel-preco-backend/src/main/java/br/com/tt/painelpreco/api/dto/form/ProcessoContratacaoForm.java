@@ -1,10 +1,12 @@
 package br.com.tt.painelpreco.api.dto.form;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
 import br.com.tt.painelpreco.domain.model.ProcessoContratacao.CriterioJulgamentoEnum;
+import br.com.tt.painelpreco.domain.model.ProcessoContratacao.MarcoInicioExecucaoEnum;
 import br.com.tt.painelpreco.domain.model.ProcessoContratacao.ModalidadeEnum;
 import br.com.tt.painelpreco.domain.model.ProcessoContratacao.PrazoVigenciaFundamentoEnum;
 import br.com.tt.painelpreco.domain.model.ProcessoContratacao.RegimeExecucaoEnum;
@@ -46,5 +48,31 @@ public class ProcessoContratacaoForm {
 	private String orgaoEsfera;
 	private String orgaoUasg;
 	private String orgaoTelefone;
+
+	// Parâmetros jurídicos adicionais do TR/Edital (ver ProcessoContratacao) —
+	// todos opcionais; em branco, o documento continua sinalizando a lacuna
+	// como antes.
+	private String localExecucaoServicos;
+	private String horarioExecucaoServicos;
+	private Integer prazoInicioExecucaoDias;
+	private MarcoInicioExecucaoEnum marcoInicioExecucao;
+	private Integer prazoRecebimentoProvisorioDias;
+	private Integer prazoRecebimentoDefinitivoDias;
+	private Integer prazoPagamentoDias;
+	private Boolean exigeGarantiaContratual;
+	private BigDecimal percentualGarantiaContratual;
+	private String garantiaServicoDescricao;
+	private Boolean permiteSubcontratacao;
+	private BigDecimal percentualMaximoSubcontratacao;
+	private Boolean exigeUniforme;
+	private String especificacaoUniforme;
+	private String indiceReajuste;
+	private Integer periodicidadeReajusteMeses;
+	private BigDecimal percentualMultaMoratoria;
+	private BigDecimal percentualMultaCompensatoria;
+	private Integer prazoAssinaturaContratoDiasUteis;
+	private Integer prazoValidadePropostaDias;
+	private String intervaloMinimoLances;
+	private String meioImpugnacaoEsclarecimento;
 
 }

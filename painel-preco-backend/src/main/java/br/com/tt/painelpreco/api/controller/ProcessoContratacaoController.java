@@ -10,13 +10,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import java.io.IOException;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import br.com.tt.painelpreco.api.dto.ArtefatoGeradoDTO;
 import br.com.tt.painelpreco.api.dto.ArtefatoSecaoLogDTO;
@@ -113,6 +117,31 @@ public class ProcessoContratacaoController extends AbstractController {
 		return ResponseEntity.ok().headers(headers).body(artefato.getDocx());
 	}
 
+	/** Anexa a versão final do artefato (ex.: editada manualmente pelo usuário) — mantida lado a lado com o docx gerado. */
+	@PostMapping("/{uuid}/artefatos/{tipo}/versoes/{versao}/arquivo-final")
+	public ArtefatoGeradoDTO enviarArquivoFinal(@PathVariable UUID uuid, @PathVariable String tipo, @PathVariable Integer versao,
+			@RequestParam("arquivo") MultipartFile arquivo) throws IOException {
+		ProcessoContratacao processo = processoContratacaoService.buscarPorUuid(uuid);
+		ArtefatoGerado artefato = artefatoGeradoService.buscarVersao(processo, parseTipo(tipo), versao);
+		artefato = artefatoGeradoService.enviarArquivoFinal(artefato, arquivo.getBytes(), arquivo.getOriginalFilename(), getUsuarioLogado());
+		return toArtefatoDTO(artefato);
+	}
+
+	@GetMapping("/{uuid}/artefatos/{tipo}/versoes/{versao}/arquivo-final/download")
+	public ResponseEntity<byte[]> downloadArquivoFinal(@PathVariable UUID uuid, @PathVariable String tipo, @PathVariable Integer versao) {
+		ProcessoContratacao processo = processoContratacaoService.buscarPorUuid(uuid);
+		ArtefatoGerado artefato = artefatoGeradoService.buscarVersao(processo, parseTipo(tipo), versao);
+		if (artefato.getDocxFinal() == null) {
+			throw new ArchException("Este artefato ainda não possui uma versão final enviada.");
+		}
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+		headers.setContentDispositionFormData("attachment", artefato.getNomeArquivoFinal());
+		headers.setContentLength(artefato.getDocxFinal().length);
+		return ResponseEntity.ok().headers(headers).body(artefato.getDocxFinal());
+	}
+
 	@PostMapping("/{uuid}/artefatos/{tipo}/versoes/{versao}/revisar")
 	public ArtefatoGeradoDTO revisar(@PathVariable UUID uuid, @PathVariable String tipo, @PathVariable Integer versao) {
 		ProcessoContratacao processo = processoContratacaoService.buscarPorUuid(uuid);
@@ -137,6 +166,8 @@ public class ProcessoContratacaoController extends AbstractController {
 		dto.setNomeArquivo(artefato.getNomeArquivo());
 		dto.setGeradoEm(artefato.getGeradoEm());
 		dto.setRevisadoEm(artefato.getRevisadoEm());
+		dto.setNomeArquivoFinal(artefato.getNomeArquivoFinal());
+		dto.setFinalEnviadoEm(artefato.getFinalEnviadoEm());
 		return dto;
 	}
 

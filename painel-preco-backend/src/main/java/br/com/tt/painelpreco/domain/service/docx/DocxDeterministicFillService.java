@@ -2,6 +2,8 @@ package br.com.tt.painelpreco.domain.service.docx;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,6 +37,12 @@ public class DocxDeterministicFillService {
 
 	private static final NumberFormat MOEDA_BR = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
 
+	// Data de geração por extenso (ex.: "12 de setembro de 2026") — preenche o bloco de
+	// assinatura ("[Local], {{FACTS:DATA_GERACAO_EXTENSO}}.") automaticamente, já que é um
+	// fato que o sistema sempre conhece (o momento da geração), sem motivo para ficar
+	// pendente. "[Local]" continua em aberto — o sistema não sabe a cidade de assinatura.
+	private static final DateTimeFormatter DATA_EXTENSO_BR = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("pt", "BR"));
+
 	@Autowired
 	private DocxTemplateEngine engine;
 
@@ -52,6 +60,7 @@ public class DocxDeterministicFillService {
 	private Map<String, String> construirFactsGerais(ProcessoContratacao processo) {
 		Map<String, String> facts = new LinkedHashMap<>();
 		facts.put("{{FACTS:OBJETO}}", vazioSeNulo(processo.getObjeto()));
+		facts.put("{{FACTS:DATA_GERACAO_EXTENSO}}", DATA_EXTENSO_BR.format(LocalDate.now()));
 
 		BigDecimal valorTotalEstimado = processo.getItens().stream()
 				.map(ItemProcessoContratacao::getValorTotal)
@@ -140,7 +149,10 @@ public class DocxDeterministicFillService {
 	}
 
 	private String vazioSeNaoInformado(String valor) {
-		return valor == null ? "[A SER PREENCHIDO PELO ÓRGÃO]" : valor;
+		// Trata string em branco ("") como não informado, não só null — o intake grava alguns
+		// campos opcionais como "" em vez de deixar a coluna nula, e "Fonte de recursos: ;"
+		// no documento final é exatamente o tipo de resíduo de template que o usuário reclamou.
+		return valor == null || valor.isBlank() ? "[A SER PREENCHIDO PELO ÓRGÃO]" : valor;
 	}
 
 }

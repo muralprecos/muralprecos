@@ -87,6 +87,7 @@ public class ProcessoContratacaoService {
 		processo.setOrgaoEsfera(form.getOrgaoEsfera());
 		processo.setOrgaoUasg(form.getOrgaoUasg());
 		processo.setOrgaoTelefone(form.getOrgaoTelefone());
+		aplicarParametrosLegais(processo, form);
 
 		processo.setCriadoPor(usuarioLogado);
 		processo.setCriadoEm(new Date());
@@ -169,9 +170,36 @@ public class ProcessoContratacaoService {
 		processo.setOrgaoEsfera(form.getOrgaoEsfera());
 		processo.setOrgaoUasg(form.getOrgaoUasg());
 		processo.setOrgaoTelefone(form.getOrgaoTelefone());
+		aplicarParametrosLegais(processo, form);
 		processo.setAtualizadoEm(new Date());
 
 		return processoContratacaoRepository.save(processo);
+	}
+
+	/** Campos opcionais do TR/Edital que reduzem lacunas na redação por seção — ver ProcessoContratacao. */
+	private void aplicarParametrosLegais(ProcessoContratacao processo, ProcessoContratacaoForm form) {
+		processo.setLocalExecucaoServicos(form.getLocalExecucaoServicos());
+		processo.setHorarioExecucaoServicos(form.getHorarioExecucaoServicos());
+		processo.setPrazoInicioExecucaoDias(form.getPrazoInicioExecucaoDias());
+		processo.setMarcoInicioExecucao(form.getMarcoInicioExecucao());
+		processo.setPrazoRecebimentoProvisorioDias(form.getPrazoRecebimentoProvisorioDias());
+		processo.setPrazoRecebimentoDefinitivoDias(form.getPrazoRecebimentoDefinitivoDias());
+		processo.setPrazoPagamentoDias(form.getPrazoPagamentoDias());
+		processo.setExigeGarantiaContratual(Boolean.TRUE.equals(form.getExigeGarantiaContratual()));
+		processo.setPercentualGarantiaContratual(form.getPercentualGarantiaContratual());
+		processo.setGarantiaServicoDescricao(form.getGarantiaServicoDescricao());
+		processo.setPermiteSubcontratacao(Boolean.TRUE.equals(form.getPermiteSubcontratacao()));
+		processo.setPercentualMaximoSubcontratacao(form.getPercentualMaximoSubcontratacao());
+		processo.setExigeUniforme(Boolean.TRUE.equals(form.getExigeUniforme()));
+		processo.setEspecificacaoUniforme(form.getEspecificacaoUniforme());
+		processo.setIndiceReajuste(form.getIndiceReajuste());
+		processo.setPeriodicidadeReajusteMeses(form.getPeriodicidadeReajusteMeses());
+		processo.setPercentualMultaMoratoria(form.getPercentualMultaMoratoria());
+		processo.setPercentualMultaCompensatoria(form.getPercentualMultaCompensatoria());
+		processo.setPrazoAssinaturaContratoDiasUteis(form.getPrazoAssinaturaContratoDiasUteis());
+		processo.setPrazoValidadePropostaDias(form.getPrazoValidadePropostaDias());
+		processo.setIntervaloMinimoLances(form.getIntervaloMinimoLances());
+		processo.setMeioImpugnacaoEsclarecimento(form.getMeioImpugnacaoEsclarecimento());
 	}
 
 	public ProcessoContratacaoDTO toDTO(ProcessoContratacao processo) {
@@ -201,6 +229,28 @@ public class ProcessoContratacaoService {
 		dto.setOrgaoEsfera(processo.getOrgaoEsfera());
 		dto.setOrgaoUasg(processo.getOrgaoUasg());
 		dto.setOrgaoTelefone(processo.getOrgaoTelefone());
+		dto.setLocalExecucaoServicos(processo.getLocalExecucaoServicos());
+		dto.setHorarioExecucaoServicos(processo.getHorarioExecucaoServicos());
+		dto.setPrazoInicioExecucaoDias(processo.getPrazoInicioExecucaoDias());
+		dto.setMarcoInicioExecucao(processo.getMarcoInicioExecucao());
+		dto.setPrazoRecebimentoProvisorioDias(processo.getPrazoRecebimentoProvisorioDias());
+		dto.setPrazoRecebimentoDefinitivoDias(processo.getPrazoRecebimentoDefinitivoDias());
+		dto.setPrazoPagamentoDias(processo.getPrazoPagamentoDias());
+		dto.setExigeGarantiaContratual(processo.getExigeGarantiaContratual());
+		dto.setPercentualGarantiaContratual(processo.getPercentualGarantiaContratual());
+		dto.setGarantiaServicoDescricao(processo.getGarantiaServicoDescricao());
+		dto.setPermiteSubcontratacao(processo.getPermiteSubcontratacao());
+		dto.setPercentualMaximoSubcontratacao(processo.getPercentualMaximoSubcontratacao());
+		dto.setExigeUniforme(processo.getExigeUniforme());
+		dto.setEspecificacaoUniforme(processo.getEspecificacaoUniforme());
+		dto.setIndiceReajuste(processo.getIndiceReajuste());
+		dto.setPeriodicidadeReajusteMeses(processo.getPeriodicidadeReajusteMeses());
+		dto.setPercentualMultaMoratoria(processo.getPercentualMultaMoratoria());
+		dto.setPercentualMultaCompensatoria(processo.getPercentualMultaCompensatoria());
+		dto.setPrazoAssinaturaContratoDiasUteis(processo.getPrazoAssinaturaContratoDiasUteis());
+		dto.setPrazoValidadePropostaDias(processo.getPrazoValidadePropostaDias());
+		dto.setIntervaloMinimoLances(processo.getIntervaloMinimoLances());
+		dto.setMeioImpugnacaoEsclarecimento(processo.getMeioImpugnacaoEsclarecimento());
 		dto.setStatus(processo.getStatus());
 		dto.setCriadoEm(processo.getCriadoEm());
 
@@ -233,6 +283,8 @@ public class ProcessoContratacaoService {
 			artefatoDTO.setNomeArquivo(artefato.getNomeArquivo());
 			artefatoDTO.setGeradoEm(artefato.getGeradoEm());
 			artefatoDTO.setRevisadoEm(artefato.getRevisadoEm());
+			artefatoDTO.setNomeArquivoFinal(artefato.getNomeArquivoFinal());
+			artefatoDTO.setFinalEnviadoEm(artefato.getFinalEnviadoEm());
 			artefatosDTO.add(artefatoDTO);
 		}
 		dto.setArtefatos(artefatosDTO);

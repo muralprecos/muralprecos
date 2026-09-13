@@ -1,5 +1,6 @@
 package br.com.tt.painelpreco.domain.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +46,8 @@ public class ProcessoContratacao {
 	public enum PrazoVigenciaFundamentoEnum { ART_105, ART_106_107, ART_75_VIII }
 
 	public enum StatusEnum { INTAKE, EM_GERACAO, RASCUNHO_DISPONIVEL, CONCLUIDO }
+
+	public enum MarcoInicioExecucaoEnum { ASSINATURA_CONTRATO, ORDEM_SERVICO }
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -136,6 +139,77 @@ public class ProcessoContratacao {
 
 	@Column(name = "orgao_telefone")
 	private String orgaoTelefone;
+
+	// Parâmetros jurídicos que, quando não informados, aparecem como pendência
+	// ("[A SER PREENCHIDO PELO ÓRGÃO]") no TR/Edital gerado — ver
+	// DocxSecaoDraftService.fatosCompletos(). Todos opcionais: em branco, o
+	// comportamento de sinalizar a lacuna continua exatamente como antes.
+	@Column(name = "local_execucao_servicos")
+	private String localExecucaoServicos;
+
+	@Column(name = "horario_execucao_servicos")
+	private String horarioExecucaoServicos;
+
+	@Column(name = "prazo_inicio_execucao_dias")
+	private Integer prazoInicioExecucaoDias;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "marco_inicio_execucao")
+	private MarcoInicioExecucaoEnum marcoInicioExecucao;
+
+	@Column(name = "prazo_recebimento_provisorio_dias")
+	private Integer prazoRecebimentoProvisorioDias;
+
+	@Column(name = "prazo_recebimento_definitivo_dias")
+	private Integer prazoRecebimentoDefinitivoDias;
+
+	@Column(name = "prazo_pagamento_dias")
+	private Integer prazoPagamentoDias;
+
+	@Column(name = "exige_garantia_contratual", nullable = false)
+	private Boolean exigeGarantiaContratual = false;
+
+	@Column(name = "percentual_garantia_contratual", precision = 5, scale = 2)
+	private BigDecimal percentualGarantiaContratual;
+
+	@Column(name = "garantia_servico_descricao", columnDefinition = "TEXT")
+	private String garantiaServicoDescricao;
+
+	@Column(name = "permite_subcontratacao", nullable = false)
+	private Boolean permiteSubcontratacao = false;
+
+	@Column(name = "percentual_maximo_subcontratacao", precision = 5, scale = 2)
+	private BigDecimal percentualMaximoSubcontratacao;
+
+	@Column(name = "exige_uniforme", nullable = false)
+	private Boolean exigeUniforme = false;
+
+	@Column(name = "especificacao_uniforme", columnDefinition = "TEXT")
+	private String especificacaoUniforme;
+
+	@Column(name = "indice_reajuste")
+	private String indiceReajuste;
+
+	@Column(name = "periodicidade_reajuste_meses")
+	private Integer periodicidadeReajusteMeses;
+
+	@Column(name = "percentual_multa_moratoria", precision = 5, scale = 2)
+	private BigDecimal percentualMultaMoratoria;
+
+	@Column(name = "percentual_multa_compensatoria", precision = 5, scale = 2)
+	private BigDecimal percentualMultaCompensatoria;
+
+	@Column(name = "prazo_assinatura_contrato_dias_uteis")
+	private Integer prazoAssinaturaContratoDiasUteis;
+
+	@Column(name = "prazo_validade_proposta_dias")
+	private Integer prazoValidadePropostaDias;
+
+	@Column(name = "intervalo_minimo_lances")
+	private String intervaloMinimoLances;
+
+	@Column(name = "meio_impugnacao_esclarecimento")
+	private String meioImpugnacaoEsclarecimento;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)

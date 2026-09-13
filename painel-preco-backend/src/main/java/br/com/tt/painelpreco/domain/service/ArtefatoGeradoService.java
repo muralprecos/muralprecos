@@ -29,7 +29,8 @@ import br.com.tt.painelpreco.domain.repository.ArtefatoSecaoLogRepository;
 import br.com.tt.painelpreco.domain.repository.ProcessoContratacaoRepository;
 import br.com.tt.painelpreco.domain.service.docx.DocxClauseSelectionService;
 import br.com.tt.painelpreco.domain.service.docx.DocxDeterministicFillService;
-import br.com.tt.painelpreco.domain.service.docx.DocxNarrativeDraftService;
+import br.com.tt.painelpreco.domain.service.docx.DocxSecaoDraftService;
+import br.com.tt.painelpreco.domain.service.docx.DocxTemplateEngine;
 
 /**
  * Orquestra a geração de um artefato (ETP, TR ou Edital): abre o template,
@@ -40,9 +41,9 @@ import br.com.tt.painelpreco.domain.service.docx.DocxNarrativeDraftService;
 @Service
 public class ArtefatoGeradoService {
 
-	private static final String TEMPLATE_TR = "templates/agu/tr-unico-agu.docx";
+	private static final String TEMPLATE_TR = "templates/tr-clean-base.docx";
 	private static final String TEMPLATE_ETP = "templates/etp/etp-base.docx";
-	private static final String TEMPLATE_EDITAL = "templates/agu/edital-agu.docx";
+	private static final String TEMPLATE_EDITAL = "templates/edital-clean-base.docx";
 
 	@Autowired
 	private ArtefatoGeradoRepository artefatoGeradoRepository;
@@ -57,10 +58,13 @@ public class ArtefatoGeradoService {
 	private DocxClauseSelectionService clauseSelectionService;
 
 	@Autowired
-	private DocxNarrativeDraftService narrativeDraftService;
+	private DocxSecaoDraftService secaoDraftService;
 
 	@Autowired
 	private DocxDeterministicFillService deterministicFillService;
+
+	@Autowired
+	private DocxTemplateEngine templateEngine;
 
 	@Value("${llm.api.model}")
 	private String modeloLlm;
@@ -85,9 +89,11 @@ public class ArtefatoGeradoService {
 
 			ArtefatoGerado artefato = criarEsqueleto(processo, TipoEnum.TR, TEMPLATE_TR, usuarioLogado);
 
-			// Passo B primeiro: o texto de uma cláusula pode conter {{FACTS:*}}
-			// (ex.: dotação orçamentária), resolvido só no Passo A a seguir.
-			List<ArtefatoSecaoLog> logs = clauseSelectionService.preencherClausulasTR(doc, processo, artefato);
+			// Passo B (cláusulas binárias pré-catalogadas) e Passo C (redação por seção via IA)
+			// antes do Passo A: o texto de uma cláusula pode conter {{FACTS:*}} (ex.: dotação
+			// orçamentária), resolvido só no Passo A a seguir.
+			List<ArtefatoSecaoLog> logs = new ArrayList<>(clauseSelectionService.preencherClausulasTR(doc, processo, artefato));
+			logs.addAll(secaoDraftService.redigirTermoReferencia(doc, processo, artefato));
 			deterministicFillService.preencherFatos(doc, processo);
 
 			return finalizar(doc, artefato, logs, processo);
@@ -106,7 +112,7 @@ public class ArtefatoGeradoService {
 			// Redação restrita (Passo C) primeiro, pelo mesmo motivo do TR: o
 			// texto redigido não deve introduzir tokens novos, mas por
 			// segurança a ordem é mantida consistente com o TR.
-			List<ArtefatoSecaoLog> logs = narrativeDraftService.preencherRedacaoLivreEtp(doc, processo, artefato);
+			List<ArtefatoSecaoLog> logs = secaoDraftService.redigirEtp(doc, processo, artefato);
 			deterministicFillService.preencherFatos(doc, processo);
 
 			return finalizar(doc, artefato, logs, processo);
@@ -122,9 +128,10 @@ public class ArtefatoGeradoService {
 
 			ArtefatoGerado artefato = criarEsqueleto(processo, TipoEnum.EDITAL, TEMPLATE_EDITAL, usuarioLogado);
 
-			// Mesma engine e mesma ordem do TR: Passo B (seleção de cláusula,
-			// que pode introduzir novos {{FACTS:*}}) antes do Passo A.
-			List<ArtefatoSecaoLog> logs = clauseSelectionService.preencherClausulasEdital(doc, processo, artefato);
+			// Mesma engine e mesma ordem do TR: Passo B (seleção de cláusula, que pode
+			// introduzir novos {{FACTS:*}}) e Passo C (redação por seção) antes do Passo A.
+			List<ArtefatoSecaoLog> logs = new ArrayList<>(clauseSelectionService.preencherClausulasEdital(doc, processo, artefato));
+			logs.addAll(secaoDraftService.redigirEdital(doc, processo, artefato));
 			deterministicFillService.preencherFatos(doc, processo);
 
 			return finalizar(doc, artefato, logs, processo);
@@ -149,9 +156,19 @@ public class ArtefatoGeradoService {
 	}
 
 	private ArtefatoGerado finalizar(XWPFDocument doc, ArtefatoGerado artefato, List<ArtefatoSecaoLog> logs, ProcessoContratacao processo) throws IOException {
+		// Sinaliza (com "⚠") os pontos do modelo AGU que não foram resolvidos por nenhum
+		// {{FACTS:*}}/{{CLAUSE:*}} — percentuais/prazos/índices que são decisão jurídica de
+		// cada contratação, que o sistema não conhece e não deve adivinhar. Ver
+		// DocxTemplateEngine.sinalizarLacunasPendentes.
+		templateEngine.sinalizarLacunasPendentes(doc.getParagraphs(), doc.getTables());
+
 		ByteArrayOutputStream saida = new ByteArrayOutputStream();
 		doc.write(saida);
-		artefato.setDocx(saida.toByteArray());
+		// Remove os comentários de orientação do modelo AGU (o POI preserva essa parte do
+		// .docx intacta ao reescrever) — sem isso, o documento entregue ao usuário ainda
+		// carrega dezenas de comentários internos do modelo, dando a impressão de template
+		// inacabado. Ver DocxTemplateEngine.removerComentarios.
+		artefato.setDocx(templateEngine.removerComentarios(saida.toByteArray()));
 
 		artefato = artefatoGeradoRepository.save(artefato);
 		artefatoSecaoLogRepository.saveAll(logs);
@@ -179,6 +196,24 @@ public class ArtefatoGeradoService {
 
 	@Transactional
 	public ArtefatoGerado marcarRevisado(ArtefatoGerado artefato, Usuario usuarioLogado) {
+		artefato.setStatus(StatusEnum.REVISADO);
+		artefato.setRevisadoPor(usuarioLogado);
+		artefato.setRevisadoEm(new Date());
+		return artefatoGeradoRepository.save(artefato);
+	}
+
+	/**
+	 * Anexa a versão final do artefato (ex.: o rascunho gerado, editado manualmente pelo
+	 * usuário no Word) — mantida lado a lado com o docx gerado pelo sistema, nunca o
+	 * substitui. O envio já marca o artefato como revisado, pois enviar a versão final é,
+	 * em si, o ato de concluir a revisão.
+	 */
+	@Transactional
+	public ArtefatoGerado enviarArquivoFinal(ArtefatoGerado artefato, byte[] conteudo, String nomeArquivo, Usuario usuarioLogado) {
+		artefato.setDocxFinal(conteudo);
+		artefato.setNomeArquivoFinal(nomeArquivo);
+		artefato.setFinalEnviadoPor(usuarioLogado);
+		artefato.setFinalEnviadoEm(new Date());
 		artefato.setStatus(StatusEnum.REVISADO);
 		artefato.setRevisadoPor(usuarioLogado);
 		artefato.setRevisadoEm(new Date());
