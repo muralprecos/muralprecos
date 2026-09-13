@@ -29,6 +29,7 @@ const adminNavItems = [
   { label: "Organizações", path: "/administracao/organizacoes" },
   { label: "Usuários", path: "/administracao/usuarios" },
   { label: "Sincronização", path: "/administracao/sincronizacao" },
+  { label: "Coleta PNCP", path: "/administracao/coleta-pncp" },
 ];
 
 const cotacaoBaseRoutes = [
