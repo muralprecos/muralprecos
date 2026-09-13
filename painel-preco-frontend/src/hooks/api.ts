@@ -451,6 +451,10 @@ export const getDownloadArtefatoFinal = async (
   return getGenericBlob({
     path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/arquivo-final/download`,
     accessToken,
+    // Diferente do download do docx gerado (cada versão tem sua própria URL, imutável),
+    // a versão final pode ser substituída várias vezes na MESMA URL (mesmo uuid/tipo/
+    // versao) — sem isso, o cache padrão de 1h devolvia o arquivo enviado anteriormente.
+    config: { next: { revalidate: 0 } },
   });
 };
 

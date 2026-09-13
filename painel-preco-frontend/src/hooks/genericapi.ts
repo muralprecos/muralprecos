@@ -201,9 +201,10 @@ export const postGenericBlob = async ({
 export const getGenericBlob = async ({
   path,
   info,
+  config,
   accessToken,
 }: IAPISearchProps): Promise<{ blob: Blob; filename: string | null } | null> => {
-  const res = await doReq({ path, info, accessToken, acceptType: "" });
+  const res = await doReq({ path, info, config, accessToken, acceptType: "" });
   if (!res.status || !res.data) {
     return null;
   }
