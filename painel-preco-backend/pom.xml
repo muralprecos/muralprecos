@@ -122,6 +122,13 @@
 			<version>5.2.5</version>
 		</dependency>
 		<dependency>
+			<!-- Já vinha transitivamente via POI; declarado explicitamente pois agora é usado
+			     diretamente para extrair o tar.gz de output do PNCP (upload administrativo). -->
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.25.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20230227</version>
