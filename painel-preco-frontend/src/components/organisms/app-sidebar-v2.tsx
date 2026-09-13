@@ -3,6 +3,7 @@
 import {
   LayoutDashboard,
   FileText,
+  FileSignature,
   Award,
   HelpCircle,
   LogOut,
@@ -37,6 +38,11 @@ const menuItems: MenuItem[] = [
     icon: FileText,
     label: "Cotação",
     path: "/cotacoes/realizar-cotacao",
+  },
+  {
+    icon: FileSignature,
+    label: "Gerar Artefatos",
+    path: "/artefatos",
   },
   {
     icon: Building2,

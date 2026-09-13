@@ -1,10 +1,11 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import {
   IArtefatoGerado,
   IArtefatoSecaoLog,
   IProcessoContratacao,
+  StatusProcessoContratacaoEnum,
   TipoArtefatoEnum,
 } from "@/interfaces/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,16 +33,25 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { isClientNextjs } from "@/utils/validateUtils";
 import {
   apiClientGetDownloadArtefato,
+  apiClientGetDownloadArtefatoFinal,
   apiClientGetLogSecoesArtefato,
   apiClientGetProcessoContratacao,
   apiClientPostGerarArtefato,
   apiClientPostRevisarArtefato,
+  apiClientPostUploadArtefatoFinal,
 } from "@/hooks/apiclient";
-import { FileText, Loader2, ScrollText } from "lucide-react";
+import { FileText, Loader2, ScrollText, Upload } from "lucide-react";
 
 interface IProps {
   uuid: string;
 }
+
+const STATUS_PROCESSO_LABEL: Record<StatusProcessoContratacaoEnum, string> = {
+  INTAKE: "Aguardando dados do processo",
+  EM_GERACAO: "Gerando artefatos",
+  RASCUNHO_DISPONIVEL: "Rascunho disponível para revisão",
+  CONCLUIDO: "Concluído",
+};
 
 const ARTEFATOS: { tipo: TipoArtefatoEnum; titulo: string; descricao: string }[] = [
   { tipo: "ETP", titulo: "Estudo Técnico Preliminar", descricao: "Justifica a necessidade e a solução escolhida." },
@@ -60,7 +70,10 @@ export default function ViewProcessoContratacao({ uuid }: IProps) {
   const [processo, setProcesso] = useState<IProcessoContratacao | null>(null);
   const [gerando, setGerando] = useState<Set<TipoArtefatoEnum>>(new Set());
   const [baixando, setBaixando] = useState<Set<TipoArtefatoEnum>>(new Set());
+  const [baixandoFinal, setBaixandoFinal] = useState<Set<TipoArtefatoEnum>>(new Set());
+  const [enviandoFinal, setEnviandoFinal] = useState<Set<TipoArtefatoEnum>>(new Set());
   const [revisando, setRevisando] = useState<Set<TipoArtefatoEnum>>(new Set());
+  const inputsArquivoFinal = useRef<Partial<Record<TipoArtefatoEnum, HTMLInputElement | null>>>({});
 
   const marcar = (setter: Dispatch<SetStateAction<Set<TipoArtefatoEnum>>>, tipo: TipoArtefatoEnum, ativo: boolean) =>
     setter((atual) => {
@@ -118,6 +131,36 @@ export default function ViewProcessoContratacao({ uuid }: IProps) {
     }
   };
 
+  const handleBaixarFinal = async (tipo: TipoArtefatoEnum, versao: number) => {
+    try {
+      marcar(setBaixandoFinal, tipo, true);
+      const { blob, filename } = await apiClientGetDownloadArtefatoFinal(uuid, tipo, versao);
+      downloadFile(blob, filename || `${tipo}-final-v${versao}.docx`);
+      notify("success", "Iniciando download do arquivo!");
+    } catch (e: any) {
+      notify("error", e?.message || `Erro ao baixar a versão final do ${tipo}.`);
+    } finally {
+      marcar(setBaixandoFinal, tipo, false);
+    }
+  };
+
+  const handleEnviarFinal = async (tipo: TipoArtefatoEnum, versao: number, e: ChangeEvent<HTMLInputElement>) => {
+    const arquivo = e.target.files?.[0];
+    e.target.value = "";
+    if (!arquivo) return;
+
+    try {
+      marcar(setEnviandoFinal, tipo, true);
+      await apiClientPostUploadArtefatoFinal(uuid, tipo, versao, arquivo);
+      notify("success", `Versão final do ${tipo} enviada e marcada como revisada.`);
+      await carregarProcesso();
+    } catch (e: any) {
+      notify("error", e?.message || `Erro ao enviar a versão final do ${tipo}.`);
+    } finally {
+      marcar(setEnviandoFinal, tipo, false);
+    }
+  };
+
   const handleRevisar = async (tipo: TipoArtefatoEnum, versao: number) => {
     try {
       marcar(setRevisando, tipo, true);
@@ -161,7 +204,7 @@ export default function ViewProcessoContratacao({ uuid }: IProps) {
       <FormTitle
         icon={<FileText className="h-5 w-5" />}
         title={processo.objeto || "Processo de Contratação"}
-        description={`Status: ${processo.status}`}
+        description={`Status: ${STATUS_PROCESSO_LABEL[processo.status] ?? processo.status}`}
         uppercase={false}
         backButton={true}
       />
@@ -215,9 +258,82 @@ export default function ViewProcessoContratacao({ uuid }: IProps) {
                 <p className="text-sm text-muted-foreground">{descricao}</p>
 
                 {artefato && (
-                  <p className="text-xs text-muted-foreground">
-                    Versão {artefato.versao} · gerado em {new Date(artefato.geradoEm).toLocaleString("pt-BR")}
-                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1 min-w-0 rounded-lg border p-3 space-y-2">
+                      <p className="text-xs font-medium">Gerado pelo sistema</p>
+                      <p className="text-xs text-muted-foreground">
+                        Versão {artefato.versao} · {new Date(artefato.geradoEm).toLocaleString("pt-BR")}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleBaixar(tipo, artefato.versao)}
+                          disabled={baixando.has(tipo)}
+                        >
+                          {baixando.has(tipo) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                          Baixar .docx
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleAbrirLog(tipo, artefato.versao)}
+                        >
+                          <ScrollText className="mr-1 h-4 w-4" />
+                          Log de seções
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="flex-1 min-w-0 rounded-lg border p-3 space-y-2">
+                      <p className="text-xs font-medium">Versão final</p>
+                      {artefato.nomeArquivoFinal ? (
+                        <p className="text-xs text-muted-foreground truncate" title={artefato.nomeArquivoFinal}>
+                          {artefato.nomeArquivoFinal}
+                          {artefato.finalEnviadoEm && ` · ${new Date(artefato.finalEnviadoEm).toLocaleString("pt-BR")}`}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground">Nenhuma versão final enviada ainda.</p>
+                      )}
+                      <div className="flex flex-col gap-2">
+                        {artefato.nomeArquivoFinal && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full justify-center"
+                            onClick={() => handleBaixarFinal(tipo, artefato.versao)}
+                            disabled={baixandoFinal.has(tipo)}
+                          >
+                            {baixandoFinal.has(tipo) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Baixar .docx
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="w-full justify-center"
+                          onClick={() => inputsArquivoFinal.current[tipo]?.click()}
+                          disabled={enviandoFinal.has(tipo)}
+                        >
+                          {enviandoFinal.has(tipo) ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />
+                          ) : (
+                            <Upload className="mr-1 h-4 w-4 shrink-0" />
+                          )}
+                          <span className="truncate">{artefato.nomeArquivoFinal ? "Substituir arquivo" : "Enviar arquivo"}</span>
+                        </Button>
+                        <input
+                          type="file"
+                          accept=".docx"
+                          hidden
+                          ref={(el) => {
+                            inputsArquivoFinal.current[tipo] = el;
+                          }}
+                          onChange={(e) => handleEnviarFinal(tipo, artefato.versao, e)}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 <div className="flex flex-wrap gap-2">
@@ -235,25 +351,6 @@ export default function ViewProcessoContratacao({ uuid }: IProps) {
 
                   {artefato && (
                     <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleBaixar(tipo, artefato.versao)}
-                        disabled={baixando.has(tipo)}
-                      >
-                        {baixando.has(tipo) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Baixar .docx
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleAbrirLog(tipo, artefato.versao)}
-                      >
-                        <ScrollText className="mr-1 h-4 w-4" />
-                        Log de seções
-                      </Button>
-
                       {artefato.status !== "REVISADO" && (
                         <Button
                           size="sm"

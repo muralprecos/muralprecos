@@ -3,11 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 const DEEPSEEK_API_DEFAULT_MODEL = 'deepseek-chat';
 const DEEPSEEK_API_DEFAULT_TEMPERATURE = 1.0;
-const DEEPSEEK_API_TOKEN = 'REDACTED-DEEPSEEK-KEY';
 const DEEPSEEK_API_DEFAULT_PROMPT = 'Você deve agir como especialista em licitações e pregões públicos. Responder resumidamente (até 100 palavras) a pergunta. O resultado deve ser no formato para react-markdown.';
 
 export async function POST(request: NextRequest) {
   try {
+    const apiToken = process.env.DEEPSEEK_API_KEY;
+    if (!apiToken) {
+      return NextResponse.json({ error: 'Serviço de IA não está disponível no momento.' }, { status: 503 });
+    }
+
     const req = await request.json();
     const { conversation_history } = req;
 
@@ -17,7 +21,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${DEEPSEEK_API_TOKEN}`,
+        Authorization: `Bearer ${apiToken}`,
       },
       body: JSON.stringify({
         model: DEEPSEEK_API_DEFAULT_MODEL,

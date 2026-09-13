@@ -334,6 +334,7 @@ export type PrazoVigenciaFundamentoEnum =
   | "ART_105"
   | "ART_106_107"
   | "ART_75_VIII";
+export type MarcoInicioExecucaoEnum = "ASSINATURA_CONTRATO" | "ORDEM_SERVICO";
 export type StatusProcessoContratacaoEnum =
   | "INTAKE"
   | "EM_GERACAO"
@@ -369,6 +370,8 @@ export interface IArtefatoGerado {
   nomeArquivo: string;
   geradoEm: string;
   revisadoEm: string | null;
+  nomeArquivoFinal: string | null;
+  finalEnviadoEm: string | null;
 }
 
 export interface IArtefatoSecaoLog {
@@ -405,6 +408,28 @@ export interface IProcessoContratacao {
   orgaoEsfera: string | null;
   orgaoUasg: string | null;
   orgaoTelefone: string | null;
+  localExecucaoServicos: string | null;
+  horarioExecucaoServicos: string | null;
+  prazoInicioExecucaoDias: number | null;
+  marcoInicioExecucao: MarcoInicioExecucaoEnum | null;
+  prazoRecebimentoProvisorioDias: number | null;
+  prazoRecebimentoDefinitivoDias: number | null;
+  prazoPagamentoDias: number | null;
+  exigeGarantiaContratual: boolean;
+  percentualGarantiaContratual: number | null;
+  garantiaServicoDescricao: string | null;
+  permiteSubcontratacao: boolean;
+  percentualMaximoSubcontratacao: number | null;
+  exigeUniforme: boolean;
+  especificacaoUniforme: string | null;
+  indiceReajuste: string | null;
+  periodicidadeReajusteMeses: number | null;
+  percentualMultaMoratoria: number | null;
+  percentualMultaCompensatoria: number | null;
+  prazoAssinaturaContratoDiasUteis: number | null;
+  prazoValidadePropostaDias: number | null;
+  intervaloMinimoLances: string | null;
+  meioImpugnacaoEsclarecimento: string | null;
   status: StatusProcessoContratacaoEnum;
   criadoEm: string;
   itens: IItemProcessoContratacao[];
@@ -436,5 +461,27 @@ export interface IProcessoContratacaoForm {
   orgaoEsfera?: string | null;
   orgaoUasg?: string | null;
   orgaoTelefone?: string | null;
+  localExecucaoServicos?: string | null;
+  horarioExecucaoServicos?: string | null;
+  prazoInicioExecucaoDias?: number | null;
+  marcoInicioExecucao?: MarcoInicioExecucaoEnum | null;
+  prazoRecebimentoProvisorioDias?: number | null;
+  prazoRecebimentoDefinitivoDias?: number | null;
+  prazoPagamentoDias?: number | null;
+  exigeGarantiaContratual?: boolean | null;
+  percentualGarantiaContratual?: number | null;
+  garantiaServicoDescricao?: string | null;
+  permiteSubcontratacao?: boolean | null;
+  percentualMaximoSubcontratacao?: number | null;
+  exigeUniforme?: boolean | null;
+  especificacaoUniforme?: string | null;
+  indiceReajuste?: string | null;
+  periodicidadeReajusteMeses?: number | null;
+  percentualMultaMoratoria?: number | null;
+  percentualMultaCompensatoria?: number | null;
+  prazoAssinaturaContratoDiasUteis?: number | null;
+  prazoValidadePropostaDias?: number | null;
+  intervaloMinimoLances?: string | null;
+  meioImpugnacaoEsclarecimento?: string | null;
 }
 [];

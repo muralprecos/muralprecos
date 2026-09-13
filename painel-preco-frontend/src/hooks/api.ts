@@ -338,6 +338,9 @@ export const getProcessoContratacao = async (opts: IAPISearchPropsLogged) => {
   return getGenericObject<IProcessoContratacao>({
     path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}`,
     ...opts,
+    // Sempre consultado logo após gerar/revisar um artefato — o cache padrão de 1h
+    // (doReq/genericapi.ts) fazia o card e o log de seções mostrarem dado velho.
+    config: { next: { revalidate: 0 } },
   });
 };
 
@@ -405,6 +408,8 @@ export const getLogSecoesArtefato = async (
   return getGenericObject<IArtefatoSecaoLog[]>({
     path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/log-secoes`,
     accessToken,
+    // Sempre a versão recém-gerada — nunca deve vir do cache de 1h.
+    config: { next: { revalidate: 0 } },
   });
 };
 
@@ -417,6 +422,39 @@ export const getDownloadArtefato = async (
   return getGenericBlob({
     path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/download`,
     accessToken,
+  });
+};
+
+export const postUploadArtefatoFinal = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  versao: number,
+  formData: FormData,
+  accessToken: string
+): Promise<IArtefatoGerado | null> => {
+  return postGenericJson<IArtefatoGerado>({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/arquivo-final`,
+    bodydata: formData,
+    // Content-Type vazio: o fetch define "multipart/form-data; boundary=..." sozinho
+    // quando o body é um FormData — setar manualmente quebraria o boundary.
+    contentType: "",
+    accessToken,
+  });
+};
+
+export const getDownloadArtefatoFinal = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  versao: number,
+  accessToken: string
+) => {
+  return getGenericBlob({
+    path: `${HOST_API_PREFIX}/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/arquivo-final/download`,
+    accessToken,
+    // Diferente do download do docx gerado (cada versão tem sua própria URL, imutável),
+    // a versão final pode ser substituída várias vezes na MESMA URL (mesmo uuid/tipo/
+    // versao) — sem isso, o cache padrão de 1h devolvia o arquivo enviado anteriormente.
+    config: { next: { revalidate: 0 } },
   });
 };
 

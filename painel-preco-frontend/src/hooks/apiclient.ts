@@ -312,6 +312,43 @@ export const apiClientGetDownloadArtefato = async (
   return { blob, filename: match ? match[1] : null };
 };
 
+export const apiClientPostUploadArtefatoFinal = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  versao: number,
+  arquivo: File
+): Promise<IArtefatoGerado> => {
+  const formData = new FormData();
+  formData.append("arquivo", arquivo);
+  const res = await fetch(
+    `/api/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/arquivo-final`,
+    { method: "POST", body: formData }
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || `Não foi possível enviar a versão final do ${tipo}`);
+  }
+  return data as IArtefatoGerado;
+};
+
+export const apiClientGetDownloadArtefatoFinal = async (
+  uuid: string,
+  tipo: TipoArtefatoEnum,
+  versao: number
+): Promise<{ blob: Blob; filename: string | null }> => {
+  const res = await fetch(
+    `/api/processos-contratacao/${uuid}/artefatos/${tipo.toLowerCase()}/versoes/${versao}/arquivo-final/download`
+  );
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody?.message || `Não foi possível baixar a versão final do ${tipo}`);
+  }
+  const disposition = res.headers.get("Content-Disposition");
+  const match = disposition ? /filename="?([^"]+)"?/.exec(disposition) : null;
+  const blob = await res.blob();
+  return { blob, filename: match ? match[1] : null };
+};
+
 export const apiClientPostUserUpdate = async (user: IUserKeyCloakRequest) => {
   const res = await fetch(`/api/user/update`, {
     method: "POST",
