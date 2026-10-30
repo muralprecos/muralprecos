@@ -1,0 +1,31 @@
+version: '3.8'
+
+volumes:
+  frontend-data:
+
+services:
+  app-front:
+    # image: painel-precos-frontend-local:latest
+    # image: ghcr.io/ttsolutionspi/painel-precos-frontend:latest
+    container_name: painel_precos_app_front
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_ENV: ${NEXT_PUBLIC_APP_ENV:-production}
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_ENV=${NEXT_PUBLIC_APP_ENV:-production}
+      - HOSTNAME=${HOSTNAME}
+      - API_URL=${API_URL}
+      - API_URL_PREFIX=${API_URL_PREFIX}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+    volumes:
+        - /app/public
+        - /app/node_modules
+        - /app/.next
+        # - ./logs:/appserverlogs
+    ports:
+      - "3000:3000"

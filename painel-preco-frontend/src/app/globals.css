@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-primary-gradient-custom {
+  background: linear-gradient(135deg, #0a0a0f, #1a0f2e, #0f0a1a);
+}
+
+.bg-secondary-gradient-custom {
+  background: linear-gradient(180deg, #0a0a0f 0%, #1a0f2e 50%, #0f0a1a 100%);
+}
+
+.bg-secundary {
+  background: oklch(5.08% 0.007 274.6);
+}
+
+.gradient-background {
+  background: linear-gradient(
+    to left bottom,
+    hsl(var(--tt-bg-gradiente-inicial)),
+    hsl(var(--tt-bg-gradiente-final))
+  );
+}
+
+.force-text-transform-none {
+  text-transform: none !important;
+}
+
+.force-transition-all {
+  transition-property: all !important;
+}
+
+@layer base {
+  :root {
+    /* --- Light Mode (Novo) --- */
+    --background: 220 14% 96%;
+    --foreground: 220 20% 10%;
+
+    --surface-plain: 0 0% 100%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    --primary: 270 70% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 20% 25%;
+
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 270 70% 95%;
+    --accent-foreground: 270 70% 45%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 14% 90%;
+    --input: 220 14% 90%;
+    --ring: 270 70% 50%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - Light theme */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 35%;
+    --sidebar-primary: 270 70% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 70% 96%;
+    --sidebar-accent-foreground: 270 70% 40%;
+    --sidebar-border: 220 14% 90%;
+    --sidebar-ring: 270 70% 50%;
+
+    /* Chart colors (Recharts/Shadcn) - Adaptados para o tema Light */
+    --chart-1: 270 70% 50%; /* Primary Violet */
+    --chart-2: 160 60% 45%; /* Teal/Green */
+    --chart-3: 30 80% 55%; /* Orange */
+    --chart-4: 280 65% 60%; /* Purple lighter */
+    --chart-5: 340 75% 55%; /* Pink */
+
+    /* Variaveis extras do seu novo tema */
+    --chart-profit: 270 70% 50%;
+    --chart-loss: 220 20% 15%;
+  }
+
+  .dark {
+    /* --- Dark Mode (Novo) --- */
+    --background: 220 20% 8%;
+    --foreground: 220 10% 95%;
+
+    --surface-plain: 0 0% 0%;
+
+    --card: 220 20% 12%;
+    --card-foreground: 220 10% 95%;
+
+    --popover: 220 20% 12%;
+    --popover-foreground: 220 10% 95%;
+
+    --primary: 270 70% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 20% 18%;
+    --secondary-foreground: 220 10% 85%;
+
+    --muted: 220 20% 18%;
+    --muted-foreground: 220 10% 60%;
+
+    --accent: 270 70% 20%;
+    --accent-foreground: 270 70% 70%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 70% 50%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 270 70% 50%;
+
+    /* Sidebar - Dark theme */
+    --sidebar-background: 220 20% 10%;
+    --sidebar-foreground: 220 10% 75%;
+    --sidebar-primary: 270 70% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 50% 20%;
+    --sidebar-accent-foreground: 270 70% 80%;
+    --sidebar-border: 220 20% 15%;
+    --sidebar-ring: 270 70% 55%;
+
+    /* Chart colors - Mantidos/Adaptados */
+    --chart-1: 270 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+
+    --chart-profit: 270 70% 50%;
+    --chart-loss: 220 20% 15%;
+
+    /* Sua variável customizada preservada */
+    --status-card: linear-gradient(
+      to bottom right,
+      #2e1065,
+      /* violet-950 */ #0f172a,
+      /* slate-900 */ #4c1d95 /* violet-900 */
+    );
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: "Inter", sans-serif;
+  }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #504c56ff inset !important; /* Ajuste manual */
+    -webkit-text-fill-color: #fff !important;
+    -webkit-border-color: #235049 !important;
+  }
+}
+
+@layer utilities {
+  .bg-surface-plain {
+    background-color: hsl(var(--surface-plain));
+  }
+
+  .gradient-primary {
+    background: linear-gradient(
+      135deg,
+      hsl(270 70% 50%) 0%,
+      hsl(280 70% 55%) 100%
+    );
+  }
+
+  .shadow-card {
+    box-shadow: 0 1px 3px 0 hsl(220 20% 10% / 0.04),
+      0 1px 2px -1px hsl(220 20% 10% / 0.04);
+  }
+
+  .shadow-card-hover {
+    box-shadow: 0 4px 6px -1px hsl(220 20% 10% / 0.08),
+      0 2px 4px -2px hsl(220 20% 10% / 0.04);
+  }
+}

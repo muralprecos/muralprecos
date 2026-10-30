@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "next.config.{js,ts,mjs}",
+    "src/app/**/{page,layout,loading,error,not-found,global-error,route,template,default}.{ts,tsx}",
+    "src/middleware.ts",
+    "src/app/api/**/*.{ts,tsx}"
+  ],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": ["**/*.d.ts"],
+  "ignoreExportsUsedInFile": true,
+  "ignoreDependencies": [
+    "eslint",
+    "eslint-config-next",
+    "postcss",
+    "shadcn-ui",
+    "@radix-ui/*" 
+  ]
+}

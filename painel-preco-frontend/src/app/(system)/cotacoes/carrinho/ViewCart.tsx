@@ -1,0 +1,205 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { IRetornoPesquisaItensLicitacao, type ICart } from "@/interfaces/types";
+import { clear, remove } from "@/store/features/cart-slice";
+import { DATE_PATTERN, convertTZptBR, datePattern } from "@/utils/dateUtils";
+import { downloadFile, mountUrl } from "@/utils/requestUtils";
+import { useSnackbar } from "notistack";
+import { useRouter } from "next/navigation";
+import LoadingCircleIcon from "@/components/atoms/LoadingCircleIcon";
+import { getUserCartBySession, getUsernameBySession } from "@/utils/cartUtils";
+import { ClientSession } from "@/interfaces/auth";
+import { apiClientPostGerarPDFCotacao } from "@/hooks/apiclient";
+import { useAppSelector } from "@/store/store";
+import { useDispatch } from "react-redux";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import ItemListLicitacao from "@/components/atoms/ItemListLicitacao";
+import { Button } from "@/components/ui/button";
+import { FileDown, ShoppingCart, Trash2 } from "lucide-react";
+import { AlertMessage, type IAlertMessage } from "@/components/molecules/Alert";
+import LoadingList from "@/components/atoms/LoadingList";
+import FormTitle from "@/components/atoms/FormTitle";
+import { notify } from "@/components/molecules/NotifyToast";
+import { ModalConfirm } from "@/components/molecules/ModalConfirm";
+
+export interface IPropsCartPge {
+  session: ClientSession | null;
+}
+export default function ViewCart({ session }: IPropsCartPge) {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [doingRequest, setDoingRequest] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalConfirmText, setModalConfirmText] = useState("");
+  const [modalConfirmFn, setModalConfirmFn] = useState<() => void>(
+    () => () => {},
+  );
+
+  const [alertMsg, setAlertMsg] = useState<IAlertMessage | null>(null);
+  const _cartList = useAppSelector((state) => state.cartReducer);
+  const [cart, setCart] = useState<IRetornoPesquisaItensLicitacao[]>([]);
+
+  useEffect(() => {
+    setCart(getUserCartBySession(_cartList as ICart, session));
+    setIsLoading(false);
+  }, [_cartList, session]);
+
+  const hastItens = () => cart?.length > 0;
+
+  const onClickRemoveCart = (item: IRetornoPesquisaItensLicitacao) => {
+    dispatch(
+      remove({
+        item,
+        user: getUsernameBySession(session),
+      }),
+    );
+  };
+
+  const clearCart = () => {
+    dispatch(clear(getUsernameBySession(session)));
+  };
+
+  const generatePDF = async () => {
+    try {
+      setDoingRequest(true);
+      const now = convertTZptBR(new Date());
+      const res = await apiClientPostGerarPDFCotacao(cart);
+      setDoingRequest(false);
+
+      if (res instanceof Blob) {
+        downloadFile(res, `cotacao-${datePattern(now, DATE_PATTERN.FULL)}.pdf`);
+        setAlertMsg({
+          message:
+            "Cotação gerada com sucesso e salva no seu histórico. Baixe-a novamente a qualquer momento.",
+          type: "success",
+        });
+        notify("success", "Iniciando download da cotação!");
+        clearCart();
+      } else {
+        notify("error", "Não foi possível gerar o arquivo da cotação");
+      }
+    } catch (e: any) {
+      setDoingRequest(false);
+      notify("error", e?.message || "Erro ao gerar PDF.");
+    }
+  };
+
+  const openModalLimpar = () => {
+    setModalTitle("Limpar Carrinho");
+    setModalConfirmText(
+      "Você deseja limpar o carrinho de itens de licitações?",
+    );
+    setModalConfirmFn(() => clearCart);
+    setIsModalOpen(true);
+  };
+
+  const openModalRemoveItem = (item: IRetornoPesquisaItensLicitacao) => {
+    setModalTitle("Remover Item do Carrinho");
+    setModalConfirmText(
+      `Você deseja remover o item ${item.descricao} do carrinho?`,
+    );
+    setModalConfirmFn(() => () => onClickRemoveCart(item));
+    setIsModalOpen(true);
+  };
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader>
+        <CardTitle>
+          <FormTitle
+            icon={<ShoppingCart className="h-5 w-5" />}
+            title="Carrinho de Cotações"
+            description={`${hastItens() ? cart.length : 0} Itens encontradas.`}
+            uppercase={false}
+            newQuoteButton={true}
+            backButton={true}
+          />
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent className="flex-1">
+        {isLoading && <LoadingList />}
+
+        {!hastItens() && !isLoading && (
+          <div className="flex items-center justify-center min-h-[320px] w-full">
+            <div className="text-center">
+              <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+              <p className="text-lg font-medium text-muted-foreground">
+                Carrinho vazio
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Realize cotações para adicionar itens
+              </p>
+            </div>
+          </div>
+        )}
+
+        {hastItens() && !isLoading && (
+          <div className="space-y-4">
+            {cart.map((item) => (
+              <ItemListLicitacao
+                key={item.uuid}
+                item={item}
+                mode="cart"
+                onRemoveFromCart={openModalRemoveItem}
+              />
+            ))}
+          </div>
+        )}
+
+        {hastItens() && !isLoading && (
+          <div className="mt-4">
+            <Separator className="my-4" />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <p className="text-sm text-muted-foreground">
+                Itens no Carrinho: {cart?.length}
+              </p>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={openModalLimpar}
+                  disabled={!hastItens() || isLoading}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Limpar Carrinho
+                </Button>
+
+                <ModalConfirm
+                  title={modalTitle}
+                  description={modalConfirmText}
+                  open={isModalOpen}
+                  onOpenChange={setIsModalOpen}
+                  actionYes={modalConfirmFn}
+                />
+
+                <Button
+                  variant="default"
+                  onClick={generatePDF}
+                  disabled={doingRequest || !hastItens() || isLoading}
+                >
+                  <FileDown className="h-4 w-4" />
+                  {!doingRequest ? (
+                    "Gerar PDF da Cotação"
+                  ) : (
+                    <>
+                      <LoadingCircleIcon className="mr-2 h-4 w-4 animate-spin" />
+                      Gerando PDF...
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
